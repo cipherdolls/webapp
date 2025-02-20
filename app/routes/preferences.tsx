@@ -16,6 +16,7 @@ export default function Preferences() {
             <NavLink to="ai"> AI </NavLink>
             <NavLink to="tts"> TTS </NavLink>
             <NavLink to="stt"> STT </NavLink>
+            <NavLink to="scenarios"> Scenarios </NavLink> 
         </nav>
 
         <div>
