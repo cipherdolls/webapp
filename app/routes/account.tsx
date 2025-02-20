@@ -1,3 +1,4 @@
+import { redirect } from "react-router";
 import type { Route } from "./+types/account";
 
 export function meta({}: Route.MetaArgs) {
@@ -6,25 +7,26 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const backendUrl = 'http://localhost:4000';
 
 
 export async function clientLoader() {
-const token = localStorage.getItem('token');
-
-  const res = await fetch(`${backendUrl}/users/me`, {
-    headers: {
-      Authorization: `Bearer ${token?.replaceAll('"', '')}`, 
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!res.ok) {
-    // You could throw a Response or an Error here
-    throw new Error(`Request failed with status ${res.status}`);
+  const backendUrl = 'https://api.cipherdolls.com';
+  const localStorageToken = localStorage.getItem('token');
+  if (!localStorageToken) {
+    return redirect('/signin');
   }
-
-  return await res.json();
+  const headers = {
+    headers: {
+      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
+    },
+  };
+  try {
+    const res = await fetch(`${backendUrl}/users/me`, headers);
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return redirect('/signin');
+  }
 }
 
 export default function Account({ loaderData }: Route.ComponentProps) {

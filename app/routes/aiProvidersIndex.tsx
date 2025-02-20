@@ -1,4 +1,6 @@
+import { redirect } from "react-router";
 import type { Route } from "./+types/aiProvidersIndex";
+import type { AiProvider } from "~/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -6,19 +8,40 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const backendUrl = 'http://localhost:4000';
 
 
-export async function loader() {
-  const res = await fetch(`${backendUrl}/ai-providers`);
-  return await res.json();
+export async function clientLoader() {
+  const backendUrl = 'https://api.cipherdolls.com';
+  const localStorageToken = localStorage.getItem('token');
+  if (!localStorageToken) {
+    return redirect('/signin');
+  }
+  const headers = {
+    headers: {
+      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
+    },
+  };
+  try {
+    const res = await fetch(`${backendUrl}/ai-providers`, headers);
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return redirect('/signin');
+  }
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
-  console.log(loaderData)
+  const aiProviders: AiProvider[] = loaderData;
   return (
+    <>
     <div className="">
         AiProviders
     </div>
+    {aiProviders.map((aiProvider) => (
+      <div key={aiProvider.id}>
+        <h2>{aiProvider.name}</h2>
+      </div>
+    ))}
+  </>
   );
 }

@@ -1,4 +1,6 @@
+import { redirect } from "react-router";
 import type { Route } from "./+types/scenariosIndex";
+import type { Scenario } from "~/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -6,10 +8,42 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function ScenariosIndex() {
+
+export async function clientLoader() {
+  const backendUrl = 'https://api.cipherdolls.com';
+  const localStorageToken = localStorage.getItem('token');
+  if (!localStorageToken) {
+    return redirect('/signin');
+  }
+  const headers = {
+    headers: {
+      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
+    },
+  };
+  try {
+    const res = await fetch(`${backendUrl}/scenarios`, headers);
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return redirect('/signin');
+  }
+}
+
+export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
+  const scenarios: Scenario[] = loaderData;
+
   return (
-    <div className="">
+    <>
+      <div className="">
         Scenarios
-    </div>
+      </div>
+      {scenarios.map((scenario) => (
+        <div key={scenario.id}>
+          <h2>{scenario.name}</h2>
+        </div>
+      ))}
+    </>
+
+
   );
 }

@@ -11,7 +11,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const backendUrl = 'http://localhost:4000';
+const backendUrl = 'https://api.cipherdolls.com';
 
 
 declare global {
