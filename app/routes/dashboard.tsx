@@ -10,7 +10,6 @@ export function meta({}: Route.MetaArgs) {
  
 
 export default function Dashboard() {
-  const { dataA, dataB } = useLoaderData();
 
   return (
     <div className="">
