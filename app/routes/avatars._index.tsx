@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 import type { Avatar } from "~/types";
-import type { Route } from "./+types/avatars";
+import type { Route } from "./+types/avatars._index";
 
 export function meta({}: Route.MetaArgs) {
   return [

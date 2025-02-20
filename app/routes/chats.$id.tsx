@@ -1,6 +1,6 @@
-import { redirect } from "react-router";
+import { Link, redirect } from "react-router";
 import type { Chat } from "~/types";
-import type { Route } from "./+types/chats";
+import type { Route } from "./+types/chats.$id";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,7 +8,8 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function clientLoader() {
+export async function clientLoader({params}: Route.LoaderArgs) {
+  const chatId = params.id;
   const backendUrl = 'https://api.cipherdolls.com';
   const localStorageToken = localStorage.getItem('token');
   if (!localStorageToken) {
@@ -20,7 +21,7 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/chats`, headers);
+    const res = await fetch(`${backendUrl}/chats/${chatId}`, headers);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
@@ -29,20 +30,14 @@ export async function clientLoader() {
 
 
 
-export default function Chats({ loaderData }: Route.ComponentProps) {
-  const chats: Chat[] = loaderData;
+export default function ChatShow({ loaderData }: Route.ComponentProps) {
+  const chat: Chat = loaderData;
   return (
     <>
       <div className="">
-        Chats
+        {chat.id}
+        <Link to={`/chats/${chat.id}/edit`}>--------------Edit</Link>
       </div>
-
-      {chats.map((chat) => (
-        <div key={chat.id} className="flex items-center justify-between">
-          <div>{chat.id}</div>
-        </div>
-      ))}
-
     </>
 
 

@@ -1,8 +1,8 @@
 import { useFetcher, useNavigate, type ActionFunctionArgs } from "react-router";
-import type { Route } from "./+types/scenariosIndex";
 import { ethers } from 'ethers';
 import { useLocalStorage } from "usehooks-ts";
 import { useEffect, useState } from "react";
+import type { Route } from "./+types/signIn";
 
 
 export function meta({}: Route.MetaArgs) {
