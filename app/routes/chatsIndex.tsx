@@ -2,15 +2,14 @@ import type { Route } from "./+types/chatsIndex";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Chats" },
   ];
 }
 
 export default function ChatsIndex() {
   return (
     <div className="">
-        ChatsIndex
+        Chats
     </div>
   );
 }
