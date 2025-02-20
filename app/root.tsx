@@ -2,6 +2,7 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -42,7 +43,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <>
+      <nav>
+        <NavLink to="/">  dashboard </NavLink>
+        <NavLink to="/chats"> chats </NavLink>
+        <NavLink to="/preferences"> preferences </NavLink>
+        <NavLink to="/account"> account </NavLink>
+      </nav>
+        <Outlet />
+    </>
+  )
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
