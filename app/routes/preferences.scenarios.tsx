@@ -1,13 +1,12 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/aiProvidersIndex";
-import type { AiProvider } from "~/types";
+import type { Scenario } from "~/types";
+import type { Route } from "./+types/preferences.scenarios";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "AiProviders" },
+    { title: "Scenarios" },
   ];
 }
-
 
 
 export async function clientLoader() {
@@ -22,7 +21,7 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/ai-providers`, headers);
+    const res = await fetch(`${backendUrl}/scenarios`, headers);
     return await res.json();
   } catch (error) {
     console.error(error);
@@ -30,18 +29,21 @@ export async function clientLoader() {
   }
 }
 
-export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const aiProviders: AiProvider[] = loaderData;
+export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
+  const scenarios: Scenario[] = loaderData;
+
   return (
     <>
-    <div className="">
-        AiProviders
-    </div>
-    {aiProviders.map((aiProvider) => (
-      <div key={aiProvider.id}>
-        <h2>{aiProvider.name}</h2>
+      <div className="">
+        Scenarios
       </div>
-    ))}
-  </>
+      {scenarios.map((scenario) => (
+        <div key={scenario.id}>
+          <h2>{scenario.name}</h2>
+        </div>
+      ))}
+    </>
+
+
   );
 }

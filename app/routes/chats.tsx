@@ -1,13 +1,12 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/sttProvidersIndex";
-import type { SttProvider } from "~/types";
+import type { Chat } from "~/types";
+import type { Route } from "./+types/chats";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "STT Providers" },
+    { title: "Chats" },
   ];
 }
-
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -21,27 +20,31 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/stt-providers`, headers);
+    const res = await fetch(`${backendUrl}/chats`, headers);
     return await res.json();
   } catch (error) {
-    console.error(error);
     return redirect('/signin');
   }
 }
 
-export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const sttProviders: SttProvider[] = loaderData;
+
+
+export default function Chats({ loaderData }: Route.ComponentProps) {
+  const chats: Chat[] = loaderData;
   return (
     <>
-        <div className="">
-          SttProviders
+      <div className="">
+        Chats
+      </div>
+
+      {chats.map((chat) => (
+        <div key={chat.id} className="flex items-center justify-between">
+          <div>{chat.id}</div>
         </div>
-        {sttProviders.map((sttProvider) => (
-          <div key={sttProvider.id}>
-            <h2>{sttProvider.name}</h2>
-          </div>
-        ))}
+      ))}
+
     </>
+
 
   );
 }

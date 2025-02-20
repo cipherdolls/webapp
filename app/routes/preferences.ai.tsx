@@ -1,12 +1,14 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/chatsIndex";
-import type { Chat } from "~/types";
+import type { AiProvider } from "~/types";
+import type { Route } from "./+types/preferences.ai";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Chats" },
+    { title: "AiProviders" },
   ];
 }
+
+
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -20,31 +22,26 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/chats`, headers);
+    const res = await fetch(`${backendUrl}/ai-providers`, headers);
     return await res.json();
   } catch (error) {
+    console.error(error);
     return redirect('/signin');
   }
 }
 
-
-
-export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
-  const chats: Chat[] = loaderData;
+export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
+  const aiProviders: AiProvider[] = loaderData;
   return (
     <>
-      <div className="">
-        Chats
+    <div className="">
+        AiProviders
+    </div>
+    {aiProviders.map((aiProvider) => (
+      <div key={aiProvider.id}>
+        <h2>{aiProvider.name}</h2>
       </div>
-
-      {chats.map((chat) => (
-        <div key={chat.id} className="flex items-center justify-between">
-          <div>{chat.id}</div>
-        </div>
-      ))}
-
-    </>
-
-
+    ))}
+  </>
   );
 }

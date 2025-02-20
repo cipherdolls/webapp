@@ -1,10 +1,10 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/scenariosIndex";
-import type { Scenario } from "~/types";
+import type { Avatar } from "~/types";
+import type { Route } from "./+types/avatars";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Scenarios" },
+    { title: "Avatars" },
   ];
 }
 
@@ -21,29 +21,29 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/scenarios`, headers);
+    const res = await fetch(`${backendUrl}/avatars`, headers);
     return await res.json();
   } catch (error) {
-    console.error(error);
     return redirect('/signin');
   }
 }
 
-export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const scenarios: Scenario[] = loaderData;
 
+
+export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
+  const avatars: Avatar[] = loaderData;
   return (
     <>
       <div className="">
-        Scenarios
-      </div>
-      {scenarios.map((scenario) => (
-        <div key={scenario.id}>
-          <h2>{scenario.name}</h2>
+            Avatars
+      </div> 
+
+      {avatars.map((avatar) => (
+        <div key={avatar.id} className="flex items-center justify-between">
+          <div>{avatar.name}</div>
         </div>
       ))}
+
     </>
-
-
   );
 }
