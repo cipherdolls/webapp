@@ -50,7 +50,7 @@ export default function App() {
   return (
     <>
       {/* TODO: Add MainNavigation for the pages with navigation  */}
-      <MainNavigation />
+      {/* <MainNavigation /> */}
       <Outlet />
     </>
   );
