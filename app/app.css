@@ -1,4 +1,9 @@
+
+/* aileron font */
+@import "./assets/fonts/aileron/stylesheet.css";
+
 @import "tailwindcss";
+
 
 @theme {
   --font-sans: "Aileron", ui-sans-serif, system-ui, sans-serif,
