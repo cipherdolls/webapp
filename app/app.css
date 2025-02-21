@@ -10,6 +10,9 @@
   --color-neutral-02: rgba(0, 0, 0, 0.32);
   --color-neutral-03: rgba(0, 0, 0, 0.2);
   --color-neutral-04: rgba(0, 0, 0, 0.08);
+  --color-neutral-05: rgba(0, 0, 0, 0.05);
+
+  --color-pink-01: rgba(53, 13, 42, 0.4);
 
   --text-heading-h0: 6rem;
   --text-heading-h0--line-height: 6rem;
@@ -38,6 +41,10 @@
   --text-body-lg: 1.125rem;
   --text-body-lg--line-height: 1.5rem;
   --text-body-lg--letter-spacing: 0;
+
+  --text-label: 0.75rem;
+  --text-label--line-height: 0.75rem;
+  --text-label--letter-spacing: 0;
 
   --blur-48: 48px;
 

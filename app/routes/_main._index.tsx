@@ -1,10 +1,5 @@
-
 const Dashbaord = () => {
-  return (
-    <div className="">
-Dashbaorddddddddddddddddddddddddddddddddddddd
-    </div>
-  );
+  return <div className="">Dashboard Page</div>;
 };
 
 export default Dashbaord;
