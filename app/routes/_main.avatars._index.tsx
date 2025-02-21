@@ -1,12 +1,12 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/account";
+import type { Avatar } from "~/types";
+import type { Route } from "./+types/_main.avatars._index";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Account" },
+    { title: "Avatars" },
   ];
 }
-
 
 
 export async function clientLoader() {
@@ -21,19 +21,29 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/users/me`, headers);
+    const res = await fetch(`${backendUrl}/avatars`, headers);
     return await res.json();
   } catch (error) {
-    console.error(error);
     return redirect('/signin');
   }
 }
 
-export default function Account({ loaderData }: Route.ComponentProps) {
-  console.log(loaderData)
+
+
+export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
+  const avatars: Avatar[] = loaderData;
   return (
-    <div className="">
-        Account
-    </div>
+    <>
+      <div className="">
+            Avatars
+      </div> 
+
+      {avatars.map((avatar) => (
+        <div key={avatar.id} className="flex items-center justify-between">
+          <div>{avatar.name}</div>
+        </div>
+      ))}
+
+    </>
   );
 }

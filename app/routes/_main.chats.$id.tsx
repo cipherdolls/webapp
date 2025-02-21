@@ -1,6 +1,6 @@
 import { Link, redirect } from "react-router";
 import type { Chat } from "~/types";
-import type { Route } from "./+types/chats.$id";
+import type { Route } from "./+types/_main.chats.$id";
 
 export function meta({}: Route.MetaArgs) {
   return [

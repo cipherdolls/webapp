@@ -1,13 +1,12 @@
 import { redirect } from "react-router";
-import type { Avatar } from "~/types";
-import type { Route } from "./+types/avatars._index";
+import type { TtsProvider } from "~/types";
+import type { Route } from "./+types/_main.preferences.tts";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Avatars" },
+    { title: "TTS Providers" },
   ];
 }
-
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -21,7 +20,7 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/avatars`, headers);
+    const res = await fetch(`${backendUrl}/tts-providers`, headers);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
@@ -30,20 +29,21 @@ export async function clientLoader() {
 
 
 
-export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
-  const avatars: Avatar[] = loaderData;
+export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) {
+  const ttsProviders: TtsProvider[]= loaderData;
+
   return (
     <>
       <div className="">
-            Avatars
-      </div> 
-
-      {avatars.map((avatar) => (
-        <div key={avatar.id} className="flex items-center justify-between">
-          <div>{avatar.name}</div>
+        TtsProviders
+      </div>
+      {ttsProviders.map((ttsProvider) => (
+        <div key={ttsProvider.id}>
+          <h2>{ttsProvider.name}</h2>
         </div>
       ))}
 
     </>
+
   );
 }

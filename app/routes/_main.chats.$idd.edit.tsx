@@ -1,4 +1,4 @@
-import type { Route } from "./+types/chats.$idd.edit";
+import type { Route } from "./+types/_main.chats.$idd.edit";
 
 
 export function meta({}: Route.MetaArgs) {

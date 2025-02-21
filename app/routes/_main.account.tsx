@@ -1,12 +1,13 @@
 import { redirect } from "react-router";
-import type { TtsProvider } from "~/types";
-import type { Route } from "./+types/preferences.tts";
+import type { Route } from "./+types/_main.account";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "TTS Providers" },
+    { title: "Account" },
   ];
 }
+
+
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -20,30 +21,19 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/tts-providers`, headers);
+    const res = await fetch(`${backendUrl}/users/me`, headers);
     return await res.json();
   } catch (error) {
+    console.error(error);
     return redirect('/signin');
   }
 }
 
-
-
-export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const ttsProviders: TtsProvider[]= loaderData;
-
+export default function Account({ loaderData }: Route.ComponentProps) {
+  console.log(loaderData)
   return (
-    <>
-      <div className="">
-        TtsProviders
-      </div>
-      {ttsProviders.map((ttsProvider) => (
-        <div key={ttsProvider.id}>
-          <h2>{ttsProvider.name}</h2>
-        </div>
-      ))}
-
-    </>
-
+    <div className="">
+        Account
+    </div>
   );
 }
