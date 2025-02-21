@@ -2,10 +2,10 @@ import { useFetcher, useNavigate, type ActionFunctionArgs } from "react-router";
 import { ethers } from "ethers";
 import { useLocalStorage } from "usehooks-ts";
 import { useEffect, useState } from "react";
-import type { Route } from "./+types/signIn";
 import SignInWithMetamask from "~/components/buttons/signInWithMetamask";
 import HowItWorksModal from "~/components/howItWorksModal";
 import SignInPatterns from "~/components/ui/signInPatterns";
+import type { Route } from "./+types/_auth.signIn";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "SignIn" }];
@@ -117,8 +117,8 @@ export default function SignInRoute() {
   };
 
   return (
-    <div className="flex items-center justify-center size-full relative">
-      <div className="flex flex-col gap-20 mb-[88px] sm:mb-0 relateve z-10">
+    <>
+      <div className="flex flex-col gap-20 mb-[88px] sm:mb-0 relative z-10">
         <div className="flex flex-col sm:gap-8 gap-5 items-center justify-center">
           <img
             src="/logo.svg"
@@ -137,6 +137,6 @@ export default function SignInRoute() {
         </div>
       </div>
       <SignInPatterns />
-    </div>
+    </>
   );
 }
