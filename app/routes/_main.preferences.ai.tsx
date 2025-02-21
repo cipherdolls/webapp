@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 import type { AiProvider } from "~/types";
-import type { Route } from "./+types/preferences.ai";
+import type { Route } from "./+types/_main.preferences.ai";
 
 export function meta({}: Route.MetaArgs) {
   return [

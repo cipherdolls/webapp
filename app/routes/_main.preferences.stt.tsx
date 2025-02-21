@@ -1,10 +1,10 @@
 import { redirect } from "react-router";
-import type { Scenario } from "~/types";
-import type { Route } from "./+types/preferences.scenarios";
+import type { SttProvider } from "~/types";
+import type { Route } from "./+types/_main.preferences.stt";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Scenarios" },
+    { title: "STT Providers" },
   ];
 }
 
@@ -21,7 +21,7 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/scenarios`, headers);
+    const res = await fetch(`${backendUrl}/stt-providers`, headers);
     return await res.json();
   } catch (error) {
     console.error(error);
@@ -29,21 +29,19 @@ export async function clientLoader() {
   }
 }
 
-export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const scenarios: Scenario[] = loaderData;
-
+export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
+  const sttProviders: SttProvider[] = loaderData;
   return (
     <>
-      <div className="">
-        Scenarios
-      </div>
-      {scenarios.map((scenario) => (
-        <div key={scenario.id}>
-          <h2>{scenario.name}</h2>
+        <div className="">
+          SttProviders
         </div>
-      ))}
+        {sttProviders.map((sttProvider) => (
+          <div key={sttProvider.id}>
+            <h2>{sttProvider.name}</h2>
+          </div>
+        ))}
     </>
-
 
   );
 }
