@@ -3,11 +3,53 @@
 @theme {
   --font-sans: "Aileron", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-base-black: #000000;
+  --color-base-white: #ffffff;
+
+  --color-neutral-02: rgba(0, 0, 0, 0.32);
+  --color-neutral-03: rgba(0, 0, 0, 0.2);
+  --color-neutral-04: rgba(0, 0, 0, 0.08);
+
+  --text-heading-h0: 6rem;
+  --text-heading-h0--line-height: 6rem;
+  --text-heading-h0--letter-spacing: 0;
+  --text-heading-h0--font-weight: 600;
+
+  --text-heading-h1: 4rem;
+  --text-heading-h1--line-height: 4.5rem;
+  --text-heading-h1--letter-spacing: 0;
+  --text-heading-h1--font-weight: 600;
+
+  --text-heading-h2: 2.25rem;
+  --text-heading-h2--line-height: 2.5rem;
+  --text-heading-h2--letter-spacing: 0;
+  --text-heading-h2--font-weight: 600;
+
+  --text-heading-h3: 1.5rem;
+  --text-heading-h3--line-height: 1.5rem;
+  --text-heading-h3--letter-spacing: 0;
+  --text-heading-h3--font-weight: 600;
+
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.25rem;
+  --text-body-md--letter-spacing: 0;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.5rem;
+  --text-body-lg--letter-spacing: 0;
+
+  --blur-48: 48px;
+
+  --shadow-bottom: 0px 8px 40px 0px rgba(0, 0, 0, 0.16);
 }
 
 @layer base {
   :root {
     --sidebar-width: 104px;
+  }
+  button {
+    @apply cursor-pointer;
   }
 }
 
@@ -18,10 +60,10 @@ body {
   height: 100vh;
 
   background: radial-gradient(550px at center, rgb(248, 234, 187), transparent),
-  linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
-  linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%),
-  linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
-  linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
+    linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
+    linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%),
+    linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
+    linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
 
   background-size: 100% 100%;
   background-blend-mode: multiply, overlay;
