@@ -132,7 +132,10 @@ export default function SignInRoute() {
           </h1>
         </div>
         <div className="flex flex-col gap-8 justify-center items-center sm:static absolute bottom-[2.125rem]">
-          <SignInWithMetamask />
+          <fetcher.Form method="post">
+            <SignInWithMetamask type="submit" />
+          </fetcher.Form>
+
           <HowItWorksModal />
         </div>
       </div>
