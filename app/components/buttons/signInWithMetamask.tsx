@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, FC } from "react";
-import { cn } from "utils/cn";
+import { cn } from "~/utils/cn";
 
 const SignInWithMetamask: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
   className = "",
