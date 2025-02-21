@@ -1,9 +1,7 @@
-
 /* aileron font */
 @import "./assets/fonts/aileron/stylesheet.css";
 
 @import "tailwindcss";
-
 
 @theme {
   --font-sans: "Aileron", ui-sans-serif, system-ui, sans-serif,
@@ -12,6 +10,7 @@
   --color-base-black: #000000;
   --color-base-white: #ffffff;
 
+  --color-neutral-01: rgba(0, 0, 0, 0.56);
   --color-neutral-02: rgba(0, 0, 0, 0.32);
   --color-neutral-03: rgba(0, 0, 0, 0.2);
   --color-neutral-04: rgba(0, 0, 0, 0.08);
