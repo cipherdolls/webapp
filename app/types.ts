@@ -160,3 +160,18 @@ export interface Avatar {
 export interface AvatarCount {
     chats: number;
 }
+
+
+export interface AudioEvent {
+  action: 'play' | 'stop' | 'replay' | 'record' | 'record_stop';
+  messageId?: string;
+}
+
+export interface ProcessEvent {
+  resourceName: string;
+  resourceId: string;
+  jobName: string;
+  jobId: number;
+  jobStatus: 'active' | 'completed' | 'failed' | 'retrying';
+}
+
