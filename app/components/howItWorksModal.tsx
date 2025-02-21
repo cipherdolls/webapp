@@ -35,10 +35,10 @@ const HowItWorksModal = () => {
               🥷
             </div>
             <div className="flex flex-col gap-2">
-              <h2 className="sm:text-heading-h2 text-heading-h3 text-base-black text-center">
+              <Dialog.Title className="sm:text-heading-h2 text-heading-h3 text-base-black text-center">
                 How it Works
-              </h2>
-              <p className="sm:text-center sm:text-body-lg text-body-md text-base-black">
+              </Dialog.Title>
+              <Dialog.Description className="sm:text-center sm:text-body-lg text-body-md text-base-black">
                 At Cipherdolls, we understand the importance of privacy and
                 security. That's why we operate anonymously, without collecting
                 any personal data about you. You don't need to provide an email
@@ -49,7 +49,7 @@ const HowItWorksModal = () => {
                 There are no monthly subscriptions or hidden fees. You only pay
                 for the messages you send and receive, so if you don't use
                 cipherdolls, you don't need to pay a thing.
-              </p>
+              </Dialog.Description>
             </div>
             <Dialog.Close asChild className="sm:hidden block sm:mt-0 mt-[18px]">
               <button className="bg-neutral-04 rounded-full w-full text-body-md font-semibold text-base-black py-3.5 focus:outline-0">

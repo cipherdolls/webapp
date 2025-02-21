@@ -3,6 +3,7 @@ import { cn } from "utils/cn";
 
 const SignInWithMetamask: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
   className = "",
+  type = "button",
   ...props
 }) => {
   return (
@@ -11,6 +12,7 @@ const SignInWithMetamask: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
         "bg-base-black rounded-full py-3 px-6 max-w-max text-body-lg text-base-white flex items-center",
         className
       )}
+      type={type}
       {...props}
     >
       <img
