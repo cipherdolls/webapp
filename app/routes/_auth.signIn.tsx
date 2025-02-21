@@ -118,7 +118,7 @@ export default function SignInRoute() {
 
   return (
     <>
-      <div className="flex flex-col gap-20 mb-[88px] sm:mb-0 relative z-10">
+      <div className="flex flex-col gap-20 mb-[88px] sm:mb-0 z-10">
         <div className="flex flex-col sm:gap-8 gap-5 items-center justify-center">
           <img
             src="/logo.svg"
