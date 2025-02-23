@@ -21,13 +21,44 @@ export async function clientLoader() {
   };
   try {
     const res = await fetch(`${backendUrl}/chats`, headers);
+    if (!res.ok) {
+      console.error("Failed to get chats", res.status, res.statusText);
+      return redirect("/signin");
+    }
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
 
-
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  const formData = await request.formData();
+  const body = Object.fromEntries(formData);
+  const backendUrl = 'https://api.cipherdolls.com';
+  const localStorageToken = localStorage.getItem('token');
+  if (!localStorageToken) {
+    return redirect('/signin');
+  }
+  const options = {
+    method: 'post',
+    headers: {  
+      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  };
+  try {
+    const res = await fetch(`${backendUrl}/chats`, options);
+    
+    if (!res.ok) {
+      console.error("Failed to create chat:", res.status, res.statusText);
+      return redirect("/error");
+    }
+    return redirect("/chats");
+  } catch (error) {
+    return redirect('/signin');
+  }
+}
 
 export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
   const chats: Chat[] = loaderData;

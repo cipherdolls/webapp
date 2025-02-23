@@ -1,7 +1,8 @@
 import { Form, Link, redirect } from "react-router";
-import type { Chat } from "~/types";
-import type { Route } from "./+types/_main.chats.$id";
+import type { Avatar, Chat } from "~/types";
 import ChatDestroy from "./chats.$id.destroy";
+import type { Route } from "./+types/_main.avatars.$id";
+import AvatarDestroy from "./avatars.$id.destroy";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,7 +11,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  const chatId = params.id;
+  const avatarId = params.id;
   const backendUrl = 'https://api.cipherdolls.com';
   const localStorageToken = localStorage.getItem('token');
   if (!localStorageToken) {
@@ -22,7 +23,7 @@ export async function clientLoader({params}: Route.LoaderArgs) {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/chats/${chatId}`, headers);
+    const res = await fetch(`${backendUrl}/avatars/${avatarId}`, headers);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
@@ -31,15 +32,15 @@ export async function clientLoader({params}: Route.LoaderArgs) {
 
 
 
-export default function ChatShow({ loaderData }: Route.ComponentProps) {
-  const chat: Chat = loaderData;
+export default function AvatarShow({ loaderData }: Route.ComponentProps) {
+  const avatar: Avatar = loaderData;
   return (
     <>
       <div className="">
-        {chat.id}
-        <Link to={`/chats/${chat.id}/edit`}>--------------Edit</Link>
+        {avatar.name}
+        <Link to={`/avatars/${avatar.id}/edit`}>--------------Edit</Link>
 
-        <ChatDestroy />
+        <AvatarDestroy />
       </div>
     </>
 

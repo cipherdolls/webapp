@@ -1,3 +1,13 @@
+export interface User {
+  id: string;
+  name: string;
+  weiBalance: string;
+  signerAddress: string;
+  walletAddress: string;
+  apikey: string;
+  role: string;
+  character: string;
+}
 export interface AiProvider {
     id: string;
     name: string;
