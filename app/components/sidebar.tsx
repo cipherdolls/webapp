@@ -56,13 +56,16 @@ const Sidebar = () => {
           })}
         </div>
         <div className="sm:block hidden w-full">
-          <NavLink
-            to={"/signIn"}
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              window.location.href = '/signin';
+            }}
             className="py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05"
           >
             <Icons.signOut />
             Sign Out
-          </NavLink>
+          </button>
         </div>
         {/* Optional for now */}
         {/* <div className="h-[34px] w-full sm:hidden" /> */}
