@@ -1,6 +1,7 @@
-import { Form, redirect } from "react-router";
+import { Form, redirect, useFetcher } from "react-router";
 import type { Route } from "./+types/_main.avatars.new";
-import type { TtsVoice } from "~/types";
+import type { Avatar, TtsVoice } from "~/types";
+import { use, useEffect } from "react";
 
 
 export function meta({}: Route.MetaArgs) {
@@ -46,22 +47,37 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   };
   try {
     const res = await fetch(`${backendUrl}/avatars`, options);
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
+
+    if (!res.ok) {
+      return await res.json();
+    }
+    const avatar: Avatar = await res.json();
+    return redirect(`/avatars/${avatar.id}`);
+  } catch (error: any) {
+    console.error(error)
   }
 }
 
 
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   const ttsVoices: TtsVoice[] = loaderData;
+  const fetcher = useFetcher();
+  
+
   return (
     <>
       <div className="">
           Avatar New
       </div> 
 
-      <Form method='post' action="/avatars/new" encType='multipart/form-data'>
+      {fetcher.data?.error && (
+        <div className="error">
+          {fetcher.data.message}
+        </div>
+      )}
+
+      <fetcher.Form method='post' action="/avatars/new" encType='multipart/form-data'>
+
         <input name='name' id='name' placeholder='Name' />
         <input name='shortDesc' id='shortDesc' placeholder='shortDesc' />
         <input name='character' id='character' placeholder='character' />
@@ -78,7 +94,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
         <button type='submit' >
             Create
         </button>
-      </Form>
+      </fetcher.Form>
     </>
   );
 }
