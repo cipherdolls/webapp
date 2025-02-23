@@ -1,6 +1,7 @@
-import { Link, redirect } from "react-router";
+import { Form, Link, redirect } from "react-router";
 import type { Chat } from "~/types";
 import type { Route } from "./+types/_main.chats.$id";
+import ChatDestroy from "./chats.$id.destroy";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -37,6 +38,8 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       <div className="">
         {chat.id}
         <Link to={`/chats/${chat.id}/edit`}>--------------Edit</Link>
+
+        <ChatDestroy />
       </div>
     </>
 
