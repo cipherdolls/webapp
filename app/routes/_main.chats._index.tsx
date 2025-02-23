@@ -21,6 +21,10 @@ export async function clientLoader() {
   };
   try {
     const res = await fetch(`${backendUrl}/chats`, headers);
+    if (!res.ok) {
+      console.error("Failed to get chats", res.status, res.statusText);
+      return redirect("/signin");
+    }
     return await res.json();
   } catch (error) {
     return redirect('/signin');
@@ -45,6 +49,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   };
   try {
     const res = await fetch(`${backendUrl}/chats`, options);
+    
     if (!res.ok) {
       console.error("Failed to create chat:", res.status, res.statusText);
       return redirect("/error");
