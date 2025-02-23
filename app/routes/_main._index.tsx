@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { Card } from '~/components/card';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
@@ -20,14 +21,18 @@ const Dashbaord = () => {
           <Card.Label>Your Avatars</Card.Label>
           <Card.Main className='max-h-max'>
             <Card.Header>
-              <Card.HeaderSection>
-                <Icons.add />
-                Add Avatar
-              </Card.HeaderSection>
-              <Card.HeaderSection>
-                <Icons.pen />
-                Create Avatar
-              </Card.HeaderSection>
+            <Link to='/avatars'>
+                <Card.HeaderSection>
+                    <Icons.add />
+                    Add Avatar
+                </Card.HeaderSection>
+              </Link>
+              <Link to='/avatars/new'>
+                <Card.HeaderSection>
+                  <Icons.pen />
+                  Create Avatar
+                </Card.HeaderSection>
+              </Link>
             </Card.Header>
             <Card.Content>
               {avatarData.length === 0 ? (
