@@ -1,4 +1,3 @@
-import { useFetcher, useNavigate, type ActionFunctionArgs } from "react-router";
 import { ethers } from "ethers";
 import { useLocalStorage } from "usehooks-ts";
 import { useEffect, useState } from "react";
@@ -6,6 +5,7 @@ import SignInWithMetamask from "~/components/buttons/signInWithMetamask";
 import HowItWorksModal from "~/components/howItWorksModal";
 import SignInPatterns from "~/components/ui/signInPatterns";
 import type { Route } from "./+types/_auth.signIn";
+import { useFetcher, useNavigate } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "SignIn" }];
@@ -106,6 +106,7 @@ export default function SignInRoute() {
       }
       // If 401 => token invalid
       if (res.status === 401) {
+        localStorage.removeItem('token');
         return false;
       }
       // Otherwise, some other error
