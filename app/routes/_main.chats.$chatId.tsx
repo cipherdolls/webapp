@@ -1,4 +1,4 @@
-import { Form, Link, Outlet, redirect } from "react-router";
+import { Form, Link, Outlet, redirect, useFetcher } from "react-router";
 import type { Chat, Message, ProcessEvent } from "~/types";
 import ChatDestroy from "./chats.$id.destroy";
 import type { Route } from "./+types/_main.chats.$chatId";
@@ -43,12 +43,14 @@ export async function clientLoader({params}: Route.LoaderArgs) {
 
 
 
+
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages } = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+  const fetcher = useFetcher();
 
   useEffect(() => {
     if (!mqttClientRef.current) {
@@ -95,11 +97,12 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
 
 
   return (
+    
     <>
       <div className="">
         {chat.id}
         <Link to={`/chats/${chat.id}/edit`}>--------------Edit Chat</Link>
-
+        <ChatDestroy />
         <div className="">
           {messages.map((message) => (
             <div key={message.id}>
@@ -108,7 +111,15 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
 
-        <ChatDestroy />
+
+        <fetcher.Form method='post' action="/messages/new" encType='multipart/form-data'>
+          <input name='chatId' defaultValue={chat.id} hidden />
+          <input name='content' id='content' placeholder='content' />
+          <button type='submit'>Send Message</button>
+        </fetcher.Form>
+
+
+
         <Outlet />
       </div>
     </>
