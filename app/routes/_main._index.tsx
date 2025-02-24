@@ -1,6 +1,7 @@
 import { Link, redirect } from 'react-router';
 import { Card } from '~/components/card';
 import DashboardBanner from '~/components/dashboardBanner';
+import HowToAddDollModal from '~/components/howToAddDollModal';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._index';
 import type { Avatar, Doll } from '~/types';
@@ -59,10 +60,10 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
           <Card.Label>Your Avatars</Card.Label>
           <Card.Main className='max-h-max'>
             <Card.Header>
-            <Link to='/avatars'>
+              <Link to='/avatars'>
                 <Card.HeaderSection>
-                    <Icons.add />
-                    Add Avatar
+                  <Icons.add />
+                  Add Avatar
                 </Card.HeaderSection>
               </Link>
               <Link to='/avatars/new'>
@@ -84,7 +85,7 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
                   </div>
                 </div>
               ) : (
-                <div>123</div>
+                <div></div>
               )}
             </Card.Content>
           </Card.Main>
@@ -100,14 +101,12 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
                     <h1 className='sm:text-heading-h1 text-heading-h2'>🤷‍♀️</h1>
                     <div className='flex flex-col sm:gap-2 gap-1'>
                       <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Dolls Yet</h4>
-                      <p className='text-body-md text-neutral-01 sm:text-center underline decoration-neutral-01 underline-offset-2'>
-                        How to Add a Doll
-                      </p>
+                      <HowToAddDollModal />
                     </div>
                   </div>
                 </div>
               ) : (
-                <div>123</div>
+                <div></div>
               )}
             </Card.Content>
           </Card.Main>
