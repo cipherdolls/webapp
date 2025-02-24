@@ -1,5 +1,4 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Icons } from './ui/icons';
 
 const HowToAddDollModal = () => {
   return (
@@ -50,6 +49,7 @@ const HowToAddDollModal = () => {
                   Got It
                 </button>
               </Dialog.Close>
+              {/* TODO: Copy to clipboard */}
               <button className='bg-base-black rounded-full py-3.5 text-body-md font-semibold text-base-white'>Copy API</button>
             </div>
           </div>
