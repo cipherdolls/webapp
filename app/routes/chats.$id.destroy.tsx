@@ -32,7 +32,7 @@ export default function ChatDestroy() {
   return (
     <fetcher.Form method='post' action='destroy'>
       <button type='submit'>
-        Delete
+         Delete Chat
       </button>
     </fetcher.Form>
   );
