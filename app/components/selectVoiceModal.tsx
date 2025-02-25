@@ -22,7 +22,7 @@ const SelectVoiceModal = ({
       <Dialog.Portal>
         <Dialog.Overlay className='bg-neutral-02 fixed inset-0 pointer-events-none' />
 
-        <Dialog.Content className='fixed inset-0 sm:top-2 sm:right-2 sm:bottom-2 sm:left-0 sm:max-w-[408px] w-full bg-white h-auto sm:rounded-xl shadow-bottom-level-2 px-5 overflow-y-auto pb-2'>
+        <Dialog.Content className='fixed inset-0 sm:top-2 sm:right-2 sm:bottom-2 sm:left-auto sm:max-w-[408px] w-full bg-white h-auto sm:rounded-xl shadow-bottom-level-2 px-5 overflow-y-auto pb-2'>
           <Dialog.Title className='text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center'>
             <Dialog.Close className='sm:hidden block'>
               <Icons.chevronLeft className='mr-3' />
