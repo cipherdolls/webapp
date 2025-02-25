@@ -65,6 +65,8 @@
   --blur-48: 48px;
 
   --shadow-bottom: 0px 8px 40px 0px rgba(0, 0, 0, 0.16);
+  --shadow-bottom-level-1: 0px 4px 24px 0px rgba(0, 0, 0, 0.1);
+  --shadow-bottom-level-2: 0px 8px 40px 0px rgba(0, 0, 0, 0.16);
   --shadow-regular: 0px 0px 40px 0px rgba(0, 0, 0, 0.04);
 }
 
@@ -74,6 +76,9 @@
   }
   button {
     @apply cursor-pointer;
+  }
+  .voice-gradient {
+    background: radial-gradient(200% 1695% at -100% 50%, #fad4d4 0%, #e4c8e5 25%, #c1dae8 50%, #e4c8e5 74.93%, #fad4d4 100%);
   }
 }
 
