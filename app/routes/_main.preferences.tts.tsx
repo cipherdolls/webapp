@@ -1,9 +1,9 @@
 import { redirect } from 'react-router';
 import type { TtsProvider, TtsVoice } from '~/types';
 import type { Route } from './+types/_main.preferences.tts';
-import { DataCard } from '~/components/ui/DataCard';
-import Table from '~/components/ui/Table';
-import type { TTableColumn } from '~/components/ui/Table';
+import { DataCard } from '~/components/DataCard';
+import Table from '~/components/Table';
+import type { TTableColumn } from '~/components/Table';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
@@ -35,7 +35,7 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
     {
       id: 'name',
       label: 'Name',
-      setContent: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{data.name}</span>,
       align: 'left',
     },
   ];
@@ -46,7 +46,15 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
       <div className='space-y-10 pb-5'>
         {ttsProviders.map((ttsProvider) => (
           <DataCard.Root key={ttsProvider.id}>
-            <DataCard.Label>{ttsProvider.name}</DataCard.Label>
+            <DataCard.Label
+              extra={
+                <p className='text-body-sm text-base-black break-words'>
+                  $/Character <span className='text-neutral-01'>-</span> <b className='font-semibold'>${ttsProvider.dollarPerCharacter}</b>
+                </p>
+              }
+            >
+              {ttsProvider.name}
+            </DataCard.Label>
             <DataCard.Wrapper>
               <Table hideHeader={true} columns={columnProperties} data={ttsProvider.ttsVoices} />
             </DataCard.Wrapper>

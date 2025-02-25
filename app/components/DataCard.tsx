@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useState } from 'react';
 import { cn } from '~/utils/cn';
-import { Icons } from './icons';
+import { Icons } from './ui/icons';
+
+/* -------------------------------------------------------------------------- */
+/*                                 CONSTANTS                                  */
+/* -------------------------------------------------------------------------- */
+
+const CARDS_SIDE_PADDING = 'px-3 md:px-5';
+
+/* -------------------------------------------------------------------------- */
+/*                                  INTERFACES                                */
+/* -------------------------------------------------------------------------- */
 
 interface DataCardRootProps {
   children: React.ReactNode;
@@ -10,6 +20,7 @@ interface DataCardRootProps {
 interface DataCardLabelProps {
   children: React.ReactNode;
   className?: string;
+  extra?: React.ReactNode;
 }
 
 interface DataCardWrapperProps {
@@ -27,7 +38,6 @@ interface DataCardItemProps {
 interface DataCardItemLabelProps {
   children: React.ReactNode;
   className?: string;
-  collapseTrigger?: boolean;
 }
 
 interface DataCardItemDataGridProps {
@@ -39,11 +49,29 @@ interface DataCardItemDataGridProps {
   }>;
 }
 
+interface DataCardTextProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+interface DataCardDividerProps {
+  className?: string;
+}
+
+interface DataCardItemCollapsibleContentProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
 interface DataCardItemContextType {
   collapsible: boolean;
   isOpen: boolean;
   toggleOpen: () => void;
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                  CONTEXT                                   */
+/* -------------------------------------------------------------------------- */
 
 const DataCardItemContext = createContext<DataCardItemContextType>({
   collapsible: false,
@@ -55,20 +83,31 @@ function useDataCardItem() {
   return useContext(DataCardItemContext);
 }
 
-const CARDS_SIDE_PADDING = 'px-3 md:px-5';
+/* -------------------------------------------------------------------------- */
+/*                                 COMPONENTS                                 */
+/* -------------------------------------------------------------------------- */
 
+/** Root container for the DataCard */
 const DataCardRoot: React.FC<DataCardRootProps> = ({ children, className }) => {
   return <div className={className}>{children}</div>;
 };
 
-const DataCardLabel: React.FC<DataCardLabelProps> = ({ children, className }) => {
-  return <h3 className={cn('text-heading-h4 mb-4 px-3', className)}>{children}</h3>;
+/** Label component for the DataCard */
+const DataCardLabel: React.FC<DataCardLabelProps> = ({ children, className, extra }) => {
+  return (
+    <div className={cn('flex items-center justify-between mb-4 px-3 gap-3', className)}>
+      <h3 className={cn('text-heading-h4', className)}>{children}</h3>
+      {extra && <div className='items-end max-w-[40%] text-right'>{extra}</div>}
+    </div>
+  );
 };
 
+/** Wrapper with background and border radius */
 const DataCardWrapper: React.FC<DataCardWrapperProps> = ({ children, className }) => {
   return <div className={cn('bg-white rounded-xl overflow-hidden', className)}>{children}</div>;
 };
 
+/** DataCard Item which can optionally be collapsible */
 const DataCardItem: React.FC<DataCardItemProps> = ({ children, className, collapsible = false, defaultOpen = false }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -85,14 +124,15 @@ const DataCardItem: React.FC<DataCardItemProps> = ({ children, className, collap
   );
 };
 
+/** Label for a DataCard Item. Renders a button if collapsible */
 const DataCardItemLabel: React.FC<DataCardItemLabelProps> = ({ children, className }) => {
   const { collapsible, isOpen, toggleOpen } = useDataCardItem();
 
-  const classes = `${CARDS_SIDE_PADDING} flex items-center justify-between text-body-md font-semibold text-base-black py-4 w-full text-left`;
+  const classes = `${CARDS_SIDE_PADDING} flex items-center justify-between text-body-md font-semibold text-base-black pt-4 w-full text-left`;
 
   if (collapsible) {
     return (
-      <button className={cn(classes, className)} onClick={toggleOpen}>
+      <button className={cn(classes, className, isOpen && 'pb-4')} onClick={toggleOpen}>
         <span>{children}</span>
 
         <span className={cn('ml-5', isOpen && 'rotate-180')}>
@@ -105,6 +145,7 @@ const DataCardItemLabel: React.FC<DataCardItemLabelProps> = ({ children, classNa
   return <h3 className={cn(classes, className)}>{children}</h3>;
 };
 
+/** Data grid to display label-value pairs within a DataCard item */
 const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, data, variant = 'default' }) => {
   return (
     <dl
@@ -133,11 +174,7 @@ const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, 
   );
 };
 
-interface DataCardTextProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
+/** Text component for additional DataCard details */
 const DataCardText: React.FC<DataCardTextProps> = ({ children, className }) => {
   return (
     <div className={cn(`${CARDS_SIDE_PADDING} py-4 md:bg-neutral-05 md:py-6`, className)}>
@@ -146,19 +183,16 @@ const DataCardText: React.FC<DataCardTextProps> = ({ children, className }) => {
   );
 };
 
-interface DataCardDividerProps {
-  className?: string;
-}
-
+/** Divider for separating DataCard sections */
 const DataCardDivider: React.FC<DataCardDividerProps> = ({ className }) => {
-  return <hr className={cn('border-neutral-04', className)} />;
+  return (
+    <div className={CARDS_SIDE_PADDING}>
+      <hr className={cn('border-neutral-04 ', className)} />
+    </div>
+  );
 };
 
-interface DataCardItemCollapsibleContentProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
+/** Collapsible content within a DataCard Item */
 const DataCardItemCollapsibleContent: React.FC<DataCardItemCollapsibleContentProps> = ({ children, className }) => {
   const { collapsible, isOpen } = useDataCardItem();
 
@@ -178,14 +212,17 @@ const DataCardItemCollapsibleContent: React.FC<DataCardItemCollapsibleContentPro
   );
 };
 
+/* -------------------------------------------------------------------------- */
+/*                              EXPORT COMPONENT                              */
+/* -------------------------------------------------------------------------- */
 export const DataCard = {
   Root: DataCardRoot,
   Label: DataCardLabel,
   Wrapper: DataCardWrapper,
-  Item: DataCardItem,
-  ItemLabel: DataCardItemLabel,
   Text: DataCardText,
   Divider: DataCardDivider,
+  Item: DataCardItem,
+  ItemLabel: DataCardItemLabel,
   ItemDataGrid: DataCardItemDataGrid,
   ItemCollapsibleContent: DataCardItemCollapsibleContent,
 };

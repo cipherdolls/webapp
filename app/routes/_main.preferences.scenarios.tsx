@@ -1,8 +1,8 @@
 import { redirect } from 'react-router';
 import type { Scenario } from '~/types';
 import type { Route } from './+types/_main.preferences.scenarios';
-import { DataCard } from '~/components/ui/DataCard';
-import Table, { type TTableColumn } from '~/components/ui/Table';
+import { DataCard } from '~/components/DataCard';
+import Table, { type TTableColumn } from '~/components/Table';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
@@ -35,34 +35,34 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'name',
       label: 'Name',
-      setContent: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{data.name}</span>,
       align: 'left',
     },
     {
       id: 'temperature',
       label: 'Temperature',
-      setContent: (data) => data.temperature,
+      render: (data) => data.temperature,
       align: 'right',
       width: '135px',
     },
     {
       id: 'topP',
       label: 'TopP',
-      setContent: (data) => data.topP,
+      render: (data) => data.topP,
       align: 'right',
       width: '135px',
     },
     {
       id: 'frequencyPenalty',
       label: 'Frequency Penalty',
-      setContent: (data) => data.frequencyPenalty,
+      render: (data) => data.frequencyPenalty,
       align: 'right',
       width: '135px',
     },
     {
       id: 'presencePenalty',
       label: 'Presence Penalty',
-      setContent: (data) => data.presencePenalty,
+      render: (data) => data.presencePenalty,
       align: 'right',
       width: '135px',
     },

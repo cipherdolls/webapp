@@ -4,7 +4,7 @@ import { cn } from '~/utils/cn';
 export interface TTableColumn<TData> {
   id: keyof TData;
   label: string;
-  setContent: (data: TData, index?: number) => React.ReactNode;
+  render: (data: TData, index?: number) => React.ReactNode;
   align?: 'left' | 'right' | 'center';
   width?: string;
 }
@@ -25,7 +25,7 @@ const Table = <TData,>({ columns, data, wrapperClassName, className, bottomHelpT
           <thead>
             <tr className='border-b border-neutral-04'>
               {columns.map((column: any) => {
-                const { id, label, setContent, ...props } = column;
+                const { id, label, render, ...props } = column;
                 return (
                   <th key={id.toString()} className='text-xs font-semibold text-neutral-01 py-4' {...props}>
                     {label}
@@ -39,10 +39,10 @@ const Table = <TData,>({ columns, data, wrapperClassName, className, bottomHelpT
           {data.map((dt, index) => (
             <tr key={index}>
               {columns.map((column: any) => {
-                const { id, setContent, ...props } = column;
+                const { id, render, ...props } = column;
                 return (
                   <td key={id.toString()} className='py-3.5 md:py-5' {...props}>
-                    {setContent(dt, index)}
+                    {render(dt, index)}
                   </td>
                 );
               })}

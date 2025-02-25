@@ -1,8 +1,9 @@
 import { redirect } from 'react-router';
 import type { SttProvider } from '~/types';
 import type { Route } from './+types/_main.preferences.stt';
-import { DataCard } from '~/components/ui/DataCard';
-import Table, { type TTableColumn } from '~/components/ui/Table';
+import { DataCard } from '~/components/DataCard';
+import Table, { type TTableColumn } from '~/components/Table';
+import { Fragment } from 'react/jsx-runtime';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
@@ -35,13 +36,13 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
     {
       id: 'name',
       label: 'Name',
-      setContent: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{data.name}</span>,
       align: 'left',
     },
     {
       id: 'dollarPerSecond',
       label: '$/Output',
-      setContent: (data) => <span className='font-semibold'>${data.dollarPerSecond}</span>,
+      render: (data) => <span className='font-semibold'>${data.dollarPerSecond}</span>,
       align: 'right',
     },
   ];
@@ -52,20 +53,22 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
         <DataCard.Label>SttProviders</DataCard.Label>
         <DataCard.Wrapper>
           <Table wrapperClassName='hidden md:block' hideHeader={true} columns={columnProperties} data={sttProviders} />
-
           <div className='block md:hidden'>
-            {sttProviders.map((sttProvider) => (
-              <DataCard.Item key={sttProvider.id}>
-                <DataCard.ItemLabel>{sttProvider.name}</DataCard.ItemLabel>
-                <DataCard.ItemDataGrid
-                  data={[
-                    {
-                      label: '$/Output',
-                      value: <>$${sttProvider.dollarPerSecond}</>,
-                    },
-                  ]}
-                />
-              </DataCard.Item>
+            {sttProviders.map((sttProvider, index) => (
+              <Fragment key={sttProvider.id}>
+                <DataCard.Item key={sttProvider.id}>
+                  <DataCard.ItemLabel>{sttProvider.name}</DataCard.ItemLabel>
+                  <DataCard.ItemDataGrid
+                    data={[
+                      {
+                        label: '$/Output',
+                        value: <>${sttProvider.dollarPerSecond}</>,
+                      },
+                    ]}
+                  />
+                </DataCard.Item>
+                {sttProviders.length - 1 !== index && <DataCard.Divider />}
+              </Fragment>
             ))}
           </div>
         </DataCard.Wrapper>

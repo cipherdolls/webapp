@@ -1,10 +1,11 @@
 import { redirect } from 'react-router';
 import type { AiProvider, ChatModel } from '~/types';
 import type { Route } from './+types/_main.preferences.ai';
-import Table from '~/components/ui/Table';
-import type { TTableColumn } from '~/components/ui/Table';
+import Table from '~/components/Table';
+import type { TTableColumn } from '~/components/Table';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
-import { DataCard } from '~/components/ui/DataCard';
+import { DataCard } from '~/components/DataCard';
+import { Fragment } from 'react/jsx-runtime';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
@@ -37,19 +38,19 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'name',
       label: 'Name',
-      setContent: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{data.name}</span>,
       align: 'left',
     },
     {
       id: 'dollarPerInputToken',
       label: 'Output',
-      setContent: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
+      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
       align: 'right',
     },
     {
       id: 'dollarPerOutputToken',
       label: 'Output',
-      setContent: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
+      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
       align: 'right',
     },
   ];
@@ -61,45 +62,53 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
           <DataCard.Root>
             <DataCard.Label>{aiProvider.name}</DataCard.Label>
             <DataCard.Wrapper>
-              <div className='hidden md:block'>
-                <Table columns={columnProperties} data={aiProvider.chatModels} />
-              </div>
-              <div className='block md:hidden'>
-                {aiProvider.chatModels.map((chatModel) => {
-                  return (
-                    <DataCard.Item key={chatModel.id} collapsible>
-                      <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
-                      <DataCard.ItemCollapsibleContent>
-                        <DataCard.ItemDataGrid
-                          data={[
-                            {
-                              label: 'Output',
-                              value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
-                            },
-                            {
-                              label: 'Average Time Taken',
-                              value: '1153 ms',
-                            },
-                          ]}
-                          variant='secondary'
-                        />
-                      </DataCard.ItemCollapsibleContent>
-                      <DataCard.ItemDataGrid
-                        data={[
-                          {
-                            label: '$/Input',
-                            value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
-                          },
-                          {
-                            label: '$/Output',
-                            value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
-                          },
-                        ]}
-                      />
-                    </DataCard.Item>
-                  );
-                })}
-              </div>
+              {aiProvider.chatModels.length > 0 ? (
+                <>
+                  {/* DESKTOP TABLE */}
+                  <Table columns={columnProperties} data={aiProvider.chatModels} wrapperClassName='hidden md:block' />
+
+                  {/* MOBILE CARD */}
+                  {aiProvider.chatModels.map((chatModel, index) => {
+                    return (
+                      <Fragment key={chatModel.id}>
+                        <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
+                          <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
+                          <DataCard.ItemCollapsibleContent>
+                            <DataCard.ItemDataGrid
+                              data={[
+                                {
+                                  label: 'Output',
+                                  value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                },
+                                {
+                                  label: 'Average Time Taken',
+                                  value: '1153 ms',
+                                },
+                              ]}
+                              variant='secondary'
+                            />
+                          </DataCard.ItemCollapsibleContent>
+                          <DataCard.ItemDataGrid
+                            data={[
+                              {
+                                label: '$/Input',
+                                value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                              },
+                              {
+                                label: '$/Output',
+                                value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
+                              },
+                            ]}
+                          />
+                        </DataCard.Item>
+                        {aiProvider.chatModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
+                      </Fragment>
+                    );
+                  })}
+                </>
+              ) : (
+                <DataCard.Text>No chat models found</DataCard.Text>
+              )}
             </DataCard.Wrapper>
           </DataCard.Root>
         </div>
