@@ -25,7 +25,6 @@ export async function clientLoader() {
   }
 }
 
-
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
@@ -74,9 +73,9 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   }, [me.id]);
 
   return (
-    <div className='flex sm:flex-row flex-col-reverse xl:gap-8 lg:gap-6 gap-4 size-full'>
+    <div className='flex sm:flex-row flex-col-reverse xl:gap-8 lg:gap-6 gap-4 size-full h-screen overflow-y-auto'>
       <Sidebar />
-      <main className='flex flex-1 max-w-[980px] w-full mx-auto h-screen overflow-y-auto py-3 sm:py-[22px] lg:px-8 md:px-6 sm:px-4 px-1.5'>
+      <main className='flex flex-1 max-w-[980px] w-full mx-auto  py-3 sm:py-[22px] lg:px-8 md:px-6 sm:px-4 px-1.5'>
         <Outlet />
       </main>
     </div>

@@ -1,5 +1,5 @@
-import { Link, Outlet, redirect } from "react-router";
-import type { Chat } from "~/types";
+import { Link, Outlet, redirect, useRouteLoaderData } from "react-router";
+import type { Chat, User } from "~/types";
 import type { Route } from "./+types/_main.chats";
 
 export function meta({}: Route.MetaArgs) {
@@ -61,6 +61,9 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
+  const me = useRouteLoaderData("routes/_main") as User;
+  console.log('me in ChatsIndex', me)
+  
   const chats: Chat[] = loaderData;
   return (
     <>
