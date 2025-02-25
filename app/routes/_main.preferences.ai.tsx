@@ -1,5 +1,5 @@
 import { redirect } from 'react-router';
-import type { AiProvider, ChatModel } from '~/types';
+import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main.preferences.ai';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
@@ -34,7 +34,7 @@ export async function clientLoader() {
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const aiProviders: AiProvider[] = loaderData;
 
-  const columnProperties: Array<TTableColumn<ChatModel>> = [
+  const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
     {
       id: 'name',
       label: 'Name',
@@ -62,10 +62,10 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
           <DataCard.Root>
             <DataCard.Label>{aiProvider.name}</DataCard.Label>
             <DataCard.Wrapper>
-              {aiProvider.chatModels.length > 0 ? (
+              {aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table columns={columnProperties} data={aiProvider.chatModels} wrapperClassName='hidden md:block' />
+                  <Table columns={columnProperties} data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]} wrapperClassName='hidden md:block' />
 
                   {/* MOBILE CARD */}
                   {aiProvider.chatModels.map((chatModel, index) => {

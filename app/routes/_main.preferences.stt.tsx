@@ -52,7 +52,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
       <DataCard.Root>
         <DataCard.Label>SttProviders</DataCard.Label>
         <DataCard.Wrapper>
-          <Table wrapperClassName='hidden md:block' hideHeader={true} columns={columnProperties} data={sttProviders} />
+          <Table wrapperClassName='hidden md:block' columns={columnProperties} data={sttProviders} />
           <div className='block md:hidden'>
             {sttProviders.map((sttProvider, index) => (
               <Fragment key={sttProvider.id}>

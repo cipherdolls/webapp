@@ -104,7 +104,7 @@ const DataCardLabel: React.FC<DataCardLabelProps> = ({ children, className, extr
 
 /** Wrapper with background and border radius */
 const DataCardWrapper: React.FC<DataCardWrapperProps> = ({ children, className }) => {
-  return <div className={cn('bg-white rounded-xl overflow-hidden', className)}>{children}</div>;
+  return <div className={cn('bg-white rounded-xl overflow-hidden shadow-regular', className)}>{children}</div>;
 };
 
 /** DataCard Item which can optionally be collapsible */
