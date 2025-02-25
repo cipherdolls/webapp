@@ -1,4 +1,4 @@
-import type { Route } from "./+types/_main.chats.$idd.edit";
+import type { Route } from "./+types/_main.chats.$chatId.edit";
 
 
 export function meta({}: Route.MetaArgs) {
@@ -14,7 +14,7 @@ export default function ChatEdit() {
   return (
     <>
       <div className="">
-        edit
+      ChatEdit
       </div>
     </>
   );

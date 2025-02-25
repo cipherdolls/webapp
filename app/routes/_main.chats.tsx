@@ -1,6 +1,6 @@
-import { Link, redirect } from "react-router";
+import { Link, Outlet, redirect } from "react-router";
 import type { Chat } from "~/types";
-import type { Route } from "./+types/_main.chats._index";
+import type { Route } from "./+types/_main.chats";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -73,6 +73,8 @@ export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
           <Link to={`/chats/${chat.id}`}>{chat.id}</Link>
         </div>
       ))}
+
+      <Outlet />
 
     </>
 
