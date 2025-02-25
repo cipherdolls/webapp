@@ -2,6 +2,7 @@
 @import './assets/fonts/aileron/stylesheet.css';
 
 @import 'tailwindcss';
+@plugin 'tailwind-scrollbar';
 
 @theme {
   --font-sans:
@@ -73,6 +74,12 @@
   }
   button {
     @apply cursor-pointer;
+  }
+}
+
+@layer utilities {
+  .scrollbar-medium {
+    @apply scrollbar scrollbar-thumb-neutral-03 scrollbar-track-transparent scrollbar-thin;
   }
 }
 
