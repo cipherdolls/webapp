@@ -30,9 +30,9 @@ const HowToAddDollModal = () => {
           />
         </Dialog.Overlay>
 
-        <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] w-full rounded-xl sm:py-8 py-9 sm:px-12 px-[18px] shadow-bottom backdrop-blur-lg z-20'>
+        <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20'>
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
-          <div className='flex flex-col sm:gap-[18px] gap-3'>
+          <div className='flex flex-col sm:gap-4.5 gap-3'>
             <div className='sm:text-heading-h1 text-heading-h2 text-center'>👩 📱</div>
             <div className='flex flex-col gap-2'>
               <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center'>How to Add a Doll</Dialog.Title>
@@ -43,7 +43,7 @@ const HowToAddDollModal = () => {
                 Save the settings; the Doll will connect and start speaking.
               </Dialog.Description>
             </div>
-            <div className='sm:mt-[22px] mt-[18px] grid grid-cols-2 gap-2'>
+            <div className='sm:mt-[22px] mt-4.5 grid grid-cols-2 gap-2'>
               <Dialog.Close asChild>
                 <button className='bg-neutral-04 rounded-full w-full text-body-md font-semibold text-base-black py-3.5 focus:outline-0'>
                   Got It

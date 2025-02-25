@@ -40,7 +40,7 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
       <div className='flex flex-col sm:gap-4 gap-7'>
         <h3 className='text-heading-h3 py-3 sm:block hidden'>Dashboard</h3>
-        <div className='sm:hidden block ml-[18px] '>
+        <div className='sm:hidden block ml-4.5 '>
           <Icons.mobileLogo />
         </div>
         <DashboardBanner variant='welcome' description='What do you want to start from?' />
