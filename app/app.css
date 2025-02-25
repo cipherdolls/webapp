@@ -19,6 +19,8 @@
 
   --color-pink-01: rgba(53, 13, 42, 0.4);
 
+  --color-specials-success: #03cc9c;
+
   --text-heading-h0: 6rem;
   --text-heading-h0--line-height: 6rem;
   --text-heading-h0--letter-spacing: 0;
@@ -63,6 +65,7 @@
   --blur-48: 48px;
 
   --shadow-bottom: 0px 8px 40px 0px rgba(0, 0, 0, 0.16);
+  --shadow-regular: 0px 0px 40px 0px rgba(0, 0, 0, 0.04);
 }
 
 @layer base {
