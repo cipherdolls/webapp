@@ -42,7 +42,7 @@ const SelectVoiceModal = ({
                   onClick={() => onVoiceChange(voice)}
                 >
                   {/* TODO: isPlaying state on sound icon */}
-                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white'>
+                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white shrink-0'>
                     <Icons.sound />
                   </div>
                   <div className='flex flex-col gap-1'>

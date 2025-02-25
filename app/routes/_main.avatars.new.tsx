@@ -77,7 +77,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
 
   return (
     <fetcher.Form method='post' action='/avatars/new' encType='multipart/form-data' className='w-full'>
-      <div className='flex flex-col gap-10 sm:gap-16 w-full'>
+      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between'>
           <Link to={'/'} className='flex items-center gap-4 text-heading-h3 font-semibold'>
             <Icons.chevronLeft />
@@ -131,20 +131,24 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
-            <label className='sm:h-60 h-40 w-full bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 p-3 rounded-xl cursor-pointer'>
+            <label className='sm:h-60 h-40 w-full bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer'>
               <input className='hidden' type='file' name='picture' id='picture' accept='image/*' onChange={handleImageChange} />
               {selectedImage ? (
                 <div className='size-full relative'>
                   <img src={selectedImage} alt='Selected avatar' className='size-full object-cover rounded-lg' />
                 </div>
               ) : (
-                <>
+                <div className='flex items-center justify-center size-full'>
                   <Icons.fileUploadIcon />
+                </div>
+              )}
+              <div className='absolute z-10 bottom-3 px-3 w-full'>
+                <div className='flex items-center justify-center w-full'>
                   <div className='py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-1 rounded-full'>
                     <Icons.fileUpload />
                   </div>
-                </>
-              )}
+                </div>
+              </div>
             </label>
             <div className='flex flex-col gap-5'>
               <div className='flex items-center justify-between'>
@@ -153,7 +157,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               </div>
               {selectedVoice && (
                 <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white'>
+                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white shrink-0'>
                     <Icons.sound />
                   </div>
                   <div className='flex flex-col gap-1'>
