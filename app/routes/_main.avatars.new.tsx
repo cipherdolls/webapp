@@ -77,7 +77,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
 
   return (
     <fetcher.Form method='post' action='/avatars/new' encType='multipart/form-data' className='w-full'>
-      <div className='flex flex-col gap-16 w-full'>
+      <div className='flex flex-col gap-10 sm:gap-16 w-full'>
         <div className='flex items-center justify-between'>
           <Link to={'/'} className='flex items-center gap-4 text-heading-h3 font-semibold'>
             <Icons.chevronLeft />
@@ -90,7 +90,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             Save Avatar
           </button>
         </div>
-        <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
+        <div className='flex sm:flex-row flex-col sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
             <div className='grid grid-cols-2 gap-5 w-full h-max'>
               <div className='flex flex-col gap-2'>
@@ -131,11 +131,11 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
-            <label className='h-60 w-full bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 p-3 rounded-xl cursor-pointer'>
+            <label className='sm:h-60 h-40 w-full bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 p-3 rounded-xl cursor-pointer'>
               <input className='hidden' type='file' name='avatar' accept='image/*' onChange={handleImageChange} />
               {selectedImage ? (
-                <div className='w-full h-full relative'>
-                  <img src={selectedImage} alt='Selected avatar' className='w-full h-full object-cover rounded-lg' />
+                <div className='size-full relative'>
+                  <img src={selectedImage} alt='Selected avatar' className='size-full object-cover rounded-lg' />
                 </div>
               ) : (
                 <>

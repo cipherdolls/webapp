@@ -22,15 +22,23 @@ const SelectVoiceModal = ({
       <Dialog.Portal>
         <Dialog.Overlay className='bg-neutral-02 fixed inset-0 pointer-events-none' />
 
-        <Dialog.Content className='fixed top-2 right-2 bottom-2 max-w-[408px] w-full bg-white h-auto rounded-xl shadow-bottom-level-2 px-5 overflow-y-auto pb-2'>
-          <Dialog.Title className='text-heading-h3 text-base-black py-[26px]'>Voice</Dialog.Title>
+        <Dialog.Content className='fixed inset-0 sm:top-2 sm:right-2 sm:bottom-2 sm:left-0 sm:max-w-[408px] w-full bg-white h-auto sm:rounded-xl shadow-bottom-level-2 px-5 overflow-y-auto pb-2'>
+          <Dialog.Title className='text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center'>
+            <Dialog.Close className='sm:hidden block'>
+              <Icons.chevronLeft className='mr-3' />
+            </Dialog.Close>
+            Voice
+          </Dialog.Title>
           <div className='flex flex-col gap-3 '>
             {ttsVoices.map((voice, index) => {
               const isSelected = selectedVoice?.id === voice.id;
               return (
                 <button
                   key={index}
-                  className={cn('py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular', isSelected ? 'voice-gradient' : 'bg-white')}
+                  className={cn(
+                    'py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular',
+                    isSelected ? 'voice-gradient' : 'bg-neutral-05'
+                  )}
                   onClick={() => onVoiceChange(voice)}
                 >
                   {/* TODO: isPlaying state on sound icon */}
