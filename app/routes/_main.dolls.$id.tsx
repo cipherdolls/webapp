@@ -1,12 +1,19 @@
-import { Outlet, redirect } from 'react-router';
+import { Form, Link, Outlet, redirect } from "react-router";
+import type { Chat, Message, ProcessEvent } from "~/types";
+import ChatDestroy from "./chats.$id.destroy";
+import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
-import Sidebar from '~/components/sidebar';
-import type { Route } from './+types/_main';
-import type { ProcessEvent, User } from '~/types';
-import { useEffect, useRef } from 'react';
 import { Buffer } from 'buffer';
+import type { Route } from "./+types/_main.dolls.$id";
 
-export async function clientLoader() {
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Chats" },
+  ];
+}
+
+export async function clientLoader({params}: Route.LoaderArgs) {
+  const dollId = params.doll;
   const backendUrl = 'https://api.cipherdolls.com';
   const localStorageToken = localStorage.getItem('token');
   if (!localStorageToken) {
@@ -18,7 +25,7 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/users/me`, headers);
+    const res = await fetch(`${backendUrl}/dolls/${dollId}`, headers);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
@@ -26,8 +33,9 @@ export async function clientLoader() {
 }
 
 
-const MainLayout = ({ loaderData }: Route.ComponentProps) => {
-  const me: User = loaderData;
+
+export default function ChatShow({ loaderData }: Route.ComponentProps) {
+  const doll = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';
@@ -48,13 +56,13 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       });
       mqttClientRef.current = mqttClient;
 
-      const userTopic = `users/${me.id}/processEvents`;
+      const userTopic = `dolls/${doll.id}/processEvents`;
       mqttClient.subscribe(userTopic);
 
       const handleMessage = (topic: string, message: Buffer) => {
         const processEvent: ProcessEvent = JSON.parse(message.toString());
         console.log(processEvent);
-        // Handle the event
+        // Handle the event 
       };
 
       mqttClient.on('message', handleMessage);
@@ -70,17 +78,20 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         mqttClientRef.current = null;
       };
     }
-    // eslint-disable-next-line
-  }, [me.id]);
+  }, [doll.id]);
+
+
+
+
 
   return (
-    <div className='flex sm:flex-row flex-col-reverse xl:gap-8 lg:gap-6 gap-4 size-full'>
-      <Sidebar />
-      <main className='flex flex-1 max-w-[980px] w-full mx-auto h-screen overflow-y-auto py-3 sm:py-[22px] lg:px-8 md:px-6 sm:px-4 px-1.5'>
-        <Outlet />
-      </main>
-    </div>
-  );
-};
+    <>
+      <div className="">
+        {doll.id}
+        <Link to={`/dolls/${doll.id}/edit`}>--------------Edit Doll</Link>
+      </div>
+    </>
 
-export default MainLayout;
+
+  );
+}

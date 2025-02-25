@@ -1,3 +1,13 @@
+export interface User {
+  id: string;
+  name: string;
+  weiBalance: string;
+  signerAddress: string;
+  walletAddress: string;
+  apikey: string;
+  role: string;
+  character: string;
+}
 export interface AiProvider {
     id: string;
     name: string;
@@ -99,6 +109,52 @@ export interface Chat {
     avatar: Avatar;
     scenario: Scenario;
 }
+
+export interface Message {
+  id: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  role: string;
+  mood: string;
+  completed: boolean;
+  userId: string;
+  chatId: string;
+  sttJob: SttJob;
+  ttsJob: TtsJob;
+  embeddingJob: EmbeddingJob;
+  chatCompletionJob: ChatCompletionJob;
+  chat: Chat;
+}
+
+
+export interface SttJob {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  usdCost: number;
+  timeTakenMs: number;
+  paymentJob: PaymentJob;
+}
+
+export interface TtsJob {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  usdCost: number;
+  timeTakenMs: number;
+  paymentJob: PaymentJob;
+  message: Message;
+}
+
+export interface EmbeddingJob {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  usdCost: number;
+  timeTakenMs: number;
+}
+
 
 export interface ChatCompletionJob {
     id: string;

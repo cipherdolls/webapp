@@ -1,12 +1,19 @@
-import { Outlet, redirect } from 'react-router';
+import { Form, Link, Outlet, redirect, useFetcher } from "react-router";
+import type { Chat, Message, ProcessEvent } from "~/types";
+import ChatDestroy from "./chats.$id.destroy";
+import type { Route } from "./+types/_main.chats.$chatId";
+import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
-import Sidebar from '~/components/sidebar';
-import type { Route } from './+types/_main';
-import type { ProcessEvent, User } from '~/types';
-import { useEffect, useRef } from 'react';
 import { Buffer } from 'buffer';
 
-export async function clientLoader() {
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Chats" },
+  ];
+}
+
+export async function clientLoader({params}: Route.LoaderArgs) {
+  const chatId = params.chatId;
   const backendUrl = 'https://api.cipherdolls.com';
   const localStorageToken = localStorage.getItem('token');
   if (!localStorageToken) {
@@ -18,20 +25,32 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/users/me`, headers);
-    return await res.json();
+    const [chatRes, messagesRes] = await Promise.all([
+      fetch(`${backendUrl}/chats/${chatId}`, headers),
+      fetch(`${backendUrl}/messages?chatId=${chatId}`, headers),
+    ]);
+    if (!chatRes.ok || !messagesRes.ok) {
+      throw new Error("Failed to fetch data");
+    }
+    const chat: Chat = await chatRes.json();
+    const messages: Message[] = await messagesRes.json();
+
+    return { chat, messages };
   } catch (error) {
     return redirect('/signin');
   }
 }
 
 
-const MainLayout = ({ loaderData }: Route.ComponentProps) => {
-  const me: User = loaderData;
+
+
+export default function ChatShow({ loaderData }: Route.ComponentProps) {
+  const { chat, messages } = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+  const fetcher = useFetcher();
 
   useEffect(() => {
     if (!mqttClientRef.current) {
@@ -48,13 +67,13 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       });
       mqttClientRef.current = mqttClient;
 
-      const userTopic = `users/${me.id}/processEvents`;
+      const userTopic = `chats/${chat.id}/processEvents`;
       mqttClient.subscribe(userTopic);
 
       const handleMessage = (topic: string, message: Buffer) => {
         const processEvent: ProcessEvent = JSON.parse(message.toString());
         console.log(processEvent);
-        // Handle the event
+        // Handle the event 
       };
 
       mqttClient.on('message', handleMessage);
@@ -71,16 +90,40 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       };
     }
     // eslint-disable-next-line
-  }, [me.id]);
+  }, [chat.id]);
+
+
+
+
 
   return (
-    <div className='flex sm:flex-row flex-col-reverse xl:gap-8 lg:gap-6 gap-4 size-full'>
-      <Sidebar />
-      <main className='flex flex-1 max-w-[980px] w-full mx-auto h-screen overflow-y-auto py-3 sm:py-[22px] lg:px-8 md:px-6 sm:px-4 px-1.5'>
-        <Outlet />
-      </main>
-    </div>
-  );
-};
+    
+    <>
+      <div className="">
+        {chat.id}
+        <Link to={`/chats/${chat.id}/edit`}>--------------Edit Chat</Link>
+        <ChatDestroy />
+        <div className="">
+          {messages.map((message) => (
+            <div key={message.id}>
+              <Link to={`/chats/${chat.id}/messages/${message.id}`}>{message.content}</Link>
+            </div>
+          ))}
+        </div>
 
-export default MainLayout;
+
+        <fetcher.Form method='post' action="/messages/new" encType='multipart/form-data'>
+          <input name='chatId' defaultValue={chat.id} hidden />
+          <input name='content' id='content' placeholder='content' />
+          <button type='submit'>Send Message</button>
+        </fetcher.Form>
+
+
+
+        <Outlet />
+      </div>
+    </>
+
+
+  );
+}

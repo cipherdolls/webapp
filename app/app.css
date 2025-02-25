@@ -1,11 +1,10 @@
 /* aileron font */
-@import "./assets/fonts/aileron/stylesheet.css";
+@import './assets/fonts/aileron/stylesheet.css';
 
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: "Aileron", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: 'Aileron', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
   --color-base-black: #000000;
   --color-base-white: #ffffff;
@@ -80,10 +79,8 @@ body {
   height: 100vh;
 
   background: radial-gradient(550px at center, rgb(248, 234, 187), transparent),
-    linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
-    linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%),
-    linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
-    linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
+    linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%), linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%),
+    linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%), linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
 
   background-size: 100% 100%;
   background-blend-mode: multiply, overlay;
