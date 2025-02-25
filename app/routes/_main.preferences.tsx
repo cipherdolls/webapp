@@ -28,7 +28,7 @@ const preferencesNavItems = [
 export default function Preferences() {
   return (
     <div className='w-full'>
-      <h2 className='text-2xl font-semibold mt-8 mb-4'>Preferences</h2>
+      <h2 className='text-2xl font-semibold sm:mt-8 mb-4'>Preferences</h2>
       <nav className='flex gap-5 border-b border-neutral-04'>
         {preferencesNavItems.map((item, index) => {
           return (
@@ -49,7 +49,7 @@ export default function Preferences() {
         })}
       </nav>
 
-      <div className='mt-16'>
+      <div className='mt-8 sm:mt-16'>
         <Outlet />
       </div>
     </div>
