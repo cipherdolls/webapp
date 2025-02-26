@@ -52,7 +52,7 @@ const PublishAvatarModal = ({ onConfirm, children }: PublishAvatarModalProps) =>
                 </Button.Root>
               </Dialog.Close>
               <Dialog.Close asChild>
-                <Button.Root type='button'>Yes, Continue</Button.Root>
+                <Button.Root type='button'>No, Cancel</Button.Root>
               </Dialog.Close>
             </div>
           </div>
