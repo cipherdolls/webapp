@@ -1,13 +1,13 @@
-import { Form, Link, redirect } from "react-router";
-import type { Avatar } from "~/types";
-import type { Route } from "./+types/_main.avatars._index";
+import { Link, redirect } from 'react-router';
+import type { Avatar } from '~/types';
+import type { Route } from './+types/_main.avatars._index';
+import { useState } from 'react';
+import { Icons } from '~/components/ui/icons';
+import PublicAvatarCard from '~/components/PublicAvatarCard';
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Avatars" },
-  ];
+  return [{ title: 'Avatars' }];
 }
-
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -28,30 +28,39 @@ export async function clientLoader() {
   }
 }
 
-
-
 export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
   const avatars: Avatar[] = loaderData;
+
+  const [activeAvatarId, setActiveAvatarId] = useState<Avatar['id'] | null>(null);
+
+  const handlePlayButtonClick = (id: Avatar['id']) => {
+    if (activeAvatarId === id) {
+      setActiveAvatarId(null);
+    } else {
+      setActiveAvatarId(id);
+    }
+  };
+
   return (
     <>
-      <div className="">
-          Avatars
-      </div> 
-
-      {avatars.map((avatar) => (
-        <div key={avatar.id} className="flex items-center justify-between">
-          <Link to={`/avatars/${avatar.id}`}>{avatar.name}</Link>
-          
-          <Form method='post' action="/chats">
-            <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-            <button type='submit' >
-                Chat
-            </button>
-          </Form>
-
+      <div className='flex flex-col gap-10 sm:gap-16 w-full'>
+        <div className='flex items-center justify-between'>
+          <Link to={'/'} className='flex items-center gap-4 text-heading-h3 font-semibold'>
+            <Icons.chevronLeft />
+            Public Avatars
+          </Link>
         </div>
-      ))}
-
+        <div className='grid w-full gap-3 sm:grid-cols-2 md:gap-5 '>
+          {avatars.map((avatar) => (
+            <PublicAvatarCard
+              key={avatar.id}
+              avatar={avatar}
+              isPlaying={activeAvatarId === avatar.id}
+              onPlayButtonClick={() => handlePlayButtonClick(avatar.id)}
+            />
+          ))}
+        </div>
+      </div>
     </>
   );
 }
