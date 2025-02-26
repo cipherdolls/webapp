@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { cn } from '~/utils/cn';
 import type { Route } from './+types/_main.account';
 import { Form, redirect } from 'react-router';
+import { Tooltips } from '~/components/tooltips';
 import { Icons } from '~/components/ui/icons';
 import { SignOutModal } from '~/components/signOutModal';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -45,11 +46,12 @@ export default function Account({ loaderData }: Route.ComponentProps) {
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const [userData, setUserData] = useState<IUserData | null>(null);
   const [userType, setUserType] = useState<'Consumer' | 'Producer'>('Consumer');
+
   console.log(loaderData);
   return (
     <>
       <SignOutModal isSignOutOpen={isSignOutOpen} setIsSignOutOpen={setIsSignOutOpen} />
-      {/*<Tooltips variant={'YourInfoSaved'} />*/}
+      <Tooltips variant={'YourInfoSaved'} />
 
       <div className='w-full overflow-x-hidden'>
         <div className='mt-6 mb-8 md:mb-14'>
