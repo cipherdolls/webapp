@@ -324,17 +324,17 @@ const UserTypeInfoModal = () => {
         [mask-composite:exclude]'
               style={{
                 maskImage:
-                  "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='530' viewBox='0 0 480 530' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='530' rx='12' fill='black'/%3E%3C/svg%3E\")",
+                  "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='320' viewBox='0 0 480 530' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='530' rx='12' fill='black'/%3E%3C/svg%3E\")",
               }}
             />
           </Dialog.Overlay>
 
-          <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] overflow-x-hidden backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[332px] sm:rounded-xl sm:max-h-[322px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
+          <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)]  backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[332px] sm:rounded-xl sm:max-h-[322px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
             <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
-            <Dialog.Close asChild>
-              <div className='absolute -right-14 top-0 p-2 backdrop-blur-sm cursor-pointer bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-full'>
+            <Dialog.Close className='z-50' asChild>
+              <button className='absolute bg-transparent z-50 -right-14 top-0 p-2 cursor-pointer bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] backdrop-blur-lg rounded-full'>
                 <Icons.close />
-              </div>
+              </button>
             </Dialog.Close>
             <img src={UserTypeIcon} alt={'User Type Icon'} className='mb-6 w-10 sm:w-16' />
 
