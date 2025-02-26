@@ -9,6 +9,7 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import { PICTURE_SIZE } from '~/constants';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
+import PublishAvatarModal from '~/components/publishAvatarModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -89,6 +90,9 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
 
     const timeoutId = setTimeout(() => setCopied(false), 2000);
     copyTimeoutRef.current = timeoutId;
+  };
+  const handlePublishConfirm = () => {
+    setAvailability('public');
   };
 
   return (
@@ -192,16 +196,17 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               >
                 🔒 Private
               </button>
-              <button
-                type='button'
-                className={cn(
-                  'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                  availability === 'public' ? 'bg-white' : 'bg-transparent'
-                )}
-                onClick={() => setAvailability('public')}
-              >
-                🌐 Public
-              </button>
+              <PublishAvatarModal onConfirm={handlePublishConfirm}>
+                <button
+                  type='button'
+                  className={cn(
+                    'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                    availability === 'public' ? 'bg-white' : 'bg-transparent'
+                  )}
+                >
+                  🌐 Public
+                </button>
+              </PublishAvatarModal>
             </div>
           </div>
           <div className='sm:flex hidden flex-col gap-5'>
@@ -229,16 +234,17 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           >
             🔒 Private
           </button>
-          <button
-            type='button'
-            className={cn(
-              'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-              availability === 'public' ? 'bg-white' : 'bg-transparent'
-            )}
-            onClick={() => setAvailability('public')}
-          >
-            🌐 Public
-          </button>
+          <PublishAvatarModal onConfirm={handlePublishConfirm}>
+            <button
+              type='button'
+              className={cn(
+                'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                availability === 'public' ? 'bg-white' : 'bg-transparent'
+              )}
+            >
+              🌐 Public
+            </button>
+          </PublishAvatarModal>
         </div>
       </div>
     </div>
