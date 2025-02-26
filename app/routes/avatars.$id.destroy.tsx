@@ -1,6 +1,6 @@
 import { Form, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/chats.$id.destroy';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 
 export async function clientAction({ params }: Route.ClientActionArgs) {
   const avatarId = params.id;

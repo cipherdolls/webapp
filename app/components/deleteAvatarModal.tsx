@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Icons } from './ui/icons';
 import AvatarDestroy from '~/routes/avatars.$id.destroy';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 
 const DeleteAvatarModal = () => {
   return (

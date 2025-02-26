@@ -9,7 +9,7 @@ import { getPicture } from '~/utils/getPicture';
 import { PICTURE_SIZE } from '~/constants';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import PublishAvatarModal from '~/components/publishAvatarModal';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];

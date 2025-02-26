@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Icons } from './ui/icons';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 
 const HowItWorksModal = () => {
   return (

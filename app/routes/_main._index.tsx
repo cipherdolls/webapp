@@ -7,6 +7,7 @@ import type { Route } from './+types/_main._index';
 import type { Avatar, Doll } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
+import SignInWithMetamask from '~/components/buttons/signInWithMetamask';
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';

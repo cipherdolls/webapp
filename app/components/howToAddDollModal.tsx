@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 const HowToAddDollModal = () => {
   return (
     <Dialog.Root>

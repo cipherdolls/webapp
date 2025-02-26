@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import type { ReactNode } from 'react';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 
 interface PublishAvatarModalProps {
   onConfirm: () => void;

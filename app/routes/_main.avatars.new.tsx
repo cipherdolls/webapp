@@ -5,7 +5,7 @@ import { use, useEffect, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }

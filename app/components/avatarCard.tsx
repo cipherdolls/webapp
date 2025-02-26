@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { PICTURE_SIZE } from '~/constants';
 import type { Avatar } from '~/types';
 import { getPicture } from '~/utils/getPicture';
-import * as Button from '~/components/ui/button';
+import * as Button from '~/components/ui/button/button';
 
 export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
   const { name, shortDesc, id } = avatar;
