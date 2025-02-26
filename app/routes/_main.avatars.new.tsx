@@ -132,7 +132,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
           </div>
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
             <label className='sm:h-60 h-40 w-full bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 p-3 rounded-xl cursor-pointer'>
-              <input className='hidden' type='file' name='avatar' accept='image/*' onChange={handleImageChange} />
+              <input className='hidden' type='file' name='picture' id='picture' accept='image/*' onChange={handleImageChange} />
               {selectedImage ? (
                 <div className='size-full relative'>
                   <img src={selectedImage} alt='Selected avatar' className='size-full object-cover rounded-lg' />
@@ -151,15 +151,18 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                 <h1 className='text-base-black text-heading-h3 font-semibold'>Voice</h1>
                 <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={selectedVoice} onVoiceChange={handleVoiceChange} />
               </div>
-              <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white'>
-                  <Icons.sound />
+              {selectedVoice && (
+                <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
+                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white'>
+                    <Icons.sound />
+                  </div>
+                  <div className='flex flex-col gap-1'>
+                    <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
+                    <span className='text-body-md text-neutral-01'>Unrealspeach</span>
+                    <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={selectedVoice.id} />
+                  </div>
                 </div>
-                <div className='flex flex-col gap-1'>
-                  <p className='text-body-lg font-semibold text-base-black'>{selectedVoice ? selectedVoice.name : 'Scarlet'}</p>
-                  <span className='text-body-md text-neutral-01'>Unrealspeach</span>
-                </div>
-              </div>
+              )}
             </div>
             <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Availability</h1>
