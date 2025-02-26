@@ -21,7 +21,7 @@ export async function clientLoader() {
     },
   };
   try {
-    const res = await fetch(`${backendUrl}/avatars`, headers);
+    const res = await fetch(`${backendUrl}/avatars?published=true`, headers);
     return await res.json();
   } catch (error) {
     return redirect('/signin');

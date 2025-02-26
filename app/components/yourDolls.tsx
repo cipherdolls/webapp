@@ -9,7 +9,7 @@ const YourDolls = ({ dolls }: { dolls: Doll[] }) => {
     <Card.Root className='sm:pl-4 sm:max-w-[352px]'>
       <Card.Label>Your Dolls</Card.Label>
       <Card.Main className={cn(dolls.length > 0 && 'bg-none', 'max-h-max')}>
-        <Card.Content className={cn(dolls.length > 0 && 'border-t-0')}>
+        <Card.Content className={cn(dolls.length === 0 && 'border-t-0')}>
           {dolls.length === 0 ? (
             <div className='sm:py-14'>
               <div className='py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>

@@ -12,7 +12,7 @@ const DollCard = ({ doll }: { doll: Doll }) => {
         />
         <div className='size-2.5 rounded-full bg-specials-success border border-white sm:hidden block absolute bottom-1 right-1' />
       </div>
-      <div className='sm:py-4 sm:px-[18px] flex items-center'>
+      <div className='sm:py-4 sm:px-4.5 flex items-center'>
         <div className='flex flex-1 flex-col sm:gap-1 gap-0.5'>
           <div className='flex items-center gap-1'>
             <h4 className='sm:text-heading-h4 text-body-lg font-semibold text-base-black'>{name}</h4>

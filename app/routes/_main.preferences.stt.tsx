@@ -1,13 +1,13 @@
-import { redirect } from "react-router";
-import type { SttProvider } from "~/types";
-import type { Route } from "./+types/_main.preferences.stt";
+import { redirect } from 'react-router';
+import type { SttProvider } from '~/types';
+import type { Route } from './+types/_main.preferences.stt';
+import { DataCard } from '~/components/DataCard';
+import Table, { type TTableColumn } from '~/components/Table';
+import { Fragment } from 'react/jsx-runtime';
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "STT Providers" },
-  ];
+  return [{ title: 'STT Providers' }];
 }
-
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -31,17 +31,48 @@ export async function clientLoader() {
 
 export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
   const sttProviders: SttProvider[] = loaderData;
+
+  const columnProperties: Array<TTableColumn<SttProvider>> = [
+    {
+      id: 'name',
+      label: 'Name',
+      render: (data) => <span className='font-semibold'>{data.name}</span>,
+      align: 'left',
+    },
+    {
+      id: 'dollarPerSecond',
+      label: '$/Output',
+      render: (data) => <span className='font-semibold'>${data.dollarPerSecond}</span>,
+      align: 'right',
+    },
+  ];
+
   return (
     <>
-        <div className="">
-          SttProviders
-        </div>
-        {sttProviders.map((sttProvider) => (
-          <div key={sttProvider.id}>
-            <h2>{sttProvider.name}</h2>
+      <DataCard.Root>
+        <DataCard.Label>SttProviders</DataCard.Label>
+        <DataCard.Wrapper>
+          <Table wrapperClassName='hidden md:block' columns={columnProperties} data={sttProviders} />
+          <div className='block md:hidden'>
+            {sttProviders.map((sttProvider, index) => (
+              <Fragment key={sttProvider.id}>
+                <DataCard.Item key={sttProvider.id}>
+                  <DataCard.ItemLabel>{sttProvider.name}</DataCard.ItemLabel>
+                  <DataCard.ItemDataGrid
+                    data={[
+                      {
+                        label: '$/Output',
+                        value: <>${sttProvider.dollarPerSecond}</>,
+                      },
+                    ]}
+                  />
+                </DataCard.Item>
+                {sttProviders.length - 1 !== index && <DataCard.Divider />}
+              </Fragment>
+            ))}
           </div>
-        ))}
+        </DataCard.Wrapper>
+      </DataCard.Root>
     </>
-
   );
 }
