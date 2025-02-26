@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { cn } from '~/utils/cn';
 import type { Route } from './+types/_main.account';
-import { Form, redirect, useSubmit } from 'react-router';
-import { Notifications } from '~/components/notifications';
+import { Form, redirect } from 'react-router';
+import { Tooltips } from '~/components/tooltips';
 import { Icons } from '~/components/ui/icons';
 import { SignOutModal } from '~/components/signOutModal';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -43,14 +43,15 @@ export async function clientLoader() {
 
 export default function Account({ loaderData }: Route.ComponentProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const [userType, setUserType] = useState<'Consumer' | 'Producer'>('Consumer');
+  const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const [userData, setUserData] = useState<IUserData | null>(null);
+  const [userType, setUserType] = useState<'Consumer' | 'Producer'>('Consumer');
 
   console.log(loaderData);
   return (
     <>
-      <SignOutModal />
-      <Notifications variant={'YourInfoSaved'} />
+      <SignOutModal isSignOutOpen={isSignOutOpen} setIsSignOutOpen={setIsSignOutOpen} />
+      <Tooltips variant={'YourInfoSaved'} />
 
       <div className='w-full overflow-x-hidden'>
         <div className='mt-6 mb-8 md:mb-14'>
@@ -59,7 +60,12 @@ export default function Account({ loaderData }: Route.ComponentProps) {
           <div className='flex justify-between items-center ml-3 mb-8'>
             <h3 className='text-heading-h3 sm:hidden'>Account</h3>
 
-            <Icons.signOut className='text-base-black sm:hidden cursor-pointer transition-opacity hover:opacity-80' />
+            <button
+              onClick={() => setIsSignOutOpen(true)}
+              className='text-base-black p-0.5 sm:hidden cursor-pointer transition-opacity hover:opacity-80'
+            >
+              <Icons.exit className='fill-black text-base-black ' />
+            </button>
           </div>
 
           <div className='flex items-center gap-4 ml-3 md:ml-0'>
@@ -124,7 +130,7 @@ const UserInfo: React.FC<IUserInfo> = ({ userData, setUserData }) => {
               <img src={WhoYouIcon} alt={'Who You Icon'} className='w-10 mr-6 md:mb-2.5 md:mr-0 lg:w-16 ' />
 
               <div className='md:text-center'>
-                <h4 className='text-[18px] font-semibold mb-2 text-base-black  md:text-heading-h3'>Who are You?</h4>
+                <h4 className='text-[18px] font-semibold mb-1 text-base-black sm:mb-2 md:text-heading-h3'>Who are You?</h4>
 
                 <p className='text-neutral-01 text-body-md max-w-64 md:max-w-full'>Add some info to make conversations more personalized</p>
               </div>
@@ -139,8 +145,6 @@ const UserInfo: React.FC<IUserInfo> = ({ userData, setUserData }) => {
 const AdduserInfoModal: React.FC<IUserInfoModal> = ({ userData, setUserData }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-
-  const submit = useSubmit();
 
   const handleInput = (e: React.FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
@@ -226,7 +230,7 @@ const AdduserInfoModal: React.FC<IUserInfoModal> = ({ userData, setUserData }) =
                 />
               </div>
 
-              <div className='w-full flex justify-center items-center gap-3 border-t border-neutral-04 rounded-xl mt-2 sm:border-t-0'>
+              <div className='w-full flex justify-center items-center gap-3 border-neutral-04 rounded-xl mt-2 sm:border-t-0'>
                 <Dialog.Close asChild className={'hidden sm:block'}>
                   <button className='w-full text-[16px] font-semibold h-12 text-base-black bg-neutral-04 rounded-full md:max-w-[202px] transition duration-200 hover:bg-neutral-05'>
                     Cancel
@@ -303,9 +307,29 @@ const UserTypeInfoModal = () => {
         </Dialog.Trigger>
 
         <Dialog.Portal>
-          <Dialog.Overlay className='z-10 fixed inset-0 overflow-y-scroll bg-neutral-02 pointer-events-none' />
+          <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
+            <div
+              className='absolute left-1/2 -translate-x-1/2
+        w-[375px] h-[514px] sm:w-[480px] sm:h-[282px]
+        bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2
+        rounded-xl pointer-events-none sm:block hidden'
+            />
 
-          <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[332px] sm:rounded-xl sm:max-h-[322px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
+            <div
+              className='absolute inset-0 bg-gradient-to-b from-neutral-02 to-neutral-02 sm:block hidden
+        [mask-image:linear-gradient(to_bottom,black_0%,black_100%),linear-gradient(to_right,black_0%,black_100%)]
+        [mask-size:100%_100%,480px_322px]
+        [mask-position:0_0,50%_50%]
+        [mask-repeat:no-repeat]
+        [mask-composite:exclude]'
+              style={{
+                maskImage:
+                  "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='530' viewBox='0 0 480 530' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='530' rx='12' fill='black'/%3E%3C/svg%3E\")",
+              }}
+            />
+          </Dialog.Overlay>
+
+          <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] overflow-x-hidden backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[332px] sm:rounded-xl sm:max-h-[322px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
             <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
             <Dialog.Close asChild>
               <div className='absolute -right-14 top-0 p-2 backdrop-blur-sm cursor-pointer bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-full'>
@@ -388,7 +412,27 @@ const WalletInfoModal: React.FC<ICopyUserWalletModal> = ({ isCopied, setIsCopied
           <Icons.info className='cursor-pointer rounded-full transition duration-300 hover:opacity-75' />
         </Dialog.Trigger>
         <Dialog.Portal>
-          <Dialog.Overlay className='z-10 fixed inset-0 overflow-y-scroll bg-neutral-02 pointer-events-none' />
+          <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
+            <div
+              className='absolute left-1/2 -translate-x-1/2
+        w-[375px] h-[514px] sm:w-[480px] sm:h-[282px]
+        bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2
+        rounded-xl pointer-events-none sm:block hidden'
+            />
+
+            <div
+              className='absolute inset-0 bg-gradient-to-b from-neutral-02 to-neutral-02 sm:block hidden
+        [mask-image:linear-gradient(to_bottom,black_0%,black_100%),linear-gradient(to_right,black_0%,black_100%)]
+        [mask-size:100%_100%,480px_362px]
+        [mask-position:0_0,50%_50%]
+        [mask-repeat:no-repeat]
+        [mask-composite:exclude]'
+              style={{
+                maskImage:
+                  "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='530' viewBox='0 0 480 530' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='530' rx='12' fill='black'/%3E%3C/svg%3E\")",
+              }}
+            />
+          </Dialog.Overlay>
 
           <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[310px] sm:rounded-xl sm:max-h-[362px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
             <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
@@ -488,7 +532,27 @@ const ApiKeyModal: React.FC<ICopyUserApiKeyModal> = ({ isCopied, setIsCopied }) 
         </Dialog.Trigger>
 
         <Dialog.Portal>
-          <Dialog.Overlay className='z-10 fixed inset-0 overflow-y-scroll bg-neutral-02 pointer-events-none' />
+          <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
+            <div
+              className='absolute left-1/2 -translate-x-1/2
+        w-[375px] h-[514px] sm:w-[480px] sm:h-[282px]
+        bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2
+        rounded-xl pointer-events-none sm:block hidden'
+            />
+
+            <div
+              className='absolute inset-0 bg-gradient-to-b from-neutral-02 to-neutral-02 sm:block hidden
+        [mask-image:linear-gradient(to_bottom,#FEFDF8_0%,#FFFFFF_100%),linear-gradient(to_right,#FEFDF8_0%,#FFFFFF_100%)]
+        [mask-size:100%_100%,480px_362px]
+        [mask-position:0_0,50%_50%]
+        [mask-repeat:no-repeat]
+        [mask-composite:exclude]'
+              style={{
+                maskImage:
+                  "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='530' viewBox='0 0 480 530' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='530' rx='12' fill='black'/%3E%3C/svg%3E\")",
+              }}
+            />
+          </Dialog.Overlay>
 
           <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[310px] sm:rounded-xl sm:max-h-[362px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
             <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />

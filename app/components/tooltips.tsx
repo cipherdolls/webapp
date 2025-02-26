@@ -13,7 +13,7 @@ type IVariant = {
 };
 
 interface IProps {
-  variant: 'YourInfoSaved' | 'ChangeSaved' | 'ToConsumer' | 'ToProducer';
+  variant: 'YourInfoSaved' | 'ChangeSaved' | 'ToConsumer' | 'ToProducer' | '';
   className?: string;
 }
 
@@ -44,23 +44,34 @@ const variantMap: Record<string, IVariant> = {
   },
 };
 
-export const Notifications: React.FC<IProps> = ({ variant, className }) => {
-  const [isOpen, setIsOpen] = useState(true);
+export const Tooltips: React.FC<IProps> = ({ variant, className }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [manualClose, setManualClose] = useState(false);
+
   const currentVariant = variantMap[variant];
 
   if (!currentVariant) return null;
 
+  const handleClose = () => {
+    setIsOpen(false);
+    setManualClose(true);
+  };
+
   useEffect(() => {
+    if (!variant || manualClose) return;
+
+    setIsOpen(true);
+
     const timer = setTimeout(() => {
       setIsOpen(false);
-    }, 3000);
+    }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [variant]);
 
   return (
     <>
-      {isOpen && (
+      {isOpen && variant !== '' && (
         <div
           className={clsx(
             'absolute flex items-center w-11/12 h-fit top-10 right-1/2 translate-x-1/2 px-4 py-3 justify-between md:h-16 backdrop-blur-lg bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl md:w-full md:translate-x-0 md:right-3 md:max-w-[368px] md:px-5 md:top-3',
@@ -76,7 +87,7 @@ export const Notifications: React.FC<IProps> = ({ variant, className }) => {
             </p>
           </div>
 
-          <button onClick={() => setIsOpen(false)} className='text-sm font-semibold cursor-pointer transition-opacity hover:opacity-70'>
+          <button onClick={handleClose} className='text-sm font-semibold cursor-pointer transition-opacity hover:opacity-70'>
             OK
           </button>
         </div>
