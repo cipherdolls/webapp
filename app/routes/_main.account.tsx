@@ -331,8 +331,8 @@ const UserTypeInfoModal = () => {
 
           <Dialog.Content className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)]  backdrop-blur-lg absolute z-50 flex flex-col justify-between items-center focus:outline-none shadow-bottom p-6 pt-8 bottom-0 -translate-x-1/2 left-1/2 w-full h-full rounded-t-xl max-h-[332px] sm:rounded-xl sm:max-h-[322px] sm:top-1/2 sm:-translate-y-1/2 sm:p-8 sm:max-w-[480px] '>
             <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
-            <Dialog.Close className='z-50' asChild>
-              <button className='absolute bg-transparent z-50 -right-14 top-0 p-2 cursor-pointer bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] backdrop-blur-lg rounded-full'>
+            <Dialog.Close asChild>
+              <button className='absolute bg-transparent z-50 -right-14 top-0 p-2 cursor-pointer bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(247,240,223)_100%)] backdrop-blur-lg rounded-full focus:outline-none'>
                 <Icons.close />
               </button>
             </Dialog.Close>
