@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-
+import * as Button from '~/components/ui/button';
 const HowToAddDollModal = () => {
   return (
     <Dialog.Root>
@@ -45,12 +45,10 @@ const HowToAddDollModal = () => {
             </div>
             <div className='sm:mt-[22px] mt-4.5 grid grid-cols-2 gap-2'>
               <Dialog.Close asChild>
-                <button className='bg-neutral-04 rounded-full w-full text-body-md font-semibold text-base-black py-3.5 focus:outline-0'>
-                  Got It
-                </button>
+                <Button.Root variant='secondary'>Got It</Button.Root>
               </Dialog.Close>
               {/* TODO: Copy to clipboard */}
-              <button className='bg-base-black rounded-full py-3.5 text-body-md font-semibold text-base-white'>Copy API</button>
+              <Button.Root>Copy API</Button.Root>
             </div>
           </div>
         </Dialog.Content>

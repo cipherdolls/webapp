@@ -1,6 +1,6 @@
 import { Form, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/chats.$id.destroy';
-import { Icons } from '~/components/ui/icons';
+import * as Button from '~/components/ui/button';
 
 export async function clientAction({ params }: Route.ClientActionArgs) {
   const avatarId = params.id;
@@ -31,9 +31,9 @@ export default function AvatarDestroy() {
   const fetcher = useFetcher();
   return (
     <fetcher.Form method='post' action='destroy' className='w-full'>
-      <button type='submit' className='bg-neutral-04 py-3.5 rounded-full text-body-md font-semibold text-base-black w-full'>
+      <Button.Root type='submit' variant='secondary' className='w-full'>
         Yes, delete
-      </button>
+      </Button.Root>
     </fetcher.Form>
   );
 }

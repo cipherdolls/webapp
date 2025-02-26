@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { PICTURE_SIZE } from '~/constants';
 import type { Avatar } from '~/types';
 import { getPicture } from '~/utils/getPicture';
+import * as Button from '~/components/ui/button';
 
 export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
   const { name, shortDesc, id } = avatar;
@@ -22,9 +23,9 @@ export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
           <p className='sm:text-body-md text-body-sm text-neutral-01'>{shortDesc}</p>
         </div>
       </div>
-      <button className='bg-base-black rounded-full py-3 sm:py-2.5 text-body-sm sm:text-body-md font-semibold text-base-white sm:px-6 px-5'>
+      <Button.Root className='sm:px-6 px-5' responsive>
         Chat
-      </button>
+      </Button.Root>
     </Link>
   );
 };

@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import type { ReactNode } from 'react';
+import * as Button from '~/components/ui/button';
 
 interface PublishAvatarModalProps {
   onConfirm: () => void;
@@ -46,16 +47,12 @@ const PublishAvatarModal = ({ onConfirm, children }: PublishAvatarModalProps) =>
             </div>
             <div className='grid grid-cols-2 gap-3'>
               <Dialog.Close asChild>
-                <button
-                  type='button'
-                  className='bg-neutral-04 py-3.5 rounded-full text-body-md font-semibold text-base-black w-full'
-                  onClick={onConfirm}
-                >
+                <Button.Root type='button' variant='secondary' onClick={onConfirm}>
                   Yes, Continue
-                </button>
+                </Button.Root>
               </Dialog.Close>
               <Dialog.Close asChild>
-                <button className='bg-base-black py-3.5 rounded-full text-body-md font-semibold text-base-white'>No, Cancel</button>
+                <Button.Root type='button'>Yes, Continue</Button.Root>
               </Dialog.Close>
             </div>
           </div>

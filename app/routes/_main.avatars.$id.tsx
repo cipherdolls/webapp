@@ -2,7 +2,6 @@ import { Form, Link, redirect } from 'react-router';
 import type { Avatar, Chat } from '~/types';
 import ChatDestroy from './chats.$id.destroy';
 import type { Route } from './+types/_main.avatars.$id';
-import AvatarDestroy from './avatars.$id.destroy';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
@@ -10,6 +9,7 @@ import { getPicture } from '~/utils/getPicture';
 import { PICTURE_SIZE } from '~/constants';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import PublishAvatarModal from '~/components/publishAvatarModal';
+import * as Button from '~/components/ui/button';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -107,14 +107,13 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           </div>
         </Link>
         <div className='md:flex hidden items-center gap-3'>
-          <button className='bg-neutral-04 py-3.5 w-[130px] flex items-center justify-center text-body-md font-semibold text-base-black rounded-full'>
+          <Button.Root variant='secondary' className='w-[130px]'>
             Duplicate
-          </button>
-          <Link
-            to={`/avatars/${avatar.id}/edit`}
-            className='bg-neutral-04 py-3.5 w-[130px] flex items-center justify-center text-body-md font-semibold text-base-black rounded-full'
-          >
-            Edit
+          </Button.Root>
+          <Link to={`/avatars/${avatar.id}/edit`}>
+            <Button.Root variant='secondary' className='w-[130px]'>
+              Edit
+            </Button.Root>
           </Link>
           <DeleteAvatarModal />
         </div>
