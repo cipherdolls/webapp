@@ -457,13 +457,13 @@ const WalletInfoModal: React.FC<ICopyUserWalletModal> = ({ isCopied, setIsCopied
               <button
                 onClick={handleClickCopied}
                 className={cn(
-                  'flex items-center justify-center gap-1 w-full text-[16px] font-semibold h-12 text-base-white bg-base-black rounded-full max-w-[186px] transition duration-200 focus:outline-none',
+                  'flex items-center justify-center gap-2.5 w-full text-[16px] font-semibold h-12 text-base-white bg-base-black rounded-full max-w-[186px] transition duration-200 focus:outline-none',
                   isCopied && 'bg-base-black/0'
                 )}
               >
                 {isCopied ? (
                   <>
-                    <Icons.copied /> <span className='text-base-black'>Copied</span>
+                    <Icons.copiedArrow /> <span className='text-base-black'>Copied</span>
                   </>
                 ) : (
                   <span className='text-base-white'>Copy Address</span>
@@ -577,13 +577,13 @@ const ApiKeyModal: React.FC<ICopyUserApiKeyModal> = ({ isCopied, setIsCopied }) 
               <button
                 onClick={handleClickCopied}
                 className={cn(
-                  'flex items-center justify-center gap-1 w-full text-[16px] font-semibold h-12 text-base-white bg-base-black rounded-full max-w-[186px] transition duration-200 focus:outline-none',
+                  'flex items-center justify-center gap-2.5 w-full text-[16px] font-semibold h-12 text-base-white bg-base-black rounded-full max-w-[186px] transition duration-200 focus:outline-none',
                   isCopied && 'bg-base-black/0'
                 )}
               >
                 {isCopied ? (
                   <>
-                    <Icons.copied /> <span className='text-base-black'>Copied</span>
+                    <Icons.copiedArrow /> <span className='text-base-black'>Copied</span>
                   </>
                 ) : (
                   <span className='text-base-white'>Copy Address</span>
