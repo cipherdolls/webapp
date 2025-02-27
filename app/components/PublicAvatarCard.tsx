@@ -3,6 +3,7 @@ import { getPicture } from '~/utils/getPicture';
 import type { Avatar } from '~/types';
 import PlayerButton from '~/components/PlayerButton';
 import * as Button from '~/components/ui/button/button';
+import { PICTURE_SIZE } from '~/constants';
 
 interface PublicAvatarCardProps {
   avatar: Avatar;
@@ -14,7 +15,12 @@ const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatar
   return (
     <div key={avatar.id} className='bg-white rounded-xl overflow-hidden shadow-regular'>
       <Link to={`/avatars/${avatar.id}`} className='block h-[152px] sm:h-[200px] rounded-xl bg-black'>
-        <img src={getPicture(avatar, 'avatars', false)} alt={`${avatar.name} picture`} className='object-cover  w-full h-full' />
+        <img
+          src={getPicture(avatar, 'avatars', false)}
+          srcSet={getPicture(avatar, 'avatars', true)}
+          alt={`${avatar.name} picture`}
+          className='object-cover size-full'
+        />
       </Link>
       <div className='px-3 py-4 flex justify-between items-center gap-2 sm:px-5 sm:flex-col sm:items-start sm:gap-5 lg:flex-row'>
         <div>
@@ -25,7 +31,9 @@ const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatar
           <PlayerButton isPlaying={isPlaying} progress={50} isLoading={false} onClick={onPlayButtonClick} />
           <Form method='post' action='/chats'>
             <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-            <Button.Root type='submit' size='sm' className='px-5'>Add Avatar</Button.Root>
+            <Button.Root type='submit' size='sm' className='px-5'>
+              Add Avatar
+            </Button.Root>
           </Form>
         </div>
       </div>
