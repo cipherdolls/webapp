@@ -2,7 +2,7 @@ import { Form, Link } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import type { Avatar } from '~/types';
 import PlayerButton from '~/components/PlayerButton';
-import { Button } from '~/components/buttons/Button';
+import * as Button from '~/components/ui/button/button';
 
 interface PublicAvatarCardProps {
   avatar: Avatar;
@@ -22,10 +22,10 @@ const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatar
           <p className='text-body-sm text-neutral-01'>{avatar.shortDesc}</p>
         </div>
         <div className='flex gap-2 ml-auto'>
-          <PlayerButton isPlaying={isPlaying} progress={50} isLoading={false} onClick={onPlayButtonClick} disabled={true} />
+          <PlayerButton isPlaying={isPlaying} progress={50} isLoading={false} onClick={onPlayButtonClick} />
           <Form method='post' action='/chats'>
             <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-            <Button type='submit'>Add Avatar</Button>
+            <Button.Root type='submit' size='sm' className='px-5'>Add Avatar</Button.Root>
           </Form>
           {/* TODO: Add remove avatar action*/}
           {/* <Button type='submit' variant='primary'>
