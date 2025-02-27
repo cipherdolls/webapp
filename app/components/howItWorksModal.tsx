@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Icons } from './ui/icons';
+import * as Button from '~/components/ui/button/button';
 
 const HowItWorksModal = () => {
   return (
@@ -45,9 +46,7 @@ const HowItWorksModal = () => {
               </Dialog.Description>
             </div>
             <Dialog.Close asChild className='sm:hidden block sm:mt-0 mt-4.5'>
-              <button className='bg-neutral-04 rounded-full w-full text-body-md font-semibold text-base-black py-3.5 focus:outline-0'>
-                Got It
-              </button>
+              <Button.Root variant='secondary'>Got It</Button.Root>
             </Dialog.Close>
           </div>
           <Dialog.Close asChild>

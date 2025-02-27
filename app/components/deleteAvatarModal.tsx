@@ -1,14 +1,15 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Icons } from './ui/icons';
 import AvatarDestroy from '~/routes/avatars.$id.destroy';
+import * as Button from '~/components/ui/button/button';
 
 const DeleteAvatarModal = () => {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button type='button' className='size-12 flex items-center justify-center rounded-full bg-specials-danger'>
-          <Icons.trash className='text-white' />
-        </button>
+        <Button.Root type='button' variant='danger'>
+          <Icons.trash className='w-12' />
+        </Button.Root>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
@@ -47,7 +48,7 @@ const DeleteAvatarModal = () => {
             <div className='grid grid-cols-2 gap-3'>
               <AvatarDestroy />
               <Dialog.Close asChild>
-                <button className='bg-base-black py-3.5 rounded-full text-body-md font-semibold text-base-white'>No, Leave</button>
+                <Button.Root className='w-full'>No, Leave</Button.Root>
               </Dialog.Close>
             </div>
           </div>

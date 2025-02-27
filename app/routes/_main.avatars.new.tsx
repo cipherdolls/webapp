@@ -5,7 +5,7 @@ import { use, useEffect, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
-
+import * as Button from '~/components/ui/button/button';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
@@ -83,12 +83,9 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             <Icons.chevronLeft />
             Create Avatar
           </Link>
-          <button
-            type='submit'
-            className='py-3 px-[45.5px] rounded-full text-body-md font-semibold disabled:bg-neutral-05 disabled:text-neutral-03 text-base-white bg-base-black'
-          >
+          <Button.Root disabled={false} className='w-[186px]' type='submit'>
             Save Avatar
-          </button>
+          </Button.Root>
         </div>
         <div className='flex sm:flex-row flex-col sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
