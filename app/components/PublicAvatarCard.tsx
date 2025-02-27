@@ -16,7 +16,7 @@ const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatar
       <Link to={`/avatars/${avatar.id}`} className='block h-[152px] sm:h-[200px] rounded-xl bg-black'>
         <img src={getPicture(avatar, 'avatars', false)} alt={`${avatar.name} picture`} className='object-cover  w-full h-full' />
       </Link>
-      <div className='px-3 py-4 flex justify-between items-center gap-2 sm:px-5 md:flex-col md:items-start md:gap-5 lg:flex-row'>
+      <div className='px-3 py-4 flex justify-between items-center gap-2 sm:px-5 sm:flex-col sm:items-start sm:gap-5 lg:flex-row'>
         <div>
           <h4 className='text-body-lg sm:text-body-md font-semibold text-base-black mb-1'>{avatar.name}</h4>
           <p className='text-body-sm text-neutral-01'>{avatar.shortDesc}</p>
@@ -27,10 +27,6 @@ const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatar
             <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
             <Button.Root type='submit' size='sm' className='px-5'>Add Avatar</Button.Root>
           </Form>
-          {/* TODO: Add remove avatar action*/}
-          {/* <Button type='submit' variant='primary'>
-            Remove
-          </Button> */}
         </div>
       </div>
     </div>
