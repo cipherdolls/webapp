@@ -1,6 +1,6 @@
-import { Form, redirect, useFetcher } from "react-router";
-import type { Route } from "./+types/chats.$id.destroy";
-
+import { Form, redirect, useFetcher } from 'react-router';
+import type { Route } from './+types/chats.$id.destroy';
+import * as Button from '~/components/ui/button/button';
 
 export async function clientAction({ params }: Route.ClientActionArgs) {
   const avatarId = params.id;
@@ -18,10 +18,10 @@ export async function clientAction({ params }: Route.ClientActionArgs) {
   try {
     const res = await fetch(`${backendUrl}/avatars/${avatarId}`, options);
     if (!res.ok) {
-      console.error("Failed to delete avatar:", res.status, res.statusText);
-      return redirect("/error");
+      console.error('Failed to delete avatar:', res.status, res.statusText);
+      return redirect('/error');
     }
-    return redirect("/avatars"); 
+    return redirect('/avatars');
   } catch (error) {
     return redirect('/signin');
   }
@@ -30,10 +30,10 @@ export async function clientAction({ params }: Route.ClientActionArgs) {
 export default function AvatarDestroy() {
   const fetcher = useFetcher();
   return (
-    <fetcher.Form method='post' action='destroy'>
-      <button type='submit'>
-        Delete
-      </button>
+    <fetcher.Form method='post' action='destroy' className='w-full'>
+      <Button.Root type='submit' variant='secondary' className='w-full'>
+        Yes, delete
+      </Button.Root>
     </fetcher.Form>
   );
 }

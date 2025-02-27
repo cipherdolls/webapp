@@ -1,29 +1,16 @@
-import type { ButtonHTMLAttributes, FC } from "react";
-import { cn } from "~/utils/cn";
+import type { ButtonHTMLAttributes, FC } from 'react';
+import * as Button from '~/components/ui/button/button';
 
-const SignInWithMetamask: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
-  className = "",
-  type = "button",
-  ...props
-}) => {
+const SignInWithMetamask: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({ type = 'button', ...props }) => {
   return (
-    <button
-      className={cn(
-        "bg-base-black rounded-full py-3 px-6 max-w-max text-body-lg text-base-white flex items-center",
-        className
-      )}
-      type={type}
-      {...props}
-    >
-      <img
-        src="/metamask.svg"
-        alt="Metamask Icon"
-        className="mr-4 inline-block size-8"
-      />
+    <Button.Root variant='primary' size='lg' className='px-6' {...props} type={type}>
+      <Button.Icon as='div' className='mr-4'>
+        <img src='/metamask.svg' alt='Metamask Icon' className='size-8' />
+      </Button.Icon>
       <p>
-        Sign in via <span className="font-semibold"> MetaMask</span>
+        Sign in via <span className='font-semibold'> MetaMask</span>
       </p>
-    </button>
+    </Button.Root>
   );
 };
 
