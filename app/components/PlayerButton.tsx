@@ -8,7 +8,7 @@ type PlayerButtonProps = Omit<ComponentProps<typeof Button.Root>, 'onClick'> & {
   audioSrc: string;
 };
 
-const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className,...restProps }) => {
+const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...restProps }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [progress, setProgress] = useState(0); // 0-100
   const { currentAudio, playAudio, stopAudio } = useAudioPlayer();
@@ -47,7 +47,6 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className,...rest
       stopAudio();
       setProgress(0);
     } else {
-      // audioRef.current.play()
       playAudio(audioRef.current);
     }
   };
@@ -70,10 +69,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className,...rest
   return (
     <Button.Root
       onClick={handleClick}
-      className={cn(
-        'relative size-10 rounded-full flex items-center justify-center',
-        className,
-      )}
+      className={cn('relative size-10 rounded-full flex items-center justify-center', className)}
       {...restProps}
     >
       <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound} />
