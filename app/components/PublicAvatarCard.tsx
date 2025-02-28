@@ -3,17 +3,15 @@ import { getPicture } from '~/utils/getPicture';
 import type { Avatar } from '~/types';
 import PlayerButton from '~/components/PlayerButton';
 import * as Button from '~/components/ui/button/button';
-import { PICTURE_SIZE } from '~/constants';
 
 interface PublicAvatarCardProps {
   avatar: Avatar;
-  isPlaying: boolean;
-  onPlayButtonClick: () => void;
+  // onPlayButtonClick: (audio: HTMLAudioElement) => void;
 }
 
-const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatarCardProps) => {
+const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
   return (
-    <div key={avatar.id} className='bg-white rounded-xl overflow-hidden shadow-regular'>
+    <div className='bg-white rounded-xl overflow-hidden shadow-regular'>
       <Link to={`/avatars/${avatar.id}`} className='block h-[152px] sm:h-[200px] rounded-xl bg-black'>
         <img
           src={getPicture(avatar, 'avatars', false)}
@@ -28,7 +26,10 @@ const PublicAvatarCard = ({ avatar, isPlaying, onPlayButtonClick }: PublicAvatar
           <p className='text-body-sm text-neutral-01'>{avatar.shortDesc}</p>
         </div>
         <div className='flex gap-2 ml-auto'>
-          <PlayerButton isPlaying={isPlaying} progress={50} isLoading={false} onClick={onPlayButtonClick} />
+          <PlayerButton
+            audioSrc={`https://api.cipherdolls.com/tts-voices/${avatar.ttsVoiceId}/audio`}
+            // onPay={onPlayButtonClick}
+          />
           <Form method='post' action='/chats'>
             <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
             <Button.Root type='submit' size='sm' className='px-5'>
