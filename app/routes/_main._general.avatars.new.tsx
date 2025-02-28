@@ -8,6 +8,7 @@ import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
+import { showToast, CustomToaster } from '~/components/ui/toast';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -63,6 +64,12 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
       const file = e.target.files[0];
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
+
+      showToast({
+        emoji: '🖼️',
+        title: 'Looks nice!',
+        description: 'Image was updated',
+      });
     }
   };
 
@@ -93,18 +100,6 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
         <div className='flex sm:flex-row flex-col sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
             <div className='grid grid-cols-2 gap-5 w-full h-max'>
-              {/* <div className='flex flex-col gap-2'>
-                <label htmlFor='name' id='name' className='text-body-sm font-semibold text-neutral-01'>
-                  Name
-                </label>
-                <input
-                  className='py-3 px-3.5 rounded-xl text-body-md text-neutral-02 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)]'
-                  type='text'
-                  placeholder='Add a name'
-                  name='name'
-                  id='name'
-                />
-              </div> */}
               <Input.Root>
                 <Input.Label id='name' htmlFor='name'>
                   Name
@@ -152,11 +147,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               </div>
               {selectedVoice && (
                 <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                  <PlayerButton
-                    variant='white'
-                    className='shrink-0 shadow-bottom-level-1'
-                    audioSrc={PATHS.ttsVoice(selectedVoice.id)}
-                  />
+                  <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(selectedVoice.id)} />
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
                     <span className='text-body-md text-neutral-01'>Unrealspeach</span>
