@@ -3,10 +3,10 @@ import { getPicture } from '~/utils/getPicture';
 import type { Avatar } from '~/types';
 import PlayerButton from '~/components/PlayerButton';
 import * as Button from '~/components/ui/button/button';
+import { PATHS } from '~/constants';
 
 interface PublicAvatarCardProps {
   avatar: Avatar;
-  // onPlayButtonClick: (audio: HTMLAudioElement) => void;
 }
 
 const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
@@ -27,8 +27,8 @@ const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
         </div>
         <div className='flex gap-2 ml-auto'>
           <PlayerButton
-            audioSrc={`https://api.cipherdolls.com/tts-voices/${avatar.ttsVoiceId}/audio`}
-            // onPay={onPlayButtonClick}
+            variant='secondary'
+            audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)}
           />
           <Form method='post' action='/chats'>
             <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />

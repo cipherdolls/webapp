@@ -8,3 +8,7 @@ export const PICTURE_SIZE = {
   default: 'default',
   avatar: 'avatar',
 };
+
+export const PATHS = {
+  ttsVoice: (id: string) => `${backendUrl}/tts-voices/${id}/audio`,
+};

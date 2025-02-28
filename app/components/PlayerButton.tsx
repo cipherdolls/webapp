@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
+import React, { useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { Icons } from './ui/icons';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
+import * as Button from '~/components/ui/button/button';
+import { cn } from '~/utils/cn';
 
-interface PlayerButtonProps {
+type PlayerButtonProps = Omit<ComponentProps<typeof Button.Root>, 'onClick'> & {
   audioSrc: string;
-}
+};
 
-const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc }) => {
+const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className,...restProps }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [progress, setProgress] = useState(0); // 0-100
   const { currentAudio, playAudio, stopAudio } = useAudioPlayer();
 
-  const isPlaying = audioRef.current === currentAudio;
+  const isPlaying = audioRef && audioRef.current === currentAudio;
 
   useEffect(() => {
     const newAudio = new Audio(audioSrc);
@@ -45,6 +47,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc }) => {
       stopAudio();
       setProgress(0);
     } else {
+      // audioRef.current.play()
       playAudio(audioRef.current);
     }
   };
@@ -65,9 +68,16 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc }) => {
   }, [progress, radius, stroke]);
 
   return (
-    <button onClick={handleClick} className='relative size-10 rounded-full bg-neutral-04 flex items-center justify-center'>
-      <div className='absolute top-1/2 left-1/2 -translate-1/2 rounded-full w-8 h-8 '></div>
-      {isPlaying ? (
+    <Button.Root
+      onClick={handleClick}
+      className={cn(
+        'relative size-10 rounded-full flex items-center justify-center',
+        className,
+      )}
+      {...restProps}
+    >
+      <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound} />
+      {isPlaying && (
         <>
           <svg
             className='absolute top-1/2 left-1/2 -translate-1/2 transform -rotate-90'
@@ -76,8 +86,8 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc }) => {
           >
             <circle fill='transparent' strokeWidth='1' className='stroke-neutral-04' r={radius} cx={center} cy={center} />
             <circle
-              stroke='#03cc9c'
               fill='transparent'
+              className='stroke-specials-success'
               strokeLinecap='round'
               strokeWidth={stroke}
               strokeDasharray={circumference}
@@ -88,12 +98,9 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc }) => {
               cy={center}
             />
           </svg>
-          <Icons.stopSound />
         </>
-      ) : (
-        <Icons.sound />
       )}
-    </button>
+    </Button.Root>
   );
 };
 
