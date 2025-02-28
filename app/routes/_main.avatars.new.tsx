@@ -6,6 +6,9 @@ import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
+import * as Input from '~/components/ui/input/input';
+import * as Textarea from '~/components/ui/input/textarea';
+
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
@@ -90,7 +93,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
         <div className='flex sm:flex-row flex-col sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
             <div className='grid grid-cols-2 gap-5 w-full h-max'>
-              <div className='flex flex-col gap-2'>
+              {/* <div className='flex flex-col gap-2'>
                 <label htmlFor='name' id='name' className='text-body-sm font-semibold text-neutral-01'>
                   Name
                 </label>
@@ -101,30 +104,25 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                   name='name'
                   id='name'
                 />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <label id='shortDesc' htmlFor='shortDesc' className='text-body-sm font-semibold text-neutral-01'>
+              </div> */}
+              <Input.Root>
+                <Input.Label id='name' htmlFor='name'>
+                  Name
+                </Input.Label>
+                <Input.Input id='name' name='name' type='text' placeholder='Add a name' />
+              </Input.Root>
+              <Input.Root>
+                <Input.Label id='shortDesc' htmlFor='shortDesc'>
                   Short Description
-                </label>
-                <input
-                  className='py-3 px-3.5 rounded-xl text-body-md text-neutral-02 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)]'
-                  type='text'
-                  placeholder='Fun, smart, sweet etc.'
-                  name='shortDesc'
-                  id='shortDesc'
-                />
-              </div>
-              <div className='flex flex-col gap-2 col-span-2 '>
-                <label htmlFor='character' id='character' className='text-body-sm font-semibold text-neutral-01'>
-                  Character
-                </label>
-                <textarea
-                  className='p-3 min-h-[104px] rounded-xl text-body-md text-neutral-02 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] resize-none'
-                  placeholder='Describe your avatar'
-                  name='character'
-                  id='character'
-                />
-              </div>
+                </Input.Label>
+                <Input.Input id='shortDesc' name='shortDesc' type='text' placeholder='Fun, smart, sweet etc.' />
+              </Input.Root>
+              <Textarea.Root className='col-span-2'>
+                <Textarea.Label htmlFor='character'>Character</Textarea.Label>
+                <Textarea.Wrapper>
+                  <Textarea.Textarea id='character' name='character' placeholder='Describe your avatar' />
+                </Textarea.Wrapper>
+              </Textarea.Root>
             </div>
           </div>
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
