@@ -72,7 +72,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
       className={cn('relative shrink-0 size-10 rounded-full flex items-center justify-center', className)}
       {...restProps}
     >
-      <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound} className='size-6' />
+      <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound}  className='size-auto' />
       {isPlaying && (
         <>
           <svg
