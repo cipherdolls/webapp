@@ -13,7 +13,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
   const [progress, setProgress] = useState(0); // 0-100
   const { currentAudio, playAudio, stopAudio } = useAudioPlayer();
 
-  const isPlaying = audioRef && audioRef.current === currentAudio;
+  const isPlaying = audioRef.current && audioRef.current === currentAudio;
 
   useEffect(() => {
     const newAudio = new Audio(audioSrc);
@@ -69,10 +69,10 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
   return (
     <Button.Root
       onClick={handleClick}
-      className={cn('relative size-10 rounded-full flex items-center justify-center', className)}
+      className={cn('relative shrink-0 size-10 rounded-full flex items-center justify-center', className)}
       {...restProps}
     >
-      <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound} />
+      <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound} className='size-6' />
       {isPlaying && (
         <>
           <svg
