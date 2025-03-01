@@ -8,7 +8,7 @@ import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
-import { showToast, CustomToaster } from '~/components/ui/toast';
+import { showToast } from '~/components/ui/toast';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';

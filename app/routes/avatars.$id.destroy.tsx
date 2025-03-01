@@ -1,6 +1,7 @@
 import { Form, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/chats.$id.destroy';
 import * as Button from '~/components/ui/button/button';
+import { showToast } from '~/components/ui/toast';
 
 export async function clientAction({ params }: Route.ClientActionArgs) {
   const avatarId = params.id;
@@ -21,7 +22,12 @@ export async function clientAction({ params }: Route.ClientActionArgs) {
       console.error('Failed to delete avatar:', res.status, res.statusText);
       return redirect('/error');
     }
-    return redirect('/');
+    showToast({
+      emoji: '✔️',
+      title: 'It’s done',
+      description: 'The avatar was removed',
+    });
+    return redirect('/avatars');
   } catch (error) {
     return redirect('/signin');
   }
