@@ -6,10 +6,11 @@ import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import { PICTURE_SIZE } from '~/constants';
+import { PATHS, PICTURE_SIZE } from '~/constants';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import PublishAvatarModal from '~/components/publishAvatarModal';
 import * as Button from '~/components/ui/button/button';
+import PlayerButton from '~/components/PlayerButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -163,9 +164,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             )}
             <div className='absolute z-10 bottom-3 px-3 w-full'>
               <div className='flex items-center justify-between w-full'>
-                <div className='size-10 flex items-center justify-center bg-base-white shadow-bottom-level-1 rounded-full'>
-                  <Icons.sound />
-                </div>
+                <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
                 <div
                   className={cn(
                     'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-1 rounded-full',

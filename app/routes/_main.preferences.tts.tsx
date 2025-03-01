@@ -4,6 +4,8 @@ import type { Route } from './+types/_main.preferences.tts';
 import { DataCard } from '~/components/DataCard';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
+import  PlayerButton from '~/components/PlayerButton';
+import { PATHS } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
@@ -38,11 +40,17 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
       render: (data) => <span className='font-semibold'>{data.name}</span>,
       align: 'left',
     },
+    {
+      id: 'id',
+      label: 'Preview',
+      render: (data) => <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />,
+      align: 'right',
+      width: '100px',
+    },
   ];
 
   return (
     <>
-      {/* <div className=''>TtsProviders</div> */}
       <div className='space-y-10 pb-5'>
         {ttsProviders.map((ttsProvider) => (
           <DataCard.Root key={ttsProvider.id}>

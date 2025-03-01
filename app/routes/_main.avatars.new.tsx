@@ -8,6 +8,8 @@ import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
+import PlayerButton from '~/components/PlayerButton';
+import { PATHS } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -152,9 +154,11 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               </div>
               {selectedVoice && (
                 <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white shrink-0'>
-                    <Icons.sound />
-                  </div>
+                  <PlayerButton
+                    variant='white'
+                    className='shrink-0 shadow-bottom-level-1'
+                    audioSrc={PATHS.ttsVoice(selectedVoice.id)}
+                  />
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
                     <span className='text-body-md text-neutral-01'>Unrealspeach</span>

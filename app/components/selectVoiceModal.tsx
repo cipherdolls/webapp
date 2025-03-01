@@ -2,6 +2,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Icons } from './ui/icons';
 import type { TtsVoice } from '~/types';
 import { cn } from '~/utils/cn';
+import PlayerButton from './PlayerButton';
+import { PATHS } from '~/constants';
 
 const SelectVoiceModal = ({
   ttsVoices,
@@ -41,10 +43,8 @@ const SelectVoiceModal = ({
                   )}
                   onClick={() => onVoiceChange(voice)}
                 >
-                  {/* TODO: isPlaying state on sound icon */}
-                  <div className='size-10 rounded-full shadow-bottom-level-1 flex items-center justify-center bg-base-white shrink-0'>
-                    <Icons.sound />
-                  </div>
+                  {/* TODO: FIX CONFLICT WITH BUTTONS */}
+                  <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(voice.id)} />
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{voice.name}</p>
                     <span className='text-body-md text-neutral-01 text-left'>Unrealspeach</span>

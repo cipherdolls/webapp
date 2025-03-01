@@ -27,6 +27,7 @@ export const buttonVariants = tv({
     variant: {
       primary: {},
       secondary: {},
+      white: {},
       ghost: {},
       danger: {},
     },
@@ -74,6 +75,20 @@ export const buttonVariants = tv({
           'hover:bg-neutral-04/80',
           // focus
           'focus-visible:ring-2 focus-visible:ring-neutral-04 focus-visible:ring-offset-2',
+        ],
+      },
+    },
+     // White variant
+    {
+      variant: 'white',
+      class: {
+        root: [
+          // base
+          'bg-white text-black',
+          // hover
+          'hover:bg-white/80',
+          // focus
+          'focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2',
         ],
       },
     },

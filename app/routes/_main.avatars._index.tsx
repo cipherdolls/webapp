@@ -30,17 +30,6 @@ export async function clientLoader() {
 
 export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
   const avatars: Avatar[] = loaderData;
-
-  const [activeAvatarId, setActiveAvatarId] = useState<Avatar['id'] | null>(null);
-
-  const handlePlayButtonClick = (id: Avatar['id']) => {
-    if (activeAvatarId === id) {
-      setActiveAvatarId(null);
-    } else {
-      setActiveAvatarId(id);
-    }
-  };
-
   return (
     <>
       <div className='flex flex-col gap-10 sm:gap-16 w-full'>
@@ -52,12 +41,7 @@ export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='grid w-full gap-3 sm:grid-cols-2 md:gap-5 '>
           {avatars.map((avatar) => (
-            <PublicAvatarCard
-              key={avatar.id}
-              avatar={avatar}
-              isPlaying={activeAvatarId === avatar.id}
-              onPlayButtonClick={() => handlePlayButtonClick(avatar.id)}
-            />
+            <PublicAvatarCard key={avatar.id} avatar={avatar} />
           ))}
         </div>
       </div>
