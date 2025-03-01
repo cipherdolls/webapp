@@ -92,8 +92,6 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
   height: 100vh;
 
   background:
