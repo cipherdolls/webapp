@@ -1,9 +1,19 @@
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, redirect } from 'react-router';
 import type { Route } from './+types/_main.preferences';
 import { cn } from '~/utils/cn';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Preferences' }];
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const normalizedPath = url.pathname.replace(/\/$/, '');
+  
+  if (normalizedPath === '/preferences') {
+    return redirect("/preferences/ai");
+  }
+  return null;
 }
 
 const preferencesNavItems = [
