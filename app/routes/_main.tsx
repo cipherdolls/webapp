@@ -6,7 +6,6 @@ import type { ProcessEvent, User } from '~/types';
 import { useEffect, useRef } from 'react';
 import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
-import useLayoutType from '~/hooks/useLayoutType';
 import { cn } from '~/utils/cn';
 
 export async function clientLoader() {
@@ -29,7 +28,6 @@ export async function clientLoader() {
 }
 
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
-  const layoutType = useLayoutType();
   const me: User = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
@@ -76,29 +74,11 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
     // eslint-disable-next-line
   }, [me.id]);
 
-  const isChatLayout = layoutType === 'chat';
-
   return (
     <AudioPlayerProvider>
       <div className='flex sm:flex-row flex-col-reverse size-full'>
-        <Sidebar className={cn(isChatLayout && 'border-none')} />
-        {isChatLayout ? (
-          <>
-            <main className='flex flex-1 sm:py-2 sm:pr-2'>
-              <div className='flex flex-1 sm:rounded-xl sm:bg-linear-[86deg] sm:from-[rgba(254,253,248,0.56)]  sm:to-[rgba(255,255,255,0.56)]'>
-                <Outlet />
-              </div>
-            </main>
-          </>
-        ) : (
-          <>
-            <main className='flex flex-1 overflow-y-scroll scrollbar-medium'>
-              <div className='flex flex-1 max-w-[980px] w-full mx-auto py-3 sm:py-[22px] lg:px-8 md:px-6 sm:px-4 px-1.5'>
-                <Outlet />
-              </div>
-            </main>
-          </>
-        )}
+        <Sidebar />
+        <Outlet />
       </div>
     </AudioPlayerProvider>
   );
