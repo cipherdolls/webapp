@@ -31,6 +31,7 @@ export async function clientLoader() {
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const scenarios: Scenario[] = loaderData;
 
+  console.log(scenarios);
   const columnProperties: Array<TTableColumn<Scenario>> = [
     {
       id: 'name',
@@ -39,18 +40,25 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       align: 'left',
     },
     {
+      id: 'chatModel',
+      label: 'Chat Model Name',
+      render: (data) => data.chatModel.name,
+      align: 'right',
+      width: '135px',
+    },
+    {
       id: 'temperature',
       label: 'Temperature',
       render: (data) => data.temperature,
       align: 'right',
-      width: '135px',
+      width: '115px',
     },
     {
       id: 'topP',
       label: 'TopP',
       render: (data) => data.topP,
       align: 'right',
-      width: '135px',
+      width: '80px',
     },
     {
       id: 'frequencyPenalty',
@@ -87,7 +95,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                     data={columnProperties.map((column) => {
                       return {
                         label: column.label,
-                        value: String(scenario[column.id]),
+                        value: column.render(scenario),
                       };
                     })}
                   />
