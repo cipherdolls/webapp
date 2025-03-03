@@ -34,6 +34,10 @@ const PublishAvatarModal = ({ onConfirm, children }: PublishAvatarModalProps) =>
         </Dialog.Overlay>
 
         <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20'>
+          <Dialog.Title className='sr-only'>Availablity</Dialog.Title>
+          <Dialog.Description className='sr-only'>
+            Once published, you will no longer be able to edit or delete your avatar
+          </Dialog.Description>
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
           <div className='flex flex-col gap-10'>
             <div className='flex flex-col gap-4.5 items-center justify-center'>
