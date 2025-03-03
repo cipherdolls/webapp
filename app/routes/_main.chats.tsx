@@ -8,6 +8,10 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export const handle = {
+  layout: "chat",
+};
+
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
   const localStorageToken = localStorage.getItem('token');
