@@ -21,7 +21,7 @@ export async function clientAction({ params }: Route.ClientActionArgs) {
       console.error('Failed to delete avatar:', res.status, res.statusText);
       return redirect('/error');
     }
-    return redirect('/avatars');
+    return redirect('/');
   } catch (error) {
     return redirect('/signin');
   }

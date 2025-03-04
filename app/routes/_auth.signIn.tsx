@@ -55,11 +55,12 @@ export default function SignInRoute() {
   useEffect(() => {
     if (fetcher.data?.token) {
       setToken(fetcher.data.token);
+      navigate("/");
     }
     if (fetcher.data?.error) {
       console.error("Sign-in error:", fetcher.data.error);
     }
-  }, [fetcher.data, setToken]);
+  }, [fetcher.data, token]);
 
   useEffect(() => {
     checkConnection();

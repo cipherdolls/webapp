@@ -1,12 +1,13 @@
-import { Outlet, redirect } from 'react-router';
+import { Outlet, redirect, useNavigate } from 'react-router';
 import mqtt from 'mqtt';
 import Sidebar from '~/components/sidebar';
 import type { Route } from './+types/_main';
 import type { ProcessEvent, User } from '~/types';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
 import { cn } from '~/utils/cn';
+import { ethers } from 'ethers';
 
 export async function clientLoader() {
   const backendUrl = 'https://api.cipherdolls.com';
@@ -33,6 +34,9 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+  const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
+  const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!mqttClientRef.current) {
@@ -73,6 +77,69 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
     }
     // eslint-disable-next-line
   }, [me.id]);
+
+
+  // Initialize provider
+  useEffect(() => {
+    const initializeProvider = async () => {
+      if (window.ethereum) {
+        try {
+          // Request user accounts
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+          // Create a new provider instance
+          const providerInstance = new ethers.BrowserProvider(window.ethereum, 'any');
+          const network = await providerInstance.getNetwork();
+          setProvider(providerInstance);
+          setNetwork(network);
+        } catch (error) {
+          console.error('Error connecting to wallet:', error);
+        }
+      } else {
+        console.error('Ethereum provider not found');
+      }
+    };
+
+    initializeProvider();
+  }, []);
+  
+  // Track network changes
+  useEffect(() => {
+    if (provider) {
+      const handleChainChanged = (chainId: string) => {
+        console.log('Chain changed:', chainId);
+        window.location.reload();
+      };
+
+      // Subscribe to chainChanged event directly from window.ethereum
+      window.ethereum.on('chainChanged', handleChainChanged);
+
+      // Cleanup listener when component unmounts
+      return () => {
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      };
+    }
+  }, [provider]);
+
+  // track account changes
+  useEffect(() => {
+    if (provider) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        console.log('Accounts changed:', accounts);
+        localStorage.removeItem('token');
+        navigate("/");
+      };
+
+      // Subscribe to accountsChanged event directly from window.ethereum
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      // Cleanup listener when component unmounts
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
+  }, [provider]);
+
 
   return (
     <AudioPlayerProvider>
