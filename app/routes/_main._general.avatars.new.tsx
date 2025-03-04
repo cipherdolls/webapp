@@ -42,7 +42,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     return redirect('/signin');
   }
   const options = {
-    method: 'POST',
+    method: request.method,
     headers: {
       Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
     },
