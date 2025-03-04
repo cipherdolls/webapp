@@ -36,7 +36,7 @@ export async function clientLoader() {
 
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
   const { avatars, dolls } = loaderData;
-  const me = useRouteLoaderData('routes/_main._general') as User;
+  const me = useRouteLoaderData('routes/_main') as User;
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
