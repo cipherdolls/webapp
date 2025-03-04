@@ -37,6 +37,39 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   }
 }
 
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  const formData = await request.formData();
+  const avatarId = formData.get("avatarId"); // <= get the hidden field's value
+
+  const backendUrl = 'https://api.cipherdolls.com';
+  const localStorageToken = localStorage.getItem('token');
+  if (!localStorageToken) {
+    return redirect('/signin');
+  }
+  const options = {
+    method: request.method,
+    headers: {
+      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
+    },
+    body: formData,
+  };
+  try {
+    const res = await fetch(`${backendUrl}/avatars/${avatarId}`, options);
+
+    if (!res.ok) {
+      return await res.json();
+    }
+    const avatar: Avatar = await res.json();
+    return redirect(`/avatars/${avatar.id}`);
+  } catch (error: any) {
+    console.error(error);
+  }
+}
+
+
+
+
+
 export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const avatar: Avatar = loaderData;
   const fetcher = useFetcher();
