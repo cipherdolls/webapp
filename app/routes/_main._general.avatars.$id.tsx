@@ -1,7 +1,7 @@
 import { Form, Link, redirect } from 'react-router';
 import type { Avatar, Chat } from '~/types';
 import ChatDestroy from './chats.$id.destroy';
-import type { Route } from './+types/_main.avatars.$id';
+import type { Route } from './+types/_main._general.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';

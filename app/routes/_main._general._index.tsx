@@ -3,7 +3,7 @@ import { Card } from '~/components/card';
 import DashboardBanner from '~/components/dashboardBanner';
 import HowToAddDollModal from '~/components/howToAddDollModal';
 import { Icons } from '~/components/ui/icons';
-import type { Route } from './+types/_main._index';
+import type { Route } from './+types/_main._general._index';
 import type { Avatar, Doll, User } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
@@ -36,7 +36,7 @@ export async function clientLoader() {
 
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
   const { avatars, dolls } = loaderData;
-  const me = useRouteLoaderData('routes/_main') as User;
+  const me = useRouteLoaderData('routes/_main._general') as User;
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router';
-import type { Route } from './+types/_main.preferences';
+import type { Route } from './+types/_main._general.preferences';
 import { cn } from '~/utils/cn';
 
 export function meta({}: Route.MetaArgs) {

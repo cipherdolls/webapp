@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 import type { Scenario } from '~/types';
-import type { Route } from './+types/_main.preferences.scenarios';
+import type { Route } from './+types/_main._general.preferences.scenarios';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 

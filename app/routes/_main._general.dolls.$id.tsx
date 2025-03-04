@@ -4,7 +4,7 @@ import ChatDestroy from "./chats.$id.destroy";
 import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
-import type { Route } from "./+types/_main.dolls.$id";
+import type { Route } from "./+types/_main._general.dolls.$id";
 
 export function meta({}: Route.MetaArgs) {
   return [

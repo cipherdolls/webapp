@@ -1,6 +1,6 @@
 import { Link, redirect } from 'react-router';
 import type { Avatar } from '~/types';
-import type { Route } from './+types/_main.avatars._index';
+import type { Route } from './+types/_main._general.avatars._index';
 import { useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import PublicAvatarCard from '~/components/PublicAvatarCard';

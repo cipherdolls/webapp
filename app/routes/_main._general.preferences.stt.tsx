@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 import type { SttProvider } from '~/types';
-import type { Route } from './+types/_main.preferences.stt';
+import type { Route } from './+types/_main._general.preferences.stt';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';

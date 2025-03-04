@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 import type { TtsProvider, TtsVoice } from '~/types';
-import type { Route } from './+types/_main.preferences.tts';
+import type { Route } from './+types/_main._general.preferences.tts';
 import { DataCard } from '~/components/DataCard';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';

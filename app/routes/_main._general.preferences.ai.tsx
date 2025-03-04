@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
-import type { Route } from './+types/_main.preferences.ai';
+import type { Route } from './+types/_main._general.preferences.ai';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';

@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/_main.account";
+import type { Route } from "./+types/_main._general.account";
 
 export function meta({}: Route.MetaArgs) {
   return [
