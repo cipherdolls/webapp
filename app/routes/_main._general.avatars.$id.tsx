@@ -1,4 +1,4 @@
-import { Form, Link, redirect } from 'react-router';
+import { Form, Link, redirect, useFetcher } from 'react-router';
 import type { Avatar, Chat } from '~/types';
 import ChatDestroy from './chats.$id.destroy';
 import type { Route } from './+types/_main._general.avatars.$id';
@@ -39,6 +39,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const avatar: Avatar = loaderData;
+  const fetcher = useFetcher();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
   const [copied, setCopied] = useState(false);
@@ -119,9 +120,15 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           </div>
         </Link>
         <div className='md:flex hidden items-center gap-3'>
-          <Button.Root variant='secondary' className='w-[130px]'>
-            Duplicate
-          </Button.Root>
+          <fetcher.Form method="POST" action='/avatars/new'>
+            <input hidden readOnly id="name" name="name" defaultValue={`${avatar.name} copy`} />
+            <input hidden readOnly id="character" name="character" defaultValue={avatar.character} />
+            <input hidden readOnly id="ttsVoiceId" name="ttsVoiceId" defaultValue={avatar.ttsVoiceId} />
+            <input hidden readOnly id="shortDesc" name="shortDesc" defaultValue={avatar.shortDesc} />
+            <Button.Root variant='secondary' className='w-[130px]' type='submit'>
+              Duplicate
+            </Button.Root>
+          </fetcher.Form>
           <Link to={`/avatars/${avatar.id}/edit`}>
             <Button.Root variant='secondary' className='w-[130px]'>
               Edit
