@@ -9,6 +9,7 @@ import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
 import { cn } from '~/utils/cn';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { showToast } from '~/components/ui/toast';
 
 export async function clientLoader() {
   try {
@@ -18,7 +19,6 @@ export async function clientLoader() {
     return redirect('/signin');
   }
 }
-
 
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;
@@ -51,7 +51,44 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       const handleMessage = (topic: string, message: Buffer) => {
         const processEvent: ProcessEvent = JSON.parse(message.toString());
         console.log(processEvent);
-        // Handle the event
+
+        const { resourceName, resourceId, jobName, jobStatus } = processEvent;
+
+        let emoji = '⏳';
+        let duration = 5000;
+        let actionLink;
+
+        if (jobStatus === 'completed') {
+          emoji = '✅';
+          duration = 5000;
+        } else if (jobStatus === 'failed') {
+          emoji = '❌';
+          duration = 8000;
+
+          switch (resourceName) {
+            case 'Avatar':
+              actionLink = `/avatars/${resourceId}`;
+              break;
+            case 'Chat':
+              actionLink = `/chats/${resourceId}`;
+              break;
+
+            default:
+              break;
+          }
+        }
+
+        const formattedResourceName = resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
+        const formattedJobName = jobName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+
+        showToast({
+          emoji,
+          title: `${formattedResourceName} ${formattedJobName}`,
+          description: `${jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)} (ID: ${resourceId})`,
+          actionLink,
+          actionText: actionLink ? 'View' : undefined,
+          duration,
+        });
       };
 
       mqttClient.on('message', handleMessage);
@@ -59,7 +96,6 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), { qos: 1 });
       });
 
-      // Clean up the subscription and event listener on unmount
       return () => {
         mqttClient.unsubscribe(userTopic);
         mqttClient.off('message', handleMessage);
@@ -69,7 +105,6 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
     }
     // eslint-disable-next-line
   }, [me.id]);
-
 
   // Initialize provider
   useEffect(() => {
@@ -94,7 +129,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
     initializeProvider();
   }, []);
-  
+
   // Track network changes
   useEffect(() => {
     if (provider) {
@@ -119,7 +154,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('Accounts changed:', accounts);
         localStorage.removeItem('token');
-        navigate("/");
+        navigate('/');
       };
 
       // Subscribe to accountsChanged event directly from window.ethereum
@@ -131,7 +166,6 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       };
     }
   }, [provider]);
-
 
   return (
     <AudioPlayerProvider>

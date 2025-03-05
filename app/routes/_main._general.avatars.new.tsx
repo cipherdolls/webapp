@@ -26,8 +26,6 @@ export async function clientLoader() {
   }
 }
 
-
-
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
@@ -39,7 +37,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     if (!res.ok) {
       return await res.json();
     }
-    
+
     const avatar: Avatar = await res.json();
     return redirect(`/avatars/${avatar.id}`);
   } catch (error: any) {
@@ -47,8 +45,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     return { error: 'Something went wrong. Please try again.' };
   }
 }
-
-
 
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   const ttsVoices: TtsVoice[] = loaderData;
@@ -79,13 +75,13 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
 
   return (
     <fetcher.Form method='post' action='/avatars/new' encType='multipart/form-data' className='w-full'>
-      {apiError && 
+      {apiError && (
         <>
           <div>{apiError.statusCode}</div>
           <div>{apiError.error}</div>
           <div>{apiError.message}</div>
         </>
-      }
+      )}
 
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between'>
