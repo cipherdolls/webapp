@@ -8,9 +8,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 
-export async function clientLoader({params}: Route.LoaderArgs) {
+export async function clientLoader() {
   try {
-    const { messageId } = params;
     const res = await fetchWithAuth(`chats`);
     return await res.json();
   } catch (error) {
@@ -20,30 +19,29 @@ export async function clientLoader({params}: Route.LoaderArgs) {
 
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
-  const formData = await request.formData();
-  const body = Object.fromEntries(formData);
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const options = {
-    method: 'post',
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  };
   try {
-    const res = await fetch(`${backendUrl}/chats`, options);
+    // Convert formData to an object, then to JSON
+    const formData = await request.formData();
+    const bodyObj = Object.fromEntries(formData);
+    const bodyJson = JSON.stringify(bodyObj);
+
+    // Use fetchWithAuth with your desired endpoint and options
+    const res = await fetchWithAuth('chats', {
+      method: request.method,
+      headers: { 'Content-Type': 'application/json' },
+      body: bodyJson,
+    });
 
     if (!res.ok) {
       console.error('Failed to create chat:', res.status, res.statusText);
       return redirect('/error');
     }
-    return redirect('/chats');
+
+    const chat: Chat = await res.json();
+    return redirect(`/chats/${chat.id}`);
   } catch (error) {
+    // If fetchWithAuth throws a redirect (e.g. token missing),
+    // or any other error occurs, handle here
     return redirect('/signin');
   }
 }

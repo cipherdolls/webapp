@@ -5,7 +5,7 @@ import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
 
 export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
-  const { name, shortDesc, id } = avatar;
+  const { name, shortDesc, id, chats } = avatar;
 
   return (
     <Link to={`/avatars/${id}`} className='lg:p-4 sm:p-3.5 p-3 flex items-center justify-between gap-4 sm:gap-4.5 flex-wrap'>
@@ -23,9 +23,16 @@ export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
           <p className='sm:text-body-md text-body-sm text-neutral-01'>{shortDesc}</p>
         </div>
       </div>
-      <Button.Root className='sm:px-6 px-5' responsive>
-        Chat
-      </Button.Root>
+
+      {chats[0]?.id ? (
+        <Button.Root className='sm:px-6 px-5' responsive>
+          Start Chat
+        </Button.Root>
+        ) : (
+        <Button.Root className='sm:px-6 px-5' responsive>
+          Continue Chat
+        </Button.Root>
+      )}
     </Link>
   );
 };

@@ -1,36 +1,30 @@
 import { Form, redirect, useFetcher } from "react-router";
 import type { Route } from "./+types/chats.$id.destroy";
+import { fetchWithAuth } from "~/utils/fetchWithAuth";
 
-
-export async function clientAction({ params }: Route.ClientActionArgs) {
-  const chatId = params.id;
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const options = {
-    method: 'delete',
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
   try {
-    const res = await fetch(`${backendUrl}/chats/${chatId}`, options);
+    const chatId = params.id;
+    const res = await fetchWithAuth(`chats/${chatId}`, {
+      method: request.method,
+    });
+
     if (!res.ok) {
-      console.error("Failed to delete chat:", res.status, res.statusText);
-      return redirect("/error");
+      return await res.json();
     }
-    return redirect("/chats"); 
-  } catch (error) {
-    return redirect('/signin');
+    
+    return redirect(`/`);
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
   }
 }
+
 
 export default function ChatDestroy() {
   const fetcher = useFetcher();
   return (
-    <fetcher.Form method='post' action='destroy'>
+    <fetcher.Form method="DELETE" action='destroy'>
       <button type='submit'>
          Delete Chat
       </button>

@@ -7,30 +7,34 @@ const backendUrl = 'https://api.cipherdolls.com';
 function getAuthTokenOrRedirect() {
   const localStorageToken = localStorage.getItem('token');
   if (!localStorageToken) {
+    // Throwing a redirect tells React Router 
+    // to jump to /signin immediately
     throw redirect('/signin');
   }
   return localStorageToken.replaceAll('"', '');
 }
 
 /**
- * Wrapper around fetch that injects Authorization header
- * and automatically redirects if no token is found.
+ * A convenience wrapper around fetch that:
+ *  - Checks for a valid token or redirects
+ *  - Merges in Authorization header
  */
 export async function fetchWithAuth(
-  endpoint: string, 
-  options?: RequestInit // optional: you can make it more typed
+  endpoint: string,
+  options: RequestInit = {}
 ) {
   const token = getAuthTokenOrRedirect();
-  const mergedOptions: RequestInit = {
-    // Provide defaults, then merge
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      ...(options?.headers || {})
-    },
-    ...options,
+
+  // Merge your headers so you keep 'Content-Type' etc.
+  const mergedHeaders: HeadersInit = {
+    ...options.headers,
+    Authorization: `Bearer ${token}`,
   };
 
-  const res = await fetch(`${backendUrl}/${endpoint}`, mergedOptions);
+  const mergedOptions: RequestInit = {
+    ...options,
+    headers: mergedHeaders,
+  };
 
-  return res;
+  return fetch(`${backendUrl}/${endpoint}`, mergedOptions);
 }
