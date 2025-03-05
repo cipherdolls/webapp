@@ -1,6 +1,7 @@
 import { redirect, useFetcher } from "react-router";
 import type { Route } from "./+types/_main._general.avatars.($id).edit";
 import type { Avatar } from "~/types";
+import { fetchWithAuth } from "~/utils/fetchWithAuth";
 
 
 
@@ -11,25 +12,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  const avatarId = params.id;
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const res = await fetch(`${backendUrl}/avatars/${avatarId}`, headers);
+    const avatarId = params.id;
+    const res = await fetchWithAuth(`avatars/${avatarId}`);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
-
 
 
 export default function AvatarEdit({ loaderData }: Route.ComponentProps) {

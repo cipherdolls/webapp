@@ -8,25 +8,17 @@ import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
 import { cn } from '~/utils/cn';
 import { ethers } from 'ethers';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const res = await fetch(`${backendUrl}/users/me`, headers);
+    const res = await fetchWithAuth(`users/me`);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
+
 
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;

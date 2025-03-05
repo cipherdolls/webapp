@@ -12,30 +12,23 @@ import PublishAvatarModal from '~/components/publishAvatarModal';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const avatarId = params.id;
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
+
+export async function clientLoader({params}: Route.LoaderArgs) {
   try {
-    const res = await fetch(`${backendUrl}/avatars/${avatarId}`, headers);
+    const avatarId = params.id;
+    const res = await fetchWithAuth(`avatars/${avatarId}`);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
+
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();

@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
 import type { Route } from "./+types/_main._general.dolls.$id";
+import { fetchWithAuth } from "~/utils/fetchWithAuth";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,25 +14,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  const dollId = params.doll;
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const res = await fetch(`${backendUrl}/dolls/${dollId}`, headers);
+    const dollId = params.doll;
+    const res = await fetchWithAuth(`dolls/${dollId}`);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
-
 
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {

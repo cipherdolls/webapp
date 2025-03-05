@@ -4,24 +4,15 @@ import type { Route } from './+types/_main._general.avatars._index';
 import { useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import PublicAvatarCard from '~/components/PublicAvatarCard';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
 export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const res = await fetch(`${backendUrl}/avatars?published=true`, headers);
+    const res = await fetchWithAuth('avatars?published=true');
     return await res.json();
   } catch (error) {
     return redirect('/signin');

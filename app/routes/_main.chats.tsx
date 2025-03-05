@@ -1,33 +1,23 @@
 import { Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
 import type { Chat, User } from '~/types';
 import type { Route } from './+types/_main.chats';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
 }
 
-export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
+
+export async function clientLoader({params}: Route.LoaderArgs) {
   try {
-    const res = await fetch(`${backendUrl}/chats`, headers);
-    if (!res.ok) {
-      console.error('Failed to get chats', res.status, res.statusText);
-      return redirect('/signin');
-    }
+    const { messageId } = params;
+    const res = await fetchWithAuth(`chats`);
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
+
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();

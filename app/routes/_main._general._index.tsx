@@ -7,21 +7,13 @@ import type { Route } from './+types/_main._general._index';
 import type { Avatar, Doll, User } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
-import SignInWithMetamask from '~/components/buttons/signInWithMetamask';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
+
+
 
 export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const [avatarsRes, dollsRes] = await Promise.all([fetch(`${backendUrl}/avatars`, headers), fetch(`${backendUrl}/dolls`, headers)]);
+    const [avatarsRes, dollsRes] = await Promise.all([fetchWithAuth('avatars'), fetchWithAuth('dolls')]);
     if (!avatarsRes.ok || !dollsRes.ok) {
       throw new Error('Failed to fetch data');
     }

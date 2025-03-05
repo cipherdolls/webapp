@@ -5,6 +5,7 @@ import type { Route } from "./+types/_main.chats.$chatId";
 import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
+import { fetchWithAuth } from "~/utils/fetchWithAuth";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,35 +14,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  const chatId = params.chatId;
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
+    const { chatId } = params;
     const [chatRes, messagesRes] = await Promise.all([
-      fetch(`${backendUrl}/chats/${chatId}`, headers),
-      fetch(`${backendUrl}/messages?chatId=${chatId}`, headers),
+      fetchWithAuth(`chats/${chatId}`),
+      fetchWithAuth(`messages?chatId=${chatId}`),
     ]);
     if (!chatRes.ok || !messagesRes.ok) {
       throw new Error("Failed to fetch data");
     }
     const chat: Chat = await chatRes.json();
     const messages: Message[] = await messagesRes.json();
-
     return { chat, messages };
   } catch (error) {
     return redirect('/signin');
   }
 }
-
-
 
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {

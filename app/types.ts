@@ -1,3 +1,10 @@
+export interface ApiError {
+  error: string;
+  message: Array<string>;
+  statusCode: number;
+}
+
+
 export interface User {
   id: string;
   name: string;

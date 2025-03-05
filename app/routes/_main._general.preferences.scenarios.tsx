@@ -3,27 +3,17 @@ import type { Scenario } from '~/types';
 import type { Route } from './+types/_main._general.preferences.scenarios';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
 }
 
 export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const res = await fetch(`${backendUrl}/scenarios`, headers);
+    const res = await fetchWithAuth(`scenarios`);
     return await res.json();
   } catch (error) {
-    console.error(error);
     return redirect('/signin');
   }
 }

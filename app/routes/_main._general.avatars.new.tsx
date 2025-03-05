@@ -1,6 +1,6 @@
 import { Form, Link, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
-import type { Avatar, TtsVoice } from '~/types';
+import type { ApiError, Avatar, TtsVoice } from '~/types';
 import { use, useEffect, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
@@ -10,60 +10,50 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
 export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const options = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
   try {
-    const res = await fetch(`${backendUrl}/tts-voices`, options);
+    const res = await fetchWithAuth('tts-voices');
     return await res.json();
   } catch (error) {
     return redirect('/signin');
   }
 }
 
+
+
 export async function clientAction({ request }: Route.ClientActionArgs) {
-  const formData = await request.formData();
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const options = {
-    method: request.method,
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-    body: formData,
-  };
   try {
-    const res = await fetch(`${backendUrl}/avatars`, options);
+    const formData = await request.formData();
+    const res = await fetchWithAuth('avatars', {
+      method: request.method,
+      body: formData,
+    });
 
     if (!res.ok) {
       return await res.json();
     }
+    
     const avatar: Avatar = await res.json();
     return redirect(`/avatars/${avatar.id}`);
   } catch (error: any) {
     console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
   }
 }
+
+
 
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   const ttsVoices: TtsVoice[] = loaderData;
   const fetcher = useFetcher();
+  const apiError: ApiError = fetcher.data;
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null);
   const [availability, setAvailability] = useState<'private' | 'public'>('private');
@@ -82,6 +72,14 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
 
   return (
     <fetcher.Form method='post' action='/avatars/new' encType='multipart/form-data' className='w-full'>
+      {apiError && 
+        <>
+          <div>{apiError.statusCode}</div>
+          <div>{apiError.error}</div>
+          <div>{apiError.message}</div>
+        </>
+      }
+
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between'>
           <Link to={'/'} className='flex items-center gap-4 text-heading-h3 font-semibold'>

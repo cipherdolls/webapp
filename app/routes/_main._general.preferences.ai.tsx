@@ -6,30 +6,23 @@ import type { TTableColumn } from '~/components/Table';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { DataCard } from '~/components/DataCard';
 import { Fragment } from 'react/jsx-runtime';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
 }
 
-export async function clientLoader() {
-  const backendUrl = 'https://api.cipherdolls.com';
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    return redirect('/signin');
-  }
-  const headers = {
-    headers: {
-      Authorization: `Bearer ${localStorageToken?.replaceAll('"', '')}`,
-    },
-  };
+
+export async function clientLoader({params}: Route.LoaderArgs) {
   try {
-    const res = await fetch(`${backendUrl}/ai-providers`, headers);
+    const res = await fetchWithAuth(`ai-providers`);
     return await res.json();
   } catch (error) {
-    console.error(error);
     return redirect('/signin');
   }
 }
+
+
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const aiProviders: AiProvider[] = loaderData;
