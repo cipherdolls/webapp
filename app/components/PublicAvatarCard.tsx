@@ -30,12 +30,22 @@ const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
             variant='secondary'
             audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)}
           />
-          <Form method='post' action='/chats'>
-            <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-            <Button.Root type='submit' size='sm' className='px-5'>
-              Add Avatar
-            </Button.Root>
-          </Form>
+
+          {avatar.chats.length > 0 ? (
+            <Link to={`/chats/${avatar.chats[0].id}`}>
+              <Button.Root size='sm' className='px-5'>
+                Chat
+              </Button.Root>
+            </Link>
+          ) : (
+            <Form method='POST' action='/chats'>
+              <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
+              <Button.Root type='submit' size='sm' className='px-5'>
+                Chat
+              </Button.Root>
+            </Form>
+          )}
+
         </div>
       </div>
     </div>
