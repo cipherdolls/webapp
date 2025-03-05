@@ -1,5 +1,5 @@
-import { Form, Link, redirect, useFetcher } from 'react-router';
-import type { Avatar, Chat } from '~/types';
+import { Form, Link, redirect, useFetcher, useRouteLoaderData } from 'react-router';
+import type { Avatar, Chat, User } from '~/types';
 import ChatDestroy from './chats.$id.destroy';
 import type { Route } from './+types/_main._general.avatars.$id';
 import { Icons } from '~/components/ui/icons';
@@ -53,12 +53,14 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const avatar: Avatar = loaderData;
   const fetcher = useFetcher();
+  const me = useRouteLoaderData('routes/_main') as User;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+  const isPublished = avatar.published;
 
   useEffect(() => {
     return () => {
@@ -120,6 +122,9 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
 
     return text;
   };
+
+  console.log(avatar, 'avatar');
+  console.log(me, 'me');
 
   return (
     <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
@@ -245,10 +250,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           <div className='sm:flex hidden flex-col gap-5'>
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
             <div className='p-6 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl flex items-center gap-6'>
-              <h2 className='text-heading-h2'>💖</h2>
+              <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
               <div className='flex flex-col gap-1'>
-                <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>Your Special</p>
-                <span className='text-body-md text-neutral-01 text-left'>Made by you</span>
+                <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>
+                  {isPublished ? 'Published' : 'Your Special'}
+                </p>
+                <span className='text-body-md text-neutral-01 text-left line-clamp-1'>
+                  {me.id === avatar.userId ? 'Made by you' : avatar.userId}
+                </span>
               </div>
             </div>
           </div>
