@@ -70,6 +70,7 @@
   --shadow-bottom-level-1: 0px 4px 24px 0px rgba(0, 0, 0, 0.1);
   --shadow-bottom-level-2: 0px 8px 40px 0px rgba(0, 0, 0, 0.16);
   --shadow-regular: 0px 0px 40px 0px rgba(0, 0, 0, 0.04);
+  --shadow-floating-banner: 0px 0px 32px 0px rgba(0, 0, 0, 0.08);
 }
 
 @layer base {
