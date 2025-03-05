@@ -15,7 +15,7 @@ const SidebarItems = [
   },
   {
     name: 'Preferences',
-    href: '/preferences',
+    href: '/preferences/ai',
     icon: Icons.preferences,
   },
   {
