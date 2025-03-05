@@ -9,8 +9,6 @@ import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
-
-
 export async function clientLoader() {
   try {
     const [avatarsRes, dollsRes] = await Promise.all([fetchWithAuth('avatars'), fetchWithAuth('dolls')]);
@@ -40,7 +38,7 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
         <DashboardBanner username={me.name} variant='welcome' description='What do you want to start from?' />
       </div>
 
-      <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
+      <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04 pb-2.5'>
         <YourAvatars avatars={avatars} />
         <YourDolls dolls={dolls} />
       </div>
