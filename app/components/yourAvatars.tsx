@@ -36,7 +36,7 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
               </div>
             </div>
           ) : (
-            <div className='flex flex-col bg-base-white shadow-regular rounded-xl sm:p-2 divide-y divide-neutral-04'>
+            <div className='flex flex-col bg-base-white shadow-regular rounded-xl sm:p-2 divide-y divide-neutral-04 max-h-[350px] sm:max-h-[500px] overflow-y-auto scrollbar-medium'>
               {avatars.map((avatar) => (
                 <AvatarCard key={avatar.id} avatar={avatar} />
               ))}

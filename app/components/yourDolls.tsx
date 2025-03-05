@@ -3,11 +3,15 @@ import HowToAddDollModal from '~/components/howToAddDollModal';
 import DollCard from './dollCard';
 import { cn } from '~/utils/cn';
 import type { Doll } from '~/types';
+import { Icons } from './ui/icons';
 
 const YourDolls = ({ dolls }: { dolls: Doll[] }) => {
   return (
     <Card.Root className='sm:pl-4 sm:max-w-[352px]'>
-      <Card.Label>Your Dolls</Card.Label>
+      <div className='flex items-center justify-between'>
+        <Card.Label>Your Dolls</Card.Label>
+        {dolls.length > 0 && <Icons.information />}
+      </div>
       <Card.Main className={cn(dolls.length > 0 && 'bg-none', 'max-h-max')}>
         <Card.Content className={cn(dolls.length === 0 && 'border-t-0')}>
           {dolls.length === 0 ? (
