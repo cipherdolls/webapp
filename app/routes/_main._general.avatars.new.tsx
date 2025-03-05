@@ -83,7 +83,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
         </>
       )}
 
-      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
+      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 size-full'>
         <div className='flex items-center justify-between'>
           <Link to={'/'} className='flex items-center gap-4 text-heading-h3 font-semibold'>
             <Icons.chevronLeft />
@@ -93,7 +93,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             Save Avatar
           </Button.Root>
         </div>
-        <div className='flex sm:flex-row flex-col sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04'>
+        <div className='flex sm:flex-row flex-col sm:gap-0 gap-6 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
             <div className='grid grid-cols-2 gap-5 w-full h-max'>
               <Input.Root>
