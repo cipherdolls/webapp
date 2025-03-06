@@ -54,12 +54,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const avatar: Avatar = loaderData;
   const fetcher = useFetcher();
   const me = useRouteLoaderData('routes/_main') as User;
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [preventFileOpen, setPreventFileOpen] = useState(false);
   const isPublished = avatar.published;
 
   useEffect(() => {
@@ -69,34 +65,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
       }
     };
   }, []);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-    }
-  };
-
-  const handleLabelClick = (e: React.MouseEvent) => {
-    if (preventFileOpen) {
-      e.preventDefault();
-      setPreventFileOpen(false);
-      return;
-    }
-  };
-
-  const handleTrashClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setSelectedImage(null);
-
-    setPreventFileOpen(true);
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(avatar.character);
@@ -109,9 +77,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
     const timeoutId = setTimeout(() => setCopied(false), 2000);
     copyTimeoutRef.current = timeoutId;
   };
-  const handlePublishConfirm = () => {
-    setAvailability('public');
-  };
 
   const getTextAfterThe = (text: string): string => {
     const words = text.split(' ');
@@ -122,9 +87,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
 
     return text;
   };
-
-  console.log(avatar, 'avatar');
-  console.log(me, 'me');
 
   return (
     <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
@@ -176,16 +138,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
           <div className='relative'>
-            <label
-              className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'
-              onClick={handleLabelClick}
-            >
-              <input ref={fileInputRef} className='hidden' type='file' name='avatar' accept='image/*' onChange={handleImageChange} />
-              {selectedImage ? (
-                <div className='size-full'>
-                  <img src={selectedImage} alt='Selected avatar' className='size-full object-cover rounded-lg' />
-                </div>
-              ) : avatar.picture ? (
+            <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'>
+              {avatar.picture ? (
                 <div className='size-full'>
                   <img
                     src={getPicture(avatar, 'avatars', false)}
@@ -203,48 +157,17 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             <div className='absolute bottom-3 left-3'>
               <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
             </div>
-            <div className='absolute z-10 bottom-3 right-3'>
-              <div className='flex items-center justify-between w-full'>
-                <div
-                  className={cn(
-                    'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-1 rounded-full',
-                    (selectedImage || avatar.picture) && 'divide-x divide-neutral-04 gap-4'
-                  )}
-                >
-                  {(selectedImage || avatar.picture) && (
-                    <button type='button' className='pr-4 relative z-10' onClick={handleTrashClick}>
-                      <Icons.trash className='text-black' />
-                    </button>
-                  )}
-                  <Icons.fileUpload className='cursor-pointer' onClick={() => fileInputRef.current?.click()} />
-                </div>
-              </div>
-            </div>
           </div>
-          <div className='sm:flex hidden flex-col gap-5'>
-            <h1 className='text-base-black text-heading-h3 font-semibold sm:block hidden'>Availability</h1>
-            <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] grid grid-cols-2 rounded-xl'>
-              <button
-                type='button'
-                className={cn(
-                  'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                  availability === 'private' ? 'bg-white' : 'bg-transparent'
-                )}
-                onClick={() => setAvailability('private')}
-              >
-                🔒 Private
-              </button>
-              <PublishAvatarModal onConfirm={handlePublishConfirm}>
-                <button
-                  type='button'
-                  className={cn(
-                    'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                    availability === 'public' ? 'bg-white' : 'bg-transparent'
-                  )}
-                >
-                  🌐 Public
-                </button>
-              </PublishAvatarModal>
+          <div className='flex flex-col gap-5'>
+            <h1 className='text-base-black text-heading-h3 font-semibold'>Voice</h1>
+
+            <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
+              <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
+              <div className='flex flex-col gap-1'>
+                <p className='text-body-lg font-semibold text-base-black'>{avatar.ttsVoice.name}</p>
+                <span className='text-body-md text-neutral-01'>Unrealspeach</span>
+                <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={avatar.ttsVoice.id} />
+              </div>
             </div>
           </div>
           <div className='sm:flex hidden flex-col gap-5'>
@@ -261,32 +184,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className='flex sm:hidden flex-col gap-5 sm:static absolute w-full sm:w-auto left-0 px-4.5 pt-4.5 sm:px-0 sm:pt-0 sm:pb-0 pb-4.5 sm:rounded-t-none rounded-t-xl bottom-0 sm:bg-none bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] shadow-bottom-bar backdrop-blur-48'>
-        <h1 className='text-base-black text-heading-h3 font-semibold sm:block hidden'>Availability</h1>
-        <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] grid grid-cols-2 rounded-xl'>
-          <button
-            type='button'
-            className={cn(
-              'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-              availability === 'private' ? 'bg-white' : 'bg-transparent'
-            )}
-            onClick={() => setAvailability('private')}
-          >
-            🔒 Private
-          </button>
-          <PublishAvatarModal onConfirm={handlePublishConfirm}>
-            <button
-              type='button'
-              className={cn(
-                'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                availability === 'public' ? 'bg-white' : 'bg-transparent'
-              )}
-            >
-              🌐 Public
-            </button>
-          </PublishAvatarModal>
         </div>
       </div>
     </div>
