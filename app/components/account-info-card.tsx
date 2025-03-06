@@ -1,0 +1,34 @@
+import { cn } from '~/utils/cn';
+import { Icons } from './ui/icons';
+import { useRef, useState, type ReactNode } from 'react';
+import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+
+interface AccountInfoCardProps {
+  label: string;
+  value: string;
+  underline?: boolean;
+  information?: ReactNode;
+}
+
+const AccountInfoCard = ({ label, value, underline, information }: AccountInfoCardProps) => {
+  const { copied, copyToClipboard } = useCopyToClipboard();
+
+  return (
+    <div className='flex flex-col gap-4 sm:gap-5'>
+      <div className='flex items-center justify-between'>
+        <h3 className='sm:text-heading-h3 text-heading-h4 text-base-black'>{label}</h3>
+        {information && information}
+      </div>
+      <div className='sm:py-0.5 sm:px-5 px-3 w-full rounded-xl bg-base-white shadow-regular'>
+        <div className='py-4.5 flex items-center gap-5'>
+          <p className={cn('text-base-black text-body-md font-semibold line-clamp-1 break-all', underline && 'underline')}>{value}</p>
+          <button onClick={() => copyToClipboard(value)} className='bg-transparent hover:bg-neutral-05 rounded-full transition-colors'>
+            {copied ? <Icons.copied /> : <Icons.copy />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AccountInfoCard;

@@ -61,7 +61,7 @@ const Sidebar = ({ className }: { className?: string }) => {
             }}
             className='py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05'
           >
-            <Icons.signOut />
+            <Icons.signOut className='fill-[#350D2A]/40' />
             Sign Out
           </button>
         </div>

@@ -1,7 +1,5 @@
-import { Link, redirect, useRouteLoaderData } from 'react-router';
-import { Card } from '~/components/card';
+import { redirect, useRouteLoaderData } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
-import HowToAddDollModal from '~/components/howToAddDollModal';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
 import type { Avatar, Doll, User } from '~/types';
