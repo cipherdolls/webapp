@@ -109,12 +109,16 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               Duplicate
             </Button.Root>
           </fetcher.Form>
-          <Link to={`/avatars/${avatar.id}/edit`}>
-            <Button.Root variant='secondary' className='w-[130px]'>
-              Edit
-            </Button.Root>
-          </Link>
-          <DeleteAvatarModal />
+          {avatar.userId === me.id && (
+            <>
+              <Link to={`/avatars/${avatar.id}/edit`}>
+                <Button.Root variant='secondary' className='w-[130px]'>
+                  Edit
+                </Button.Root>
+              </Link>
+              <DeleteAvatarModal />
+            </>
+          )}
         </div>
         {/* TODO: How is this gonna work? */}
         <div className='md:hidden flex'>
@@ -156,18 +160,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             </label>
             <div className='absolute bottom-3 left-3'>
               <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
-            </div>
-          </div>
-          <div className='flex flex-col gap-5'>
-            <h1 className='text-base-black text-heading-h3 font-semibold'>Voice</h1>
-
-            <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-              <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
-              <div className='flex flex-col gap-1'>
-                <p className='text-body-lg font-semibold text-base-black'>{avatar.ttsVoice.name}</p>
-                <span className='text-body-md text-neutral-01'>Unrealspeach</span>
-                <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={avatar.ttsVoice.id} />
-              </div>
             </div>
           </div>
           <div className='sm:flex hidden flex-col gap-5'>
