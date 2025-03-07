@@ -7,8 +7,8 @@ import YourInfo from '~/components/yourInfo';
 import UserType from '~/components/userType';
 import AccountInfoCard from '~/components/account-info-card';
 import YourWalletModal from '~/components/yourWalletModal';
-import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 import ApiKeyModal from '~/components/apiKeyModal';
+import { useState } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Account' }];
@@ -16,9 +16,13 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Account({ loaderData }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
+  // TODO: Change here later
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    publicName: '',
+    character: me.character || '',
+  });
 
-  const walletAddress = '0x8fFcd8fD8A00525E5300709Fcd8fD8A00';
-  const apiKey = '25a7830a-0d09-4b48-8d1b-f7bd-123g-dkf0-ksw2';
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
       <div className='flex flex-col gap-4'>
@@ -31,15 +35,15 @@ export default function Account({ loaderData }: Route.ComponentProps) {
         <AccountBalance balance={0.0012} />
       </div>
       <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04 pb-2.5'>
-        <YourInfo info={[]} />
+        <YourInfo info={[]} me={me} userInfo={userInfo} setUserInfo={setUserInfo} />
         <div className='sm:pl-4 sm:max-w-[352px] w-full flex flex-col sm:gap-10 gap-8'>
           <AccountInfoCard
             label='Your Wallet'
-            value={walletAddress}
+            value={me.walletAddress}
             underline
-            information={<YourWalletModal walletAddress={walletAddress} />}
+            information={<YourWalletModal walletAddress={me.walletAddress} />}
           />
-          <AccountInfoCard label='API Key' value={apiKey} information={<ApiKeyModal apiKey={apiKey} />} />
+          <AccountInfoCard label='API Key' value={me.apikey} information={<ApiKeyModal apiKey={me.apikey} />} />
           <UserType />
         </div>
       </div>
