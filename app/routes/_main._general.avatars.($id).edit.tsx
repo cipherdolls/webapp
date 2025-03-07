@@ -157,9 +157,6 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                   </div>
                 )}
               </label>
-              <div className='absolute bottom-3 left-3'>
-                <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
-              </div>
               <div className='absolute z-10 bottom-3 right-3'>
                 <div className='flex items-center justify-between w-full'>
                   <div
