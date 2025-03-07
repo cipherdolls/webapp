@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
+import SignOutModal from './signOutModal';
 
 const SidebarItems = [
   {
@@ -54,16 +55,7 @@ const Sidebar = ({ className }: { className?: string }) => {
           })}
         </div>
         <div className='sm:block hidden w-full'>
-          <button
-            onClick={() => {
-              localStorage.removeItem('token');
-              window.location.href = '/signin';
-            }}
-            className='py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05'
-          >
-            <Icons.signOut />
-            Sign Out
-          </button>
+          <SignOutModal />
         </div>
         {/* Optional for now */}
         {/* <div className="h-[34px] w-full sm:hidden" /> */}
