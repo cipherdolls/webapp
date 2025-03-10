@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
+import { formatEther } from 'ethers';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Account' }];
@@ -32,13 +33,9 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   return await res.json();
 }
 
-
-
-
 export default function Account({ loaderData }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
-  const { id, name, signerAddress, character } = me;
-
+  const { id, name, signerAddress, character, weiBalance, freeWeiBalance } = me;
   const fetcher = useFetcher();
 
   return (
@@ -50,12 +47,16 @@ export default function Account({ loaderData }: Route.ComponentProps) {
             <Icons.signOut className='fill-base-black' />
           </button>
         </div>
-        <AccountBalance balance={0.0012} />
+        <div className='flex flex-col gap-1'>
+          <AccountBalance balance={formatEther(weiBalance)} />
+          <p className='text-body-sm text-base-black'>
+            Free Wei Balance: <span className='text-neutral-01'>{formatEther(freeWeiBalance)}</span>
+          </p>
+        </div>
       </div>
       <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04 pb-2.5'>
-        
         <fetcher.Form method='PATCH' className='w-full'>
-          <input name='userId' value={id} hidden readOnly/>
+          <input name='userId' value={id} hidden readOnly />
           <input name='signerAddress' value={signerAddress} hidden readOnly />
           <input name='name' defaultValue={name} />
           <input name='character' defaultValue={character} />
@@ -64,12 +65,11 @@ export default function Account({ loaderData }: Route.ComponentProps) {
           </Button.Root>
         </fetcher.Form>
 
-
         <div className='sm:pl-4 sm:max-w-[352px] w-full flex flex-col sm:gap-10 gap-8'>
           <AccountInfoCard
             label='Your Wallet'
             value={me.walletAddress}
-            underline
+            link={`https://optimistic.etherscan.io/address/${me.walletAddress}`}
             information={<YourWalletModal walletAddress={me.walletAddress} />}
           />
           <AccountInfoCard label='API Key' value={me.apikey} information={<ApiKeyModal apiKey={me.apikey} />} />
