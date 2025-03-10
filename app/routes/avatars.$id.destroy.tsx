@@ -4,20 +4,14 @@ import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
-  try {
-    const avatarId = params.id;
-    const res = await fetchWithAuth(`avatars/${avatarId}`, {
-      method: request.method,
-    });
-
-    if (!res.ok) {
-      return await res.json();
-    }
-    return redirect(`/`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
+  const avatarId = params.id;
+  const res = await fetchWithAuth(`avatars/${avatarId}`, {
+    method: request.method,
+  });
+  if (!res.ok) {
+    return await res.json();
   }
+  return redirect(`/`);
 }
 
 

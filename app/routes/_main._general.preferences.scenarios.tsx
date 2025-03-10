@@ -10,12 +10,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  try {
     const res = await fetchWithAuth(`scenarios`);
     return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {

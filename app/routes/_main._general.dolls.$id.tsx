@@ -1,5 +1,5 @@
 import { Form, Link, Outlet, redirect } from "react-router";
-import type { Chat, Message, ProcessEvent } from "~/types";
+import type { Chat, Doll, Message, ProcessEvent } from "~/types";
 import ChatDestroy from "./chats.$id.destroy";
 import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
@@ -14,18 +14,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  try {
-    const dollId = params.doll;
-    const res = await fetchWithAuth(`dolls/${dollId}`);
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const dollId = params.doll;
+  const res = await fetchWithAuth(`dolls/${dollId}`);
+  return await res.json();
 }
 
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
-  const doll = loaderData;
+  const doll: Doll = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';

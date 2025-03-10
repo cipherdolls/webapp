@@ -8,18 +8,16 @@ import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export async function clientLoader() {
-  try {
-    const [avatarsRes, dollsRes] = await Promise.all([fetchWithAuth('avatars'), fetchWithAuth('dolls')]);
-    if (!avatarsRes.ok || !dollsRes.ok) {
-      throw new Error('Failed to fetch data');
-    }
-    const avatars: Avatar[] = await avatarsRes.json();
-    const dolls: Doll[] = await dollsRes.json();
-
-    return { avatars, dolls };
-  } catch (error) {
-    return redirect('/signin');
+  const [avatarsRes, dollsRes] = await Promise.all([
+    fetchWithAuth('avatars'), 
+    fetchWithAuth('dolls')
+  ]);
+  if (!avatarsRes.ok || !dollsRes.ok) {
+    throw new Error('Failed to fetch data');
   }
+  const avatars: Avatar[] = await avatarsRes.json();
+  const dolls: Doll[] = await dollsRes.json();
+  return { avatars, dolls };
 }
 
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {

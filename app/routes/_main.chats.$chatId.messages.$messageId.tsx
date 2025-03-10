@@ -10,13 +10,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  try {
-    const { messageId } = params;
-    const res = await fetchWithAuth(`messages/${messageId}`);
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const { messageId } = params;
+  const res = await fetchWithAuth(`messages/${messageId}`);
+  return await res.json();
 }
 
 

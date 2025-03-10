@@ -1,34 +1,68 @@
 // utils/fetchWithAuth.ts
 
-import { redirect } from "react-router";
+import { redirect } from 'react-router';
 
 const backendUrl = 'https://api.cipherdolls.com';
 
-function getAuthTokenOrRedirect() {
-  const localStorageToken = localStorage.getItem('token');
-  if (!localStorageToken) {
-    // Throwing a redirect tells React Router 
-    // to jump to /signin immediately
-    throw redirect('/signin');
+/**
+ * If you want to do a *second* check to confirm the token is invalid,
+ * you can call this from inside fetchWithAuth if you get 401.
+ * e.g. maybe your server returns 401 for reasons other than invalid token.
+ */
+async function verifyToken(): Promise<boolean> {
+  try {
+    const localToken = localStorage.getItem('token')?.replaceAll('"', '');
+    if (!localToken) return false;
+
+    const res = await fetch(`${backendUrl}/auth/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localToken}`,
+      },
+    });
+
+    // If 200 => token is still valid
+    if (res.status === 200) {
+      return true;
+    }
+
+    // If 401 => token invalid
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      return false;
+    }
+
+    // Otherwise, some other error—treat as invalid
+    return false;
+  } catch (err) {
+    console.error('Verify token error:', err);
+    return false;
   }
-  return localStorageToken.replaceAll('"', '');
 }
 
 /**
  * A convenience wrapper around fetch that:
- *  - Checks for a valid token or redirects
- *  - Merges in Authorization header
+ *   1) Checks for a token in localStorage (throwing redirect if missing)
+ *   2) Attaches Authorization header
+ *   3) If response is 401 or 403, optionally re-checks token validity,
+ *      removes it, and throws redirect('/signin').
  */
 export async function fetchWithAuth(
   endpoint: string,
   options: RequestInit = {}
-) {
-  const token = getAuthTokenOrRedirect();
+): Promise<Response> {
+  // 1) Check localStorage for a token
+  const localToken = localStorage.getItem('token')?.replaceAll('"', '');
+  if (!localToken) {
+    // Immediately redirect if no token
+    throw redirect('/signin');
+  }
 
-  // Merge your headers so you keep 'Content-Type' etc.
+  // 2) Merge Authorization header with any custom headers
   const mergedHeaders: HeadersInit = {
     ...options.headers,
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${localToken}`,
   };
 
   const mergedOptions: RequestInit = {
@@ -36,5 +70,26 @@ export async function fetchWithAuth(
     headers: mergedHeaders,
   };
 
-  return fetch(`${backendUrl}/${endpoint}`, mergedOptions);
+  // 3) Make the request
+  const res = await fetch(`${backendUrl}/${endpoint}`, mergedOptions);
+
+  // If 401 => optionally confirm the token is indeed invalid, then redirect
+  if (res.status === 401) {
+    const stillValid = await verifyToken();
+    if (!stillValid) {
+      throw redirect('/signin');
+    }
+    // If `verifyToken()` says it's valid even though we got a 401,
+    // you could decide what else to do — perhaps it was some other server issue.
+    // For now, we’ll just return the 401 response for the caller to handle.
+  }
+
+  // If 403 => definitely unauthorized
+  if (res.status === 403) {
+    localStorage.removeItem('token');
+    throw redirect('/signin');
+  }
+
+  // Return the response so the loader/action can continue
+  return res;
 }

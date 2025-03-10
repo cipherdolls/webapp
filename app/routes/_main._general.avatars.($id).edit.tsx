@@ -19,23 +19,18 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  try {
-    const avatarId = params.id;
-
-    const [avatarResponse, ttsVoicesResponse] = await Promise.all([fetchWithAuth(`avatars/${avatarId}`), fetchWithAuth('tts-voices')]);
-
-    const avatar = await avatarResponse.json();
-    const ttsVoices = await ttsVoicesResponse.json();
-
-    return { avatar, ttsVoices };
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const avatarId = params.id;
+  const [avatarResponse, ttsVoicesResponse] = await Promise.all([
+    fetchWithAuth(`avatars/${avatarId}`), 
+    fetchWithAuth('tts-voices')
+  ]);
+  const avatar: Avatar = await avatarResponse.json();
+  const ttsVoices: TtsVoice[] = await ttsVoicesResponse.json();
+  return { avatar, ttsVoices };
 }
 
 export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
-  const avatar: Avatar = loaderData.avatar;
-  const ttsVoices: TtsVoice[] = loaderData.ttsVoices;
+  const {avatar, ttsVoices} = loaderData;
   const fetcher = useFetcher();
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice>(avatar.ttsVoice);
   const [selectedImage, setSelectedImage] = useState<string | null>(avatar.picture ?? null);
@@ -84,7 +79,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
       <input hidden name='avatarId' defaultValue={avatar.id} />
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between'>
-          <Link to={'/'} className='flex items-center gap-4 text-heading-h3 font-semibold'>
+          <Link to={`/avatars/${avatar.id}`} className='flex items-center gap-4 text-heading-h3 font-semibold'>
             <Icons.chevronLeft />
             Edit Avatar
           </Link>

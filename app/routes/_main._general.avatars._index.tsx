@@ -11,12 +11,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  try {
-    const res = await fetchWithAuth('avatars?published=true');
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const res = await fetchWithAuth(`avatars?published=true`);
+  return await res.json();
 }
 
 export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {

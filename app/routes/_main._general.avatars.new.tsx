@@ -18,12 +18,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  try {
-    const res = await fetchWithAuth('tts-voices');
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const res = await fetchWithAuth('tts-voices');
+  return await res.json();
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {

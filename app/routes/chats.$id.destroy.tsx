@@ -3,21 +3,16 @@ import type { Route } from "./+types/chats.$id.destroy";
 import { fetchWithAuth } from "~/utils/fetchWithAuth";
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
-  try {
-    const chatId = params.id;
-    const res = await fetchWithAuth(`chats/${chatId}`, {
-      method: request.method,
-    });
+  const chatId = params.id;
+  const res = await fetchWithAuth(`chats/${chatId}`, {
+    method: request.method,
+  });
 
-    if (!res.ok) {
-      return await res.json();
-    }
-    
-    return redirect(`/`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
+  if (!res.ok) {
+    return await res.json();
   }
+  
+  return redirect(`/chats`);
 }
 
 

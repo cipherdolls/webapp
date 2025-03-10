@@ -19,13 +19,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  try {
-    const avatarId = params.id;
-    const res = await fetchWithAuth(`avatars/${avatarId}`);
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const avatarId = params.id;
+  const res = await fetchWithAuth(`avatars/${avatarId}`);
+  return await res.json();
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {

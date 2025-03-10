@@ -12,12 +12,8 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { showToast } from '~/components/ui/toast';
 
 export async function clientLoader() {
-  try {
-    const res = await fetchWithAuth(`users/me`);
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const res = await fetchWithAuth(`users/me`);
+  return await res.json();
 }
 
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
