@@ -14,12 +14,8 @@ export function meta({}: Route.MetaArgs) {
 
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  try {
-    const res = await fetchWithAuth(`ai-providers`);
-    return await res.json();
-  } catch (error) {
-    return redirect('/signin');
-  }
+  const res = await fetchWithAuth(`ai-providers`);
+  return await res.json();
 }
 
 
