@@ -14,21 +14,17 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({params}: Route.LoaderArgs) {
-  try {
-    const { chatId } = params;
-    const [chatRes, messagesRes] = await Promise.all([
-      fetchWithAuth(`chats/${chatId}`),
-      fetchWithAuth(`messages?chatId=${chatId}`),
-    ]);
-    if (!chatRes.ok || !messagesRes.ok) {
-      throw new Error("Failed to fetch data");
-    }
-    const chat: Chat = await chatRes.json();
-    const messages: Message[] = await messagesRes.json();
-    return { chat, messages };
-  } catch (error) {
-    return redirect('/signin');
+  const { chatId } = params;
+  const [chatRes, messagesRes] = await Promise.all([
+    fetchWithAuth(`chats/${chatId}`),
+    fetchWithAuth(`messages?chatId=${chatId}`),
+  ]);
+  if (!chatRes.ok || !messagesRes.ok) {
+    throw new Error("Failed to fetch data");
   }
+  const chat: Chat = await chatRes.json();
+  const messages: Message[] = await messagesRes.json();
+  return { chat, messages };
 }
 
 
