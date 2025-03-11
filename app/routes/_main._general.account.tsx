@@ -1,4 +1,4 @@
-import { redirect, useFetcher, useRouteLoaderData } from 'react-router';
+import { useFetcher, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.account';
 import type { User } from '~/types';
 import { Icons } from '~/components/ui/icons';
@@ -8,10 +8,7 @@ import UserType from '~/components/userType';
 import AccountInfoCard from '~/components/account-info-card';
 import YourWalletModal from '~/components/yourWalletModal';
 import ApiKeyModal from '~/components/apiKeyModal';
-import { useState } from 'react';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import * as Button from '~/components/ui/button/button';
-import * as Input from '~/components/ui/input/input';
 import { formatEther } from 'ethers';
 
 export function meta({}: Route.MetaArgs) {
@@ -58,11 +55,7 @@ export default function Account({ loaderData }: Route.ComponentProps) {
         <fetcher.Form method='PATCH' className='w-full'>
           <input name='userId' value={id} hidden readOnly />
           <input name='signerAddress' value={signerAddress} hidden readOnly />
-          <input name='name' defaultValue={name} />
-          <input name='character' defaultValue={character} />
-          <Button.Root className='w-[186px]' type='submit'>
-            Save
-          </Button.Root>
+          <YourInfo me={me} fetcher={fetcher} />
         </fetcher.Form>
 
         <div className='sm:pl-4 sm:max-w-[352px] w-full flex flex-col sm:gap-10 gap-8'>
