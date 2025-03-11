@@ -1,16 +1,17 @@
 import { cn } from '~/utils/cn';
 import { Icons } from './ui/icons';
-import { useRef, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+import { Link } from 'react-router';
 
 interface AccountInfoCardProps {
   label: string;
   value: string;
-  underline?: boolean;
+  link?: string;
   information?: ReactNode;
 }
 
-const AccountInfoCard = ({ label, value, underline, information }: AccountInfoCardProps) => {
+const AccountInfoCard = ({ label, value, link, information }: AccountInfoCardProps) => {
   const { copied, copyToClipboard } = useCopyToClipboard();
 
   return (
@@ -21,7 +22,17 @@ const AccountInfoCard = ({ label, value, underline, information }: AccountInfoCa
       </div>
       <div className='sm:py-0.5 sm:px-5 px-3 w-full rounded-xl bg-base-white shadow-regular'>
         <div className='py-4.5 flex items-center gap-5'>
-          <p className={cn('text-base-black text-body-md font-semibold line-clamp-1 break-all', underline && 'underline')}>{value}</p>
+          {link ? (
+            <Link
+              to={link}
+              target='_blank'
+              className={cn('text-base-black text-body-md font-semibold line-clamp-1 break-all', link && 'underline')}
+            >
+              {value}
+            </Link>
+          ) : (
+            <p className={cn('text-base-black text-body-md font-semibold line-clamp-1 break-all')}>{value}</p>
+          )}
           <button onClick={() => copyToClipboard(value)} className='bg-transparent hover:bg-neutral-05 rounded-full transition-colors'>
             {copied ? <Icons.copied /> : <Icons.copy />}
           </button>

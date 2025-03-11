@@ -1,40 +1,93 @@
-import { Link } from 'react-router';
+import { type FetcherWithComponents } from 'react-router';
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
-import type { Avatar, User } from '~/types';
-import AddYourInfoModal from './addYourInfoModal';
+import type { User } from '~/types';
+import { Icons } from './ui/icons';
+import * as Input from '~/components/ui/input/input';
+import * as Textarea from '~/components/ui/input/textarea';
+import * as Button from '~/components/ui/button/button';
+import { useEffect, useState } from 'react';
 
-const YourInfo = ({
-  info,
-  me,
-  userInfo,
-  setUserInfo,
-}: {
-  info: Avatar[];
-  me: User;
-  userInfo: { name: string; publicName: string; character: string };
-  setUserInfo: (info: { name: string; publicName: string; character: string }) => void;
-}) => {
-  const hasUserInfo = userInfo.name || userInfo.publicName || userInfo.character;
+const YourInfo = ({ me, fetcher }: { me: User; fetcher: FetcherWithComponents<any> }) => {
+  const hasUserInfo = me.character;
+  const [isEditing, setIsEditing] = useState(false);
+
+  const toggleEditing = () => {
+    setIsEditing(!isEditing);
+  };
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      setIsEditing(false);
+    }
+  }, [fetcher.state, fetcher.data]);
 
   return (
     <Card.Root className='sm:pr-4'>
       <Card.Label>Your Info</Card.Label>
       <Card.Main className='max-h-max'>
         <Card.Header>
-          <Link to='/account'>
-            <Card.HeaderSection>
-              <AddYourInfoModal userInfo={userInfo} setUserInfo={setUserInfo} />
-            </Card.HeaderSection>
-          </Link>
+          <Card.HeaderSection>
+            <button type='button' className='flex items-center gap-2 focus:outline-0' onClick={toggleEditing}>
+              {hasUserInfo || isEditing ? <Icons.pen /> : <Icons.add />}
+              {hasUserInfo || isEditing ? 'Edit Your Info' : 'Add Your Info'}
+            </button>
+          </Card.HeaderSection>
         </Card.Header>
-        <Card.Content className={cn(hasUserInfo && 'border-t-0')}>
-          {!hasUserInfo ? (
+        <Card.Content className={cn(hasUserInfo && !isEditing && 'border-t-0')}>
+          {isEditing ? (
+            <div className='flex flex-col shadow-regular rounded-xl sm:p-5 p-3 divide-y divide-neutral-04'>
+              <div className='flex flex-col sm:gap-5 gap-4 sm:py-0 py-3'>
+                <Input.Root>
+                  <Input.Label id='name' htmlFor='name'>
+                    Name
+                  </Input.Label>
+                  <Input.Input
+                    className='text-base-black py-3.5 px-3'
+                    id='name'
+                    name='name'
+                    type='text'
+                    placeholder='Felix'
+                    defaultValue={me.name}
+                  />
+                </Input.Root>
+                <Input.Root>
+                  <Input.Label id='publicName' htmlFor='publicName'>
+                    Public Name
+                  </Input.Label>
+                  <Input.Input className='text-base-black py-3.5 px-3' type='text' placeholder='Add a public name' defaultValue={''} />
+                  <span className='text-body-sm text-neutral-01'>
+                    Your public name will be used on the pages of avatars you create and publish
+                  </span>
+                </Input.Root>
+                <Textarea.Root>
+                  <Textarea.Label htmlFor='character'>Character</Textarea.Label>
+                  <Textarea.Wrapper>
+                    <Textarea.Textarea
+                      className='scrollbar-medium text-base-black'
+                      id='character'
+                      name='character'
+                      placeholder='Describe your avatar'
+                      defaultValue={me.character}
+                    />
+                  </Textarea.Wrapper>
+                </Textarea.Root>
+                <div className='flex items-center gap-3 mt-2'>
+                  <Button.Root type='button' variant='secondary' className='w-full' onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button.Root>
+                  <Button.Root type='submit' className='w-full'>
+                    Save Changes
+                  </Button.Root>
+                </div>
+              </div>
+            </div>
+          ) : !hasUserInfo ? (
             <div className='sm:pb-14'>
               <div className='py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
                 <h1 className='sm:text-heading-h1 text-heading-h2'>🤔</h1>
                 <div className='flex flex-col sm:gap-2 gap-1'>
-                  <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>Who are You?</h4>
+                  <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>Hey {me.name}</h4>
                   <p className='text-body-md text-neutral-01 sm:text-center'>Add some info to make conversations more personalized</p>
                 </div>
               </div>
@@ -43,10 +96,9 @@ const YourInfo = ({
             <div className='flex flex-col bg-base-white shadow-regular rounded-xl sm:p-5 p-3 divide-y divide-neutral-04 max-h-[350px] sm:max-h-[500px] overflow-y-auto scrollbar-medium'>
               <div className='flex flex-col gap-4'>
                 <div className='flex items-center justify-between'>
-                  {userInfo.name && <h4 className='text-heading-h4 font-semibold text-base-black'>{userInfo.name}</h4>}
-                  {userInfo.publicName && <h4 className='text-body-md text-neutral-01'>👥 {userInfo.name}</h4>}
+                  {me.name && <h4 className='text-heading-h4 font-semibold text-base-black'>{me.name}</h4>}
                 </div>
-                {userInfo.character && <p className='text-body-md text-base-black'>{userInfo.character}</p>}
+                {me.character && <p className='text-body-md text-base-black'>{me.character}</p>}
               </div>
             </div>
           )}
