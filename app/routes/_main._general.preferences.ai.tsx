@@ -1,4 +1,4 @@
-import { redirect } from 'react-router';
+import { Link, redirect } from 'react-router';
 import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.preferences.ai';
 import Table from '~/components/Table';
@@ -49,7 +49,9 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       {aiProviders.map((aiProvider) => (
         <div key={aiProvider.id} className='space-y-5'>
           <DataCard.Root>
-            <DataCard.Label>{aiProvider.name}</DataCard.Label>
+            <Link to={`/ai-providers/${aiProvider.id}`} className='text-2xl font-semibold'>
+              <DataCard.Label>{aiProvider.name}</DataCard.Label>
+            </Link>
             <DataCard.Wrapper>
               {aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 ? (
                 <>

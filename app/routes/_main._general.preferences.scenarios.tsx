@@ -16,8 +16,6 @@ export async function clientLoader() {
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const scenarios: Scenario[] = loaderData;
-
-  console.log(scenarios);
   const columnProperties: Array<TTableColumn<Scenario>> = [
     {
       id: 'name',

@@ -73,22 +73,19 @@ export async function fetchWithAuth(
   // 3) Make the request
   const res = await fetch(`${backendUrl}/${endpoint}`, mergedOptions);
 
-  // If 401 => optionally confirm the token is indeed invalid, then redirect
   if (res.status === 401) {
     const stillValid = await verifyToken();
     if (!stillValid) {
+      localStorage.removeItem('token');
       throw redirect('/signin');
     }
-    // If `verifyToken()` says it's valid even though we got a 401,
-    // you could decide what else to do — perhaps it was some other server issue.
-    // For now, we’ll just return the 401 response for the caller to handle.
   }
 
-  // If 403 => definitely unauthorized
-  if (res.status === 403) {
-    localStorage.removeItem('token');
-    throw redirect('/signin');
-  }
+  // // If 403 => definitely unauthorized
+  // if (res.status === 403) {
+  //   localStorage.removeItem('token');
+  //   throw redirect('/signin');
+  // }
 
   // Return the response so the loader/action can continue
   return res;
