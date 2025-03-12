@@ -23,6 +23,10 @@ const preferencesNavItems = [
     label: 'Scenarios',
     to: 'scenarios',
   },
+  {
+    label: 'Firmwares',
+    to: 'firmwares',
+  },
 ];
 
 export default function Preferences() {

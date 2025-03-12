@@ -133,6 +133,15 @@ export interface Message {
   chat: Chat;
 }
 
+export interface Firmware {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  version: string;
+  bin: string;
+  checksum: string;
+}
+
 export interface SttJob {
   id: string;
   createdAt: Date;
