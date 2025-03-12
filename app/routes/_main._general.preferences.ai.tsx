@@ -12,13 +12,10 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
 }
 
-
-export async function clientLoader({params}: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.LoaderArgs) {
   const res = await fetchWithAuth(`ai-providers`);
   return await res.json();
 }
-
-
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const aiProviders: AiProvider[] = loaderData;
@@ -45,7 +42,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   ];
 
   return (
-    <div className='space-y-10 pb-5'>
+    <div className='flex flex-col gap-10 pb-5'>
       {aiProviders.map((aiProvider) => (
         <div key={aiProvider.id} className='space-y-5'>
           <DataCard.Root>
@@ -56,7 +53,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
               {aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table columns={columnProperties} data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]} wrapperClassName='hidden md:block' />
+                  <Table
+                    columns={columnProperties}
+                    data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]}
+                    wrapperClassName='hidden md:block'
+                  />
 
                   {/* MOBILE CARD */}
                   {aiProvider.chatModels.map((chatModel, index) => {
