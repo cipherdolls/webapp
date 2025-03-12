@@ -178,7 +178,7 @@ const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, 
 const DataCardText: React.FC<DataCardTextProps> = ({ children, className }) => {
   return (
     <div className={cn(`${CARDS_SIDE_PADDING} py-4 md:bg-neutral-05 md:py-6`, className)}>
-      <p className='text-body-sm text-neutral-01 md:text-base-black'>{children}</p>
+      <p className='text-body-sm text-neutral-01 md:text-base-black whitespace-pre-line'>{children}</p>
     </div>
   );
 };

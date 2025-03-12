@@ -17,7 +17,7 @@ export async function clientLoader() {
 }
 
 
-export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
+export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
   const firmwares: Firmware[] = loaderData;
 
   const columnProperties: Array<TTableColumn<Firmware>> = [

@@ -27,6 +27,10 @@ const preferencesNavItems = [
     label: 'Firmwares',
     to: 'firmwares',
   },
+  {
+    label: 'Doll Bodies',
+    to: 'doll-bodies',
+  },
 ];
 
 export default function Preferences() {

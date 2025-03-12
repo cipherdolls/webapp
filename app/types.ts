@@ -142,6 +142,17 @@ export interface Firmware {
   checksum: string;
 }
 
+export interface DollBody {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  name: string;
+  description: string;
+  picture: string;
+  avatar: Avatar;
+}
+
+
 export interface SttJob {
   id: string;
   createdAt: Date;
