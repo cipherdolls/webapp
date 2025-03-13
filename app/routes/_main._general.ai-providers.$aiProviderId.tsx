@@ -1,15 +1,46 @@
-import { Form, Link, Outlet, redirect, useFetcher, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, redirect, useFetcher } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useRef, useState } from 'react';
-import { cn } from '~/utils/cn';
+import { Fragment } from 'react';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS, PICTURE_SIZE } from '~/constants';
 import * as Button from '~/components/ui/button/button';
-import PlayerButton from '~/components/PlayerButton';
-import ReactMarkdown from 'react-markdown';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, User } from '~/types';
+import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
+import Table from '~/components/Table';
+import type { TTableColumn } from '~/components/Table';
+import { DataCard } from '~/components/DataCard';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
+
+const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
+  {
+    id: 'name',
+    label: 'Name',
+    render: (data) => <span className='font-semibold'>{data.name}</span>,
+    align: 'left',
+  },
+  {
+    id: 'dollarPerInputToken',
+    label: 'Output',
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
+    align: 'right',
+  },
+  {
+    id: 'dollarPerOutputToken',
+    label: 'Output',
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
+    align: 'right',
+  },
+  {
+    id: 'id',
+    label: '',
+    render: (data) => (
+      <button className='hover:opacity-50 transition-colors'>
+        <Icons.pen />
+      </button>
+    ),
+    align: 'right',
+  },
+];
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Ai Providers' }];
@@ -45,104 +76,169 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const aiProvider: AiProvider = loaderData;
-  const {chatModels, embeddingModels} = aiProvider
+  const { chatModels, embeddingModels } = aiProvider;
   const fetcher = useFetcher();
 
+  const AddModelIcon = ({ to }: { to: string }) => {
+    return (
+      <Link to={to}>
+        <Icons.add />
+      </Link>
+    );
+  };
 
   return (
-    <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
+    <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
       <div className='flex items-center justify-between sm:px-0 px-4.5'>
-        <Link to={'/preferences/ai'} className='flex items-center gap-3 sm:gap-4'>
-          <Icons.chevronLeft />
-          <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
+        <div className='flex items-center gap-3 sm:gap-4'>
+          <Link to={'/preferences/ai'} className='hover:bg-white/40 rounded-full'>
+            <Icons.chevronLeft />
+          </Link>
+          <div className='flex items-center  sm:gap-3 gap-1'>
+            <div className='w-full h-10'>
+              <img
+                src={getPicture(aiProvider, 'ai-providers', false)}
+                srcSet={getPicture(aiProvider, 'ai-providers', true)}
+                alt={aiProvider.name}
+                className='size-full object-cover rounded-lg'
+              />
+            </div>
             <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{aiProvider.name}</h3>
-            <span className='text-neutral-01 text-body-lg sm:block hidden'>•</span>
           </div>
-        </Link>
-        <div className='md:flex hidden items-center gap-3'>
-          <>
-            <Link to={`/ai-providers/${aiProvider.id}/edit`}>
-              <Button.Root variant='secondary' className='w-[130px]'>
-                Edit
-              </Button.Root>
-            </Link>
-          </>
         </div>
-        {/* TODO: How is this gonna work? */}
+        <div className='md:flex hidden items-center gap-3'>
+          <Link to={`/ai-providers/${aiProvider.id}/edit`}>
+            <Button.Root variant='secondary' className='w-[130px]'>
+              Edit
+            </Button.Root>
+          </Link>
+        </div>
         <div className='md:hidden flex'>
           <Icons.more />
         </div>
       </div>
-      <div className='flex sm:flex-row flex-col-reverse md:gap-0 sm:gap-8 sm:flex-1 sm:divide-x divide-neutral-04 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
-        
-        <div className='sm:pr-4 flex size-full'>
+      <div className='flex flex-col gap-10 pb-5'>
+        <div className='flex flex-col gap-5'>
+          <DataCard.Root>
+            <DataCard.Label
+              className='text-2xl font-semibold'
+              extra={<AddModelIcon to={`/ai-providers/${aiProvider.id}/chat-models/new`} />}
+            >
+              Chat Models
+            </DataCard.Label>
 
-          <div className='sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl p-5 flex flex-col gap-5 flex-1 h-max text-body-md text-base-black'>
-            <div className='flex items-center justify-between'>
-              <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>ChatModels</h3>
-                {chatModels.map((chatModel) => (  
-                  <div className='flex items-center gap-3'>
-                    {chatModel.name}
-                  </div>
-                ))}
+            <DataCard.Wrapper>
+              {chatModels.length > 0 ? (
+                <>
+                  {/* DESKTOP TABLE */}
+                  <Table columns={columnProperties} data={[...chatModels]} wrapperClassName='hidden md:block' />
 
-                <Link to={`/ai-providers/${aiProvider.id}/chat-models/new`}>
-                  <Button.Root variant='secondary' className='w-[130px]'>
-                    Add Chat Model
-                  </Button.Root>
-                </Link>
-
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>embeddingModels</h3>
-                {embeddingModels.map((chatModel) => (  
-                  <div className='flex items-center gap-3'>
-                    {chatModel.name}
-                  </div>
-                ))}
-
-
-                <Link to={`/ai-providers/${aiProvider.id}/embedding-models/new`}>
-                  <Button.Root variant='secondary' className='w-[130px]'>
-                    Add Embedding Model
-                  </Button.Root>
-                </Link>
-
-            </div>
-
-          </div>
-          <Outlet />
-        </div>
-
-
-
-        <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
-          <div className='relative'>
-            <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'>
-              {aiProvider.picture ? (
-                <div className='size-full'>
-                  <img
-                    src={getPicture(aiProvider, 'aiProviders', false)}
-                    srcSet={getPicture(aiProvider, 'aiProviders', true)}
-                    alt={aiProvider.name}
-                    className='size-full object-cover rounded-lg'
-                  />
-                </div>
+                  {/* MOBILE CARD */}
+                  {chatModels.map((chatModel, index) => {
+                    return (
+                      <Fragment key={chatModel.id}>
+                        <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
+                          <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
+                          <DataCard.ItemCollapsibleContent>
+                            <DataCard.ItemDataGrid
+                              data={[
+                                {
+                                  label: 'Output',
+                                  value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                },
+                                {
+                                  label: 'Average Time Taken',
+                                  value: '1153 ms',
+                                },
+                              ]}
+                              variant='secondary'
+                            />
+                          </DataCard.ItemCollapsibleContent>
+                          <DataCard.ItemDataGrid
+                            data={[
+                              {
+                                label: '$/Input',
+                                value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                              },
+                              {
+                                label: '$/Output',
+                                value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
+                              },
+                            ]}
+                          />
+                        </DataCard.Item>
+                        {chatModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
+                      </Fragment>
+                    );
+                  })}
+                </>
               ) : (
-                <div className='flex items-center justify-center size-full'>
-                  <Icons.fileUploadIcon />
-                </div>
+                <DataCard.Text>No chat models found</DataCard.Text>
               )}
-            </label>
+            </DataCard.Wrapper>
+          </DataCard.Root>
+        </div>
+        <div className='flex flex-col gap-5'>
+          <DataCard.Root>
+            <DataCard.Label
+              className='text-2xl font-semibold'
+              extra={<AddModelIcon to={`/ai-providers/${aiProvider.id}/embedding-models/new`} />}
+            >
+              Embedding Models
+            </DataCard.Label>
+            <DataCard.Wrapper>
+              {embeddingModels.length > 0 ? (
+                <>
+                  {/* DESKTOP TABLE */}
+                  <Table columns={columnProperties} data={[...embeddingModels]} wrapperClassName='hidden md:block' />
 
-          </div>
-          <div className='sm:flex hidden flex-col gap-5'>
-            <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
-            
-          </div>
+                  {/* MOBILE CARD */}
+                  {embeddingModels.map((embeddingModel, index) => {
+                    return (
+                      <Fragment key={embeddingModel.id}>
+                        <DataCard.Item key={embeddingModel.id} collapsible className='block md:hidden'>
+                          <DataCard.ItemLabel>{embeddingModel.name}</DataCard.ItemLabel>
+                          <DataCard.ItemCollapsibleContent>
+                            <DataCard.ItemDataGrid
+                              data={[
+                                {
+                                  label: 'Output',
+                                  value: <>{scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                },
+                                {
+                                  label: 'Average Time Taken',
+                                  value: '1153 ms',
+                                },
+                              ]}
+                              variant='secondary'
+                            />
+                          </DataCard.ItemCollapsibleContent>
+                          <DataCard.ItemDataGrid
+                            data={[
+                              {
+                                label: '$/Input',
+                                value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                              },
+                              {
+                                label: '$/Output',
+                                value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
+                              },
+                            ]}
+                          />
+                        </DataCard.Item>
+                        {embeddingModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
+                      </Fragment>
+                    );
+                  })}
+                </>
+              ) : (
+                <DataCard.Text>No embedding models found</DataCard.Text>
+              )}
+            </DataCard.Wrapper>
+          </DataCard.Root>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }

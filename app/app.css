@@ -103,3 +103,17 @@ body {
   background-size: 100% 100%;
   background-blend-mode: multiply, overlay;
 }
+
+/* Remove number type inputs arrow */
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

@@ -2,7 +2,7 @@ import { createTV } from 'tailwind-variants';
 
 export type { VariantProps, ClassValue } from 'tailwind-variants';
 
-const texts = {
+export const texts = {
   'body-sm': '',
   'body-md': '',
   'body-lg': '',
