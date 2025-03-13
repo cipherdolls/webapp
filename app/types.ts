@@ -1,3 +1,4 @@
+export type CssVariable = `--${string}`;
 export interface ApiError {
   error: string;
   message: Array<string>;
@@ -151,7 +152,6 @@ export interface DollBody {
   picture: string;
   avatar: Avatar;
 }
-
 
 export interface SttJob {
   id: string;

@@ -309,13 +309,12 @@ export const Icons = {
     </svg>
   ),
   check: (props: IconProps) => (
-    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
       <path
         fillRule='evenodd'
         clipRule='evenodd'
         d='M19.5383 6.97774C19.8267 7.27502 19.8195 7.74984 19.5223 8.03828L10.2463 17.0383C9.95532 17.3206 9.49272 17.3206 9.20176 17.0383L4.47776 12.4553C4.18047 12.1669 4.17327 11.6921 4.4617 11.3948C4.75012 11.0975 5.22494 11.0903 5.52224 11.3787L9.72398 15.455L18.4777 6.96172C18.775 6.67329 19.2498 6.68046 19.5383 6.97774Z'
-        fill='black'
-        {...props}
+        fill='currentColor'
       />
     </svg>
   ),
