@@ -2,17 +2,20 @@ import { Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
 import type { Chat, User } from '~/types';
 import type { Route } from './+types/_main.chats';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import ChatsSidebar from '~/components/ChatsSidebar';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
 }
 
-
 export async function clientLoader() {
-  const res = await fetchWithAuth('chats');
-  return res.json();
-}
+  const [chats, avatars] = await Promise.all([
+    fetchWithAuth('chats').then(res => res.json()),
+    fetchWithAuth('avatars').then(res => res.json())
+  ]);
 
+  return { chats, avatars };
+}
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
@@ -46,20 +49,14 @@ export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
   console.log('me in ChatsIndex', me);
 
-  const chats: Chat[] = loaderData;
+  const { chats, avatars } = loaderData;
   return (
     <>
-      <main className='flex flex-1 sm:py-2 sm:pr-2'>
-        <div className='flex flex-1 sm:rounded-xl sm:bg-linear-[86deg] sm:from-[rgba(254,253,248,0.56)]  sm:to-[rgba(255,255,255,0.56)]'>
-          <Outlet />
-
-          <div className='flex flex-col gap-2'>
-            <h3 className='text-heading-h3'>Chats</h3>
-            {chats.map((chat) => (
-              <div key={chat.id} className='flex items-center justify-between'>
-                <Link to={`/chats/${chat.id}`}>{chat.id}</Link>
-              </div>
-            ))}
+      <main className='flex flex-1 sm:py-2 sm:pr-2 overflow-hidden'>
+        <div className='flex flex-1 sm:rounded-xl sm:bg-gradient-chat overflow-hidden'>
+          <ChatsSidebar chats={chats} avatars={avatars} />
+          <div className='flex flex-1'>
+            <Outlet />
           </div>
         </div>
       </main>
