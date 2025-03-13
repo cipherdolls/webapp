@@ -120,6 +120,11 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             </div>
           </Drawer.Body>
           <Drawer.Footer>
+            <Dialog.Close asChild>
+              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
+                Close
+              </Button.Root>
+            </Dialog.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
@@ -127,7 +132,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
         </fetcher.Form>
         <Dialog.Close asChild>
           <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full flex items-center justify-center z-10'
+            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
             aria-label='Close'
           >
             <Icons.close />
