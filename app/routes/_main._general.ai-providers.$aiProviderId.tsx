@@ -33,11 +33,16 @@ const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
   {
     id: 'id',
     label: '',
-    render: (data) => (
-      <button className='hover:opacity-50 transition-colors'>
-        <Icons.pen />
-      </button>
-    ),
+    render: (data) => {
+      const isEmbeddingModel = !('censored' in data);
+      const modelType = isEmbeddingModel ? 'embedding-model' : 'chat-model';
+      const providerId = isEmbeddingModel ? '' : data.aiProviderId;
+      return (
+        <Link to={`/ai-providers/${providerId}/${modelType}/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
+          <Icons.pen />
+        </Link>
+      );
+    },
     align: 'right',
   },
 ];
@@ -78,7 +83,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const aiProvider: AiProvider = loaderData;
   const { chatModels, embeddingModels } = aiProvider;
   const fetcher = useFetcher();
-
   const AddModelIcon = ({ to }: { to: string }) => {
     return (
       <Link to={to}>

@@ -51,7 +51,7 @@ const DrawerContent = React.forwardRef<
           ref={forwardedRef}
           className={cn(
             // base
-            'size-full max-w-[400px] px-5',
+            'size-full sm:max-w-[400px] px-5',
             'bg-base-white sm:rounded-xl shadow-bottom-level-2',
             // animation
             'data-[state=open]:duration-200 data-[state=open]:ease-out data-[state=open]:animate-in',
