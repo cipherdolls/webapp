@@ -8,7 +8,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
-import * as Checkbox from '@radix-ui/react-checkbox';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 
@@ -83,8 +82,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const handleClose = () => {
     navigate(`/ai-providers/${aiProvider.id}`);
   };
-
-  console.log(aiProvider);
 
   return (
     <Drawer.Root
