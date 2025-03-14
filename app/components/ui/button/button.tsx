@@ -44,6 +44,9 @@ export const buttonVariants = tv({
         root: 'h-10 gap-1 font-semibold text-body-sm',
         icon: '-mx-0.5',
       },
+      icon: {
+        root: 'size-10',
+      },
     },
     responsive: {
       true: {},
