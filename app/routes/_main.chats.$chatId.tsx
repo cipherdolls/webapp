@@ -1,32 +1,29 @@
-import { Form, Link, Outlet, redirect, useFetcher } from "react-router";
-import type { Chat, Message, ProcessEvent } from "~/types";
-import ChatDestroy from "./chats.$id.destroy";
-import type { Route } from "./+types/_main.chats.$chatId";
-import { useEffect, useRef } from "react";
+import { Form, Link, Outlet, redirect, useFetcher } from 'react-router';
+import type { Chat, Message, ProcessEvent } from '~/types';
+import ChatDestroy from './chats.$id.destroy';
+import type { Route } from './+types/_main.chats.$chatId';
+import { useEffect, useRef, Fragment, useState } from 'react';
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
-import { fetchWithAuth } from "~/utils/fetchWithAuth";
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import ChatTopBar from '~/components/chat/ChatTopBar';
+import ChatBottomBar from '~/components/chat/ChatBottomBar';
+import ChatBody from '~/components/chat/ChatBody';
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Chats" },
-  ];
+  return [{ title: 'Chats' }];
 }
 
-export async function clientLoader({params}: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.LoaderArgs) {
   const { chatId } = params;
-  const [chatRes, messagesRes] = await Promise.all([
-    fetchWithAuth(`chats/${chatId}`),
-    fetchWithAuth(`messages?chatId=${chatId}`),
-  ]);
+  const [chatRes, messagesRes] = await Promise.all([fetchWithAuth(`chats/${chatId}`), fetchWithAuth(`messages?chatId=${chatId}`)]);
   if (!chatRes.ok || !messagesRes.ok) {
-    throw new Error("Failed to fetch data");
+    throw new Error('Failed to fetch data');
   }
   const chat: Chat = await chatRes.json();
   const messages: Message[] = await messagesRes.json();
   return { chat, messages };
 }
-
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages } = loaderData;
@@ -34,7 +31,8 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
-  const fetcher = useFetcher();
+
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (!mqttClientRef.current) {
@@ -55,9 +53,14 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       mqttClient.subscribe(userTopic);
 
       const handleMessage = (topic: string, message: Buffer) => {
+        setIsGenerating(true);
         const processEvent: ProcessEvent = JSON.parse(message.toString());
         console.log(processEvent);
-        // Handle the event 
+        // Handle the event
+        // TODO: check if the job is completed or failed and improve loading state
+        if (processEvent.resourceName === 'EmbeddingJob' || processEvent.jobStatus === 'completed' || processEvent.jobStatus === 'failed') {
+          setIsGenerating(false);
+        }
       };
 
       mqttClient.on('message', handleMessage);
@@ -76,38 +79,19 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     // eslint-disable-next-line
   }, [chat.id]);
 
-
-
-
-
   return (
-    
     <>
-      <div className="">
-        {chat.id}
-        <Link to={`/chats/${chat.id}/edit`}>--------------Edit Chat</Link>
-        <ChatDestroy />
-        <div className="">
-          {messages.map((message) => (
-            <div key={message.id}>
-              <Link to={`/chats/${chat.id}/messages/${message.id}`}>{message.content}</Link>
-            </div>
-          ))}
-        </div>
+      <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
+        {/* chat header */}
+        <ChatTopBar chat={chat} />
 
+        {/* chat messages scroll */}
+        <ChatBody messages={messages} isGenerating={isGenerating} />
 
-        <fetcher.Form method='post' action="/messages/new" encType='multipart/form-data'>
-          <input name='chatId' defaultValue={chat.id} hidden />
-          <input name='content' id='content' placeholder='content' />
-          <button type='submit'>Send Message</button>
-        </fetcher.Form>
-
-
-
-        <Outlet />
+        {/* chat input field  */}
+        <ChatBottomBar chat={chat} isGenerating={isGenerating} />
       </div>
+      <Outlet />
     </>
-
-
   );
 }

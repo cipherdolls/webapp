@@ -18,6 +18,7 @@
   --color-neutral-05: rgba(0, 0, 0, 0.05);
 
   --color-pink-01: rgba(53, 13, 42, 0.4);
+  --color-pink-02: rgba(245, 211, 214, 1);
 
   --color-specials-success: #03cc9c;
   --color-specials-danger: #dc2647;
@@ -71,6 +72,20 @@
   --shadow-bottom-level-2: 0px 8px 40px 0px rgba(0, 0, 0, 0.16);
   --shadow-regular: 0px 0px 40px 0px rgba(0, 0, 0, 0.04);
   --shadow-floating-banner: 0px 0px 32px 0px rgba(0, 0, 0, 0.08);
+
+  --animate-message-loading: message-loading 1s infinite;
+
+  @keyframes message-loading {
+    0%,
+    100% {
+      transform: translateY(-35%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: none;
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
 }
 
 @layer base {
@@ -98,7 +113,13 @@
   @apply scrollbar scrollbar-thumb-neutral-03 scrollbar-track-transparent scrollbar-thin;
 }
 
-
+/* app main gradient  */
+@utility bg-main-gradient {
+  background-color: white;
+  background-image: radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
+  linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
+  linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
+}
 
 html,
 body {
