@@ -1,4 +1,4 @@
-import { Link, redirect } from 'react-router';
+import { Link, Outlet, redirect } from 'react-router';
 import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.preferences.ai';
 import Table from '~/components/Table';
@@ -43,78 +43,81 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   ];
 
   return (
-    <div className='flex flex-col gap-10 pb-5'>
-      {aiProviders.map((aiProvider) => {
-        const EditButton = () => {
+    <>
+      <div className='flex flex-col gap-10 pb-5'>
+        {aiProviders.map((aiProvider) => {
+          const EditButton = () => {
+            return (
+              <Link to={`/ai-providers/${aiProvider.id}`} className='hover:opacity-50 transition-colors'>
+                <Icons.pen />
+              </Link>
+            );
+          };
           return (
-            <Link to={`/ai-providers/${aiProvider.id}`} className='hover:opacity-50 transition-colors'>
-              <Icons.pen />
-            </Link>
-          );
-        };
-        return (
-          <div key={aiProvider.id} className='flex flex-col gap-5'>
-            <DataCard.Root>
-              <DataCard.Label className='text-2xl font-semibold' extra={<EditButton />}>
-                {aiProvider.name}
-              </DataCard.Label>
-              <DataCard.Wrapper>
-                {aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 ? (
-                  <>
-                    {/* DESKTOP TABLE */}
-                    <Table
-                      columns={columnProperties}
-                      data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]}
-                      wrapperClassName='hidden md:block'
-                    />
+            <div key={aiProvider.id} className='flex flex-col gap-5'>
+              <DataCard.Root>
+                <DataCard.Label className='text-2xl font-semibold' extra={<EditButton />}>
+                  {aiProvider.name}
+                </DataCard.Label>
+                <DataCard.Wrapper>
+                  {aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 ? (
+                    <>
+                      {/* DESKTOP TABLE */}
+                      <Table
+                        columns={columnProperties}
+                        data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]}
+                        wrapperClassName='hidden md:block'
+                      />
 
-                    {/* MOBILE CARD */}
-                    {aiProvider.chatModels.map((chatModel, index) => {
-                      return (
-                        <Fragment key={chatModel.id}>
-                          <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
-                            <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
-                            <DataCard.ItemCollapsibleContent>
+                      {/* MOBILE CARD */}
+                      {aiProvider.chatModels.map((chatModel, index) => {
+                        return (
+                          <Fragment key={chatModel.id}>
+                            <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
+                              <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
+                              <DataCard.ItemCollapsibleContent>
+                                <DataCard.ItemDataGrid
+                                  data={[
+                                    {
+                                      label: 'Output',
+                                      value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                    },
+                                    {
+                                      label: 'Average Time Taken',
+                                      value: '1153 ms',
+                                    },
+                                  ]}
+                                  variant='secondary'
+                                />
+                              </DataCard.ItemCollapsibleContent>
                               <DataCard.ItemDataGrid
                                 data={[
                                   {
-                                    label: 'Output',
-                                    value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                    label: '$/Input',
+                                    value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
                                   },
                                   {
-                                    label: 'Average Time Taken',
-                                    value: '1153 ms',
+                                    label: '$/Output',
+                                    value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
                                   },
                                 ]}
-                                variant='secondary'
                               />
-                            </DataCard.ItemCollapsibleContent>
-                            <DataCard.ItemDataGrid
-                              data={[
-                                {
-                                  label: '$/Input',
-                                  value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
-                                },
-                                {
-                                  label: '$/Output',
-                                  value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
-                                },
-                              ]}
-                            />
-                          </DataCard.Item>
-                          {aiProvider.chatModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
-                        </Fragment>
-                      );
-                    })}
-                  </>
-                ) : (
-                  <DataCard.Text>No chat models found</DataCard.Text>
-                )}
-              </DataCard.Wrapper>
-            </DataCard.Root>
-          </div>
-        );
-      })}
-    </div>
+                            </DataCard.Item>
+                            {aiProvider.chatModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
+                          </Fragment>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <DataCard.Text>No chat models found</DataCard.Text>
+                  )}
+                </DataCard.Wrapper>
+              </DataCard.Root>
+            </div>
+          );
+        })}
+      </div>
+      <Outlet />
+    </>
   );
 }
