@@ -49,7 +49,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
           const EditButton = () => {
             return (
               <Link to={`/ai-providers/${aiProvider.id}`} className='hover:opacity-50 transition-colors'>
-                <Icons.pen />
+                <Icons.eye className='text-base-black' />
               </Link>
             );
           };
