@@ -1,24 +1,22 @@
-import { redirect } from 'react-router';
+import { Outlet, redirect } from 'react-router';
 import type { TtsProvider, TtsVoice } from '~/types';
 import type { Route } from './+types/_main._general.preferences.tts';
 import { DataCard } from '~/components/DataCard';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
-import  PlayerButton from '~/components/PlayerButton';
+import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { ViewButton } from '~/components/preferencesViewButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
 }
 
-
 export async function clientLoader() {
   const res = await fetchWithAuth(`tts-providers`);
   return await res.json();
 }
-
-
 
 export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) {
   const ttsProviders: TtsProvider[] = loaderData;
@@ -39,26 +37,37 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
     },
   ];
 
+  console.log(ttsProviders);
   return (
     <>
       <div className='space-y-10 pb-5'>
-        {ttsProviders.map((ttsProvider) => (
-          <DataCard.Root key={ttsProvider.id}>
-            <DataCard.Label
-              extra={
+        {ttsProviders.map((ttsProvider) => {
+          const ExtraSection = () => {
+            return (
+              <div className='flex items-center gap-3'>
                 <p className='text-body-sm text-base-black break-words'>
                   $/Character <span className='text-neutral-01'>-</span> <b className='font-semibold'>${ttsProvider.dollarPerCharacter}</b>
                 </p>
-              }
-            >
-              {ttsProvider.name}
-            </DataCard.Label>
-            <DataCard.Wrapper>
-              <Table hideHeader={true} columns={columnProperties} data={ttsProvider.ttsVoices} />
-            </DataCard.Wrapper>
-          </DataCard.Root>
-        ))}
+                •
+                <ViewButton link={`/tts-providers/${ttsProvider.id}`} />
+              </div>
+            );
+          };
+          return (
+            <DataCard.Root key={ttsProvider.id}>
+              <DataCard.Label extra={<ExtraSection />}>{ttsProvider.name}</DataCard.Label>
+              <DataCard.Wrapper>
+                {ttsProvider.ttsVoices.length > 0 ? (
+                  <Table hideHeader={true} columns={columnProperties} data={ttsProvider.ttsVoices} />
+                ) : (
+                  <DataCard.Text>No TTS Voices found</DataCard.Text>
+                )}
+              </DataCard.Wrapper>
+            </DataCard.Root>
+          );
+        })}
       </div>
+      <Outlet />
     </>
   );
 }

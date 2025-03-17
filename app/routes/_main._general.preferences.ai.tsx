@@ -1,4 +1,4 @@
-import { Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
+import { Outlet, useRouteLoaderData } from 'react-router';
 import type { AiProvider, ChatModel, EmbeddingModel, User } from '~/types';
 import type { Route } from './+types/_main._general.preferences.ai';
 import Table from '~/components/Table';
@@ -7,7 +7,7 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { DataCard } from '~/components/DataCard';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import { Icons } from '~/components/ui/icons';
+import { ViewButton } from '~/components/preferencesViewButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
@@ -47,20 +47,10 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col gap-10 pb-5'>
         {aiProviders.map((aiProvider) => {
-          const EditButton = () => {
-            if (me.role !== 'ADMIN') {
-              return null;
-            }
-            return (
-              <Link to={`/ai-providers/${aiProvider.id}`} className='hover:opacity-50 transition-colors'>
-                <Icons.eye className='text-base-black' />
-              </Link>
-            );
-          };
           return (
             <div key={aiProvider.id} className='flex flex-col gap-5'>
               <DataCard.Root>
-                <DataCard.Label className='text-2xl font-semibold' extra={<EditButton />}>
+                <DataCard.Label className='text-2xl font-semibold' extra={<ViewButton link={`/ai-providers/${aiProvider.id}`} />}>
                   {aiProvider.name}
                 </DataCard.Label>
                 <DataCard.Wrapper>

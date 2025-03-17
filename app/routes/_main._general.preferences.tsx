@@ -17,8 +17,8 @@ const preferencesNavItems = [
   {
     label: 'TTS',
     to: 'tts',
-    // link: 'TTS Provider',
-    href: '/',
+    link: 'TTS Provider',
+    href: '/preferences/tts/tts-provider/new',
   },
   {
     label: 'STT',
