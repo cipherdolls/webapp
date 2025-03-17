@@ -82,7 +82,9 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
     };
   }, [isPlaying, stopAudio]);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent default to stop the button from submitting the form
+    e.preventDefault();
     if (!audioRef.current) return;
     if (isPlaying) {
       stopAudio();
@@ -94,6 +96,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
   return (
     <Button.Root
       onClick={handleClick}
+      type='button'
       className={cn('relative shrink-0 size-10 rounded-full flex items-center justify-center', className)}
       {...restProps}
     >
