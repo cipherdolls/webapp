@@ -10,6 +10,7 @@ import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
 import { DataCard } from '~/components/DataCard';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import DeleteAiProviderModal from '~/components/deleteAiProviderModal';
 
 const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
   {
@@ -116,6 +117,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               Edit
             </Button.Root>
           </Link>
+          <DeleteAiProviderModal />
         </div>
         <div className='md:hidden flex'>
           <Icons.more />
