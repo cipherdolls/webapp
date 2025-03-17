@@ -1,5 +1,5 @@
-import { Link, Outlet, redirect } from 'react-router';
-import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
+import { Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
+import type { AiProvider, ChatModel, EmbeddingModel, User } from '~/types';
 import type { Route } from './+types/_main._general.preferences.ai';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
@@ -20,6 +20,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const aiProviders: AiProvider[] = loaderData;
+  const me = useRouteLoaderData('routes/_main') as User;
 
   const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
     {
@@ -47,6 +48,9 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       <div className='flex flex-col gap-10 pb-5'>
         {aiProviders.map((aiProvider) => {
           const EditButton = () => {
+            if (me.role !== 'ADMIN') {
+              return null;
+            }
             return (
               <Link to={`/ai-providers/${aiProvider.id}`} className='hover:opacity-50 transition-colors'>
                 <Icons.eye className='text-base-black' />
