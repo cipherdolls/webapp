@@ -4,8 +4,6 @@
 
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-
-import { Icons } from './icons';
 import { cn } from '~/utils/cn';
 
 const DrawerRoot = DialogPrimitive.Root;
@@ -51,7 +49,7 @@ const DrawerContent = React.forwardRef<
           ref={forwardedRef}
           className={cn(
             // base
-            'size-full sm:max-w-[400px] px-5',
+            'size-full sm:max-w-[400px] max-h-screen',
             'bg-base-white sm:rounded-xl shadow-bottom-level-2',
             // animation
             'data-[state=open]:duration-200 data-[state=open]:ease-out data-[state=open]:animate-in',
@@ -77,7 +75,7 @@ const DrawerTitle = React.forwardRef<
   return (
     <DialogPrimitive.Title
       ref={forwardedRef}
-      className={cn('text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center', className)}
+      className={cn('text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center px-5', className)}
       {...rest}
     />
   );
@@ -86,7 +84,7 @@ DrawerTitle.displayName = 'DrawerTitle';
 
 function DrawerBody({ className, children, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('flex-1', className)} {...rest}>
+    <div className={cn('flex-1 overflow-y-auto max-h-[calc(100vh-160px)] px-5 scrollbar-medium', className)} {...rest}>
       {children}
     </div>
   );

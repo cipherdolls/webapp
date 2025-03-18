@@ -26,7 +26,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const aiProviderId = formData.get('aiProviderId');
 
-    const res = await fetchWithAuth(`aiProviders/${aiProviderId}`, {
+    const res = await fetchWithAuth(`ai-providers/${aiProviderId}`, {
       method: request.method,
       body: formData,
     });
@@ -92,7 +92,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     >
       <Drawer.Content>
         <Drawer.Title>Edit AI Provider</Drawer.Title>
-        <fetcher.Form method='POST' action='/chat-models/new' className='size-full flex flex-col'>
+        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
             <div className='flex flex-col items-center justify-center mb-10'>
@@ -149,13 +149,13 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               />
             </Input.Root>
             <Input.Root>
-              <Input.Label id='name' htmlFor='name'>
+              <Input.Label id='basePath' htmlFor='basePath'>
                 Base Path
               </Input.Label>
               <Input.Input
                 className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='name'
-                name='name'
+                id='basePath'
+                name='basePath'
                 type='text'
                 defaultValue={aiProvider.basePath}
               />

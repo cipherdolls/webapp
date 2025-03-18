@@ -12,7 +12,7 @@ import { DataCard } from '~/components/DataCard';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import DeleteAiProviderModal from '~/components/deleteAiProviderModal';
 
-const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
+const chatModelColumns: Array<TTableColumn<ChatModel>> = [
   {
     id: 'name',
     label: 'Name',
@@ -35,13 +35,42 @@ const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
     id: 'id',
     label: '',
     render: (data) => {
-      const isEmbeddingModel = !('censored' in data);
-      const modelType = isEmbeddingModel ? 'embedding-model' : 'chat-model';
-      const { aiProviderId } = useParams();
-      const providerId = isEmbeddingModel ? aiProviderId : data.aiProviderId;
-
+      const providerId = data.aiProviderId;
       return (
-        <Link to={`/ai-providers/${providerId}/${modelType}/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
+        <Link to={`/ai-providers/${providerId}/chat-model/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
+          <Icons.pen />
+        </Link>
+      );
+    },
+    align: 'right',
+  },
+];
+
+const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
+  {
+    id: 'name',
+    label: 'Name',
+    render: (data) => <span className='font-semibold'>{data.name}</span>,
+    align: 'left',
+  },
+  {
+    id: 'dollarPerInputToken',
+    label: 'Output',
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
+    align: 'right',
+  },
+  {
+    id: 'dollarPerOutputToken',
+    label: 'Output',
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
+    align: 'right',
+  },
+  {
+    id: 'id',
+    label: '',
+    render: (data) => {
+      return (
+        <Link to={`/ai-providers/${data.aiProviderId}/embedding-model/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
           <Icons.pen />
         </Link>
       );
@@ -58,28 +87,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   const aiProviderId = params.aiProviderId;
   const res = await fetchWithAuth(`ai-providers/${aiProviderId}`);
   return await res.json();
-}
-
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const aiProviderId = formData.get('aiProviderId');
-
-    const res = await fetchWithAuth(`aiProviders/${aiProviderId}`, {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      return await res.json();
-    }
-
-    const aiProvider: AiProvider = await res.json();
-    return redirect(`/ai-providers/${aiProvider.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
 }
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
@@ -139,7 +146,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               {chatModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table columns={columnProperties} data={[...chatModels]} wrapperClassName='hidden md:block' />
+                  <Table columns={chatModelColumns} data={[...chatModels]} wrapperClassName='hidden md:block' />
 
                   {/* MOBILE CARD */}
                   {chatModels.map((chatModel, index) => {
@@ -198,7 +205,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               {embeddingModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table columns={columnProperties} data={[...embeddingModels]} wrapperClassName='hidden md:block' />
+                  <Table columns={embeddingModelColumns} data={[...embeddingModels]} wrapperClassName='hidden md:block' />
 
                   {/* MOBILE CARD */}
                   {embeddingModels.map((embeddingModel, index) => {

@@ -1,5 +1,5 @@
-import { useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
-import type { AiProvider } from '~/types';
+import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
+import type { AiProvider, ChatModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.chat-models.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -7,8 +7,33 @@ import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Chat Model' }];
+}
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  try {
+    const formData = await request.formData();
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+    const res = await fetchWithAuth('chat-models', {
+      method: request.method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData),
+    });
+
+    if (!res.ok) {
+      return await res.json();
+    }
+    const chatModel: ChatModel = await res.json();
+    return redirect(`/ai-providers/${chatModel.aiProviderId}`);
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
 }
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
@@ -29,7 +54,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     >
       <Drawer.Content>
         <Drawer.Title>Add New Chat Model for {aiProvider.name}</Drawer.Title>
-        <fetcher.Form method='POST' action='/chat-models/new' className='size-full flex flex-col'>
+        <fetcher.Form method='POST' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
 

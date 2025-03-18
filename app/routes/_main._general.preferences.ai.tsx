@@ -1,5 +1,5 @@
-import { Outlet, useRouteLoaderData } from 'react-router';
-import type { AiProvider, ChatModel, EmbeddingModel, User } from '~/types';
+import { Outlet } from 'react-router';
+import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.preferences.ai';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
@@ -21,7 +21,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const aiProviders: AiProvider[] = loaderData;
-  const me = useRouteLoaderData('routes/_main') as User;
 
   const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
     {
@@ -115,7 +114,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                       })}
                     </>
                   ) : (
-                    <DataCard.Text>No chat models found</DataCard.Text>
+                    <DataCard.Text>No models found</DataCard.Text>
                   )}
                 </DataCard.Wrapper>
               </DataCard.Root>
