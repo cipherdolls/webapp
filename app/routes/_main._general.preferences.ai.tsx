@@ -8,6 +8,7 @@ import { DataCard } from '~/components/DataCard';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { getPicture } from '~/utils/getPicture';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
@@ -50,7 +51,18 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
           return (
             <div key={aiProvider.id} className='flex flex-col gap-5'>
               <DataCard.Root>
-                <DataCard.Label className='text-2xl font-semibold' extra={<ViewButton link={`/ai-providers/${aiProvider.id}`} />}>
+                <DataCard.Label
+                  className='text-2xl font-semibold flex items-center gap-2'
+                  extra={<ViewButton link={`/ai-providers/${aiProvider.id}`} />}
+                >
+                  <div className='size-10'>
+                    <img
+                      src={getPicture(aiProvider, 'ai-providers', false)}
+                      srcSet={getPicture(aiProvider, 'ai-providers', true)}
+                      alt={aiProvider.name}
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
                   {aiProvider.name}
                 </DataCard.Label>
                 <DataCard.Wrapper>

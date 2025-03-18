@@ -1,4 +1,4 @@
-import { Link, Outlet, redirect, useFetcher } from 'react-router';
+import { Link, Outlet, redirect, useFetcher, useParams } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import { Fragment } from 'react';
 import { getPicture } from '~/utils/getPicture';
@@ -37,7 +37,9 @@ const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
     render: (data) => {
       const isEmbeddingModel = !('censored' in data);
       const modelType = isEmbeddingModel ? 'embedding-model' : 'chat-model';
-      const providerId = isEmbeddingModel ? '' : data.aiProviderId;
+      const { aiProviderId } = useParams();
+      const providerId = isEmbeddingModel ? aiProviderId : data.aiProviderId;
+
       return (
         <Link to={`/ai-providers/${providerId}/${modelType}/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
           <Icons.pen />
