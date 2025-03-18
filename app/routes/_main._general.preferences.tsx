@@ -1,8 +1,9 @@
-import { Link, NavLink, Outlet, useLocation } from 'react-router';
+import { Link, NavLink, Outlet, useLocation, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.preferences';
 import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
+import type { User } from '~/types';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Preferences' }];
 }
@@ -48,6 +49,7 @@ const preferencesNavItems = [
 
 export default function Preferences() {
   const location = useLocation();
+  const me = useRouteLoaderData('routes/_main') as User;
 
   const activeItem = preferencesNavItems.find((item) => location.pathname.includes(`/${item.to}`));
 
@@ -74,7 +76,7 @@ export default function Preferences() {
             );
           })}
         </div>
-        {activeItem?.link && (
+        {me.role === 'ADMIN' && activeItem?.link && (
           <Link to={activeItem?.href || '/preferences/ai'} className='absolute right-0 sm:bottom-2.5 -top-12 sm:top-auto'>
             <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
               <Button.Icon as={Icons.add} />

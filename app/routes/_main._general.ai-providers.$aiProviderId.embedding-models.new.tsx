@@ -1,7 +1,7 @@
 import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
 
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, User } from '~/types';
+import type { AiProvider, EmbeddingModel, User } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.embedding-models.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -12,6 +12,30 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Embedding Model' }];
+}
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  try {
+    const formData = await request.formData();
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+    const res = await fetchWithAuth('embedding-models', {
+      method: request.method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData),
+    });
+
+    if (!res.ok) {
+      return await res.json();
+    }
+    const embeddingModel: EmbeddingModel = await res.json();
+    return redirect(`/ai-providers/${embeddingModel.aiProviderId}`);
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
 }
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
@@ -32,7 +56,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     >
       <Drawer.Content>
         <Drawer.Title>Add New Embedding Model for {aiProvider.name}</Drawer.Title>
-        <fetcher.Form method='POST' action='/chat-models/new' className='size-full flex flex-col'>
+        <fetcher.Form method='POST' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
 
