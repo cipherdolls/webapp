@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.embedding-model.$embeddingModelId.edit';
@@ -22,10 +22,12 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function embeddingModelShow({ loaderData }: Route.ComponentProps) {
   const embeddingModel: EmbeddingModel = loaderData;
+  const { aiProviderId } = useParams();
+
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/embedding-models/${embeddingModel.id}`);
+    navigate(`/ai-providers/${aiProviderId}`);
   };
 
   return (
@@ -37,6 +39,7 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
     >
       <Drawer.Content>
         <Drawer.Title>Edit Embedding Model</Drawer.Title>
+        <Dialog.Description className='hidden'>Edit Embedding Model</Dialog.Description>
         <div className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
