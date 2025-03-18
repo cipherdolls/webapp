@@ -1,4 +1,4 @@
-import { redirect, useNavigate } from 'react-router';
+import { redirect, useNavigate, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { ChatModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.chat-model.$chatModelId.edit';
@@ -20,9 +20,40 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return await res.json();
 }
 
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
+  try {
+    const formData = await request.formData();
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key === 'recommended' || key === 'censored') {
+        jsonData[key] = value === 'on';
+      } else {
+        jsonData[key] = value;
+      }
+    });
+
+    const res = await fetchWithAuth(`chat-models/${params.chatModelId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData),
+    });
+
+    if (!res.ok) {
+      return await res.json();
+    }
+
+    const chatModel: ChatModel = await res.json();
+    return redirect(`/ai-providers/${chatModel.aiProviderId}`);
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
+}
+
 export default function chatModelShow({ loaderData }: Route.ComponentProps) {
   const chatModel: ChatModel = loaderData;
   const navigate = useNavigate();
+  const fetcher = useFetcher();
 
   const handleClose = () => {
     navigate(`/ai-providers/${chatModel.aiProviderId}`);
@@ -37,9 +68,11 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
     >
       <Drawer.Content>
         <Drawer.Title>Edit Chat Model</Drawer.Title>
-        <div className='size-full flex flex-col'>
+        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='chatModelId' value={chatModel.id} />
+            <input type='hidden' name='aiProviderId' value={chatModel.aiProviderId} />
+
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
                 Name
@@ -174,11 +207,11 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                 Close
               </Button.Root>
             </Dialog.Close>
-            <Button.Root type='button' className='w-full'>
+            <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
           </Drawer.Footer>
-        </div>
+        </fetcher.Form>
         <Dialog.Close asChild>
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
