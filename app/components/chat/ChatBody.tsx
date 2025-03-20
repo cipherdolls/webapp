@@ -4,12 +4,12 @@ import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
 import ChatDateDivider from './ui/ChatDateDivider';
+import { Link } from 'react-router';
 
 interface ChatBodyProps {
   messages: Message[];
   isGenerating?: boolean;
 }
-
 
 const getMessageVariant = (role: string) => {
   switch (role) {
@@ -24,7 +24,6 @@ const getMessageVariant = (role: string) => {
   }
 };
 
-
 const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) => {
   return (
     <ChatMessagesList>
@@ -37,10 +36,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) =
             {isNextDay && <ChatDateDivider date={message.createdAt} />}
 
             {/* chat bubble */}
-            <ChatBubble.Root variant={variant} >
-              <ChatBubble.Message>
-                <ChatBubble.Text>{message.content}</ChatBubble.Text>
-                {message.role !== 'SYSTEM' && <ChatBubble.Timestamp time={message.createdAt} />}
+            <ChatBubble.Root variant={variant}>
+              <ChatBubble.Message asChild>
+                <Link to={`messages/${message.id}`}>
+                  
+                  <ChatBubble.Text>{message.content}</ChatBubble.Text>
+                  {message.role !== 'SYSTEM' && <ChatBubble.Timestamp time={message.createdAt} />}
+                </Link>
               </ChatBubble.Message>
             </ChatBubble.Root>
           </Fragment>

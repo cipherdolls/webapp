@@ -100,6 +100,33 @@
   }
 }
 
+@layer components {
+  .pageModal {
+    @apply fixed inset-0 z-20;
+  }
+  .pageModal-overlay {
+    @apply bg-neutral-02 absolute inset-0 z-40 cursor-pointer;
+  }
+  .pageModal-content {
+    @apply flex flex-col absolute inset-0 sm:left-auto sm:right-2 sm:top-2 sm:bottom-2 px-1.5 sm:px-5 sm:max-w-[408px] w-full h-auto z-50 bg-white sm:rounded-xl bg-main-gradient;
+  }
+  .pageModal-button-close {
+    @apply hidden md:flex !absolute top-4.5 right-full mr-4.5 shadow-bottom;
+  }
+  .pageModal-header {
+    @apply flex items-center gap-2 py-4 sm:py-[26px];
+  }
+}
+
+/* app main gradient  */
+@utility bg-main-gradient {
+  background-color: white;
+  background-image:
+    radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
+    linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
+    linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
+}
+
 @utility bg-gradient-chat {
   @apply bg-linear-[86.23deg] from-[rgba(254,253,248,0.56)] to-[rgba(255,255,255,0.56)];
 }
@@ -113,12 +140,13 @@
   @apply scrollbar scrollbar-thumb-neutral-03 scrollbar-track-transparent scrollbar-thin;
 }
 
-/* app main gradient  */
-@utility bg-main-gradient {
-  background-color: white;
-  background-image: radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
-  linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
-  linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
+@utility message-corner {
+  content: '';
+  position: absolute;
+  width: 13px;
+  height: 21px;
+  background-color: currentColor;
+  clip-path: path('M7 15C7 10.5971 9.37124 6.74799 12.9063 4.66013 C6.14507 0.934222 0 0 0 0 C0 0 5.74287 5.71574 7 20.092V15Z');
 }
 
 html,

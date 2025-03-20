@@ -3,6 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '~/utils/cn';
 import { Icons } from '~/components/ui/icons';
 import { formatTime } from '~/utils/date.utils';
+import { Slot } from '@radix-ui/react-slot';
 
 // ChatBubble
 const chatBubbleVariant = cva('flex gap-2 items-end relative w-full px-4.5 mt-4 max-w-[900px] mx-auto', {
@@ -35,8 +36,8 @@ const ChatBubbleRoot = React.forwardRef<HTMLDivElement, ChatBubbleProps>(({ clas
 const chatBubbleMessageVariants = cva('relative px-4 py-3 rounded-xl max-w-[85%] md:max-w-[60%]', {
   variants: {
     variant: {
-      received: 'bg-neutral-05 text-base-black',
-      sent: 'bg-pink-02 text-base-black',
+      received: 'bg-neutral-05 text-base-black [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05',
+      sent: 'bg-pink-02 text-base-black [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02',
       system: 'bg-neutral-03 text-base-black',
     },
   },
@@ -47,30 +48,27 @@ const chatBubbleMessageVariants = cva('relative px-4 py-3 rounded-xl max-w-[85%]
 
 interface ChatBubbleMessageProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof chatBubbleMessageVariants> {
   isLoading?: boolean;
+  asChild?: boolean;
 }
 
 const ChatBubbleMessage = React.forwardRef<HTMLDivElement, ChatBubbleMessageProps>(
-  ({ className, variant, isLoading = false, children, ...props }, ref) => (
-    <div className={cn(chatBubbleMessageVariants({ variant, className }))} ref={ref} {...props}>
-      {(variant === 'sent' || variant === 'received') && (
-        <Icons.messageCorner
-          className={cn('message-corner absolute ', {
-            'right-[-7px] top-[-3px] scale-x-[-1] text-pink-02': variant === 'sent',
-            'left-[-7px] top-[-3px] text-neutral-05': variant === 'received',
-          })}
-        />
-      )}
-      {isLoading ? (
-        <div className='flex justify-center items-center  gap-1 *:w-1.5 *:h-1.5 *:shrink-0 pt-2'>
-          <div className='bg-base-black rounded-full animate-message-loading [animation-delay:-0.3s]'></div>
-          <div className='bg-neutral-01 rounded-full animate-message-loading [animation-delay:-0.15s]'></div>
-          <div className='bg-neutral-02 rounded-full animate-message-loading'></div>
-        </div>
-      ) : (
-        children
-      )}
-    </div>
-  )
+  ({ className, variant, isLoading = false, asChild = false, children, ...props }, ref) => {
+    const Component = asChild ? Slot : 'div';
+
+    return (
+      <Component className={cn(chatBubbleMessageVariants({ variant }), className)} ref={ref} {...props}>
+        {isLoading ? (
+          <div className='flex justify-center items-center gap-1 *:w-1.5 *:h-1.5 *:shrink-0 pt-2'>
+            <div className='bg-base-black rounded-full animate-message-loading [animation-delay:-0.3s]' />
+            <div className='bg-neutral-01 rounded-full animate-message-loading [animation-delay:-0.15s]' />
+            <div className='bg-neutral-02 rounded-full animate-message-loading' />
+          </div>
+        ) : (
+          children
+        )}
+      </Component>
+    );
+  }
 );
 
 const ChatMessageText = ({ children, className }: { children: React.ReactNode; className?: string }) => (
