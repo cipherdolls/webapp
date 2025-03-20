@@ -8,6 +8,7 @@ import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { getPicture } from '~/utils/getPicture';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
@@ -55,7 +56,17 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
           };
           return (
             <DataCard.Root key={ttsProvider.id}>
-              <DataCard.Label extra={<ExtraSection />}>{ttsProvider.name}</DataCard.Label>
+              <DataCard.Label className='text-2xl font-semibold flex items-center gap-2' extra={<ExtraSection />}>
+                <div className='size-10'>
+                  <img
+                    src={getPicture(ttsProvider, 'tts-providers', false)}
+                    srcSet={getPicture(ttsProvider, 'tts-providers', true)}
+                    alt={ttsProvider.name}
+                    className='size-full object-cover rounded-lg'
+                  />
+                </div>
+                {ttsProvider.name}
+              </DataCard.Label>
               <DataCard.Wrapper>
                 {ttsProvider.ttsVoices.length > 0 ? (
                   <Table hideHeader={true} columns={columnProperties} data={ttsProvider.ttsVoices} />
