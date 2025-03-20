@@ -146,10 +146,16 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               {chatModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table columns={chatModelColumns} data={[...chatModels]} wrapperClassName='hidden md:block' />
+                  <Table 
+                    columns={chatModelColumns} 
+                    data={[...chatModels].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())} 
+                    wrapperClassName='hidden md:block' 
+                  />
 
                   {/* MOBILE CARD */}
-                  {chatModels.map((chatModel, index) => {
+                  {[...chatModels]
+                    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                    .map((chatModel, index) => {
                     return (
                       <Fragment key={chatModel.id}>
                         <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
@@ -205,10 +211,16 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               {embeddingModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table columns={embeddingModelColumns} data={[...embeddingModels]} wrapperClassName='hidden md:block' />
+                  <Table 
+                    columns={embeddingModelColumns} 
+                    data={[...embeddingModels].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())} 
+                    wrapperClassName='hidden md:block' 
+                  />
 
                   {/* MOBILE CARD */}
-                  {embeddingModels.map((embeddingModel, index) => {
+                  {[...embeddingModels]
+                    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                    .map((embeddingModel, index) => {
                     return (
                       <Fragment key={embeddingModel.id}>
                         <DataCard.Item key={embeddingModel.id} collapsible className='block md:hidden'>

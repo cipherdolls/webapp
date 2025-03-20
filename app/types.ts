@@ -58,6 +58,7 @@ export interface EmbeddingModel {
   recommended: boolean;
   aiProvider: AiProvider;
   aiProviderId: string;
+  createdAt: Date;
 }
 
 export interface SttProvider {
