@@ -82,7 +82,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const handleClose = () => {
     navigate(`/ai-providers/${aiProvider.id}`);
   };
-
   return (
     <Drawer.Root
       defaultOpen
@@ -146,6 +145,20 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 defaultValue={aiProvider.name}
+              />
+            </Input.Root>
+            <Input.Root>
+              <Input.Label id='apiKey' htmlFor='apiKey'>
+                API Key
+              </Input.Label>
+              <Input.Input
+                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                id='apiKey'
+                name='apiKey'
+                type='text'
+                placeholder='API Key'
+                required
+                defaultValue={aiProvider.apiKey}
               />
             </Input.Root>
             <Input.Root>
