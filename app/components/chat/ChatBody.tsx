@@ -11,24 +11,12 @@ interface ChatBodyProps {
   isGenerating?: boolean;
 }
 
-const getMessageVariant = (role: string) => {
-  switch (role) {
-    case 'USER':
-      return 'sent';
-    case 'ASSISTANT':
-      return 'received';
-    case 'SYSTEM':
-      return 'system';
-    default:
-      return 'received';
-  }
-};
-
 const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) => {
   return (
     <ChatMessagesList>
       {messages.map((message, index) => {
-        const variant = getMessageVariant(message.role);
+        const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
+        const isSystemMessage = message.role === 'SYSTEM';
         const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
         return (
           <Fragment key={message.id}>
@@ -36,12 +24,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) =
             {isNextDay && <ChatDateDivider date={message.createdAt} />}
 
             {/* chat bubble */}
-            <ChatBubble.Root variant={variant}>
+            <ChatBubble.Root variant={bubbleVariant}>
               <ChatBubble.Message asChild>
                 <Link to={`messages/${message.id}`}>
-                  
                   <ChatBubble.Text>{message.content}</ChatBubble.Text>
-                  {message.role !== 'SYSTEM' && <ChatBubble.Timestamp time={message.createdAt} />}
+                  {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
                 </Link>
               </ChatBubble.Message>
             </ChatBubble.Root>

@@ -1,4 +1,4 @@
-import { Form, Link, Outlet, redirect, useFetcher } from 'react-router';
+import { Form, Link, Outlet, redirect, useFetcher, useRevalidator } from 'react-router';
 import type { Chat, Message, ProcessEvent } from '~/types';
 import ChatDestroy from './chats.$id.destroy';
 import type { Route } from './+types/_main.chats.$chatId';
@@ -31,6 +31,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const localStorageToken = localStorage.getItem('token');
   const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+  const revalidator = useRevalidator();
 
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -58,7 +59,8 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         console.log(processEvent);
         // Handle the event
         // TODO: check if the job is completed or failed and improve loading state
-        if (processEvent.resourceName === 'EmbeddingJob' || processEvent.jobStatus === 'completed' || processEvent.jobStatus === 'failed') {
+        if(processEvent.jobStatus === 'completed') {
+          revalidator.revalidate();
           setIsGenerating(false);
         }
       };
