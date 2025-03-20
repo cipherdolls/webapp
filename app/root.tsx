@@ -1,5 +1,5 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
-
+import { AlertDialogProvider } from './providers/AlertDialogProvider';
 import type { Route } from './+types/root';
 import './app.css';
 import { CustomToaster } from './components/ui/toast';
@@ -28,7 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <CustomToaster />
-        {children}
+        <AlertDialogProvider>{children}</AlertDialogProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
