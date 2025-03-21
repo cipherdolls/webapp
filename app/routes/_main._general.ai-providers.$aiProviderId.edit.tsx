@@ -91,7 +91,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     >
       <Drawer.Content>
         <Drawer.Title>Edit AI Provider</Drawer.Title>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
+        <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
             <div className='flex flex-col items-center justify-center mb-10'>
