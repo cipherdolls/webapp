@@ -109,7 +109,10 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
       <div className='pb-5'>
         <div className='flex flex-col gap-5'>
           <DataCard.Root>
-            <DataCard.Label className='text-2xl font-semibold' extra={<AddVoiceIcon to={`/tts-providers/${ttsProvider.id}/new`} />}>
+            <DataCard.Label
+              className='text-2xl font-semibold'
+              extra={<AddVoiceIcon to={`/tts-providers/${ttsProvider.id}/ttsVoice/new`} />}
+            >
               {ttsProvider.name} Voices
             </DataCard.Label>
 
