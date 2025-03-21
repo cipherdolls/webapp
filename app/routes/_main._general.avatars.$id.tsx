@@ -90,7 +90,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         <Link to={'/'} className='flex items-center gap-3 sm:gap-4'>
           <Icons.chevronLeft />
           <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
-            <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{avatar.name}</h3>
+            <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{avatar.name}</h3>
             <span className='text-neutral-01 text-body-lg sm:block hidden'>•</span>
             <span className='text-neutral-01 text-body-sm sm:text-body-lg'>{getTextAfterThe(avatar.shortDesc)}</span>
           </div>

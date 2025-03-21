@@ -95,7 +95,7 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
                 className='size-full object-cover rounded-lg'
               />
             </div>
-            <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{ttsProvider.name}</h3>
+            <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{ttsProvider.name}</h3>
           </div>
         </div>
         <div className='md:flex hidden items-center gap-3'>
