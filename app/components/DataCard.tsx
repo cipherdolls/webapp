@@ -166,7 +166,7 @@ const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, 
             >
               {item.label}
             </dt>
-            <dd className='font-semibold text-right'>{item.value}</dd>
+            <dd className='overflow-hidden font-semibold text-right'>{item.value}</dd>
           </div>
         );
       })}

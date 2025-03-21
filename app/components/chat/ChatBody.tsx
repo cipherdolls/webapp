@@ -4,6 +4,7 @@ import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
 import ChatDateDivider from './ui/ChatDateDivider';
+import { Link } from 'react-router';
 
 interface ChatBodyProps {
   messages: Message[];
@@ -24,9 +25,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) =
 
             {/* chat bubble */}
             <ChatBubble.Root variant={bubbleVariant}>
-              <ChatBubble.Message>
-                <ChatBubble.Text>{message.content}</ChatBubble.Text>
-                {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
+              <ChatBubble.Message asChild>
+                <Link to={`messages/${message.id}`}>
+                  <ChatBubble.Text>{message.content}</ChatBubble.Text>
+                  {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
+                </Link>
               </ChatBubble.Message>
             </ChatBubble.Root>
           </Fragment>

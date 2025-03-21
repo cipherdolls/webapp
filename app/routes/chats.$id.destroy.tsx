@@ -1,4 +1,4 @@
-import { Form, redirect, useFetcher } from "react-router";
+import { redirect, useFetcher } from "react-router";
 import type { Route } from "./+types/chats.$id.destroy";
 import { fetchWithAuth } from "~/utils/fetchWithAuth";
 
