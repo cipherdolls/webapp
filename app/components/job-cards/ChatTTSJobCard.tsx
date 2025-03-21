@@ -1,7 +1,7 @@
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
-import { etherWeiConverter } from '~/utils/etherWeiConverter';
+import { formatEther } from 'ethers';
 
 const ChatTTSJobCard = ({ message }: { message: Message }) => {
   const ttsVoice = message?.chat?.avatar?.ttsVoice;
@@ -43,7 +43,7 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Cost',
-              value: `${etherWeiConverter(ttsJob.paymentJob.weiCost)} Ether`,
+              value: `${formatEther(ttsJob.paymentJob.weiCost)} Ether`,
             },
             {
               label: 'txHash',
