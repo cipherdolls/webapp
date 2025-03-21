@@ -1,5 +1,5 @@
 import { Form, redirect, useFetcher } from 'react-router';
-import type { Route } from './+types/chats.$id.destroy';
+import type { Route } from './+types/avatars.$id.destroy';
 import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 

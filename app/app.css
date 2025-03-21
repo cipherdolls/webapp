@@ -127,21 +127,17 @@
     linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
 }
 
-@utility bg-gradient-chat {
-  @apply bg-linear-[86.23deg] from-[rgba(254,253,248,0.56)] to-[rgba(255,255,255,0.56)];
-}
-
 @utility bg-gradient-modal {
   @apply bg-linear-[86.23deg] from-[rgba(254,253,248,1)] to-[rgba(255,255,255,1)];
-}
-
-@utility bg-gradient-alert-dialog{
-  @apply bg-linear-[86.23deg] from-[rgba(254,253,248,0.56)] to-[rgba(255,255,255,0.56)];
 }
 
 /* scrollbar utilities */
 @utility scrollbar-medium {
   @apply scrollbar scrollbar-thumb-neutral-03 scrollbar-track-transparent scrollbar-thin;
+}
+
+@utility bg-gradient-1 {
+  @apply bg-linear-[86.23deg] from-[rgba(254,253,248,0.56)] to-[rgba(255,255,255,0.56)];
 }
 
 @utility message-corner {

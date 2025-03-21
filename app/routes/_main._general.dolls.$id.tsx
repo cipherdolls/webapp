@@ -1,6 +1,5 @@
 import { Form, Link, Outlet, redirect } from "react-router";
 import type { Chat, Doll, Message, ProcessEvent } from "~/types";
-import ChatDestroy from "./chats.$id.destroy";
 import { useEffect, useRef } from "react";
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';

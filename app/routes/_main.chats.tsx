@@ -53,7 +53,7 @@ export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <main className='flex flex-1 sm:py-2 sm:pr-2 overflow-hidden'>
-        <div className='flex flex-1 sm:rounded-xl sm:bg-gradient-chat overflow-hidden'>
+        <div className='flex flex-1 sm:rounded-xl sm:bg-gradient-1 overflow-hidden'>
           <ChatsSidebar chats={chats} avatars={avatars} />
           <div className='flex flex-1'>
             <Outlet />

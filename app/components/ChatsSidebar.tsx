@@ -32,7 +32,7 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
           </AvatarSelectModal>
         )}
       </div>
-      <div className='flex-1 sm:px-2 scrollbar-medium overflow-auto bg-gradient-chat rounded-xl sm:bg-none sm:rounded-none'>
+      <div className='flex-1 sm:px-2 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none'>
         <div className='flex flex-col '>
           {chats.map((chat) => (
             <NavLink
