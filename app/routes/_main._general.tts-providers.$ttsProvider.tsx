@@ -1,6 +1,5 @@
-import { Link, Outlet, useFetcher, useParams } from 'react-router';
+import { Link, Outlet, useParams } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import { Fragment } from 'react';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -8,7 +7,6 @@ import type { TtsProvider, TtsVoice } from '~/types';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
 import { DataCard } from '~/components/DataCard';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import type { Route } from './+types/_main._general.tts-providers.$ttsProvider';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
@@ -70,7 +68,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
   const ttsProvider: TtsProvider = loaderData;
   const { ttsVoices } = ttsProvider;
-  const fetcher = useFetcher();
   const AddVoiceIcon = ({ to }: { to: string }) => {
     return (
       <Link to={to}>
