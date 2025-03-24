@@ -118,7 +118,10 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
 
             <DataCard.Wrapper>
               {ttsVoices.length > 0 ? (
-                <Table columns={ttsVoiceColumns} data={[...ttsVoices]} />
+                <Table
+                  columns={ttsVoiceColumns}
+                  data={[...ttsVoices].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())}
+                />
               ) : (
                 <DataCard.Text>No TTS voices found</DataCard.Text>
               )}
