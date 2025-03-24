@@ -35,10 +35,9 @@ const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     id: 'id',
     label: '',
     render: (data) => {
-      const providerId = data.aiProviderId;
       return (
-        <Link to={`/ai-providers/${providerId}/chat-model/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
-          <Icons.pen />
+        <Link to={`/chat-models/${data.id}`} className='hover:opacity-50 transition-colors'>
+          <Icons.eye />
         </Link>
       );
     },
@@ -70,8 +69,8 @@ const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     label: '',
     render: (data) => {
       return (
-        <Link to={`/ai-providers/${data.aiProviderId}/embedding-model/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
-          <Icons.pen />
+        <Link to={`/embedding-models/${data.id}`} className='hover:opacity-50 transition-colors'>
+          <Icons.eye />
         </Link>
       );
     },
@@ -146,52 +145,52 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               {chatModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table 
-                    columns={chatModelColumns} 
-                    data={[...chatModels].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())} 
-                    wrapperClassName='hidden md:block' 
+                  <Table
+                    columns={chatModelColumns}
+                    data={[...chatModels].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())}
+                    wrapperClassName='hidden md:block'
                   />
 
                   {/* MOBILE CARD */}
                   {[...chatModels]
                     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                     .map((chatModel, index) => {
-                    return (
-                      <Fragment key={chatModel.id}>
-                        <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
-                          <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
-                          <DataCard.ItemCollapsibleContent>
+                      return (
+                        <Fragment key={chatModel.id}>
+                          <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
+                            <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
+                            <DataCard.ItemCollapsibleContent>
+                              <DataCard.ItemDataGrid
+                                data={[
+                                  {
+                                    label: 'Output',
+                                    value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                  },
+                                  {
+                                    label: 'Average Time Taken',
+                                    value: '1153 ms',
+                                  },
+                                ]}
+                                variant='secondary'
+                              />
+                            </DataCard.ItemCollapsibleContent>
                             <DataCard.ItemDataGrid
                               data={[
                                 {
-                                  label: 'Output',
-                                  value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                  label: '$/Input',
+                                  value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
                                 },
                                 {
-                                  label: 'Average Time Taken',
-                                  value: '1153 ms',
+                                  label: '$/Output',
+                                  value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
                                 },
                               ]}
-                              variant='secondary'
                             />
-                          </DataCard.ItemCollapsibleContent>
-                          <DataCard.ItemDataGrid
-                            data={[
-                              {
-                                label: '$/Input',
-                                value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
-                              },
-                              {
-                                label: '$/Output',
-                                value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
-                              },
-                            ]}
-                          />
-                        </DataCard.Item>
-                        {chatModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
-                      </Fragment>
-                    );
-                  })}
+                          </DataCard.Item>
+                          {chatModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
+                        </Fragment>
+                      );
+                    })}
                 </>
               ) : (
                 <DataCard.Text>No chat models found</DataCard.Text>
@@ -211,52 +210,52 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               {embeddingModels.length > 0 ? (
                 <>
                   {/* DESKTOP TABLE */}
-                  <Table 
-                    columns={embeddingModelColumns} 
-                    data={[...embeddingModels].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())} 
-                    wrapperClassName='hidden md:block' 
+                  <Table
+                    columns={embeddingModelColumns}
+                    data={[...embeddingModels].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())}
+                    wrapperClassName='hidden md:block'
                   />
 
                   {/* MOBILE CARD */}
                   {[...embeddingModels]
                     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                     .map((embeddingModel, index) => {
-                    return (
-                      <Fragment key={embeddingModel.id}>
-                        <DataCard.Item key={embeddingModel.id} collapsible className='block md:hidden'>
-                          <DataCard.ItemLabel>{embeddingModel.name}</DataCard.ItemLabel>
-                          <DataCard.ItemCollapsibleContent>
+                      return (
+                        <Fragment key={embeddingModel.id}>
+                          <DataCard.Item key={embeddingModel.id} collapsible className='block md:hidden'>
+                            <DataCard.ItemLabel>{embeddingModel.name}</DataCard.ItemLabel>
+                            <DataCard.ItemCollapsibleContent>
+                              <DataCard.ItemDataGrid
+                                data={[
+                                  {
+                                    label: 'Output',
+                                    value: <>{scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                  },
+                                  {
+                                    label: 'Average Time Taken',
+                                    value: '1153 ms',
+                                  },
+                                ]}
+                                variant='secondary'
+                              />
+                            </DataCard.ItemCollapsibleContent>
                             <DataCard.ItemDataGrid
                               data={[
                                 {
-                                  label: 'Output',
-                                  value: <>{scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                  label: '$/Input',
+                                  value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
                                 },
                                 {
-                                  label: 'Average Time Taken',
-                                  value: '1153 ms',
+                                  label: '$/Output',
+                                  value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
                                 },
                               ]}
-                              variant='secondary'
                             />
-                          </DataCard.ItemCollapsibleContent>
-                          <DataCard.ItemDataGrid
-                            data={[
-                              {
-                                label: '$/Input',
-                                value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
-                              },
-                              {
-                                label: '$/Output',
-                                value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
-                              },
-                            ]}
-                          />
-                        </DataCard.Item>
-                        {embeddingModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
-                      </Fragment>
-                    );
-                  })}
+                          </DataCard.Item>
+                          {embeddingModels.length - 1 !== index && <DataCard.Divider className='block md:hidden' />}
+                        </Fragment>
+                      );
+                    })}
                 </>
               ) : (
                 <DataCard.Text>No embedding models found</DataCard.Text>

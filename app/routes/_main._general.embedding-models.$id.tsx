@@ -2,22 +2,22 @@ import { Link, Outlet } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { ChatModel } from '~/types';
+import type { EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
 import { getPicture } from '~/utils/getPicture';
 import * as Checkbox from '@radix-ui/react-checkbox';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Chat Model' }];
+  return [{ title: 'Embedding Model' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const res = await fetchWithAuth(`chat-models/${params.id}`);
+  const res = await fetchWithAuth(`embedding-models/${params.id}`);
   return await res.json();
 }
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
-  const chatModel: ChatModel = loaderData;
+  const embeddingModel: EmbeddingModel = loaderData;
 
   const formatDate = (dateString: Date) => {
     const date = new Date(dateString);
@@ -30,27 +30,21 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     }).format(date);
   };
 
-  const createdDate = formatDate(chatModel.createdAt);
-  const updatedDate = formatDate(chatModel.updatedAt);
-
-  // Helper function to format response time display
-  const formatResponseTime = (time: number | null | undefined) => {
-    if (!time && time !== 0) return 'N/A';
-    return `${time} ms`;
-  };
+  const createdDate = formatDate(embeddingModel.createdAt);
+  const updatedDate = formatDate(embeddingModel.updatedAt);
 
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/ai-providers/${chatModel.aiProviderId}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`/ai-providers/${embeddingModel.aiProviderId}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <h3 className='text-body-md font-semibold text-base-black hover:underline transition-all duration-200'>
-              Go back to <span className='text-neutral-01 text-body-lg'>{chatModel.aiProvider?.name}</span>
+              Go back to <span className='text-neutral-01 text-body-lg'>{embeddingModel.aiProvider?.name}</span>
             </h3>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
-            <Link to={`/chat-models/${chatModel.id}/edit`}>
+            <Link to={`/embedding-models/${embeddingModel.id}/edit`}>
               <Button.Root variant='secondary' className='w-[130px]'>
                 Edit
               </Button.Root>
@@ -66,25 +60,25 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             <div className='flex items-center sm:gap-5 gap-1'>
               <div className='size-32'>
                 <img
-                  src={getPicture(chatModel.aiProvider, 'ai-providers', false)}
-                  srcSet={getPicture(chatModel.aiProvider, 'ai-providers', true)}
-                  alt={chatModel.name}
+                  src={getPicture(embeddingModel.aiProvider, 'ai-providers', false)}
+                  srcSet={getPicture(embeddingModel.aiProvider, 'ai-providers', true)}
+                  alt={embeddingModel.name}
                   className='size-full object-cover rounded-lg'
                 />
               </div>
               <div className='flex flex-1 items-center justify-between'>
                 <div className='flex flex-col gap-1'>
-                  <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{chatModel.name}</h3>
-                  <p className='text-neutral-01'>{chatModel.providerModelName}</p>
+                  <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{embeddingModel.name}</h3>
+                  <p className='text-neutral-01'>{embeddingModel.providerModelName}</p>
                   <div className='flex items-center gap-2'>
                     <span className='text-sm text-gray-600'>Provider:</span>
-                    <Link to={`/ai-providers/${chatModel.aiProviderId}`} className='text-base-black hover:underline font-medium'>
-                      {chatModel.aiProvider?.name}
+                    <Link to={`/ai-providers/${embeddingModel.aiProviderId}`} className='text-base-black hover:underline font-medium'>
+                      {embeddingModel.aiProvider?.name}
                     </Link>
                   </div>
                 </div>
                 <div className='lg:flex hidden flex-col justify-between gap-6'>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1'>
                     <div className='flex flex-col items-center justify-center gap-1'>
                       <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
                         Recommended
@@ -93,22 +87,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                         className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
                         id='recommended'
                         name='recommended'
-                        checked={chatModel.recommended}
-                      >
-                        <Checkbox.Indicator>
-                          <Icons.check className='text-white size-4.5' />
-                        </Checkbox.Indicator>
-                      </Checkbox.Root>
-                    </div>
-                    <div className='flex flex-col items-center justify-center gap-1'>
-                      <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                        Censored
-                      </label>
-                      <Checkbox.Root
-                        className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
-                        id='censored'
-                        name='censored'
-                        checked={chatModel.censored}
+                        checked={embeddingModel.recommended}
                       >
                         <Checkbox.Indicator>
                           <Icons.check className='text-white size-4.5' />
@@ -137,22 +116,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
                     id='recommended'
                     name='recommended'
-                    checked={chatModel.recommended}
-                  >
-                    <Checkbox.Indicator>
-                      <Icons.check className='text-white size-4.5' />
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
-                </div>
-                <div className='flex flex-col items-center justify-center gap-1'>
-                  <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                    Censored
-                  </label>
-                  <Checkbox.Root
-                    className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
-                    id='censored'
-                    name='censored'
-                    checked={chatModel.censored}
+                    checked={embeddingModel.recommended}
                   >
                     <Checkbox.Indicator>
                       <Icons.check className='text-white size-4.5' />
@@ -176,47 +140,17 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
 
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
-                  <span className='text-neutral-01'>Context Window:</span>
-                  <span className='font-medium'>{chatModel.contextWindow.toLocaleString()} token</span>
-                </div>
-
-                <div className='flex justify-between'>
-                  <span className='text-neutral-01'>Dollar Per Input Token: </span>
-                  <span className='font-medium'>${chatModel.dollarPerInputToken}</span>
+                  <span className='text-neutral-01'>Dollar Per Input Token:</span>
+                  <span className='font-medium'>${embeddingModel.dollarPerInputToken}</span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Dollar Per Output Token:</span>
-                  <span className='font-medium'>${chatModel.dollarPerOutputToken}</span>
+                  <span className='font-medium'>${embeddingModel.dollarPerOutputToken}</span>
                 </div>
                 <div className='flex justify-between items-center'>
                   <span className='text-neutral-01'>Base Path:</span>
-                  <code className='mt-1 block bg-neutral-05 p-2 rounded text-body-sm'>{chatModel.aiProvider?.basePath}</code>
-                </div>
-              </div>
-            </div>
-            <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
-              <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Performance Stats</h2>
-
-              <div className='flex flex-col gap-3'>
-                <div className='flex justify-between'>
-                  <span className='text-gray-600'>Average Response Time:</span>
-                  <span className='font-medium'>{formatResponseTime(chatModel.aggregateChatCompletions.avgTimeTakenMs)}</span>
-                </div>
-
-                <div className='flex justify-between'>
-                  <span className='text-gray-600'>Min Response Time:</span>
-                  <span className='font-medium'>{formatResponseTime(chatModel.aggregateChatCompletions.minTimeTakenMs)}</span>
-                </div>
-
-                <div className='flex justify-between'>
-                  <span className='text-gray-600'>Max Response Time:</span>
-                  <span className='font-medium'>{formatResponseTime(chatModel.aggregateChatCompletions.maxTimeTakenMs)}</span>
-                </div>
-
-                <div className='flex justify-between'>
-                  <span className='text-gray-600'>Average Cost:</span>
-                  <span className='font-medium'>${chatModel.aggregateChatCompletions.avgUsdCost || '0.00'}</span>
+                  <code className='mt-1 block bg-neutral-05 p-2 rounded text-body-sm'>{embeddingModel.aiProvider?.basePath}</code>
                 </div>
               </div>
             </div>

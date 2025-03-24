@@ -59,6 +59,7 @@ export interface EmbeddingModel {
   aiProvider: AiProvider;
   aiProviderId: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SttProvider {

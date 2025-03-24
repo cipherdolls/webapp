@@ -1,7 +1,7 @@
 import { redirect, useNavigate, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { ChatModel } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.chat-model.$chatModelId.edit';
+import type { Route } from './+types/_main._general.chat-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -15,7 +15,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const chatModelId = params.chatModelId;
+  const chatModelId = params.id;
   const res = await fetchWithAuth(`chat-models/${chatModelId}`);
   return await res.json();
 }
@@ -43,7 +43,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     }
 
     const chatModel: ChatModel = await res.json();
-    return redirect(`/ai-providers/${chatModel.aiProviderId}`);
+    return redirect(`/chat-models/${chatModel.id}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
@@ -56,7 +56,7 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
 
   const handleClose = () => {
-    navigate(`/ai-providers/${chatModel.aiProviderId}`);
+    navigate(`/chat-models/${chatModel.id}`);
   };
 
   return (
