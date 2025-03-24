@@ -5,6 +5,8 @@ import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.preferences.firmwares';
+import { InstallButton } from '~/components/buttons/InstallButton';
+
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Firmwares' }];
@@ -37,9 +39,10 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'bin',
       label: 'Download',
-      render: (data) => <a href={`https://api.cipherdolls.com/firmwares/${data.id}/download`} download>
-        Download
-      </a>,
+      render: (data) => <InstallButton
+      manifest={`https://api.cipherdolls.com/firmwares/${data.id}/manifest.json`}
+      label="Flash Device"
+    />,
       align: 'right',
     },
 
@@ -47,6 +50,7 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
+
       <DataCard.Root>
         <DataCard.Label>Firmwares</DataCard.Label>
         <DataCard.Wrapper>
@@ -56,6 +60,8 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
               <Fragment key={firmware.id}>
                 <DataCard.Item key={firmware.id}>
                   <DataCard.ItemLabel>{firmware.version}</DataCard.ItemLabel>
+
+                  
                   <DataCard.ItemDataGrid
                     data={[
                       {
