@@ -1,33 +1,61 @@
-import { useNavigate, useParams } from 'react-router';
+import { redirect, useNavigate, useParams, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { EmbeddingModel } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.embedding-model.$embeddingModelId.edit';
+import type { Route } from './+types/_main._general.embedding-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { cn } from '~/utils/cn';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Models' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const embeddingModelId = params.embeddingModelId;
+  const embeddingModelId = params.id;
   const res = await fetchWithAuth(`embedding-models/${embeddingModelId}`);
   return await res.json();
 }
 
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
+  try {
+    const formData = await request.formData();
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key === 'recommended') {
+        jsonData[key] = value === 'on';
+      } else {
+        jsonData[key] = value;
+      }
+    });
+
+    const res = await fetchWithAuth(`embedding-models/${params.embeddingModelId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData),
+    });
+
+    if (!res.ok) {
+      return await res.json();
+    }
+
+    const embeddingModel: EmbeddingModel = await res.json();
+    return redirect(`/embedding-models/${embeddingModel.id}`);
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
+}
+
 export default function embeddingModelShow({ loaderData }: Route.ComponentProps) {
   const embeddingModel: EmbeddingModel = loaderData;
-  const { aiProviderId } = useParams();
-
+  const fetcher = useFetcher();
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/ai-providers/${aiProviderId}`);
+    navigate(`/embedding-models/${embeddingModel.id}`);
   };
 
   return (
@@ -40,9 +68,10 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
       <Drawer.Content>
         <Drawer.Title>Edit Embedding Model</Drawer.Title>
         <Dialog.Description className='hidden'>Edit Embedding Model</Dialog.Description>
-        <div className='size-full flex flex-col'>
+        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
+            <input type='hidden' name='aiProviderId' value={embeddingModel.aiProviderId} />
 
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
@@ -123,11 +152,11 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
                 Close
               </Button.Root>
             </Dialog.Close>
-            <Button.Root type='button' className='w-full'>
+            <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
           </Drawer.Footer>
-        </div>
+        </fetcher.Form>
         <Dialog.Close asChild>
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'

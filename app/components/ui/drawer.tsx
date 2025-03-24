@@ -61,6 +61,8 @@ const DrawerContent = React.forwardRef<
           {...rest}
         >
           <div className='relative flex size-full flex-col'>{children}</div>
+          {/* Fix here later  */}
+          <DialogPrimitive.Description className='sr-only'>Description</DialogPrimitive.Description>
         </DialogPrimitive.Content>
       </DrawerOverlay>
     </DrawerPortal>

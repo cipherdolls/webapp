@@ -29,7 +29,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       return await res.json();
     }
     const chatModel: ChatModel = await res.json();
-    return redirect(`/ai-providers/${chatModel.aiProviderId}`);
+    return redirect(`/chat-models/${chatModel.id}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
