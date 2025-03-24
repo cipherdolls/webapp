@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Chat } from '~/types';
 import { cn } from '~/utils/cn';
 
+// TODO: add silent mode toggle functionality with backend
+
 const CHAT_MODES = [
   { label: '💅🏻 Easy Talk', value: 'easy' },
   { label: '🧐 Deep Talk', value: 'deep' },

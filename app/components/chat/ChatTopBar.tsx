@@ -12,7 +12,6 @@ interface ChatTopBarProps {
 }
 
 const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
-
   return (
     <div className='flex items-center justify-between px-5 py-3.5 lg:border-b lg:border-neutral-04 lg:bg-white'>
       <div className='flex gap-3 items-center w-full sm:w-auto'>
@@ -23,7 +22,9 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           <AvatarPicture avatar={chat.avatar} sizeType={PICTURE_SIZE.semiMedium} className='size-10 shrink-0' />
         </Link>
         <div className='flex-1 mr-auto sm:mr-0'>
-          <h3 className='text-body-md sm:text-heading-h3 font-semibold leading-[1.2em] truncate'>{chat.avatar.name}</h3>
+          <Link to={`/chats/${chat.id}/edit`} className='text-body-md sm:text-heading-h3 font-semibold leading-[1.2em] truncate'>
+            {chat.avatar.name}
+          </Link>
           <div className='sm:hidden'>
             <Modal.Root>
               <Modal.Trigger className='flex whitespace-nowrap'>
@@ -42,7 +43,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
         </button>
       </div>
       {/* <ChatDestroy /> */}
-      <ScenarioToggle  chat={chat} className='max-sm:hidden w-[368px]' />
+      <ScenarioToggle chat={chat} className='max-sm:hidden w-[368px]' />
     </div>
   );
 };

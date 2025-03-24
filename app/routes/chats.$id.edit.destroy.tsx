@@ -1,8 +1,23 @@
-import { useSubmit } from 'react-router';
+import { redirect, useSubmit } from 'react-router';
+import type { Route } from './+types/chats.$id.edit.destroy';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import * as Button from '~/components/ui/button/button';
 
-const ChatDeleteButton = ({ chatId }: { chatId: string }) => {
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
+  const chatId = params.id;
+  const res = await fetchWithAuth(`chats/${chatId}`, {
+    method: request.method,
+  });
+
+  if (!res.ok) {
+    return await res.json();
+  }
+
+  return redirect(`/chats`);
+}
+
+export default function ChatDestroy() {
   const confirm = useConfirm();
   const submit = useSubmit();
 
@@ -15,7 +30,7 @@ const ChatDeleteButton = ({ chatId }: { chatId: string }) => {
     });
 
     if (confirmResult) {
-      submit(null, { method: 'DELETE', action: `/chats/${chatId}/destroy` });
+      submit(null, { method: 'DELETE', action: `destroy` });
     }
   };
 
@@ -24,6 +39,4 @@ const ChatDeleteButton = ({ chatId }: { chatId: string }) => {
       Delete Message
     </Button.Root>
   );
-};
-
-export default ChatDeleteButton;
+}

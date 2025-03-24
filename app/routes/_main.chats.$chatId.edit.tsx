@@ -9,9 +9,7 @@ import { Card } from '~/components/card';
 import { useState } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import type { Chat } from '~/types';
-import ChatDestroy from '~/routes/chats.$id.destroy';
-import ChatDeleteButton from '~/components/buttons/ChatDeleteButton';
+import ChatDestroy from './chats.$id.edit.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
@@ -27,28 +25,10 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   const chat = loaderData;
   const navigate = useNavigate();
   const alert = useAlert();
+  const [silentModeOn, setSilentModeOn] = useState(false);
 
   const handleMessageClose = () => {
     navigate(`/chats/${chat.id}`);
-  };
-
-
-  const handleScenarioInfoClick = () => {
-    alert({
-      icon: '🎭',
-      title: 'Scenarios',
-      body: (
-        <>
-          💅🏻 Easy Talk - focused on casual topics with cheerful, warm, and concise responses.
-          <br />
-          <br />
-          🧐 Deep Talk - focused on meaningful topics, fostering connection through introspection and insightful exchanges.
-          <br />
-          <br />
-          🔥 Sexy Talk - focused on building rapport with compliments, innuendos and flirting.
-        </>
-      ),
-    });
   };
 
   return (
@@ -97,7 +77,25 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
             <Card.Root>
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
-                <button onClick={handleScenarioInfoClick}>
+                <button
+                  onClick={() => {
+                    alert({
+                      icon: '🎭',
+                      title: 'Scenarios',
+                      body: (
+                        <>
+                          💅🏻 Easy Talk - focused on casual topics with cheerful, warm, and concise responses.
+                          <br />
+                          <br />
+                          🧐 Deep Talk - focused on meaningful topics, fostering connection through introspection and insightful exchanges.
+                          <br />
+                          <br />
+                          🔥 Sexy Talk - focused on building rapport with compliments, innuendos and flirting.
+                        </>
+                      ),
+                    });
+                  }}
+                >
                   <Icons.information />
                 </button>
               </div>
@@ -107,14 +105,70 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               </Card.Main>
             </Card.Root>
 
+            {/* TODO: FINISH SILENT MODE PROCESS */}
             {/* Silent mode */}
-            <SilentModeToggleCard />
+            <Card.Root>
+              <Card.Label className='sm:text-heading-h4'>Silent Mode</Card.Label>
+              <Card.Main>
+                <button
+                  className={cn('flex flex-row items-center gap-6 p-6 rounded-xl', {
+                    'shadow-regular bg-white': silentModeOn,
+                  })}
+                  onClick={() => setSilentModeOn((prev) => !prev)}
+                >
+                  <div className='text-4xl'> {silentModeOn ? '🤫' : '📣'}</div>
+                  <div className='flex flex-col gap-1 text-left'>
+                    <p className='text-body-lg font-semibold text-base-black'>Silent Mode is {silentModeOn ? 'On' : 'Off'}</p>
+                    <p className='text-body-md text-neutral-01'>An avatar will {silentModeOn && 'not'} speak</p>
+                  </div>
+                  <div
+                    className={cn('w-[40px] h-[24px] rounded-full bg-neutral-04 relative ml-auto', {
+                      '!bg-base-black': silentModeOn,
+                    })}
+                  >
+                    <span
+                      className={cn(
+                        'absolute top-1 left-1 w-[16px] h-[16px] rounded-full bg-base-white shadow-regular transition-all duration-100',
+                        {
+                          'translate-x-full': silentModeOn,
+                        }
+                      )}
+                    ></span>
+                  </div>
+                </button>
+              </Card.Main>
+            </Card.Root>
 
+            {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
             {/* Doll */}
-            <DollCard chat={chat} />
+            <Card.Root>
+              <div className='flex items-center justify-between'>
+                <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>
+              </div>
+              <Card.Main>
+                <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>
+                  <div className='text-4xl'>🤷‍♀️</div>
+                  <div className='flex flex-col flex-start gap-1 text-left'>
+                    <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>
+                    <button
+                      className='text-body-md text-neutral-01 text-left underline'
+                      onClick={() =>
+                        alert({
+                          icon: '👩 📱',
+                          title: 'How to Add a Doll',
+                          body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',
+                        })
+                      }
+                    >
+                      How to Add a Doll
+                    </button>
+                  </div>
+                </div>
+              </Card.Main>
+            </Card.Root>
 
             <div className='pt-10 mt-auto'>
-              <ChatDeleteButton chatId={chat.id} />
+              <ChatDestroy />
             </div>
           </div>
         </div>
@@ -122,73 +176,3 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
     </>
   );
 }
-
-// TODO: update silent mode toggle using DB and move from here
-const SilentModeToggleCard = () => {
-  const [isActive, setIsActive] = useState(false);
-  return (
-    <Card.Root>
-      <Card.Label className='sm:text-heading-h4'>Silent Mode</Card.Label>
-      <Card.Main>
-        <button
-          className={cn('flex flex-row items-center gap-6 p-6 rounded-xl', {
-            'shadow-regular bg-white': isActive,
-          })}
-          onClick={() => setIsActive((prev) => !prev)}
-        >
-          <div className='text-4xl'> {isActive ? '🤫' : '📣'}</div>
-          <div className='flex flex-col gap-1 text-left'>
-            <p className='text-body-lg font-semibold text-base-black'>Silent Mode is {isActive ? 'On' : 'Off'}</p>
-            <p className='text-body-md text-neutral-01'>An avatar will {isActive && 'not'} speak</p>
-          </div>
-          <div
-            className={cn('w-[40px] h-[24px] rounded-full bg-neutral-04 relative ml-auto', {
-              '!bg-base-black': isActive,
-            })}
-          >
-            <span
-              className={cn(
-                'absolute top-1 left-1 w-[16px] h-[16px] rounded-full bg-base-white shadow-regular transition-all duration-100',
-                {
-                  'translate-x-full': isActive,
-                }
-              )}
-            ></span>
-          </div>
-        </button>
-      </Card.Main>
-    </Card.Root>
-  );
-};
-
-// TODO: move from here when will be able to add a doll
-const DollCard = ({ chat }: { chat: Chat }) => {
-  const alert = useAlert();
-  return (
-    <Card.Root>
-      <div className='flex items-center justify-between'>
-        <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>
-      </div>
-      <Card.Main>
-        <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>
-          <div className='text-4xl'>🤷‍♀️</div>
-          <div className='flex flex-col flex-start gap-1 text-left'>
-            <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>
-            <button
-              className='text-body-md text-neutral-01 text-left underline'
-              onClick={() =>
-                alert({
-                  icon: '👩 📱',
-                  title: 'How to Add a Doll',
-                  body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',
-                })
-              }
-            >
-              How to Add a Doll
-            </button>
-          </div>
-        </div>
-      </Card.Main>
-    </Card.Root>
-  );
-};
