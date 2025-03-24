@@ -116,7 +116,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 className='size-full object-cover rounded-lg'
               />
             </div>
-            <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{aiProvider.name}</h3>
+            <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{aiProvider.name}</h3>
           </div>
         </div>
         <div className='md:flex hidden items-center gap-3'>

@@ -52,7 +52,7 @@ const UserTypeModal = () => {
               className='absolute focus:outline-none -right-14 top-0 size-10 bg-white rounded-full sm:flex hidden items-center justify-center'
               aria-label='Close'
             >
-              <Icons.close />
+              <Icons.close className='text-base-black' />
             </button>
           </Dialog.Close>
         </Dialog.Content>

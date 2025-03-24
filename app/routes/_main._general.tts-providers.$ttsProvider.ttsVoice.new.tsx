@@ -1,6 +1,6 @@
-import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
-import type { AiProvider, ChatModel } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.chat-models.new';
+import { redirect, useFetcher, useNavigate, useParams, useRouteLoaderData } from 'react-router';
+import type { TtsProvider, TtsVoice } from '~/types';
+import type { Route } from './+types/_main._general.tts-providers.$ttsProvider.ttsVoice.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -8,8 +8,9 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'New Chat Model' }];
+  return [{ title: 'New TTS Voice' }];
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -19,7 +20,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     formData.forEach((value, key) => {
       jsonData[key] = value;
     });
-    const res = await fetchWithAuth('chat-models', {
+    const res = await fetchWithAuth('tts-voices', {
       method: request.method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(jsonData),
@@ -28,21 +29,21 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     if (!res.ok) {
       return await res.json();
     }
-    const chatModel: ChatModel = await res.json();
-    return redirect(`/chat-models/${chatModel.id}`);
+    const params = useParams();
+    return redirect(`/tts-providers/${params.ttsProvider}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
-  const aiProvider = useRouteLoaderData('routes/_main._general.ai-providers.$aiProviderId') as AiProvider;
+export default function TtsVoiceNew({ loaderData }: Route.ComponentProps) {
+  const ttsProvider = useRouteLoaderData('routes/_main._general.tts-providers.$ttsProvider') as TtsProvider;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/ai-providers/${aiProvider.id}`);
+    navigate(`/tts-providers/${ttsProvider.id}`);
   };
 
   return (
@@ -53,76 +54,36 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
       }}
     >
       <Drawer.Content>
-        <Drawer.Title>Add New Chat Model for {aiProvider.name}</Drawer.Title>
+        <Drawer.Title>Add New TTS Voice for {ttsProvider.name}</Drawer.Title>
         <fetcher.Form method='POST' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
-            <input type='hidden' name='aiProviderId' value={aiProvider.id} />
+            <input type='hidden' name='ttsProviderId' value={ttsProvider.id} />
 
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
-                Model Name
+                Voice Name
               </Input.Label>
               <Input.Input
                 className='text-base-black border border-neutral-04 py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
-                placeholder='GPT-4.5'
+                placeholder='Voice Name'
+                required
               />
             </Input.Root>
 
             <Input.Root>
-              <Input.Label id='providerModelName' htmlFor='providerModelName'>
-                Provider Model Name
+              <Input.Label id='providerVoiceId' htmlFor='providerVoiceId'>
+                Provider Voice ID
               </Input.Label>
               <Input.Input
                 className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='providerModelName'
-                name='providerModelName'
+                id='providerVoiceId'
+                name='providerVoiceId'
                 type='text'
-                placeholder='Deepseek'
-              />
-            </Input.Root>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-              <Input.Root>
-                <Input.Label id='dollarPerInputToken' htmlFor='dollarPerInputToken'>
-                  $ per Input Token
-                </Input.Label>
-                <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='dollarPerInputToken'
-                  name='dollarPerInputToken'
-                  type='number'
-                  placeholder='0.0001'
-                  step='any'
-                />
-              </Input.Root>
-
-              <Input.Root>
-                <Input.Label id='dollarPerOutputToken' htmlFor='dollarPerOutputToken'>
-                  $ per Output Token
-                </Input.Label>
-                <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='dollarPerOutputToken'
-                  name='dollarPerOutputToken'
-                  type='number'
-                  placeholder='0.0001'
-                  step='any'
-                />
-              </Input.Root>
-            </div>
-            <Input.Root>
-              <Input.Label id='contextWindow' htmlFor='contextWindow'>
-                Context Window
-              </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='contextWindow'
-                name='contextWindow'
-                type='number'
-                placeholder='8192'
+                placeholder='Provider Voice ID'
+                required
               />
             </Input.Root>
 
@@ -156,6 +117,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
             aria-label='Close'
+            onClick={handleClose}
           >
             <Icons.close className='text-base-black' />
           </button>

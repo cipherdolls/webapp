@@ -58,7 +58,7 @@ const SelectVoiceModal = ({
               className='absolute focus:outline-none -left-12 top-4.5 size-10 bg-white rounded-full flex items-center justify-center'
               aria-label='Close'
             >
-              <Icons.close />
+              <Icons.close className='text-base-black' />
             </button>
           </Dialog.Close>
         </Dialog.Content>

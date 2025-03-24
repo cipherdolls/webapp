@@ -83,16 +83,15 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                       <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
                         Recommended
                       </label>
-                      <Checkbox.Root
-                        className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
-                        id='recommended'
-                        name='recommended'
-                        checked={embeddingModel.recommended}
-                      >
-                        <Checkbox.Indicator>
+                      {embeddingModel.recommended ? (
+                        <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
                           <Icons.check className='text-white size-4.5' />
-                        </Checkbox.Indicator>
-                      </Checkbox.Root>
+                        </div>
+                      ) : (
+                        <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
+                          <Icons.close className='text-white size-4.5' />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className='flex flex-col gap-1'>
@@ -112,16 +111,15 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
                     Recommended
                   </label>
-                  <Checkbox.Root
-                    className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
-                    id='recommended'
-                    name='recommended'
-                    checked={embeddingModel.recommended}
-                  >
-                    <Checkbox.Indicator>
+                  {embeddingModel.recommended ? (
+                    <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
                       <Icons.check className='text-white size-4.5' />
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
+                    </div>
+                  ) : (
+                    <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
+                      <Icons.close className='text-white size-4.5' />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className='flex flex-col gap-1'>

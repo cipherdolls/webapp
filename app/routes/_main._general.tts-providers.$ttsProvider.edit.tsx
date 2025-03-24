@@ -1,8 +1,8 @@
 import { Link, redirect, useFetcher, useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, User } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.edit';
+import type { TtsProvider } from '~/types';
+import type { Route } from './+types/_main._general.tts-providers.$ttsProvider.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -12,21 +12,30 @@ import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Ai Providers' }];
+  return [{ title: 'Edit TTS Provider' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const aiProviderId = params.aiProviderId;
-  const res = await fetchWithAuth(`ai-providers/${aiProviderId}`);
+  const ttsProviderId = params.ttsProvider;
+  const res = await fetchWithAuth(`tts-providers/${ttsProviderId}`);
   return await res.json();
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
-    const aiProviderId = formData.get('aiProviderId');
+    const ttsProviderId = formData.get('ttsProviderId');
 
-    const res = await fetchWithAuth(`ai-providers/${aiProviderId}`, {
+    const newApiKey = formData.get('apiKey');
+    const originalApiKey = formData.get('originalApiKey');
+
+    if (!newApiKey && originalApiKey) {
+      formData.set('apiKey', originalApiKey);
+    }
+
+    formData.delete('originalApiKey');
+
+    const res = await fetchWithAuth(`tts-providers/${ttsProviderId}`, {
       method: request.method,
       body: formData,
     });
@@ -35,19 +44,19 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       return await res.json();
     }
 
-    const aiProvider: AiProvider = await res.json();
-    return redirect(`/ai-providers/${aiProvider.id}`);
+    const ttsProvider: TtsProvider = await res.json();
+    return redirect(`/tts-providers/${ttsProvider.id}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
-  const aiProvider: AiProvider = loaderData;
+export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
+  const ttsProvider: TtsProvider = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState<string | null>(aiProvider.picture ?? null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(ttsProvider.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
@@ -80,8 +89,9 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/ai-providers/${aiProvider.id}`);
+    navigate(`/tts-providers/${ttsProvider.id}`);
   };
+
   return (
     <Drawer.Root
       defaultOpen
@@ -90,10 +100,10 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
       }}
     >
       <Drawer.Content>
-        <Drawer.Title>Edit AI Provider</Drawer.Title>
+        <Drawer.Title>Edit TTS Provider</Drawer.Title>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
-            <input type='hidden' name='aiProviderId' value={aiProvider.id} />
+            <input type='hidden' name='ttsProviderId' value={ttsProvider.id} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -104,9 +114,9 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   {selectedImage !== null ? (
                     <div className='size-full'>
                       <img
-                        src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(aiProvider, 'ai-providers', false)}
-                        srcSet={!selectedImage.startsWith('blob:') ? getPicture(aiProvider, 'ai-providers', true) : undefined}
-                        alt={aiProvider.name}
+                        src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(ttsProvider, 'tts-providers', false)}
+                        srcSet={!selectedImage.startsWith('blob:') ? getPicture(ttsProvider, 'tts-providers', true) : undefined}
+                        alt={ttsProvider.name}
                         className='size-full object-cover rounded-lg'
                       />
                     </div>
@@ -121,7 +131,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     <div
                       className={cn(
                         'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                        (selectedImage || aiProvider.picture) && 'divide-x divide-neutral-04 gap-4'
+                        (selectedImage || ttsProvider.picture) && 'divide-x divide-neutral-04 gap-4'
                       )}
                     >
                       {selectedImage !== null && (
@@ -144,7 +154,8 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 id='name'
                 name='name'
                 type='text'
-                defaultValue={aiProvider.name}
+                defaultValue={ttsProvider.name}
+                required
               />
             </Input.Root>
             <Input.Root>
@@ -156,21 +167,35 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 id='apiKey'
                 name='apiKey'
                 type='text'
-                placeholder='API Key'
-                required
-                defaultValue={aiProvider.apiKey}
+                placeholder='Enter new API key if you want to change it'
               />
+              <input type='hidden' name='originalApiKey' value={ttsProvider.apiKey} />
             </Input.Root>
             <Input.Root>
-              <Input.Label id='basePath' htmlFor='basePath'>
-                Base Path
+              <Input.Label id='dollarPerCharacter' htmlFor='dollarPerCharacter'>
+                Dollar per character
               </Input.Label>
               <Input.Input
                 className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='basePath'
-                name='basePath'
+                id='dollarPerCharacter'
+                name='dollarPerCharacter'
+                type='number'
+                step='0.0000001'
+                defaultValue={ttsProvider.dollarPerCharacter}
+                required
+              />
+            </Input.Root>
+            <Input.Root>
+              <Input.Label id='hostname' htmlFor='hostname'>
+                Hostname
+              </Input.Label>
+              <Input.Input
+                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                id='hostname'
+                name='hostname'
                 type='text'
-                defaultValue={aiProvider.basePath}
+                defaultValue={ttsProvider.hostname}
+                required
               />
             </Input.Root>
           </Drawer.Body>
@@ -189,6 +214,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
             aria-label='Close'
+            onClick={handleClose}
           >
             <Icons.close className='text-base-black' />
           </button>

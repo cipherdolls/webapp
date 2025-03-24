@@ -76,6 +76,8 @@ export interface TtsProvider {
   dollarPerCharacter: number;
   picture?: string;
   ttsVoices: TtsVoice[];
+  hostname?: string;
+  apiKey: string;
 }
 
 export interface TtsVoice {

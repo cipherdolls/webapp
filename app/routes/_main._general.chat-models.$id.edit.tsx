@@ -217,7 +217,7 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
             aria-label='Close'
           >
-            <Icons.close />
+            <Icons.close className='text-base-black' />
           </button>
         </Dialog.Close>
       </Drawer.Content>

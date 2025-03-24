@@ -34,7 +34,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
-export default function TtsProviderNew2() {
+export default function TtsProviderNew() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export default function TtsProviderNew2() {
     >
       <Drawer.Content>
         <Drawer.Title>Create TTS Provider</Drawer.Title>
-        <fetcher.Form method='post' action='/tts-providers/new' encType='multipart/form-data' className='size-full flex flex-col'>
+        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -191,7 +191,7 @@ export default function TtsProviderNew2() {
             aria-label='Close'
             onClick={handleClose}
           >
-            <Icons.close />
+            <Icons.close className='text-base-black' />
           </button>
         </Dialog.Close>
       </Drawer.Content>

@@ -177,7 +177,7 @@ export default function ApiProviderNew() {
             aria-label='Close'
             onClick={handleClose}
           >
-            <Icons.close />
+            <Icons.close className='text-base-black' />
           </button>
         </Dialog.Close>
       </Drawer.Content>
