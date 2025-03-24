@@ -1,22 +1,17 @@
-import { Form, Link, redirect, useFetcher } from 'react-router';
-import type { ApiError, AiProvider, TtsVoice } from '~/types';
-import { use, useEffect, useState } from 'react';
+import { Link, redirect, useFetcher } from 'react-router';
+import type { ApiError, AiProvider } from '~/types';
+import { useState } from 'react';
 import { Icons } from '~/components/ui/icons';
-import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
-import * as Textarea from '~/components/ui/input/textarea';
 import { showToast } from '~/components/ui/toast';
-import PlayerButton from '~/components/PlayerButton';
-import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.ai-providers.new';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Ai Provider' }];
 }
-
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
@@ -59,7 +54,6 @@ export default function AiProviderNew({ loaderData }: Route.ComponentProps) {
     }
   };
 
-
   return (
     <fetcher.Form method='post' action='/ai-providers/new' encType='multipart/form-data' className='w-full'>
       {apiError && (
@@ -83,7 +77,6 @@ export default function AiProviderNew({ loaderData }: Route.ComponentProps) {
         <div className='flex sm:flex-row flex-col sm:gap-0 gap-6 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
             <div className='grid grid-cols-2 gap-5 w-full h-max'>
-
               <Input.Root>
                 <Input.Label id='name' htmlFor='name'>
                   Name

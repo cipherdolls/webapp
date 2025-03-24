@@ -82,7 +82,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const handleClose = () => {
     navigate(`/ai-providers/${aiProvider.id}`);
   };
-
   return (
     <Drawer.Root
       defaultOpen
@@ -92,7 +91,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     >
       <Drawer.Content>
         <Drawer.Title>Edit AI Provider</Drawer.Title>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
+        <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
             <div className='flex flex-col items-center justify-center mb-10'>
@@ -146,6 +145,20 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 defaultValue={aiProvider.name}
+              />
+            </Input.Root>
+            <Input.Root>
+              <Input.Label id='apiKey' htmlFor='apiKey'>
+                API Key
+              </Input.Label>
+              <Input.Input
+                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                id='apiKey'
+                name='apiKey'
+                type='text'
+                placeholder='API Key'
+                required
+                defaultValue={aiProvider.apiKey}
               />
             </Input.Root>
             <Input.Root>
