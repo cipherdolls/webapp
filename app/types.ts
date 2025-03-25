@@ -129,6 +129,7 @@ export interface Message {
   updatedAt: Date;
   role: string;
   mood: string;
+  fileName: string;
   completed: boolean;
   userId: string;
   chatId: string;
