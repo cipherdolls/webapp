@@ -32,7 +32,7 @@ const ChatMessagePreview = ({ message }: { message: Message }) => {
       </div>
 
       {/* // sound button */}
-      {message.content && message.content.length > 0 && message.sttJob && (
+      {message.fileName && (
         <PlayerButton
           audioSrc={`${backendUrl}/messages/${message.id}/audio`}
           variant='white'
