@@ -36,7 +36,7 @@ export default function ChatDestroy() {
 
   return (
     <Button.Root type='button' variant='danger' className='w-full px-10' onClick={handleMessageDestroy}>
-      Delete Message
+      Delete Chat
     </Button.Root>
   );
 }

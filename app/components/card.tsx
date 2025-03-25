@@ -31,17 +31,20 @@ interface CardContentProps {
 }
 
 const CardRoot: React.FC<CardRootProps> = ({ children, className }) => {
-  return <div className={`flex flex-col sm:size-full sm:gap-5 gap-4 ${className}`}>{children}</div>;
+  return <div className={cn('flex flex-col sm:size-full sm:gap-5 gap-4', className)}>{children}</div>;
 };
 
 const CardLabel: React.FC<CardLabelProps> = ({ children, className }) => {
-  return <h3 className={`text-heading-h4 sm:text-heading-h3 text-base-black ${className}`}>{children}</h3>;
+  return <h3 className={cn('text-heading-h4 sm:text-heading-h3 text-base-black', className)}>{children}</h3>;
 };
 
 const CardMain: React.FC<CardRootProps> = ({ children, className }) => {
   return (
     <div
-      className={`bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl flex flex-col flex-1 ${className}`}
+      className={cn(
+        'bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl flex flex-col flex-1 ',
+        className
+      )}
     >
       {children}
     </div>
