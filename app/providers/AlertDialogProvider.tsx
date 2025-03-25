@@ -104,7 +104,7 @@ export function AlertDialogProvider({ children }: { children: React.ReactNode })
       >
         <Dialog.Portal>
           <Dialog.Overlay className='bg-neutral-02 fixed inset-0 z-40' />
-          <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-alert-dialog w-full rounded-xl  pb-9 sm:py-8 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-50'>
+          <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl  pb-9 sm:py-8 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-50'>
             {/* desktop alert close button */}
             {state.type === 'alert' && (
               <Button.Root

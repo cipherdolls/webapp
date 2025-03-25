@@ -1,6 +1,5 @@
 import { Form, Link, redirect, useFetcher, useRouteLoaderData } from 'react-router';
 import type { Avatar, Chat, User } from '~/types';
-import ChatDestroy from './chats.$id.destroy';
 import type { Route } from './+types/_main._general.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
