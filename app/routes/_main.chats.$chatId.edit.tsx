@@ -74,7 +74,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
             </Link>
 
             {/* scenario toggle  */}
-            <Card.Root>
+            <Card.Root className='sm:h-auto'>
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <button
@@ -107,7 +107,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
 
             {/* TODO: FINISH SILENT MODE PROCESS */}
             {/* Silent mode */}
-            <Card.Root>
+            <Card.Root className='sm:h-auto'>
               <Card.Label className='sm:text-heading-h4'>Silent Mode</Card.Label>
               <Card.Main>
                 <button
@@ -141,7 +141,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
 
             {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
             {/* Doll */}
-            <Card.Root>
+            <Card.Root className='sm:h-auto'>
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>
               </div>
