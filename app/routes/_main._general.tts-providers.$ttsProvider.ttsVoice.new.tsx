@@ -1,5 +1,5 @@
 import { redirect, useFetcher, useNavigate, useParams, useRouteLoaderData } from 'react-router';
-import type { TtsProvider, TtsVoice } from '~/types';
+import type { TtsProvider } from '~/types';
 import type { Route } from './+types/_main._general.tts-providers.$ttsProvider.ttsVoice.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';

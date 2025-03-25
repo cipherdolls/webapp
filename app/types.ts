@@ -87,6 +87,7 @@ export interface TtsVoice {
   providerVoiceId?: string;
   ttsProvider: TtsProvider;
   ttsProviderId: string;
+  createdAt: Date;
 }
 
 export interface Scenario {
