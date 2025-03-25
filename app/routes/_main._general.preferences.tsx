@@ -24,8 +24,8 @@ const preferencesNavItems = [
   {
     label: 'STT',
     to: 'stt',
-    // link: 'STT Provider',
-    href: '/',
+    link: 'STT Provider',
+    href: '/preferences/stt/stt-provider/new',
   },
   {
     label: 'Scenarios',

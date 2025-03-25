@@ -68,6 +68,8 @@ export interface SttProvider {
   dollarPerSecond: number;
   recommended: boolean;
   picture?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface TtsProvider {
