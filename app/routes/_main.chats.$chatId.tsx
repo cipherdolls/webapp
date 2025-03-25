@@ -1,7 +1,7 @@
-import { Form, Link, Outlet, redirect, useFetcher, useRevalidator } from 'react-router';
+import { Outlet, useRevalidator } from 'react-router';
 import type { Chat, Message, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
-import { useEffect, useRef, Fragment, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -53,14 +53,9 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       mqttClient.subscribe(userTopic);
 
       const handleMessage = (topic: string, message: Buffer) => {
-        setIsGenerating(true);
         const processEvent: ProcessEvent = JSON.parse(message.toString());
-        console.log(processEvent);
-        // Handle the event
-        // TODO: check if the job is completed or failed and improve loading state
-        if(processEvent.jobStatus === 'completed') {
+        if (processEvent.resourceName === 'Message') { 
           revalidator.revalidate();
-          setIsGenerating(false);
         }
       };
 
