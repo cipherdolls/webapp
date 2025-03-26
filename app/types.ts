@@ -248,10 +248,18 @@ export interface AvatarCount {
   chats: number;
 }
 
-export interface AudioEvent {
+export type AudioEvent = {
+  type: 'audio';
   action: 'play' | 'stop' | 'replay' | 'record' | 'record_stop';
   messageId?: string;
-}
+};
+
+export type SystemEvent = {
+  type: 'system';
+  action: 'reset' | 'restart' | 'deepsleep';
+};
+
+export type ActionEvent = AudioEvent | SystemEvent;
 
 export interface ProcessEvent {
   resourceName: string;
