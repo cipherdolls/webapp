@@ -68,6 +68,8 @@ export interface SttProvider {
   dollarPerSecond: number;
   recommended: boolean;
   picture?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface TtsProvider {
@@ -129,6 +131,7 @@ export interface Message {
   updatedAt: Date;
   role: string;
   mood: string;
+  fileName: string;
   completed: boolean;
   userId: string;
   chatId: string;

@@ -38,7 +38,6 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
     },
   ];
 
-  console.log(ttsProviders);
   return (
     <>
       <div className='space-y-10 pb-5'>
