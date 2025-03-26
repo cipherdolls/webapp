@@ -12,7 +12,7 @@ const morphingPathsSecond = [
 const generateAnimationValues = (paths: string[]) => [...paths, paths[0]].join(';');
 
 const AnimationRecording = ({ className }: { className?: string }) => {
-  const duration = '8s';
+  const duration = '4s';
 
   const values = generateAnimationValues(morphingPaths);
   const valuesSecond = generateAnimationValues(morphingPathsSecond);

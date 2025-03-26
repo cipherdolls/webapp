@@ -8,6 +8,8 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
+import { backendUrl } from '~/constants';
+import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -31,7 +33,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
   const revalidator = useRevalidator();
-
+  const { playAudio } = useAudioPlayer();
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
@@ -54,8 +56,19 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
 
       const handleMessage = (topic: string, message: Buffer) => {
         const processEvent: ProcessEvent = JSON.parse(message.toString());
-        if (processEvent.resourceName === 'Message') { 
-          revalidator.revalidate();
+        if (processEvent.resourceName === 'Message') {
+          // TODO: refactor it to use the better way to handle the audio playing
+          revalidator.revalidate().then(() => {
+            fetchWithAuth(`messages?chatId=${chat.id}`)
+              .then((res) => res.json())
+              .then((updatedMessages: Message[]) => {
+                const latestMessage = updatedMessages[updatedMessages.length - 1];
+                if (latestMessage.role === 'ASSISTANT' && latestMessage.fileName) {
+                  const audio = new Audio(`${backendUrl}/messages/${latestMessage.id}/audio`);
+                  playAudio(audio);
+                }
+              });
+          });
         }
       };
 
