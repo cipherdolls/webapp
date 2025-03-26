@@ -30,8 +30,8 @@ const preferencesNavItems = [
   {
     label: 'Scenarios',
     to: 'scenarios',
-    // link: 'Scenario',
-    href: '/',
+    link: 'Scenario',
+    href: '/preferences/scenarios/new',
   },
   {
     label: 'Firmwares',

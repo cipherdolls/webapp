@@ -1,4 +1,4 @@
-import { redirect } from 'react-router';
+import { Outlet, redirect } from 'react-router';
 import type { Scenario } from '~/types';
 import type { Route } from './+types/_main._general.preferences.scenarios';
 import { DataCard } from '~/components/DataCard';
@@ -10,8 +10,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-    const res = await fetchWithAuth(`scenarios`);
-    return await res.json();
+  const res = await fetchWithAuth(`scenarios`);
+  return await res.json();
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
@@ -20,29 +20,22 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'name',
       label: 'Name',
-      render: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{data.chatModel.name}</span>,
       align: 'left',
-    },
-    {
-      id: 'chatModel',
-      label: 'Chat Model Name',
-      render: (data) => data.chatModel.name,
-      align: 'right',
-      width: '135px',
     },
     {
       id: 'temperature',
       label: 'Temperature',
       render: (data) => data.temperature,
       align: 'right',
-      width: '115px',
+      width: '135px',
     },
     {
       id: 'topP',
       label: 'TopP',
       render: (data) => data.topP,
       align: 'right',
-      width: '80px',
+      width: '135px',
     },
     {
       id: 'frequencyPenalty',
@@ -59,7 +52,6 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       width: '135px',
     },
   ];
-
 
   return (
     <>
@@ -90,6 +82,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
           </DataCard.Root>
         ))}
       </div>
+      <Outlet />
     </>
   );
 }
