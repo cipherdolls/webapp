@@ -1,8 +1,8 @@
 //  CHAT STATE TYPES
 export enum ChatState {
   input = 'input',
-  recording = 'recording',
   avatarSpeaking = 'avatarSpeaking',
+  recording = 'recording',
   notification = 'notification',
 }
 

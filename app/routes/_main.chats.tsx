@@ -47,7 +47,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
 export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
-  console.log('me in ChatsIndex', me);
+  // console.log('me in ChatsIndex', me);
 
   const { chats, avatars } = loaderData;
   return (

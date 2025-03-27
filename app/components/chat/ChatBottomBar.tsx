@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
 import AutosizeTextarea from './ui/AutosizeTextarea';
-import MessageAudioButton from './MessageAudioButton';
+import MessageRecordingButton from './MessageRecordingButton';
 import EyeStatus from './ui/EyeStatus';
 import { ChatState, type ChatStateType } from './types/chatState';
+import { backendUrl } from '~/constants';
+import { useAudioPlayer } from '~/providers/AudioPlayerContext';
+import { useChatEvents } from '~/hooks/useChatEvents';
+import { cn } from '~/utils/cn';
 
 interface ChatBottomBarProps {
   chat: Chat;
@@ -14,19 +18,36 @@ interface ChatBottomBarProps {
 }
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ isGenerating, chat }) => {
-  const [message, setMessage] = useState('');
-  const [inputState, setInputState] = useState<ChatStateType>('input');
+  const { playAudio, stopAudio } = useAudioPlayer();
+  const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
+  const [chatState, setChatState] = useState<ChatStateType>(ChatState.input);
+  
+
+  useChatEvents({
+    chat,
+    onActionEvent: (event) => {
+      if (event.type === 'audio' && event.action === 'play') {
+        setChatState(ChatState.avatarSpeaking);
+        const audio = new Audio(`${backendUrl}/messages/${event.messageId}/audio`);
+        playAudio(audio, () => setChatState(ChatState.input));
+      }
+    },
+  });
+
+  useEffect(() => {
+    stopAudio();
+  }, [chat.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
+    setNewMessage(e.target.value);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       e.currentTarget.form?.requestSubmit();
-      setMessage('');
+      setNewMessage('');
     }
   };
 
@@ -39,27 +60,32 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ isGenerating, chat }) => 
             <input name='chatId' defaultValue={chat.id} hidden />
 
             {/* eye status of the current chat event */}
-            <EyeStatus status={ChatState.input} />
+            <EyeStatus
+              status={chatState}
+              className={cn({
+                'animate-pulse-speak': chatState === ChatState.avatarSpeaking || chatState === ChatState.recording,
+              })}
+            />
 
-            {inputState === ChatState.notification && (
+            {chatState === ChatState.notification && (
               <div className='text-body-md text-base-black flex items-center gap-2'>
                 <Icons.warning />
                 Chat is not available
               </div>
             )}
 
-            {inputState === ChatState.recording && (
+            {chatState === ChatState.recording && (
               <div className='flex items-center gap-4 text-body-md text-base-black'>
                 <p>Recording</p>
               </div>
             )}
 
-            {inputState === ChatState.input && (
+            {(chatState === ChatState.input || chatState === ChatState.avatarSpeaking) && (
               <AutosizeTextarea
                 name='content'
                 id='content'
                 placeholder='Message'
-                value={message}
+                value={newMessage}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 className='max-h-[120px] text-body-md overflow-auto scrollbar scrollbar-medium placeholder:text-neutral-02'
@@ -68,12 +94,12 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ isGenerating, chat }) => 
           </div>
           <div className='shrink-0'>
             {/* render microphone button only if the message field is empty */}
-            {message.length > 0 ? (
-              <Button.Root size='icon' type='submit' disabled={inputState === ChatState.notification || isGenerating}>
+            {newMessage.length > 0 ? (
+              <Button.Root size='icon' type='submit' disabled={chatState === ChatState.notification || isGenerating}>
                 <Button.Icon as={Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageAudioButton inputState={inputState} setInputState={setInputState} isGenerating={isGenerating} />
+              <MessageRecordingButton chatState={chatState} setChatState={setChatState} isGenerating={isGenerating} />
             )}
           </div>
         </fetcher.Form>
