@@ -18,12 +18,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  // Load scenario
   const scenarioId = params.scenariosId;
   const scenarioRes = await fetchWithAuth(`scenarios/${scenarioId}`);
   const scenario = await scenarioRes.json();
 
-  // Load AI providers for model selection
   const aiProvidersRes = await fetchWithAuth('ai-providers');
   const aiProviders = await aiProvidersRes.json();
 
@@ -60,7 +58,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
-  // Model parameters state
   const [temperature, setTemperature] = useState(scenario.temperature);
   const [topP, setTopP] = useState(scenario.topP);
   const [frequencyPenalty, setFrequencyPenalty] = useState(scenario.frequencyPenalty);
@@ -98,7 +95,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
     navigate(`/scenarios/${scenario.id}`);
   };
 
-  // Define types for option groups
   interface Option {
     label: string;
     value: string;
