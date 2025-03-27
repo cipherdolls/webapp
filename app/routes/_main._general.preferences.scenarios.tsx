@@ -4,6 +4,7 @@ import type { Route } from './+types/_main._general.preferences.scenarios';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { ViewButton } from '~/components/preferencesViewButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
@@ -55,11 +56,10 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      {/* <div className=''>Scenarios</div> */}
       <div className='space-y-10 pb-5'>
         {scenarios.map((scenario) => (
           <DataCard.Root key={scenario.id}>
-            <DataCard.Label>{scenario.name}</DataCard.Label>
+            <DataCard.Label extra={<ViewButton link={`/scenarios/${scenario.id}`} />}>{scenario.name}</DataCard.Label>
             <DataCard.Wrapper>
               <Table columns={columnProperties} data={[scenario]} wrapperClassName='hidden md:block' />
 
