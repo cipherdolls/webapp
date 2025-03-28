@@ -2,36 +2,58 @@ import { cn } from '~/utils/cn';
 import { ChatState, type ChatStateType } from '~/components/chat/types/chatState';
 
 const eyeVariants = {
-  [ChatState.recording]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(238, 150, 166, 0.8) 0%, #DC2647 100%)',
-    shadow: '0px 4px 16px rgba(220, 38, 71, 0.32)',
-  },
   [ChatState.input]: {
     bg: 'radial-gradient(43.3% 81.25% at 50% 100%, #D1DDE1 0%, #F0F3F4 100%)',
     shadow: '0px 4px 8px rgba(2, 4, 52, 0.04)',
   },
-  [ChatState.notification]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(250, 250, 250, 0.8) 0%, #E6E6E6 100%)',
+  [ChatState.userSpeaking]: {
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(238, 150, 166, 0.8) 0%, #DC2647 100%)',
     shadow: '0px 4px 16px rgba(220, 38, 71, 0.32)',
   },
   [ChatState.avatarSpeaking]: {
     bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
     shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
   },
+
+  [ChatState.error]: {
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(250, 250, 250, 0.8) 0%, #E6E6E6 100%)',
+    shadow: 'none',
+  },
+  // job/process colors
+  [ChatState.TtsJob]: {
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
+    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
+  },
+  [ChatState.SttProcess]: {
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
+    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
+  },
+
+  [ChatState.ChatCompletionJob]: {
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
+    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
+  },
 } as const;
 
 interface EyeStatusProps {
-  status: ChatStateType;
+  chatState: ChatStateType;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const EyeStatus: React.FC<EyeStatusProps> = ({ status, className }) => {
-  const eyeVariant = eyeVariants[status];
+const EyeStatus: React.FC<EyeStatusProps> = ({ chatState, className, style }) => {
+  const eyeVariant = eyeVariants[chatState];
 
   return (
     <div
-      className={cn('size-10 flex-shrink-0 flex items-center justify-center rounded-full', className)}
-      style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow }}
+      className={cn(
+        'size-10 animate-eye flex-shrink-0 flex items-center justify-center rounded-full',
+        {
+          'animate-pulse-speak': chatState === ChatState.avatarSpeaking || chatState === ChatState.userSpeaking,
+        },
+        className
+      )}
+      style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow, ...style }}
     >
       <svg width='22' height='20' viewBox='0 0 22 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <g style={{ mixBlendMode: 'soft-light' }}>

@@ -12,3 +12,10 @@ export const PICTURE_SIZE = {
 export const PATHS = {
   ttsVoice: (id: string) => `${backendUrl}/tts-voices/${id}/audio`,
 };
+
+
+
+// local storage keys
+export const LOCAL_STORAGE_KEYS = {
+  silentMode: 'silent-mode',
+};

@@ -8,16 +8,16 @@ import { Link } from 'react-router';
 
 interface ChatBodyProps {
   messages: Message[];
-  isGenerating?: boolean;
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) => {
+const ChatBody: React.FC<ChatBodyProps> = ({ messages }) => {
   return (
     <ChatMessagesList>
       {messages.map((message, index) => {
         const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
         const isSystemMessage = message.role === 'SYSTEM';
         const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
+        if(!message.content) return null;
         return (
           <Fragment key={message.id}>
             {/* divider between days */}
@@ -36,11 +36,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isGenerating = false }) =
         );
       })}
       {/* Loading state */}
-      {isGenerating && (
+      {/* { (
         <ChatBubble.Root>
           <ChatBubble.Message isLoading />
         </ChatBubble.Root>
-      )}
+      )} */}
     </ChatMessagesList>
   );
 };
