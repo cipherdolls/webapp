@@ -1,12 +1,13 @@
-import { Link, redirect } from 'react-router';
-import type { DollBody, Scenario } from '~/types';
+import { Link, Outlet, redirect } from 'react-router';
+import type { DollBody } from '~/types';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.preferences.doll-bodies';
+import { ViewButton } from '~/components/preferencesViewButton';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Scenarios' }];
+  return [{ title: 'Doll Bodies' }];
 }
 
 export async function clientLoader() {
@@ -35,11 +36,10 @@ export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      {/* <div className=''>Scenarios</div> */}
       <div className='space-y-10 pb-5'>
         {dollBodies.map((dollBody) => (
           <DataCard.Root key={dollBody.id}>
-            <DataCard.Label><Link to={`/doll-bodies/${dollBody.id}`}>{dollBody.name}</Link></DataCard.Label>
+            <DataCard.Label extra={<ViewButton link={`/doll-bodies/${dollBody.id}`} />}>{dollBody.name}</DataCard.Label>
             <DataCard.Wrapper>
               <Table columns={columnProperties} data={[dollBody]} wrapperClassName='hidden md:block' />
 
@@ -62,6 +62,7 @@ export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
           </DataCard.Root>
         ))}
       </div>
+      <Outlet />
     </>
   );
 }
