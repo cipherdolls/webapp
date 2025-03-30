@@ -6,6 +6,8 @@ import { Link, Outlet } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import type { DollBody } from '~/types';
 import ReactMarkdown from 'react-markdown';
+import DeleteModal from '~/components/ui/deleteModal';
+import DollBodyDestroy from './doll-bodies.$dollBodyId.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Body Details' }];
@@ -50,6 +52,12 @@ export default function DollBodyId({ loaderData }: Route.ComponentProps) {
                 Edit
               </Button.Root>
             </Link>
+            <DeleteModal
+              title='Delete a Doll Body?'
+              description='By deleting a doll body all related data will be deleted as well. You will not be able to restore the data.'
+            >
+              <DollBodyDestroy />
+            </DeleteModal>
           </div>
           <div className='md:hidden flex'>
             <Icons.more />

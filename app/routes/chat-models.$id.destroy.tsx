@@ -1,22 +1,25 @@
-import { Form, redirect, useFetcher } from "react-router";
-import { fetchWithAuth } from "~/utils/fetchWithAuth";
-import type { Route } from "./+types/chat-models.$id.destroy";
+import { Form, redirect, useFetcher } from 'react-router';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { Route } from './+types/chat-models.$id.destroy';
+import * as Button from '~/components/ui/button/button';
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
   const res = await fetchWithAuth(`chat-models/${params.id}`, {
     method: request.method,
   });
-  return await res.json();
+  if (!res.ok) {
+    return await res.json();
+  }
+  return redirect(`/preferences/ai`);
 }
-
 
 export default function ChatModelDestroy() {
   const fetcher = useFetcher();
   return (
-    <fetcher.Form method="DELETE" action='destroy'>
-      <button type='submit'>
-         Delete Chat Model
-      </button>
+    <fetcher.Form method='DELETE' action='destroy'>
+      <Button.Root type='submit' variant='secondary' className='w-full'>
+        Yes, delete
+      </Button.Root>
     </fetcher.Form>
   );
 }

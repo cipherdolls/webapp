@@ -6,6 +6,8 @@ import type { EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
 import { getPicture } from '~/utils/getPicture';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import EmbeddingModelDestroy from './embedding-models.$id.destroy';
+import DeleteModal from '~/components/ui/deleteModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
@@ -49,6 +51,12 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 Edit
               </Button.Root>
             </Link>
+            <DeleteModal
+              title='Delete an Embedding Model?'
+              description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
+            >
+              <EmbeddingModelDestroy />
+            </DeleteModal>
           </div>
           {/* TODO: How is this gonna work? */}
           <div className='md:hidden flex'>

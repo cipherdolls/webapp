@@ -1,20 +1,20 @@
-import { Form, redirect, useFetcher } from 'react-router';
-import type { Route } from './+types/avatars.$id.destroy';
-import * as Button from '~/components/ui/button/button';
+import { redirect, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { Route } from './+types/scenarios.$scenariosId.destroy';
+import * as Button from '~/components/ui/button/button';
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
-  const avatarId = params.id;
-  const res = await fetchWithAuth(`avatars/${avatarId}`, {
+  const scenarioId = params.scenariosId;
+  const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
     method: request.method,
   });
   if (!res.ok) {
     return await res.json();
   }
-  return redirect(`/`);
+  return redirect(`/preferences/scenarios`);
 }
 
-export default function AvatarDestroy() {
+export default function ScenarioDestroy() {
   const fetcher = useFetcher();
   return (
     <fetcher.Form method='DELETE' action='destroy' className='w-full'>

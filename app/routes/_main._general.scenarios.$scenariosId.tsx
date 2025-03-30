@@ -6,6 +6,8 @@ import { Link, Outlet } from 'react-router';
 
 import { getPicture } from '~/utils/getPicture';
 import type { Scenario } from '~/types';
+import DeleteModal from '~/components/ui/deleteModal';
+import ScenarioDestroy from './scenarios.$scenariosId.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -50,6 +52,12 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 Edit
               </Button.Root>
             </Link>
+            <DeleteModal
+              title='Delete a Scenario?'
+              description='By deleting a scenario all related data will be deleted as well. You will not be able to restore the data.'
+            >
+              <ScenarioDestroy />
+            </DeleteModal>
           </div>
           <div className='md:hidden flex'>
             <Icons.more />
