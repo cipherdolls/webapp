@@ -10,6 +10,8 @@ import { DataCard } from '~/components/DataCard';
 import type { Route } from './+types/_main._general.tts-providers.$ttsProvider';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
+import DeleteModal from '~/components/ui/deleteModal';
+import TtsProviderDestroy from './tts-providers.$ttsProvider.destroy';
 
 const ttsVoiceColumns: Array<TTableColumn<TtsVoice>> = [
   {
@@ -101,6 +103,12 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
               Edit
             </Button.Root>
           </Link>
+          <DeleteModal
+            title='Delete a TTS Provider?'
+            description='By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.'
+          >
+            <TtsProviderDestroy />
+          </DeleteModal>
         </div>
         <div className='md:hidden flex'>
           <Icons.more />

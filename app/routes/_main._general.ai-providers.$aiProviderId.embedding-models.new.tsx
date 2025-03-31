@@ -31,7 +31,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       return await res.json();
     }
     const embeddingModel: EmbeddingModel = await res.json();
-    return redirect(`/ai-providers/${embeddingModel.aiProviderId}`);
+    return redirect(`/embedding-models/${embeddingModel.id}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };

@@ -30,8 +30,8 @@ const preferencesNavItems = [
   {
     label: 'Scenarios',
     to: 'scenarios',
-    // link: 'Scenario',
-    href: '/',
+    link: 'Scenario',
+    href: '/preferences/scenarios/new',
   },
   {
     label: 'Firmwares',
@@ -42,8 +42,8 @@ const preferencesNavItems = [
   {
     label: 'Doll Bodies',
     to: 'doll-bodies',
-    // link: 'Doll Body',
-    href: '/',
+    link: 'Doll Body',
+    href: '/preferences/doll-bodies/new',
   },
 ];
 

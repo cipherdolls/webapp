@@ -243,6 +243,7 @@ export interface Avatar {
   _count: AvatarCount;
   ttsVoice: TtsVoice;
   chats: Chat[];
+  language: string;
 }
 export interface AvatarCount {
   chats: number;

@@ -1,17 +1,18 @@
-import { redirect } from 'react-router';
+import { Outlet, redirect } from 'react-router';
 import type { Scenario } from '~/types';
 import type { Route } from './+types/_main._general.preferences.scenarios';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { ViewButton } from '~/components/preferencesViewButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
 }
 
 export async function clientLoader() {
-    const res = await fetchWithAuth(`scenarios`);
-    return await res.json();
+  const res = await fetchWithAuth(`scenarios`);
+  return await res.json();
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
@@ -20,29 +21,22 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'name',
       label: 'Name',
-      render: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{data.chatModel.name}</span>,
       align: 'left',
-    },
-    {
-      id: 'chatModel',
-      label: 'Chat Model Name',
-      render: (data) => data.chatModel.name,
-      align: 'right',
-      width: '135px',
     },
     {
       id: 'temperature',
       label: 'Temperature',
       render: (data) => data.temperature,
       align: 'right',
-      width: '115px',
+      width: '135px',
     },
     {
       id: 'topP',
       label: 'TopP',
       render: (data) => data.topP,
       align: 'right',
-      width: '80px',
+      width: '135px',
     },
     {
       id: 'frequencyPenalty',
@@ -60,14 +54,12 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     },
   ];
 
-
   return (
     <>
-      {/* <div className=''>Scenarios</div> */}
       <div className='space-y-10 pb-5'>
         {scenarios.map((scenario) => (
           <DataCard.Root key={scenario.id}>
-            <DataCard.Label>{scenario.name}</DataCard.Label>
+            <DataCard.Label extra={<ViewButton link={`/scenarios/${scenario.id}`} />}>{scenario.name}</DataCard.Label>
             <DataCard.Wrapper>
               <Table columns={columnProperties} data={[scenario]} wrapperClassName='hidden md:block' />
 
@@ -90,6 +82,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
           </DataCard.Root>
         ))}
       </div>
+      <Outlet />
     </>
   );
 }
