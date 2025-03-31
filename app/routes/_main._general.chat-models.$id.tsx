@@ -6,6 +6,9 @@ import type { ChatModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
 import { getPicture } from '~/utils/getPicture';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import DeleteAvatarModal from '~/components/deleteAvatarModal';
+import DeleteModal from '~/components/ui/deleteModal';
+import ChatModelDestroy from './chat-models.$id.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Model' }];
@@ -54,6 +57,12 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 Edit
               </Button.Root>
             </Link>
+            <DeleteModal
+              title='Delete a Chat Model?'
+              description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
+            >
+              <ChatModelDestroy />
+            </DeleteModal>
           </div>
           {/* TODO: How is this gonna work? */}
           <div className='md:hidden flex'>

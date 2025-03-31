@@ -5,6 +5,8 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { SttProvider } from '~/types';
 import type { Route } from './+types/_main._general.stt-providers.$sttProvider';
 import { getPicture } from '~/utils/getPicture';
+import DeleteModal from '~/components/ui/deleteModal';
+import SttProviderDestroy from './stt-providers.$sttProvider.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Provider' }];
@@ -48,6 +50,12 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                 Edit
               </Button.Root>
             </Link>
+            <DeleteModal
+              title='Delete an STT Provider?'
+              description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
+            >
+              <SttProviderDestroy />
+            </DeleteModal>
           </div>
           {/* TODO: How is this gonna work? */}
           <div className='md:hidden flex'>
