@@ -52,7 +52,7 @@ export function useChatEvents({ chat, onActionEvent, onProcessEvent }: useChatEv
     }
 
     // Dispatch incoming messages to the right callback
-    const handleMessage = (topic: string, message: Buffer) => {
+    const handleEvent = (topic: string, message: Buffer) => {
       try {
         const data = JSON.parse(message.toString());
 
@@ -66,7 +66,22 @@ export function useChatEvents({ chat, onActionEvent, onProcessEvent }: useChatEv
       }
     };
 
-    client.on('message', handleMessage);
+    client.on('message', handleEvent);
+
+    // Attach error handling for MQTT client events
+    // client.on('error', (error) => {
+    //   console.error('MQTT client error:', error);
+    // });
+
+    // client.on('offline', () => {
+    //   console.warn('MQTT client is offline.');
+    //   // You could also trigger onError here if needed
+    // });
+
+    // client.on('close', () => {
+    //   console.warn('MQTT client connection closed.');
+    //   // Optionally, call onError(new Error('Connection closed'));
+    // });
 
     client.on('connect', () => {
       // Publish status on connect
@@ -89,7 +104,7 @@ export function useChatEvents({ chat, onActionEvent, onProcessEvent }: useChatEv
       if (onProcessEvent) {
         client.unsubscribe(processEventsTopic);
       }
-      client.off('message', handleMessage);
+      client.off('message', handleEvent);
       client.end();
       clientRef.current = null;
     };

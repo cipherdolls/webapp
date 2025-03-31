@@ -2,7 +2,7 @@ import { cn } from '~/utils/cn';
 import { ChatState, type ChatStateType } from '~/components/chat/types/chatState';
 
 const eyeVariants = {
-  [ChatState.input]: {
+  [ChatState.Idle]: {
     bg: 'radial-gradient(43.3% 81.25% at 50% 100%, #D1DDE1 0%, #F0F3F4 100%)',
     shadow: '0px 4px 8px rgba(2, 4, 52, 0.04)',
   },
@@ -14,24 +14,23 @@ const eyeVariants = {
     bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
     shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
   },
-
   [ChatState.error]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(250, 250, 250, 0.8) 0%, #E6E6E6 100%)',
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(255, 0, 0, 0.8) 0%, #FF0000 100%)',
     shadow: 'none',
   },
   // job/process colors
   [ChatState.TtsJob]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
-    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(100, 149, 237, 0.8) 0%, #6495ED 100%)',
+    shadow: '0px 4px 16px rgba(100, 149, 237, 0.32)',
   },
-  [ChatState.SttProcess]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
-    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
+  [ChatState.SttJob]: {
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(255,182,193,0.8) 0%, #FF6F61 100%)',
+    shadow: '0px 4px 16px rgba(255,111,97,0.32)',
   },
 
   [ChatState.ChatCompletionJob]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
-    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 255, 190, 0.8) 0%, #59E36B 100%)',
+    shadow: '0px 4px 16px rgba(89, 227, 107, 0.32)',
   },
 } as const;
 

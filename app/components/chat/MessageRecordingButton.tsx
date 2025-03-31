@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { ChatState, type ChatStateType } from '~/components/chat/types/chatState';
@@ -11,14 +11,25 @@ import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 interface MessageRecordingButtonProps {
   chat: Chat;
   chatState: ChatStateType;
-  setChatState: (state: ChatStateType) => void;
-  className?: string;
+  onStartRecording?: () => void;
+  onEndRecording?: () => void;
 }
 
-const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, chatState, setChatState }) => {
+const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, chatState, onStartRecording, onEndRecording }) => {
   const recorder = useRef<MediaRecorder | null>(null);
   const fetcher = useFetcher();
   const { stopAudio } = useAudioPlayer();
+
+  useEffect(() => {
+    return () => {
+      if (recorder.current) {
+        recorder.current.removeEventListener('dataavailable', finishRecording);
+        if (recorder.current.state !== 'inactive') {
+          recorder.current.stop();
+        }
+      }
+    };
+  }, []);
 
   const finishRecording = ({ data }: { data: Blob }) => {
     const file = new File([data], 'audio.webm', { type: 'audio/webm' });
@@ -34,21 +45,21 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
 
   const startRecording = async () => {
     try {
-      setChatState(ChatState.userSpeaking);
+      onStartRecording?.();
       stopAudio();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       recorder.current = new MediaRecorder(stream);
       recorder.current.start();
       recorder.current.addEventListener('dataavailable', finishRecording);
     } catch (err) {
-      setChatState(ChatState.input);
+      onEndRecording?.();
       console.error(err);
     }
   };
 
   const stopRecording = () => {
-    setChatState(ChatState.input);
     try {
+      onEndRecording?.();
       if (recorder.current) {
         if (recorder.current.state !== 'inactive') recorder.current.stop();
         recorder.current.removeEventListener('dataavailable', finishRecording);
@@ -59,7 +70,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
   };
 
   return chatState === ChatState.userSpeaking ? (
-    <Button.Root size='icon' type='button' onClick={stopRecording} className={cn('relative z-[1]')} >
+    <Button.Root size='icon' type='button' onClick={stopRecording} className={cn('relative z-[1]')}>
       <Button.Icon as={Icons.stopSound} />
       <AnimationRecording className='absolute top-1/2 left-1/2 -translate-1/2 -z-10' />
     </Button.Root>

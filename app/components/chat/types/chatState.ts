@@ -1,12 +1,12 @@
 //  CHAT STATE TYPES
 export enum ChatState {
-  input = 'input',
+  Idle = 'Idle',
   avatarSpeaking = 'avatarSpeaking',
   userSpeaking = 'userSpeaking',
   error = 'error',
   // job/process states
   TtsJob = 'TtsJob',
-  SttProcess = 'SttProcess',
+  SttJob = 'SttJob',
   ChatCompletionJob = 'ChatCompletionJob',
 }
 

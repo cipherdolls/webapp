@@ -1,20 +1,25 @@
 import { Outlet, useRevalidator } from 'react-router';
-import type { Chat, Message } from '~/types';
+import type { AudioEvent, Chat, Message, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
-import { ChatState } from '~/components/chat/types/chatState';
+import { backendUrl } from '~/constants';
+import { useEffect } from 'react';
 import type { ChatStateType } from '~/components/chat/types/chatState';
-import { backendUrl, LOCAL_STORAGE_KEYS } from '~/constants';
-import { useEffect, useState } from 'react';
+import { ChatState } from '~/components/chat/types/chatState';
+import { useState } from 'react';
+import { useAudioPlayer } from '~/providers/AudioPlayerContext';
+import { LOCAL_STORAGE_KEYS } from '~/constants';
 import { useLocalStorage } from 'usehooks-ts';
+
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
 }
+
+const isValidState = (state: string): state is ChatStateType => state in ChatState;
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const { chatId } = params;
@@ -32,49 +37,48 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const revalidator = useRevalidator();
 
   const { playAudio, stopAudio } = useAudioPlayer();
-  const [chatState, setChatState] = useState<ChatStateType>(ChatState.input);
+  const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
   const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
 
   useChatEvents({
     chat,
     onProcessEvent: (event) => {
-      // TODO: add animation logic for the eye 
-      // switch (event.resourceName) {
-      //   case ChatState.TtsJob:
-      //     setChatState(ChatState.TtsJob);
-      //     break;
-
-      //   case ChatState.SttProcess:
-      //     setChatState(ChatState.input);
-      //     break;
-
-      //   case ChatState.ChatCompletionJob:
-      //     setChatState(ChatState.ChatCompletionJob);
-      //     break;
-
-      //   default:
-      //     setChatState(ChatState.input);
-      // }
-
+      handleProcessEvent(event)
       if (event.resourceName === 'Message') {
         revalidator.revalidate();
       }
     },
     onActionEvent: (event) => {
-      if (event.type === 'audio' && event.action === 'play' && !silentMode && chatState !== ChatState.userSpeaking) {
-        setChatState(ChatState.avatarSpeaking);
-        const newAudioMessage = new Audio(`${backendUrl}/messages/${event.messageId}/audio`);
-        playAudio(newAudioMessage, () => setChatState(ChatState.input));
-      }
+      if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
     },
   });
 
+  // if silent mode is enabled, stop audio when the avatar is speaking
   useEffect(() => {
-    if (silentMode && chatState === ChatState.avatarSpeaking) {
+    if (silentMode && currentChatState === ChatState.avatarSpeaking) {
       stopAudio();
-      setChatState(ChatState.input);
+      setCurrentChatState(ChatState.Idle);
     }
   }, [silentMode]);
+
+
+  const handlePlayAudioMessage = (event: AudioEvent) => {
+    if (!silentMode && event.type === 'audio' && event.action === 'play') {
+      setCurrentChatState(ChatState.avatarSpeaking);
+      const newAudioMessage = new Audio(`${backendUrl}/messages/${event.messageId}/audio`);
+      playAudio(newAudioMessage, () => setCurrentChatState(ChatState.Idle));
+    }
+  };
+
+  // updating chat state and indicator based on the event
+  const handleProcessEvent = (event: ProcessEvent) => {
+    setCurrentChatState((prevState) => {
+      if (isValidState(event.resourceName) && prevState !== ChatState.avatarSpeaking && prevState !== ChatState.userSpeaking) {
+        return event.jobStatus === 'completed' ? ChatState.Idle : event.resourceName;
+      }
+      return prevState;
+    });
+  };
 
   return (
     <>
@@ -86,7 +90,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         <ChatBody messages={messages} />
 
         {/* chat input field  */}
-        <ChatBottomBar chat={chat} chatState={chatState} setChatState={setChatState} />
+        <ChatBottomBar chat={chat} currentChatState={currentChatState} setCurrentChatState={setCurrentChatState} />
       </div>
       <Outlet />
     </>
