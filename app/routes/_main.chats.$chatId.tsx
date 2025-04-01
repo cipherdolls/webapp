@@ -40,6 +40,12 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
   const [currentJob, setCurrentJob] = useState<ChatJobType | null>(null);
 
+  // reset the chat state when the chat id changes
+  useEffect(() => {
+    setCurrentChatState(ChatState.Idle);
+    setCurrentJob(null);
+  }, [chat.id]);
+
   useChatEvents({
     chat,
     onProcessEvent: (event) => handleProcessEvent(event),
@@ -48,18 +54,13 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     },
   });
 
-  // if silent mode is enabled, stop audio when the avatar is speaking
+  // if silent mode is enabled, stop audio if the avatar is speaking
   useEffect(() => {
     if (silentMode && currentChatState === ChatState.avatarSpeaking) {
       stopAudio();
       setCurrentChatState(ChatState.Idle);
     }
   }, [silentMode]);
-
-  useEffect(() => {
-    setCurrentChatState(ChatState.Idle);
-    setCurrentJob(null);
-  }, [chat.id]);
 
   const handlePlayAudioMessage = (event: AudioEvent) => {
     if (!silentMode && event.type === 'audio' && event.action === 'play') {
@@ -70,7 +71,6 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   };
 
   const handleProcessEvent = (event: ProcessEvent) => {
-
     // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
@@ -83,8 +83,6 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
     }
   };
-
-  // console.log('messages', currentJob)
 
   return (
     <>
