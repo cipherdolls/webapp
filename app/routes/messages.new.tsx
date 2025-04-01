@@ -1,4 +1,3 @@
-import { redirect } from "react-router";
 import type { Route } from "./+types/messages.new";
 import { fetchWithAuth } from "~/utils/fetchWithAuth";
 

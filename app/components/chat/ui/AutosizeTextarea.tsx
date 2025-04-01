@@ -16,12 +16,20 @@ const AutosizeTextarea: React.FC<AutosizeTextareaProps> = ({ value, className, .
   }, [value]);
 
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      e.currentTarget.form?.requestSubmit();
+    }
+  };
+
   return (
     <textarea
       ref={textAreaRef}
       value={value}
       className={cn('resize-none w-full outline-none', className)}
       rows={1}
+      onKeyDown={handleKeyDown}
       {...rest}
     />
   );

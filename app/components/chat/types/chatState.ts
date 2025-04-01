@@ -1,9 +1,16 @@
 //  CHAT STATE TYPES
 export enum ChatState {
-  input = 'input',
-  recording = 'recording',
+  Idle = 'Idle',
   avatarSpeaking = 'avatarSpeaking',
-  notification = 'notification',
+  userSpeaking = 'userSpeaking',
+  error = 'error',
+}
+
+export enum ChatJob {
+  TtsJob = 'TtsJob',
+  SttJob = 'SttJob',
+  ChatCompletionJob = 'ChatCompletionJob',
 }
 
 export type ChatStateType = keyof typeof ChatState;
+export type ChatJobType = keyof typeof ChatJob;

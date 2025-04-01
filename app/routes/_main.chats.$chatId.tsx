@@ -1,15 +1,19 @@
 import { Outlet, useRevalidator } from 'react-router';
-import type { Chat, Message, ProcessEvent } from '~/types';
+import type { AudioEvent, Chat, Message, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
-import { useEffect, useRef, useState } from 'react';
-import mqtt from 'mqtt';
-import { Buffer } from 'buffer';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
+import { useChatEvents } from '~/hooks/useChatEvents';
 import { backendUrl } from '~/constants';
+import { useEffect } from 'react';
+import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
+import { ChatJob, ChatState } from '~/components/chat/types/chatState';
+import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
+import { LOCAL_STORAGE_KEYS } from '~/constants';
+import { useLocalStorage } from 'usehooks-ts';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -28,65 +32,57 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages } = loaderData;
-  const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
-  const localStorageToken = localStorage.getItem('token');
-  const mqttHost = 'wss://mqtt.cipherdolls.com';
-  const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
   const revalidator = useRevalidator();
-  const { playAudio } = useAudioPlayer();
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
+  const { playAudio, stopAudio } = useAudioPlayer();
 
+  // state
+  const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
+  const [currentJob, setCurrentJob] = useState<ChatJobType | null>(null);
+
+  // reset the chat state when the chat id changes
   useEffect(() => {
-    if (!mqttClientRef.current) {
-      const mqttClient = mqtt.connect(mqttHost, {
-        clientId,
-        username: 'frontend',
-        password: localStorageToken?.replaceAll('"', ''),
-        will: {
-          topic: `connections`,
-          payload: Buffer.from(JSON.stringify({ clientId, deviceType: 'browser', status: 'disconnected' })), // Convert string to Buffer
-          qos: 1,
-          retain: false,
-        },
-      });
-      mqttClientRef.current = mqttClient;
-
-      const userTopic = `chats/${chat.id}/processEvents`;
-      mqttClient.subscribe(userTopic);
-
-      const handleMessage = (topic: string, message: Buffer) => {
-        const processEvent: ProcessEvent = JSON.parse(message.toString());
-        if (processEvent.resourceName === 'Message') {
-          // TODO: refactor it to use the better way to handle the audio playing
-          revalidator.revalidate().then(() => {
-            fetchWithAuth(`messages?chatId=${chat.id}`)
-              .then((res) => res.json())
-              .then((updatedMessages: Message[]) => {
-                const latestMessage = updatedMessages[updatedMessages.length - 1];
-                if (latestMessage.role === 'ASSISTANT' && latestMessage.fileName) {
-                  const audio = new Audio(`${backendUrl}/messages/${latestMessage.id}/audio`);
-                  playAudio(audio);
-                }
-              });
-          });
-        }
-      };
-
-      mqttClient.on('message', handleMessage);
-      mqttClient.on('connect', () => {
-        mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), { qos: 1 });
-      });
-
-      // Clean up the subscription and event listener on unmount
-      return () => {
-        mqttClient.unsubscribe(userTopic);
-        mqttClient.off('message', handleMessage);
-        mqttClient.end(); // Disconnect the client
-        mqttClientRef.current = null;
-      };
-    }
-    // eslint-disable-next-line
+    setCurrentChatState(ChatState.Idle);
+    setCurrentJob(null);
   }, [chat.id]);
+
+  useChatEvents({
+    chat,
+    onProcessEvent: (event) => handleProcessEvent(event),
+    onActionEvent: (event) => {
+      if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
+    },
+  });
+
+  // if silent mode is enabled, stop audio if the avatar is speaking
+  useEffect(() => {
+    if (silentMode && currentChatState === ChatState.avatarSpeaking) {
+      stopAudio();
+      setCurrentChatState(ChatState.Idle);
+    }
+  }, [silentMode]);
+
+  const handlePlayAudioMessage = (event: AudioEvent) => {
+    if (!silentMode && event.type === 'audio' && event.action === 'play') {
+      setCurrentChatState(ChatState.avatarSpeaking);
+      const newAudioMessage = new Audio(`${backendUrl}/messages/${event.messageId}/audio`);
+      playAudio(newAudioMessage, () => setCurrentChatState(ChatState.Idle));
+    }
+  };
+
+  const handleProcessEvent = (event: ProcessEvent) => {
+    // if message is received, revalidate the page
+    if (event.resourceName === 'Message') {
+      revalidator.revalidate();
+      return;
+    }
+
+    // checking if a job exist in a chat jobs enum
+    const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
+    if (isValidJob(event.resourceName)) {
+      setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
+    }
+  };
 
   return (
     <>
@@ -95,10 +91,10 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         <ChatTopBar chat={chat} />
 
         {/* chat messages scroll */}
-        <ChatBody messages={messages} isGenerating={isGenerating} />
+        <ChatBody messages={messages} />
 
         {/* chat input field  */}
-        <ChatBottomBar chat={chat} isGenerating={isGenerating} />
+        <ChatBottomBar chat={chat} currentChatState={currentChatState} currentJob={currentJob} setCurrentChatState={setCurrentChatState} />
       </div>
       <Outlet />
     </>

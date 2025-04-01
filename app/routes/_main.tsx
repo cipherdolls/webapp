@@ -46,7 +46,6 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
       const handleMessage = (topic: string, message: Buffer) => {
         const processEvent: ProcessEvent = JSON.parse(message.toString());
-        console.log(processEvent);
 
         const { resourceName, resourceId, jobName, jobStatus } = processEvent;
 

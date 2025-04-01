@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface AudioPlayerContextType {
   currentAudio: HTMLAudioElement | null;
-  playAudio: (audio: HTMLAudioElement) => void;
+  playAudio: (audio: HTMLAudioElement, onEnded?: () => void) => void;
   stopAudio: () => void;
 }
 
@@ -11,20 +11,21 @@ const AudioPlayerContext = createContext<AudioPlayerContextType | undefined>(und
 export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
-  const handleEnded = useCallback(() => {
+  const handleEnded = useCallback((onEnded?: () => void) => {
     setCurrentAudio(null);
+    onEnded?.();
   }, []);
 
-  const playAudio = (audio: HTMLAudioElement) => {
+  const playAudio = (audio: HTMLAudioElement, onEnded?: () => void) => {
     if (currentAudio && currentAudio !== audio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
-      currentAudio.removeEventListener('ended', handleEnded);
+      currentAudio.removeEventListener('ended', () => handleEnded(onEnded));
     }
 
     setCurrentAudio(audio);
 
-    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('ended', () => handleEnded(onEnded));
 
     audio.play().catch((err) => {
       console.error('Error playing audio:', err);
@@ -36,7 +37,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     currentAudio.pause();
     currentAudio.currentTime = 0;
-    currentAudio.removeEventListener('ended', handleEnded);
+    currentAudio.removeEventListener('ended', () => handleEnded(undefined));
 
     setCurrentAudio(null);
   };
