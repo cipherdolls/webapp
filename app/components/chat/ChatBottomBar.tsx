@@ -5,16 +5,17 @@ import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
 import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
-import { ChatState, type ChatStateType } from './types/chatState';
+import { ChatState, type ChatJobType, type ChatStateType } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
 
 interface ChatBottomBarProps {
   chat: Chat;
   currentChatState: ChatStateType;
+  currentJob: ChatJobType | null;
   setCurrentChatState: (state: ChatStateType) => void;
 }
 
-const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, setCurrentChatState }) => {
+const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, currentJob, setCurrentChatState }) => {
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
 
@@ -34,7 +35,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, s
       <div className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'>
         <fetcher.Form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
           {/* eye status of the current chat state */}
-          <EyeStatus chatState={currentChatState} />
+          <EyeStatus chatState={currentChatState} currentJob={currentJob} />
           <div className='flex flex-1 items-center min-h-10 gap-4'>
             {/* chat id input */}
             <input name='chatId' defaultValue={chat.id} hidden />

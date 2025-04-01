@@ -8,8 +8,8 @@ import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { backendUrl } from '~/constants';
 import { useEffect } from 'react';
-import type { ChatStateType } from '~/components/chat/types/chatState';
-import { ChatState } from '~/components/chat/types/chatState';
+import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
+import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { LOCAL_STORAGE_KEYS } from '~/constants';
@@ -18,8 +18,6 @@ import { useLocalStorage } from 'usehooks-ts';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
 }
-
-const isValidState = (state: string): state is ChatStateType => state in ChatState;
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const { chatId } = params;
@@ -35,19 +33,16 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages } = loaderData;
   const revalidator = useRevalidator();
-
-  const { playAudio, stopAudio } = useAudioPlayer();
-  const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
   const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
+  const { playAudio, stopAudio } = useAudioPlayer();
+
+  // state
+  const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
+  const [currentJob, setCurrentJob] = useState<ChatJobType | null>(null);
 
   useChatEvents({
     chat,
-    onProcessEvent: (event) => {
-      handleProcessEvent(event)
-      if (event.resourceName === 'Message') {
-        revalidator.revalidate();
-      }
-    },
+    onProcessEvent: (event) => handleProcessEvent(event),
     onActionEvent: (event) => {
       if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
     },
@@ -61,6 +56,10 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     }
   }, [silentMode]);
 
+  useEffect(() => {
+    setCurrentChatState(ChatState.Idle);
+    setCurrentJob(null);
+  }, [chat.id]);
 
   const handlePlayAudioMessage = (event: AudioEvent) => {
     if (!silentMode && event.type === 'audio' && event.action === 'play') {
@@ -70,15 +69,22 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  // updating chat state and indicator based on the event
   const handleProcessEvent = (event: ProcessEvent) => {
-    setCurrentChatState((prevState) => {
-      if (isValidState(event.resourceName) && prevState !== ChatState.avatarSpeaking && prevState !== ChatState.userSpeaking) {
-        return event.jobStatus === 'completed' ? ChatState.Idle : event.resourceName;
-      }
-      return prevState;
-    });
+
+    // if message is received, revalidate the page
+    if (event.resourceName === 'Message') {
+      revalidator.revalidate();
+      return;
+    }
+
+    // checking if a job exist in a chat jobs enum
+    const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
+    if (isValidJob(event.resourceName)) {
+      setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
+    }
   };
+
+  // console.log('messages', currentJob)
 
   return (
     <>
@@ -90,7 +96,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         <ChatBody messages={messages} />
 
         {/* chat input field  */}
-        <ChatBottomBar chat={chat} currentChatState={currentChatState} setCurrentChatState={setCurrentChatState} />
+        <ChatBottomBar chat={chat} currentChatState={currentChatState} currentJob={currentJob} setCurrentChatState={setCurrentChatState} />
       </div>
       <Outlet />
     </>

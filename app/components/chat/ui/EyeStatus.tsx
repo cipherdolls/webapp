@@ -1,7 +1,7 @@
 import { cn } from '~/utils/cn';
-import { ChatState, type ChatStateType } from '~/components/chat/types/chatState';
+import { ChatJob, ChatState, type ChatJobType, type ChatStateType } from '~/components/chat/types/chatState';
 
-const eyeVariants = {
+const eyeVariants: Record<ChatStateType | ChatJobType, { bg: string; shadow: string }> = {
   [ChatState.Idle]: {
     bg: 'radial-gradient(43.3% 81.25% at 50% 100%, #D1DDE1 0%, #F0F3F4 100%)',
     shadow: '0px 4px 8px rgba(2, 4, 52, 0.04)',
@@ -19,16 +19,16 @@ const eyeVariants = {
     shadow: 'none',
   },
   // job/process colors
-  [ChatState.TtsJob]: {
+  [ChatJob.TtsJob]: {
     bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(100, 149, 237, 0.8) 0%, #6495ED 100%)',
     shadow: '0px 4px 16px rgba(100, 149, 237, 0.32)',
   },
-  [ChatState.SttJob]: {
+  [ChatJob.SttJob]: {
     bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(255,182,193,0.8) 0%, #FF6F61 100%)',
     shadow: '0px 4px 16px rgba(255,111,97,0.32)',
   },
 
-  [ChatState.ChatCompletionJob]: {
+  [ChatJob.ChatCompletionJob]: {
     bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 255, 190, 0.8) 0%, #59E36B 100%)',
     shadow: '0px 4px 16px rgba(89, 227, 107, 0.32)',
   },
@@ -36,23 +36,19 @@ const eyeVariants = {
 
 interface EyeStatusProps {
   chatState: ChatStateType;
-  className?: string;
-  style?: React.CSSProperties;
+  currentJob: ChatJobType | null;
 }
 
-const EyeStatus: React.FC<EyeStatusProps> = ({ chatState, className, style }) => {
-  const eyeVariant = eyeVariants[chatState];
+const EyeStatus: React.FC<EyeStatusProps> = ({ chatState, currentJob }) => {
+  const variant = chatState === ChatState.Idle && currentJob ? currentJob : chatState;
+  const eyeVariant = eyeVariants[variant];
 
   return (
     <div
-      className={cn(
-        'size-10 animate-eye flex-shrink-0 flex items-center justify-center rounded-full',
-        {
-          'animate-pulse-speak': chatState === ChatState.avatarSpeaking || chatState === ChatState.userSpeaking,
-        },
-        className
-      )}
-      style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow, ...style }}
+      className={cn('size-10 animate-eye flex-shrink-0 flex items-center justify-center rounded-full', {
+        'animate-pulse-speak': chatState === ChatState.avatarSpeaking || chatState === ChatState.userSpeaking,
+      })}
+      style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow }}
     >
       <svg width='22' height='20' viewBox='0 0 22 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <g style={{ mixBlendMode: 'soft-light' }}>
