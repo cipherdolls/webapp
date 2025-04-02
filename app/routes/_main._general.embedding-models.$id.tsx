@@ -141,7 +141,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
           <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
-            <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
+            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Model Properties</h2>
 
               <div className='flex flex-col gap-3'>

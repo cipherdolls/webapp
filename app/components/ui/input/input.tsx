@@ -16,7 +16,7 @@ export const inputVariants = tv({
     // Input - exactly like the original input
     input: [
       'py-3 px-3.5 rounded-xl text-body-md text-neutral-02',
-      'bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)]',
+      'bg-gradient-1',
       'w-full',
       'outline-none focus:outline-none',
     ],

@@ -12,7 +12,7 @@ const ChatMessagePreview = ({ message }: { message: Message }) => {
     <div className='relative'>
       <div
         className={cn(
-          'shrink-0 px-10 py-6 min-h-[140px] h-[140px] rounded-xl overflow-hidden bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 cursor-pointer',
+          'shrink-0 px-10 py-6 min-h-[140px] h-[140px] rounded-xl overflow-hidden bg-gradient-1 backdrop-blur-48 cursor-pointer',
           showFull && 'h-auto'
         )}
         onClick={() => setShowFull((prev) => !prev)}

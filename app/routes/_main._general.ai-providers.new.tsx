@@ -93,7 +93,7 @@ export default function AiProviderNew({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
-            <label className='sm:h-60 h-40 w-full bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer'>
+            <label className='sm:h-60 h-40 w-full bg-gradient-1 backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer'>
               <input className='hidden' type='file' name='picture' id='picture' accept='image/*' onChange={handleImageChange} />
               {selectedImage ? (
                 <div className='size-full relative'>
@@ -116,7 +116,7 @@ export default function AiProviderNew({ loaderData }: Route.ComponentProps) {
             <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Availability</h1>
               <div className='flex flex-col gap-3'>
-                <div className='p-1 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] grid grid-cols-2 rounded-xl'>
+                <div className='p-1 bg-gradient-1 grid grid-cols-2 rounded-xl'>
                   <button
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',

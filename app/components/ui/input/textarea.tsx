@@ -18,7 +18,7 @@ export const textareaVariants = tv({
     // Textarea element - simplified to match input component
     textarea: [
       'p-3 min-h-[104px] max-h-[500px] rounded-xl text-body-md text-neutral-02',
-      'bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)]',
+      'bg-gradient-1',
       'w-full resize-none overflow-y-auto',
       'outline-none focus:outline-none',
     ],

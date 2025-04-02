@@ -42,7 +42,7 @@ const CardMain: React.FC<CardRootProps> = ({ children, className }) => {
   return (
     <div
       className={cn(
-        'bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl flex flex-col flex-1 ',
+        'bg-gradient-1 backdrop-blur-48 rounded-xl flex flex-col flex-1 ',
         className
       )}
     >
