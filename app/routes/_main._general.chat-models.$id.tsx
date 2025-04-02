@@ -193,10 +193,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <span className='text-neutral-01'>Dollar Per Output Token:</span>
                   <span className='font-medium'>${chatModel.dollarPerOutputToken}</span>
                 </div>
-                <div className='flex justify-between items-center'>
-                  <span className='text-neutral-01'>Base Path:</span>
-                  <code className='mt-1 block bg-neutral-05 p-2 rounded text-body-sm'>{chatModel.aiProvider?.basePath}</code>
-                </div>
               </div>
             </div>
             <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
