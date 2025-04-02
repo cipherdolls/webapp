@@ -139,7 +139,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
             <div className='relative'>
               <label
-                className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'
+                className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'
                 onClick={handleLabelClick}
               >
                 <input ref={fileInputRef} className='hidden' type='file' name='picture' accept='image/*' onChange={handleImageChange} />
@@ -205,7 +205,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
             </div>
             <div className='sm:flex hidden flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold sm:block hidden'>Availability</h1>
-              <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] grid grid-cols-2 rounded-xl'>
+              <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 grid grid-cols-2 rounded-xl'>
                 <button
                   type='button'
                   className={cn(
@@ -233,7 +233,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='flex sm:hidden flex-col gap-5 sm:static absolute w-full sm:w-auto left-0 px-4.5 pt-4.5 sm:px-0 sm:pt-0 sm:pb-0 pb-4.5 sm:rounded-t-none rounded-t-xl bottom-0 sm:bg-none bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] shadow-bottom-bar backdrop-blur-48'>
           <h1 className='text-base-black text-heading-h3 font-semibold sm:block hidden'>Availability</h1>
-          <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] grid grid-cols-2 rounded-xl'>
+          <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 grid grid-cols-2 rounded-xl'>
             <button
               type='button'
               className={cn(

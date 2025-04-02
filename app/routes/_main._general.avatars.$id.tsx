@@ -120,9 +120,9 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           <Icons.more />
         </div>
       </div>
-      <div className='flex sm:flex-row flex-col-reverse md:gap-0 sm:gap-8 sm:flex-1 sm:divide-x divide-neutral-04 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
+      <div className='flex sm:flex-row flex-col-reverse md:gap-0 sm:gap-8 sm:flex-1 sm:divide-x divide-neutral-04 bg-gradient-1 backdrop-blur-48 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
         <div className='sm:pr-4 flex size-full flex-col gap-4'>
-          <div className='sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
+          <div className='sm:bg-gradient-1 rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
             <div className='flex items-center justify-between'>
               <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Characteristic</h3>
               <div className='flex items-center gap-2'>
@@ -137,7 +137,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
           <div className='relative'>
-            <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'>
+            <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'>
               {avatar.picture ? (
                 <div className='size-full'>
                   <img
@@ -159,7 +159,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           </div>
           <div className='sm:flex hidden flex-col gap-5'>
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
-            <div className='p-6 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl flex items-center gap-6'>
+            <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
               <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
               <div className='flex flex-col gap-1'>
                 <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>
@@ -172,7 +172,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
           {avatar.scenarios && avatar.scenarios.length > 0 && (
-            <div className='sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
+            <div className='sm:bg-gradient-1 rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
               <div className='flex flex-col gap-4'>
                 <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Scenarios</h3>
                 <div className='flex flex-col gap-4'>
