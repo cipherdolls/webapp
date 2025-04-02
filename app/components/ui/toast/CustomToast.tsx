@@ -31,7 +31,7 @@ export const CustomToaster: React.FC<CustomToasterProps> = ({ position = 'top-ri
 export const showToast = ({ emoji, title, description, actionLink, actionText, duration = 1500 }: ShowToastProps) => {
   return toast.custom(
     (t) => (
-      <div className='flex items-center gap-4 px-4 py-3 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-[10px] shadow-floating-banner w-[368px]'>
+      <div className='flex items-center gap-4 px-4 py-3 bg-gradient-1 backdrop-blur-48 rounded-[10px] shadow-floating-banner w-[368px]'>
         {emoji && <h2 className='text-heading-h2 shrink-0'>{emoji}</h2>}
 
         <div className='flex-1 min-w-0 flex flex-col gap-1'>

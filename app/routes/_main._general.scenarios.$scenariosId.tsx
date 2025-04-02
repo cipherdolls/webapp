@@ -175,12 +175,12 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
           </div>
 
           <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
-            <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
+            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>System Message</h2>
               <div className='whitespace-pre-wrap p-2 rounded-lg'>{scenario.systemMessage}</div>
             </div>
 
-            <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
+            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Model Parameters</h2>
 
               <div className='flex flex-col gap-3'>
@@ -206,7 +206,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
 
-            <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
+            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Chat Model Details</h2>
 
               <div className='flex flex-col gap-3'>
@@ -232,7 +232,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
 
-            <div className='bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 rounded-xl p-4'>
+            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Embedding Model Details</h2>
 
               <div className='flex flex-col gap-3'>

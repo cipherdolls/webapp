@@ -14,7 +14,7 @@ const UserType = () => {
         <h3 className='sm:text-heading-h3 text-heading-h4 text-base-black'>User Info</h3>
         <UserTypeModal />
       </div>
-      <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] grid grid-cols-2 rounded-[10px]'>
+      <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 grid grid-cols-2 rounded-[10px]'>
         <button
           type='button'
           className={cn(

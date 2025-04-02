@@ -55,7 +55,7 @@ export const Multiselect = <T extends Option>({
       <Popover.Trigger asChild>
         <div
           className={cn(
-            'flex min-h-12 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] w-full rounded-xl py-3 px-4 placeholder:text-neutral-02 focus:border-primary focus:outline-none cursor-pointer',
+            'flex min-h-12 bg-gradient-1 w-full rounded-xl py-3 px-4 placeholder:text-neutral-02 focus:border-primary focus:outline-none cursor-pointer',
             className
           )}
           role='combobox'

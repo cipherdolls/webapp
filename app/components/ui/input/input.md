@@ -56,7 +56,7 @@ import * as Input from '~/components/ui/input';
 
 The Input component uses a consistent styling approach with:
 
-- **Gradient background**: `bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)]`
+- **Gradient background**: `bg-gradient-1`
 - **Text**: `text-body-md text-neutral-02`
 - **Padding**: `py-3 px-3.5`
 - **Border radius**: `rounded-xl`
