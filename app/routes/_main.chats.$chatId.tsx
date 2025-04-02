@@ -69,7 +69,6 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages, avatar } = loaderData;
-  console.log(avatar);
   const revalidator = useRevalidator();
   const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
   const { playAudio, stopAudio } = useAudioPlayer();
