@@ -1,37 +1,47 @@
-import { useState } from 'react';
-import type { Chat } from '~/types';
+import { useFetcher } from 'react-router';
+import type { Avatar, Chat } from '~/types';
 import { cn } from '~/utils/cn';
 
-// TODO: add silent mode toggle functionality with backend
+interface ScenarioToggleProps {
+  chat: Chat;
+  avatar: Avatar;
+  className?: string;
+}
 
-const CHAT_MODES = [
-  { label: '💅🏻 Easy Talk', value: 'easy' },
-  { label: '🧐 Deep Talk', value: 'deep' },
-  { label: '🔥 Sexy Talk', value: 'sexy' },
-];
+const ScenarioToggle = ({ chat, avatar, className }: ScenarioToggleProps) => {
+  const fetcher = useFetcher();
 
-const ScenarioToggle = ({ chat, className }: { chat: Chat; className?: string }) => {
-  const [activeMode, setActiveMode] = useState<string>(CHAT_MODES[0].value);
-
-  const handleModeChange = (mode: string) => {
-    setActiveMode(mode);
+  const handleScenarioChange = (scenarioId: string) => {
+    fetcher.submit(
+      { scenarioId },
+      {
+        method: 'PATCH',
+        action: `/chats/${chat.id}`
+      }
+    );
   };
 
   return (
-    <div className={cn('grid grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-0 sm:bg-neutral-04 rounded-xl p-1', className)}>
-      {CHAT_MODES.map(({ label, value }) => (
-        <button
-          key={value}
-          type='button'
-          onClick={() => handleModeChange(value)}
-          className={cn(
-            'flex items-center justify-center h-[48px] sm:w-[110px] md:w-auto sm:h-[40px] text-body-sm font-semibold rounded-xl sm:rounded-[10px] border-4 border-neutral-04 bg-clip-padding bg-neutral-04 sm:bg-transparent sm:border-none',
-            activeMode === value && '!bg-base-white shadow-regular'
-          )}
-        >
-          {label}
-        </button>
-      ))}
+    <div className={cn('grid grid-cols-2 md:flex gap-1 sm:gap-0 sm:bg-neutral-04 rounded-xl p-1 min-w-[200px]', className)}>
+      {avatar.scenarios.length > 0 ? (
+        avatar.scenarios.map((scenario) => (
+          <button
+            key={scenario.id}
+            type='button'
+            onClick={() => handleScenarioChange(scenario.id)}
+            className={cn(
+              'flex items-center justify-center flex-1 px-4 h-[48px] text-body-sm font-semibold rounded-xl sm:rounded-[10px] border-4 border-neutral-04 bg-clip-padding bg-neutral-04',
+              'sm:h-[40px] sm:w-[110px] sm:bg-transparent sm:border-none',
+              'md:w-auto md:min-w-[120px]',
+              chat.scenario.id === scenario.id && '!bg-base-white shadow-regular pointer-events-none'
+            )}
+          >
+            {scenario.name}
+          </button>
+        ))
+      ) : (
+        <p className='flex items-center justify-center text-body-md text-neutral-01 h-[48px] sm:h-[40px] px-5'>No scenarios available</p>
+      )}
     </div>
   );
 };

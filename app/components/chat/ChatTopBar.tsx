@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { LOCAL_STORAGE_KEYS, PICTURE_SIZE } from '~/constants';
-import type { Chat } from '~/types';
+import type { Avatar, Chat } from '~/types';
 import { Icons } from '../ui/icons';
 import AvatarPicture from '../AvatarPicture';
 import { Modal } from '~/components/ui/Modal';
@@ -10,9 +10,10 @@ import * as Button from '~/components/ui/button/button';
 
 interface ChatTopBarProps {
   chat: Chat;
+  avatar: Avatar;
 }
 
-const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
+const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat, avatar }) => {
   const [silentMode, setSilentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false)
 
   return (
@@ -34,7 +35,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
                 {chat.scenario.name} <Icons.chevronDown />
               </Modal.Trigger>
               <Modal.Content title='Avatars'>
-                <ScenarioToggle chat={chat} />
+                <ScenarioToggle chat={chat} avatar={avatar} />
               </Modal.Content>
             </Modal.Root>
           </div>
@@ -46,7 +47,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
 
       </div>
       {/* <ChatDestroy /> */}
-      <ScenarioToggle chat={chat} className='max-sm:hidden w-[368px]' />
+      <ScenarioToggle chat={chat} avatar={avatar} className='max-sm:hidden' />
     </div>
   );
 };
