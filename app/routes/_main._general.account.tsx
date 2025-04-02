@@ -45,9 +45,12 @@ export default function Account({ loaderData }: Route.ComponentProps) {
           </button>
         </div>
         <div className='flex flex-col gap-1'>
-          <AccountBalance balance={formatEther(weiBalance)} />
+          <AccountBalance balance={Number(formatEther(weiBalance)) === 0 ? '0.00' : String(Number(formatEther(weiBalance)).toFixed(5))} />
           <p className='text-body-sm text-base-black'>
-            Free Wei Balance: <span className='text-neutral-01'>{formatEther(freeWeiBalance)}</span>
+            Free Wei Balance:{' '}
+            <span className='text-neutral-01'>
+              {Number(formatEther(freeWeiBalance)) === 0 ? '0.00' : String(Number(formatEther(freeWeiBalance)).toFixed(5))}
+            </span>
           </p>
         </div>
       </div>
@@ -66,7 +69,6 @@ export default function Account({ loaderData }: Route.ComponentProps) {
             information={<YourWalletModal walletAddress={me.walletAddress} />}
           />
           <AccountInfoCard label='API Key' value={me.apikey} information={<ApiKeyModal apiKey={me.apikey} />} />
-          <UserType />
         </div>
       </div>
     </div>
