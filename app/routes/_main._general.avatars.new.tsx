@@ -1,6 +1,6 @@
 import { Form, Link, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
-import type { ApiError, Avatar, TtsVoice } from '~/types';
+import type { ApiError, Avatar, TtsVoice, Scenario } from '~/types';
 import { use, useEffect, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
@@ -8,6 +8,7 @@ import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
+import Multiselect from '~/components/ui/input/multiselect';
 import { showToast } from '~/components/ui/toast';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
@@ -18,8 +19,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const res = await fetchWithAuth('tts-voices');
-  return await res.json();
+  const [ttsVoicesResponse, scenariosResponse] = await Promise.all([fetchWithAuth('tts-voices'), fetchWithAuth('scenarios')]);
+
+  const ttsVoices = await ttsVoicesResponse.json();
+  const scenarios = await scenariosResponse.json();
+
+  return { ttsVoices, scenarios };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -43,12 +48,13 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
-  const ttsVoices: TtsVoice[] = loaderData;
+  const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: Scenario[] } = loaderData;
   const fetcher = useFetcher();
   const apiError: ApiError = fetcher.data;
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null);
+  const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>([]);
   const [availability, setAvailability] = useState<'private' | 'public'>('private');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,6 +153,18 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                   </div>
                 </div>
               )}
+            </div>
+            <div className='col-span-2 flex flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Scenarios</h1>
+              <Multiselect<Scenario>
+                options={scenarios}
+                selectedOptions={selectedScenarios}
+                onChange={setSelectedScenarios}
+                placeholder='Select scenarios for this avatar'
+              />
+              {Array.isArray(selectedScenarios) &&
+                selectedScenarios.length > 0 &&
+                selectedScenarios.map((scenario) => <input key={scenario.id} type='hidden' name='scenarioIds[]' value={scenario.id} />)}
             </div>
             <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Availability</h1>

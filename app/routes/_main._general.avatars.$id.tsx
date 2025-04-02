@@ -121,8 +121,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
       <div className='flex sm:flex-row flex-col-reverse md:gap-0 sm:gap-8 sm:flex-1 sm:divide-x divide-neutral-04 bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] backdrop-blur-48 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
-        <div className='sm:pr-4 flex size-full'>
-          <div className='sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl p-5 flex flex-col gap-5 flex-1 h-max text-body-md text-base-black'>
+        <div className='sm:pr-4 flex size-full flex-col gap-4'>
+          <div className='sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
             <div className='flex items-center justify-between'>
               <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Characteristic</h3>
               <div className='flex items-center gap-2'>
@@ -171,6 +171,30 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           </div>
+          {avatar.scenarios && avatar.scenarios.length > 0 && (
+            <div className='sm:bg-[linear-gradient(86.23deg,rgba(254,253,248,0.56)_0%,rgba(255,255,255,0.56)_100%)] rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
+              <div className='flex flex-col gap-4'>
+                <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Scenarios</h3>
+                <div className='flex flex-col gap-4'>
+                  {avatar.scenarios.map((scenario) => (
+                    <Link
+                      to={`/scenarios/${scenario.id}`}
+                      key={scenario.id}
+                      className='p-4 border rounded-lg border-neutral-04 hover:border-neutral-01 transition-colors'
+                    >
+                      <div className='flex items-center justify-between mb-2'>
+                        <h4 className='font-semibold'>{scenario.name}</h4>
+                        {scenario.recommended && (
+                          <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Recommended</span>
+                        )}
+                      </div>
+                      <p className='text-sm text-neutral-01 line-clamp-2'>{scenario.systemMessage}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

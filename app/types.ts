@@ -107,6 +107,7 @@ export interface Scenario {
   embeddingModel: EmbeddingModel;
   userId: string;
   chats: Chat[];
+  recommended: boolean;
 }
 
 export interface Chat {
@@ -244,6 +245,7 @@ export interface Avatar {
   ttsVoice: TtsVoice;
   chats: Chat[];
   language: string;
+  scenarios: Scenario[];
 }
 export interface AvatarCount {
   chats: number;

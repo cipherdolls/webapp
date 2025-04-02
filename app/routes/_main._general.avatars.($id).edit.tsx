@@ -1,11 +1,12 @@
 import { Link, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.($id).edit';
-import type { Avatar, TtsVoice } from '~/types';
+import type { Avatar, TtsVoice, Scenario } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
+import Multiselect from '~/components/ui/input/multiselect';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { useRef, useState } from 'react';
@@ -20,20 +21,25 @@ export function meta({}: Route.MetaArgs) {
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const avatarId = params.id;
-  const [avatarResponse, ttsVoicesResponse] = await Promise.all([
-    fetchWithAuth(`avatars/${avatarId}`), 
-    fetchWithAuth('tts-voices')
+  const [avatarResponse, ttsVoicesResponse, scenariosResponse] = await Promise.all([
+    fetchWithAuth(`avatars/${avatarId}`),
+    fetchWithAuth('tts-voices'),
+    fetchWithAuth('scenarios'),
   ]);
+
   const avatar: Avatar = await avatarResponse.json();
   const ttsVoices: TtsVoice[] = await ttsVoicesResponse.json();
-  return { avatar, ttsVoices };
+  const scenarios: Scenario[] = await scenariosResponse.json();
+
+  return { avatar, ttsVoices, scenarios };
 }
 
 export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
-  const {avatar, ttsVoices} = loaderData;
+  const { avatar, ttsVoices, scenarios } = loaderData;
   const fetcher = useFetcher();
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice>(avatar.ttsVoice);
   const [selectedImage, setSelectedImage] = useState<string | null>(avatar.picture ?? null);
+  const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>(Array.isArray(avatar.scenarios) ? avatar.scenarios : []);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
@@ -183,6 +189,19 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                   <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={selectedVoice.id} />
                 </div>
               </div>
+            </div>
+            <div className='col-span-2 flex flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Scenarios</h1>
+              <Multiselect<Scenario>
+                options={scenarios}
+                selectedOptions={selectedScenarios}
+                onChange={setSelectedScenarios}
+                placeholder='Select scenarios for this avatar'
+                defaultValue={Array.isArray(avatar.scenarios) ? avatar.scenarios.map((scenario) => scenario.id) : []}
+              />
+              {Array.isArray(selectedScenarios) &&
+                selectedScenarios.length > 0 &&
+                selectedScenarios.map((scenario) => <input key={scenario.id} type='hidden' name='scenarioIds[]' value={scenario.id} />)}
             </div>
             <div className='sm:flex hidden flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold sm:block hidden'>Availability</h1>
