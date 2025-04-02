@@ -40,7 +40,7 @@ const ScenarioToggle = ({ chat, avatar, className }: ScenarioToggleProps) => {
           </button>
         ))
       ) : (
-        <p className='flex items-center justify-center text-body-md text-neutral-01 h-[48px] px-5'>No scenarios available</p>
+        <p className='flex items-center justify-center text-body-md text-neutral-01 h-[48px] sm:h-[40px] px-5'>No scenarios available</p>
       )}
     </div>
   );
