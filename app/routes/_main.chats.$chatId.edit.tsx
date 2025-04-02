@@ -1,8 +1,7 @@
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import ScenarioToggle from '~/components/ScenarioToggle';
 import { Card } from '~/components/card';
@@ -10,19 +9,15 @@ import { useState } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ChatDestroy from './chats.$id.edit.destroy';
+import type { Avatar, Chat } from '~/types';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const { chatId } = params;
-  const res = await fetchWithAuth(`chats/${chatId}`);
-  return await res.json();
-}
-
-export default function ChatEdit({ loaderData }: Route.ComponentProps) {
-  const chat = loaderData;
+export default function ChatEdit() {
+  const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
+  
   const navigate = useNavigate();
   const alert = useAlert();
   const [silentModeOn, setSilentModeOn] = useState(false);
@@ -101,7 +96,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               </div>
 
               <Card.Main>
-                <ScenarioToggle chat={chat} className='!bg-transparent !backdrop-blur-none w-full' />
+                <ScenarioToggle chat={chat} avatar={avatar} className='!bg-transparent !backdrop-blur-none w-full' />
               </Card.Main>
             </Card.Root>
 
