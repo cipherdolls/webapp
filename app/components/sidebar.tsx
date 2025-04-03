@@ -1,8 +1,19 @@
-import { Link, NavLink, useRouteLoaderData } from 'react-router';
+import { Link, NavLink, useLocation, useRouteLoaderData } from 'react-router';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
 import type { User } from '~/types';
+
+const PREFERENCE_RELATED_PATHS = [
+  '/preferences',
+  '/ai-providers',
+  '/chat-models',
+  '/doll-bodies',
+  '/embedding-models',
+  '/scenarios',
+  '/stt-providers',
+  '/tts-providers',
+];
 
 const SidebarItems = [
   {
@@ -17,7 +28,7 @@ const SidebarItems = [
   },
   {
     name: 'Preferences',
-    href: '/preferences/ai',
+    href: '/preferences/scenarios',
     icon: Icons.preferences,
   },
   {
@@ -29,6 +40,7 @@ const SidebarItems = [
 
 const Sidebar = ({ className }: { className?: string }) => {
   const me = useRouteLoaderData('routes/_main') as User;
+  const location = useLocation();
   const isAdmin = me.role === 'ADMIN';
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
@@ -44,12 +56,15 @@ const Sidebar = ({ className }: { className?: string }) => {
               <NavLink
                 to={item.href}
                 key={index}
-                className={({ isActive }) =>
-                  cn(
+                className={({ isActive }) => {
+                  if (item.name === 'Preferences') {
+                    isActive = PREFERENCE_RELATED_PATHS.some((path) => location.pathname.includes(path));
+                  }
+                  return cn(
                     'sm:py-3 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
                     isActive ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black' : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01'
-                  )
-                }
+                  );
+                }}
               >
                 {<NavIcon />}
                 <span className='text-label font-semibold'>{item.name}</span>

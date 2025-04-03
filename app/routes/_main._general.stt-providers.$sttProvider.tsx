@@ -7,6 +7,7 @@ import type { Route } from './+types/_main._general.stt-providers.$sttProvider';
 import { getPicture } from '~/utils/getPicture';
 import DeleteModal from '~/components/ui/deleteModal';
 import SttProviderDestroy from './stt-providers.$sttProvider.destroy';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Provider' }];
@@ -19,17 +20,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function SttProviderId({ loaderData }: Route.ComponentProps) {
   const sttProvider: SttProvider = loaderData;
-
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
 
   const createdDate = formatDate(sttProvider.createdAt);
   const updatedDate = formatDate(sttProvider.updatedAt);

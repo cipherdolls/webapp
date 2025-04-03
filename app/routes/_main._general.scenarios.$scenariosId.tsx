@@ -8,6 +8,7 @@ import { getPicture } from '~/utils/getPicture';
 import type { Scenario } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
 import ScenarioDestroy from './scenarios.$scenariosId.destroy';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -22,17 +23,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const scenario = loaderData as Scenario;
   const navigate = useNavigate();
-
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
 
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);

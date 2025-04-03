@@ -8,6 +8,7 @@ import { getPicture } from '~/utils/getPicture';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import EmbeddingModelDestroy from './embedding-models.$id.destroy';
 import DeleteModal from '~/components/ui/deleteModal';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
@@ -20,17 +21,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const embeddingModel: EmbeddingModel = loaderData;
-
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
 
   const createdDate = formatDate(embeddingModel.createdAt);
   const updatedDate = formatDate(embeddingModel.updatedAt);

@@ -1,14 +1,21 @@
-import { Link, NavLink, Outlet, useLocation, useRouteLoaderData } from 'react-router';
+import { Link, NavLink, Outlet, useLocation, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.preferences';
 import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { User } from '~/types';
+import { useEffect } from 'react';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Preferences' }];
 }
 
 const preferencesNavItems = [
+  {
+    label: 'Scenarios',
+    to: 'scenarios',
+    link: 'Scenario',
+    href: '/preferences/scenarios/new',
+  },
   {
     label: 'AI',
     to: 'ai',
@@ -28,12 +35,6 @@ const preferencesNavItems = [
     href: '/preferences/stt/stt-provider/new',
   },
   {
-    label: 'Scenarios',
-    to: 'scenarios',
-    link: 'Scenario',
-    href: '/preferences/scenarios/new',
-  },
-  {
     label: 'Firmwares',
     to: 'firmwares',
     // link: 'Firmware',
@@ -49,7 +50,12 @@ const preferencesNavItems = [
 
 export default function Preferences() {
   const location = useLocation();
+  const navigate = useNavigate();
   const me = useRouteLoaderData('routes/_main') as User;
+
+  useEffect(() => {
+    navigate('/preferences/scenarios', { replace: true });
+  }, []);
 
   const activeItem = preferencesNavItems.find((item) => location.pathname.includes(`/${item.to}`));
 

@@ -8,6 +8,7 @@ import type { DollBody } from '~/types';
 import ReactMarkdown from 'react-markdown';
 import DeleteModal from '~/components/ui/deleteModal';
 import DollBodyDestroy from './doll-bodies.$dollBodyId.destroy';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Body Details' }];
@@ -21,17 +22,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function DollBodyId({ loaderData }: Route.ComponentProps) {
   const dollBody = loaderData as DollBody;
-
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
 
   const createdDate = formatDate(dollBody.createdAt);
   const updatedDate = formatDate(dollBody.updatedAt);
