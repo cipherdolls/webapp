@@ -52,6 +52,13 @@ export default function Preferences() {
   const location = useLocation();
   const navigate = useNavigate();
   const me = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname === '/preferences') {
+      navigate('/preferences/scenarios', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     navigate('/preferences/scenarios', { replace: true });
@@ -82,7 +89,7 @@ export default function Preferences() {
             );
           })}
         </div>
-        {me.role === 'ADMIN' && activeItem?.link && (
+        {(me.role === 'ADMIN' || activeItem?.to === 'scenarios') && activeItem?.link && (
           <Link to={activeItem?.href || '/preferences/ai'} className='absolute right-0 sm:bottom-2.5 -top-12 sm:top-auto'>
             <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
               <Button.Icon as={Icons.add} />

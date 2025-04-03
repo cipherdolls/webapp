@@ -26,6 +26,11 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const aiProviderId = formData.get('aiProviderId');
 
+    const apiKey = formData.get('apiKey');
+    if (!apiKey) {
+      formData.delete('apiKey');
+    }
+
     const res = await fetchWithAuth(`ai-providers/${aiProviderId}`, {
       method: request.method,
       body: formData,
@@ -157,7 +162,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 name='apiKey'
                 type='text'
                 placeholder='API Key'
-                required
                 defaultValue={aiProvider.apiKey}
               />
             </Input.Root>

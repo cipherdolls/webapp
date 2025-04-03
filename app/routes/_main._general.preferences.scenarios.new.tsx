@@ -151,11 +151,14 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 id='chatModelId'
                 name='chatModelId'
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                defaultValue={getOptions(true).flatMap(group => 
+                  group.options.find(option => option.recommended)?.value || ''
+                ).filter(value => value !== '')[0]}
               >
                 {getOptions(true).map((group) => (
                   <optgroup key={group.groupName} label={group.groupName}>
                     {group.options.map((option: any) => (
-                      <option key={option.value} value={option.value} selected={option.recommended}>
+                      <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
@@ -171,11 +174,14 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 id='embeddingModelId'
                 name='embeddingModelId'
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                defaultValue={getOptions(false).flatMap(group => 
+                  group.options.find(option => option.recommended)?.value || ''
+                ).filter(value => value !== '')[0]}
               >
                 {getOptions(false).map((group) => (
                   <optgroup key={group.groupName} label={group.groupName}>
                     {group.options.map((option: any) => (
-                      <option key={option.value} value={option.value} selected={option.recommended}>
+                      <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
