@@ -52,7 +52,6 @@ export default function Preferences() {
   const location = useLocation();
   const navigate = useNavigate();
   const me = useRouteLoaderData('routes/_main') as User;
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (location.pathname === '/preferences') {
