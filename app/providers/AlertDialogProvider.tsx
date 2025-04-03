@@ -112,7 +112,7 @@ export function AlertDialogProvider({ children }: { children: React.ReactNode })
                 size='icon'
                 variant='white'
                 onClick={close}
-                className='hidden sm:flex absolute top-0 left-full ml-4.5 shadow-bottom'
+                className='hidden sm:flex absolute top-0 left-full ml-4.5 shadow-bottom hover:bg-base-white'
               >
                 <Button.Icon as={Icons.close} />
               </Button.Root>
@@ -142,7 +142,7 @@ export function AlertDialogProvider({ children }: { children: React.ReactNode })
 
                 {/* dialog footer buttons */}
                 {state.type === 'alert' ? (
-                  <Button.Root type='button' variant='secondary' onClick={close} className='sm:hidden'>
+                  <Button.Root type='button' variant='secondary' onClick={close}>
                     {state.cancelButton}
                   </Button.Root>
                 ) : (

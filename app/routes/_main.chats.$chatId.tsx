@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { LOCAL_STORAGE_KEYS } from '~/constants';
 import { useLocalStorage } from 'usehooks-ts';
+import { useAlert, usePrompt } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -72,6 +73,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const revalidator = useRevalidator();
   const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
   const { playAudio, stopAudio } = useAudioPlayer();
+  const alert = useAlert();
 
   // state
   const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
@@ -107,8 +109,25 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const handleProcessEvent = (event: ProcessEvent) => {
-    // if message is received, revalidate the page
+  const handleProcessEvent = async (event: ProcessEvent) => {
+    // failed chat completion job
+    if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
+      const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
+      if (!res.ok) {
+        console.error('Failed to fetch chat completion job');
+        return;
+      }
+       
+      const job = await res.json();
+      // TODO: add message from the job
+      alert({
+        icon: '❌',
+        title: 'Chat Completion',
+        body: 'The chat completion is failed.',
+      });
+      return;
+    }
+     // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
       return;
