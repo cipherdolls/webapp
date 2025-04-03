@@ -8,6 +8,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
@@ -20,6 +21,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     formData.forEach((value, key) => {
       jsonData[key] = value;
     });
+
     const res = await fetchWithAuth('tts-voices', {
       method: request.method,
       headers: { 'Content-Type': 'application/json' },
@@ -27,7 +29,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
     const params = useParams();
     return redirect(`/tts-providers/${params.ttsProvider}`);
@@ -41,6 +46,7 @@ export default function TtsVoiceNew({ loaderData }: Route.ComponentProps) {
   const ttsProvider = useRouteLoaderData('routes/_main._general.tts-providers.$ttsProvider') as TtsProvider;
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/tts-providers/${ttsProvider.id}`);
@@ -57,6 +63,7 @@ export default function TtsVoiceNew({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Add New TTS Voice for {ttsProvider.name}</Drawer.Title>
         <fetcher.Form method='POST' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='ttsProviderId' value={ttsProvider.id} />
 
             <Input.Root>
@@ -69,7 +76,6 @@ export default function TtsVoiceNew({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 placeholder='Voice Name'
-                required
               />
             </Input.Root>
 
@@ -83,7 +89,6 @@ export default function TtsVoiceNew({ loaderData }: Route.ComponentProps) {
                 name='providerVoiceId'
                 type='text'
                 placeholder='Provider Voice ID'
-                required
               />
             </Input.Root>
 

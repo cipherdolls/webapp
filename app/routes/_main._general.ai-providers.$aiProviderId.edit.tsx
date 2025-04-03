@@ -1,4 +1,4 @@
-import { Link, redirect, useFetcher, useNavigate } from 'react-router';
+import { Link, redirect, useFetcher, useNavigate, data } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { AiProvider, User } from '~/types';
@@ -10,6 +10,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Ai Providers' }];
@@ -32,7 +33,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const aiProvider: AiProvider = await res.json();
@@ -50,6 +54,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(aiProvider.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+  const errors = fetcher.data?.errors;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -82,6 +87,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const handleClose = () => {
     navigate(`/ai-providers/${aiProvider.id}`);
   };
+
   return (
     <Drawer.Root
       defaultOpen
@@ -93,6 +99,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Edit AI Provider</Drawer.Title>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -157,7 +164,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 name='apiKey'
                 type='text'
                 placeholder='API Key'
-                required
                 defaultValue={aiProvider.apiKey}
               />
             </Input.Root>

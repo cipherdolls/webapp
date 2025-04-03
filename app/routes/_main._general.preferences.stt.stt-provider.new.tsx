@@ -10,6 +10,7 @@ import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import type { SttProvider } from '~/types';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New STT Provider' }];
@@ -24,7 +25,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const sttProvider: SttProvider = await res.json();
@@ -74,6 +78,8 @@ export default function SttProviderNew() {
     navigate(`/preferences/stt`);
   };
 
+  const errors = fetcher.data?.errors;
+
   return (
     <Drawer.Root
       defaultOpen
@@ -85,6 +91,7 @@ export default function SttProviderNew() {
         <Drawer.Title>Create STT Provider</Drawer.Title>
         <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -131,7 +138,6 @@ export default function SttProviderNew() {
                 name='name'
                 type='text'
                 placeholder='Name'
-                required
               />
             </Input.Root>
             <Input.Root>
@@ -144,7 +150,6 @@ export default function SttProviderNew() {
                 name='apiKey'
                 type='text'
                 placeholder='API Key'
-                required
               />
             </Input.Root>
             <Input.Root>
@@ -157,7 +162,6 @@ export default function SttProviderNew() {
                 name='dollarPerSecond'
                 type='number'
                 step='0.0000001'
-                required
                 placeholder='0'
               />
             </Input.Root>

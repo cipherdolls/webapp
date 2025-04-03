@@ -11,6 +11,7 @@ import { useState } from 'react';
 import type { AiProvider } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Slider from '~/components/ui/slider';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 interface Option {
   label: string;
@@ -41,7 +42,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed'
+      };
     }
 
     const scenario = await res.json();
@@ -63,6 +67,8 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const [presencePenalty, setPresencePenalty] = useState(0.2);
 
   const { avatarId } = useParams();
+  
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/preferences/scenarios`);
@@ -106,6 +112,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
           <input type='text' name='avatarId' value={avatarId} readOnly hidden />
 
           <Drawer.Body className='flex flex-col gap-4 md:gap-6'>
+            <ErrorsBox errors={errors} />
             <div className='grid gap-3'>
               <Input.Label htmlFor='shortDescription'>Short Description</Input.Label>
               <Input.Input
@@ -114,7 +121,6 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 name='shortDescription'
                 type='text'
                 placeholder='Briefly describe the scenario'
-                required
               />
               <p className='text-xs text-gray-500'>Enter a short description for the new scenario.</p>
             </div>
@@ -127,7 +133,6 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 placeholder='Movie Night'
-                required
               />
               <p className='text-xs text-gray-500'>Enter the name for the new scenario.</p>
             </Input.Root>
@@ -140,7 +145,6 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 className='w-full border border-neutral-04 py-3.5 px-3'
                 placeholder='System Message'
                 rows={5}
-                required
               />
               <p className='text-xs text-gray-500'>Provide a system message for this new scenario.</p>
             </Input.Root>

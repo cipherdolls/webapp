@@ -9,6 +9,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { TtsVoice } from '~/types';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
@@ -29,7 +30,10 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     return redirect(`/tts-providers/${params.ttsProvider}`);
@@ -50,6 +54,9 @@ export default function TtsVoiceEdit({ loaderData }: Route.ComponentProps) {
   const params = useParams();
   const fetcher = useFetcher();
   const navigate = useNavigate();
+
+  const errors = fetcher.data?.errors;
+
   const handleClose = () => {
     navigate(`/tts-providers/${params.ttsProvider}`);
   };
@@ -65,6 +72,7 @@ export default function TtsVoiceEdit({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Edit {ttsVoice.name}</Drawer.Title>
         <fetcher.Form method='PATCH' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='ttsVoiceId' value={ttsVoice.id} />
 
             <Input.Root>
@@ -77,7 +85,6 @@ export default function TtsVoiceEdit({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 defaultValue={ttsVoice.name}
-                required
               />
             </Input.Root>
 
@@ -91,7 +98,6 @@ export default function TtsVoiceEdit({ loaderData }: Route.ComponentProps) {
                 name='providerVoiceId'
                 type='text'
                 defaultValue={ttsVoice.providerVoiceId}
-                required
               />
             </Input.Root>
 
