@@ -10,7 +10,8 @@ import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
 import { DataCard } from '~/components/DataCard';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
-import DeleteAiProviderModal from '~/components/deleteAiProviderModal';
+import DeleteModal from '~/components/ui/deleteModal';
+import AiProviderDestroy from './ai-providers.$id.destroy';
 
 const chatModelColumns: Array<TTableColumn<ChatModel>> = [
   {
@@ -125,7 +126,12 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               Edit
             </Button.Root>
           </Link>
-          <DeleteAiProviderModal />
+          <DeleteModal
+            title='Delete an AI Provider?'
+            description=' By deleting an AI Provider all of your data will be deleted as well. You will no able to restore the data'
+          >
+            <AiProviderDestroy />
+          </DeleteModal>
         </div>
         <div className='md:hidden flex'>
           <Icons.more />
