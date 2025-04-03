@@ -5,14 +5,15 @@ import Table, { type TTableColumn } from '~/components/Table';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.preferences.doll-bodies';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Bodies' }];
 }
 
 export async function clientLoader() {
-    const res = await fetchWithAuth(`doll-bodies`);
-    return await res.json();
+  const res = await fetchWithAuth(`doll-bodies`);
+  return await res.json();
 }
 
 export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
@@ -28,11 +29,10 @@ export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'createdAt',
       label: 'Created At',
-      render: (data) => data.createdAt.toString(),
+      render: (data) => formatDate(data.createdAt),
       align: 'right',
     },
   ];
-
 
   return (
     <>

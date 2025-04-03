@@ -9,6 +9,7 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import DeleteModal from '~/components/ui/deleteModal';
 import ChatModelDestroy from './chat-models.$id.destroy';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Model' }];
@@ -21,17 +22,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const chatModel: ChatModel = loaderData;
-
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
 
   const createdDate = formatDate(chatModel.createdAt);
   const updatedDate = formatDate(chatModel.updatedAt);
