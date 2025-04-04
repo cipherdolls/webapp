@@ -12,6 +12,7 @@ import * as Textarea from '~/components/ui/input/textarea';
 import * as Slider from '~/components/ui/slider';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Scenario' }];
@@ -39,7 +40,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const scenario: Scenario = await res.json();
@@ -62,6 +66,8 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
   const [topP, setTopP] = useState(scenario.topP);
   const [frequencyPenalty, setFrequencyPenalty] = useState(scenario.frequencyPenalty);
   const [presencePenalty, setPresencePenalty] = useState(scenario.presencePenalty);
+
+  const errors = fetcher.data?.errors;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -142,6 +148,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Edit Scenario</Drawer.Title>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='scenarioId' value={scenario.id} />
 
             <div className='flex flex-col items-center justify-center mb-10'>
@@ -208,7 +215,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 type='text'
                 defaultValue={scenario.name}
                 placeholder='Movie Night'
-                required
               />
               <p className='text-xs text-gray-500'>Enter the name for this scenario.</p>
             </Input.Root>
@@ -222,7 +228,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 placeholder='System Message'
                 defaultValue={scenario.systemMessage}
                 rows={5}
-                required
               />
               <p className='text-xs text-gray-500'>Provide a system message for this scenario.</p>
             </Input.Root>

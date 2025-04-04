@@ -9,6 +9,7 @@ import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import type { AiProvider } from '~/types';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New AI Provider' }];
@@ -21,9 +22,12 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       method: request.method,
       body: formData,
     });
-
+   
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const aiProvider: AiProvider = await res.json();
@@ -40,7 +44,9 @@ export default function ApiProviderNew() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+  const errors = fetcher.data?.errors;
 
+  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -73,6 +79,7 @@ export default function ApiProviderNew() {
     navigate(`/preferences/ai`);
   };
 
+
   return (
     <Drawer.Root
       defaultOpen
@@ -82,8 +89,9 @@ export default function ApiProviderNew() {
     >
       <Drawer.Content>
         <Drawer.Title>Create AI Provider</Drawer.Title>
-        <fetcher.Form method='post' action='/ai-providers/new' encType='multipart/form-data' className='size-full flex flex-col'>
+        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -130,7 +138,6 @@ export default function ApiProviderNew() {
                 name='name'
                 type='text'
                 placeholder='Name'
-                required
               />
             </Input.Root>
             <Input.Root>
@@ -143,7 +150,6 @@ export default function ApiProviderNew() {
                 name='apiKey'
                 type='text'
                 placeholder='API Key'
-                required
               />
             </Input.Root>
             <Input.Root>
@@ -156,7 +162,6 @@ export default function ApiProviderNew() {
                 name='basePath'
                 type='text'
                 placeholder='Base path'
-                required
               />
             </Input.Root>
           </Drawer.Body>

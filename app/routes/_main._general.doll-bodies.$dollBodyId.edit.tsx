@@ -11,6 +11,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Doll Body' }];
@@ -38,7 +39,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const dollBody: DollBody = await res.json();
@@ -56,7 +60,7 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(dollBody.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
-
+  const errors = fetcher.data?.errors;
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -100,6 +104,7 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Edit Doll Body</Drawer.Title>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='dollBodyId' value={dollBody.id} />
 
             <div className='flex flex-col items-center justify-center mb-10'>
@@ -153,7 +158,6 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
                 type='text'
                 defaultValue={dollBody.name}
                 placeholder='Enter doll body name'
-                required
               />
               <p className='text-xs text-gray-500'>Enter the name for this doll body.</p>
             </Input.Root>
@@ -167,7 +171,6 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
                 placeholder='Describe the doll body'
                 defaultValue={dollBody.description}
                 rows={5}
-                required
               />
               <p className='text-xs text-gray-500'>Provide a description for this doll body.</p>
             </Input.Root>
@@ -179,7 +182,6 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
                 name='avatarId'
                 defaultValue={dollBody.avatar.id}
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                required
               >
                 {avatars.map((avatar: Avatar) => (
                   <option key={avatar.id} value={avatar.id} selected={avatar.id === dollBody.avatar.id}>

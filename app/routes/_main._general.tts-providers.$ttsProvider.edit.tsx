@@ -10,6 +10,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit TTS Provider' }];
@@ -41,7 +42,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const ttsProvider: TtsProvider = await res.json();
@@ -59,6 +63,8 @@ export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(ttsProvider.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+
+  const errors = fetcher.data?.errors;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -103,6 +109,7 @@ export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Edit TTS Provider</Drawer.Title>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='ttsProviderId' value={ttsProvider.id} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -155,7 +162,6 @@ export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 defaultValue={ttsProvider.name}
-                required
               />
             </Input.Root>
             <Input.Root>
@@ -182,7 +188,6 @@ export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
                 type='number'
                 step='0.0000001'
                 defaultValue={ttsProvider.dollarPerCharacter}
-                required
               />
             </Input.Root>
             <Input.Root>
@@ -195,7 +200,6 @@ export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
                 name='hostname'
                 type='text'
                 defaultValue={ttsProvider.hostname}
-                required
               />
             </Input.Root>
           </Drawer.Body>

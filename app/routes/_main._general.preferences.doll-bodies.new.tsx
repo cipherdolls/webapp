@@ -11,6 +11,7 @@ import { useState, useRef } from 'react';
 import type { Avatar } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import { cn } from '~/utils/cn';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Doll Body' }];
@@ -30,7 +31,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const dollBody = await res.json();
@@ -48,6 +52,8 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/preferences/doll-bodies`);
@@ -92,6 +98,7 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
         <Drawer.Title>Create Doll Body</Drawer.Title>
         <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-4 md:gap-6'>
+            <ErrorsBox errors={errors} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -141,7 +148,6 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
                 name='name'
                 type='text'
                 placeholder='Enter doll body name'
-                required
               />
               <p className='text-xs text-gray-500'>Enter the name for the new doll body.</p>
             </Input.Root>
@@ -154,7 +160,6 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
                 className='w-full border border-neutral-04 py-3.5 px-3'
                 placeholder='Describe the doll body'
                 rows={5}
-                required
               />
               <p className='text-xs text-gray-500'>Provide a description for this new doll body.</p>
             </Input.Root>
@@ -165,7 +170,6 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
                 id='avatarId'
                 name='avatarId'
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                required
               >
                 <option value="">Select an avatar</option>
                 {avatars.map((avatar) => (
