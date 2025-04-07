@@ -6,12 +6,11 @@ import HowItWorksModal from "~/components/howItWorksModal";
 import SignInPatterns from "~/components/ui/signInPatterns";
 import type { Route } from "./+types/_auth.signIn";
 import { useFetcher, useNavigate } from "react-router";
+import { apiUrl } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "SignIn" }];
 }
-
-const backendUrl = "https://api.cipherdolls.com";
 
 declare global {
   interface Window {
@@ -21,7 +20,7 @@ declare global {
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
-    const nonceRes = await fetch(`${backendUrl}/auth/nonce`);
+    const nonceRes = await fetch(`${apiUrl}/auth/nonce`);
     const res = await nonceRes.json();
     const nonce = res.nonce;
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -29,7 +28,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const address = await signer.getAddress();
     const message = `I am signing this message to prove my identity. Nonce: ${nonce}`;
     const signedMessage = await signer.signMessage(message);
-    const signinRes = await fetch(`${backendUrl}/auth/signin`, {
+    const signinRes = await fetch(`${apiUrl}/auth/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ signedMessage, message, address }),
@@ -93,7 +92,7 @@ export default function SignInRoute() {
   const verifyToken = async () => {
     try {
       const localToken = localStorage.getItem("token")?.replaceAll('"', "");
-      const res = await fetch(`${backendUrl}/auth/verify`, {
+      const res = await fetch(`${apiUrl}/auth/verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

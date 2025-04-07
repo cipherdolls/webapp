@@ -1,8 +1,8 @@
 // utils/fetchWithAuth.ts
 
 import { redirect } from 'react-router';
+import { apiUrl } from '~/constants';
 
-const backendUrl = 'https://api.cipherdolls.com';
 
 /**
  * If you want to do a *second* check to confirm the token is invalid,
@@ -14,7 +14,7 @@ async function verifyToken(): Promise<boolean> {
     const localToken = localStorage.getItem('token')?.replaceAll('"', '');
     if (!localToken) return false;
 
-    const res = await fetch(`${backendUrl}/auth/verify`, {
+    const res = await fetch(`${apiUrl}/auth/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export async function fetchWithAuth(
   };
 
   // 3) Make the request
-  const res = await fetch(`${backendUrl}/${endpoint}`, mergedOptions);
+  const res = await fetch(`${apiUrl}/${endpoint}`, mergedOptions);
 
   if (res.status === 401) {
     const stillValid = await verifyToken();

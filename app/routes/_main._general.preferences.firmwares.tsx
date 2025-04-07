@@ -6,6 +6,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.preferences.firmwares';
 import { InstallButton } from '~/components/buttons/InstallButton';
+import { apiUrl } from '~/constants';
 
 
 export function meta({}: Route.MetaArgs) {
@@ -40,7 +41,7 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
       id: 'bin',
       label: 'Download',
       render: (data) => <InstallButton
-      manifest={`https://api.cipherdolls.com/firmwares/${data.id}/manifest.json`}
+      manifest={`${apiUrl}/firmwares/${data.id}/manifest.json`}
       label="Flash Device"
     />,
       align: 'right',
@@ -66,7 +67,7 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
                     data={[
                       {
                         label: "Download",
-                        value: <a href={`https://api.cipherdolls.com/firmwares/${firmware.id}/download`} download>
+                        value: <a href={`${apiUrl}/firmwares/${firmware.id}/download`} download>
                         Download
                       </a>,
                       },

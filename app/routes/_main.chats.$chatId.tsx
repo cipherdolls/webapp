@@ -6,7 +6,7 @@ import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { backendUrl } from '~/constants';
+import { apiUrl } from '~/constants';
 import { useEffect } from 'react';
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
@@ -104,7 +104,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const handlePlayAudioMessage = (event: AudioEvent) => {
     if (!silentMode && event.type === 'audio' && event.action === 'play') {
       setCurrentChatState(ChatState.avatarSpeaking);
-      const newAudioMessage = new Audio(`${backendUrl}/messages/${event.messageId}/audio`);
+      const newAudioMessage = new Audio(`${apiUrl}/messages/${event.messageId}/audio`);
       playAudio(newAudioMessage, () => setCurrentChatState(ChatState.Idle));
     }
   };

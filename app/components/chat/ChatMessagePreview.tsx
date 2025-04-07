@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChatBubble } from './ui/ChatBubble';
-import { backendUrl } from '~/constants';
+import { apiUrl } from '~/constants';
 import PlayerButton from '../PlayerButton';
 import { cn } from '~/utils/cn';
 import type { Message } from '~/types';
@@ -34,7 +34,7 @@ const ChatMessagePreview = ({ message }: { message: Message }) => {
       {/* // sound button */}
       {message.fileName && (
         <PlayerButton
-          audioSrc={`${backendUrl}/messages/${message.id}/audio`}
+          audioSrc={`${apiUrl}/messages/${message.id}/audio`}
           variant='white'
           className='absolute left-1/2 bottom-4 -translate-x-1/2 shadow-bottom'
         />

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
 import type { ActionEvent, Chat, ProcessEvent } from '~/types';
+import { wsURL } from '~/constants';
 
 interface useChatEventsOptions {
   chat: Chat; // entire chat object
@@ -12,12 +13,11 @@ interface useChatEventsOptions {
 export function useChatEvents({ chat, onActionEvent, onProcessEvent }: useChatEventsOptions) {
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
-  const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
 
   useEffect(() => {
     if (!mqttClientRef.current) {
-      const mqttClient = mqtt.connect(mqttHost, {
+      const mqttClient = mqtt.connect(wsURL, {
         clientId,
         username: 'frontend',
         password: localStorageToken?.replaceAll('"', ''),

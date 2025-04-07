@@ -10,6 +10,7 @@ import { cn } from '~/utils/cn';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { showToast } from '~/components/ui/toast';
+import { wsURL } from '~/constants';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -20,7 +21,6 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
   const localStorageToken = localStorage.getItem('token');
-  const mqttHost = 'wss://mqtt.cipherdolls.com';
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
   const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
@@ -28,7 +28,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
   useEffect(() => {
     if (!mqttClientRef.current) {
-      const mqttClient = mqtt.connect(mqttHost, {
+      const mqttClient = mqtt.connect(wsURL, {
         clientId,
         username: 'frontend',
         password: localStorageToken?.replaceAll('"', ''),
