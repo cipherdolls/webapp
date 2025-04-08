@@ -42,7 +42,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
-    
+
     const body: Record<string, unknown> = {};
     for (const [key, value] of formData.entries()) {
       if (formData.getAll(key).length > 1) {
@@ -62,7 +62,6 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       const errorData = await res.json();
       throw new Error(errorData.message || `Failed to ${request.method} chat`);
     }
-
   } catch (error) {
     console.error('Failed to update chat');
   }
@@ -117,7 +116,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         console.error('Failed to fetch chat completion job');
         return;
       }
-       
+
       const job = await res.json();
       // TODO: add message from the job
       alert({
@@ -127,7 +126,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       });
       return;
     }
-     // if message is received, revalidate the page
+    // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
       return;
