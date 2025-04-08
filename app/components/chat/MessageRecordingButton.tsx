@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { ChatState, type ChatStateType } from '~/components/chat/types/chatState';
@@ -16,9 +16,25 @@ interface MessageRecordingButtonProps {
 }
 
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, chatState, onStartRecording, onEndRecording }) => {
+  const [hasMicAccess, setHasMicAccess] = useState(false);
   const recorder = useRef<MediaRecorder | null>(null);
   const fetcher = useFetcher();
   const { stopAudio } = useAudioPlayer();
+
+  // request mic access on render
+  useEffect(() => {
+    const requestMicAccess = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        setHasMicAccess(true);
+      } catch (err) {
+        setHasMicAccess(false);
+        console.error('Microphone access denied:', err);
+      }
+    };
+    requestMicAccess();
+  }, []);
+
 
   useEffect(() => {
     return () => {
@@ -45,6 +61,14 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
 
   const startRecording = async () => {
     try {
+      // asking mic access if it was denied on render
+      if (!hasMicAccess) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        setHasMicAccess(true);
+        return;
+      }
+
       onStartRecording?.();
       stopAudio();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
