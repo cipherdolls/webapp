@@ -42,7 +42,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
-    
+
     const body: Record<string, unknown> = {};
     for (const [key, value] of formData.entries()) {
       if (formData.getAll(key).length > 1) {
@@ -62,7 +62,6 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       const errorData = await res.json();
       throw new Error(errorData.message || `Failed to ${request.method} chat`);
     }
-
   } catch (error) {
     console.error('Failed to update chat');
   }
@@ -112,22 +111,27 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const handleProcessEvent = async (event: ProcessEvent) => {
     // failed chat completion job
     if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
-      const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
-      if (!res.ok) {
-        console.error('Failed to fetch chat completion job');
+      try {
+        const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch chat completion job');
+        }
+
+        const job = await res.json();
+
+        alert({
+          icon: '❌',
+          title: 'Chat Completion',
+          body: job.error || 'The chat completion is failed.',
+        });
+        
         return;
+      } catch (error) {
+        console.error(error);
       }
-       
-      const job = await res.json();
-      // TODO: add message from the job
-      alert({
-        icon: '❌',
-        title: 'Chat Completion',
-        body: 'The chat completion is failed.',
-      });
       return;
     }
-     // if message is received, revalidate the page
+    // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
       return;
