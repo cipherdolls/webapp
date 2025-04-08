@@ -17,7 +17,7 @@ export const textareaVariants = tv({
     wrapper: ['relative'],
     // Textarea element - simplified to match input component
     textarea: [
-      'p-3 min-h-[104px] max-h-[500px] rounded-xl text-body-md text-neutral-02',
+      'p-3 min-h-[104px] max-h-[500px] rounded-xl text-body-md text-base-black',
       'bg-gradient-1',
       'w-full resize-none overflow-y-auto',
       'outline-none focus:outline-none',
@@ -83,10 +83,10 @@ const TextareaElement = React.forwardRef<
   const resizeTextarea = React.useCallback(() => {
     const node = textareaRef.current;
     if (!node) return;
-    
+
     // Reset height to auto to get the correct scrollHeight
     node.style.height = 'auto';
-    
+
     // Set height to scrollHeight to expand based on content, with min 104px and max 500px
     node.style.height = `${Math.min(Math.max(node.scrollHeight, 104), 500)}px`;
   }, []);
@@ -95,14 +95,7 @@ const TextareaElement = React.forwardRef<
     resizeTextarea();
   }, [resizeTextarea, rest.value, rest.defaultValue]);
 
-  return (
-    <Component 
-      className={textarea({ class: className })} 
-      ref={combinedRef} 
-      onInput={resizeTextarea}
-      {...rest} 
-    />
-  );
+  return <Component className={textarea({ class: className })} ref={combinedRef} onInput={resizeTextarea} {...rest} />;
 });
 TextareaElement.displayName = TEXTAREA_EL_NAME;
 
