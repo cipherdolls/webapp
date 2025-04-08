@@ -31,15 +31,17 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     },
     {
       id: 'dollarPerInputToken',
-      label: 'Output',
+      label: 'Input',
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
       align: 'right',
+      width: '200px',
     },
     {
       id: 'dollarPerOutputToken',
       label: 'Output',
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
       align: 'right',
+      width: '200px',
     },
   ];
 
@@ -117,6 +119,9 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                     <DataCard.Text>No models found</DataCard.Text>
                   )}
                 </DataCard.Wrapper>
+                <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>
+                  Prices are per million token
+                </span>
               </DataCard.Root>
             </div>
           );
