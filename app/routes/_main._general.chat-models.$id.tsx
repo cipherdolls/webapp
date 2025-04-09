@@ -10,6 +10,7 @@ import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import DeleteModal from '~/components/ui/deleteModal';
 import ChatModelDestroy from './chat-models.$id.destroy';
 import { formatDate } from '~/utils/date.utils';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Model' }];
@@ -176,12 +177,12 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
 
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Dollar Per Input Token: </span>
-                  <span className='font-medium'>${chatModel.dollarPerInputToken}</span>
+                  <span className='font-medium'>${scientificNumConvert(chatModel.dollarPerInputToken * 1000000)}</span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Dollar Per Output Token:</span>
-                  <span className='font-medium'>${chatModel.dollarPerOutputToken}</span>
+                  <span className='font-medium'>${scientificNumConvert(chatModel.dollarPerOutputToken * 1000000)}</span>
                 </div>
               </div>
             </div>

@@ -107,7 +107,8 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
                   type='number'
-                  step='0.0000001'
+                  step="0.00000001"
+                  min="0"
                   defaultValue={chatModel.dollarPerInputToken}
                 />
               </Input.Root>
@@ -120,7 +121,8 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
                   type='number'
-                  step='0.0000001'
+                  step="0.00000001"
+                  min="0"
                   defaultValue={chatModel.dollarPerOutputToken}
                 />
               </Input.Root>
