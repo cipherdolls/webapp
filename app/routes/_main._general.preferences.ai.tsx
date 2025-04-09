@@ -32,14 +32,14 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'dollarPerInputToken',
       label: 'Input',
-      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
+      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
       align: 'right',
       width: '200px',
     },
     {
       id: 'dollarPerOutputToken',
       label: 'Output',
-      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
+      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
       align: 'right',
       width: '200px',
     },

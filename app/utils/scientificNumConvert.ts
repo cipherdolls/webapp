@@ -8,7 +8,8 @@ export const scientificNumConvert = (number: number | string) => {
   let numberStr = number.toString();
 
   if (!numberStr.includes('e')) {
-    return numberStr;
+    const num = typeof number === 'string' ? parseFloat(number) : number;
+    return parseFloat(num.toFixed(2)).toString();
   }
 
   let [base, exponent]: any[] = numberStr.split('e');
