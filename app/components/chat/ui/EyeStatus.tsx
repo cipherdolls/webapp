@@ -20,17 +20,17 @@ const eyeVariants: Record<ChatStateType | ChatJobType, { bg: string; shadow: str
   },
   // job/process colors
   [ChatJob.TtsJob]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(100, 149, 237, 0.8) 0%, #6495ED 100%)',
-    shadow: '0px 4px 16px rgba(100, 149, 237, 0.32)',
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
+    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
   },
   [ChatJob.SttJob]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(255,182,193,0.8) 0%, #FF6F61 100%)',
-    shadow: '0px 4px 16px rgba(255,111,97,0.32)',
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(238, 150, 166, 0.8) 0%, #DC2647 100%)',
+    shadow: '0px 4px 16px rgba(220, 38, 71, 0.32)',
   },
 
   [ChatJob.ChatCompletionJob]: {
-    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 255, 190, 0.8) 0%, #59E36B 100%)',
-    shadow: '0px 4px 16px rgba(89, 227, 107, 0.32)',
+    bg: 'radial-gradient(83.93% 83.93% at 50% 16.07%, rgba(190, 219, 255, 0.8) 0%, #59A7E3 100%)',
+    shadow: '0px 4px 16px rgba(89, 167, 227, 0.32)',
   },
 } as const;
 
@@ -46,7 +46,8 @@ const EyeStatus: React.FC<EyeStatusProps> = ({ chatState, currentJob }) => {
   return (
     <div
       className={cn('size-10 animate-eye flex-shrink-0 flex items-center justify-center rounded-full', {
-        'animate-pulse-speak': chatState === ChatState.avatarSpeaking || chatState === ChatState.userSpeaking,
+        'animate-pulse-speak': variant === ChatState.avatarSpeaking || variant === ChatState.userSpeaking,
+        'scale-75': variant === ChatJob.ChatCompletionJob || variant === ChatJob.SttJob,
       })}
       style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow }}
     >
