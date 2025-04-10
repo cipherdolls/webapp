@@ -4,7 +4,6 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatCompletionJobCard = ({ message }: { message: Message }) => {
   const chatCompletionJob = message?.chatCompletionJob;
-  const chatCompletionModel = message?.chat?.scenario?.chatModel;
 
   return (
     <DataCard.Root>
@@ -14,11 +13,11 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'AI Provider',
-              value: chatCompletionModel?.aiProvider?.name,
+              value: chatCompletionJob.chatModel.aiProvider?.name,
             },
             {
               label: 'Chat Model',
-              value: chatCompletionModel.name,
+              value: chatCompletionJob.chatModel.name,
             },
           ]}
         />

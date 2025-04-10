@@ -199,6 +199,7 @@ export interface ChatCompletionJob {
   usdCost: number;
   timeTakenMs: number;
   paymentJob: PaymentJob;
+  chatModel: ChatModel;
 }
 
 export interface Doll {
