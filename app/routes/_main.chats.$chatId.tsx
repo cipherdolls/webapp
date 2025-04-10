@@ -111,19 +111,24 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const handleProcessEvent = async (event: ProcessEvent) => {
     // failed chat completion job
     if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
-      const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
-      if (!res.ok) {
-        console.error('Failed to fetch chat completion job');
-        return;
-      }
+      try {
+        const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch chat completion job');
+        }
 
-      const job = await res.json();
-      // TODO: add message from the job
-      alert({
-        icon: '❌',
-        title: 'Chat Completion',
-        body: 'The chat completion is failed.',
-      });
+        const job = await res.json();
+
+        alert({
+          icon: '❌',
+          title: 'Chat Completion',
+          body: job.error || 'The chat completion is failed.',
+        });
+        
+        return;
+      } catch (error) {
+        console.error(error);
+      }
       return;
     }
     // if message is received, revalidate the page

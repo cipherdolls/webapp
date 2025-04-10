@@ -32,7 +32,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       }
     });
 
-    const res = await fetchWithAuth(`chat-models/${params.chatModelId}`, {
+    const res = await fetchWithAuth(`chat-models/${params.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(jsonData),
@@ -107,7 +107,8 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
                   type='number'
-                  step='0.0000001'
+                  step="0.00000001"
+                  min="0"
                   defaultValue={chatModel.dollarPerInputToken}
                 />
               </Input.Root>
@@ -120,7 +121,8 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
                   type='number'
-                  step='0.0000001'
+                  step="0.00000001"
+                  min="0"
                   defaultValue={chatModel.dollarPerOutputToken}
                 />
               </Input.Root>
@@ -168,36 +170,6 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                 <label className='text-body-sm font-semibold text-neutral-01' htmlFor='censored'>
                   Censored
                 </label>
-              </div>
-            </div>
-
-            <div className='mt-4 p-4 bg-neutral-05 rounded-lg'>
-              <h3 className='text-base font-semibold mb-3'>Aggregate Chat Completions</h3>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='flex flex-col'>
-                  <span className='text-sm text-neutral-02 mb-1'>Average Time Taken</span>
-                  <span className='text-base font-medium'>{chatModel.aggregateChatCompletions.avgTimeTakenMs} ms</span>
-                </div>
-                <div className='flex flex-col'>
-                  <span className='text-sm text-neutral-02 mb-1'>Min Time Taken</span>
-                  <span className='text-base font-medium'>{chatModel.aggregateChatCompletions.minTimeTakenMs} ms</span>
-                </div>
-                <div className='flex flex-col'>
-                  <span className='text-sm text-neutral-02 mb-1'>Max Time Taken</span>
-                  <span className='text-base font-medium'>{chatModel.aggregateChatCompletions.maxTimeTakenMs} ms</span>
-                </div>
-                <div className='flex flex-col'>
-                  <span className='text-sm text-neutral-02 mb-1'>Average Cost</span>
-                  <span className='text-base font-medium'>${chatModel.aggregateChatCompletions.avgUsdCost.toFixed(6)}</span>
-                </div>
-                <div className='flex flex-col'>
-                  <span className='text-sm text-neutral-02 mb-1'>Min Cost</span>
-                  <span className='text-base font-medium'>${chatModel.aggregateChatCompletions.minUsdCost.toFixed(6)}</span>
-                </div>
-                <div className='flex flex-col'>
-                  <span className='text-sm text-neutral-02 mb-1'>Max Cost</span>
-                  <span className='text-base font-medium'>${chatModel.aggregateChatCompletions.maxUsdCost.toFixed(6)}</span>
-                </div>
               </div>
             </div>
           </Drawer.Body>

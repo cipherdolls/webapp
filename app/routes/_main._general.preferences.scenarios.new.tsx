@@ -44,7 +44,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     if (!res.ok) {
       const responseData = await res.json();
       return {
-        errors: responseData.message || 'Request failed'
+        errors: responseData.message || 'Request failed',
       };
     }
 
@@ -67,7 +67,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const [presencePenalty, setPresencePenalty] = useState(0.2);
 
   const { avatarId } = useParams();
-  
+
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
@@ -113,17 +113,6 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
 
           <Drawer.Body className='flex flex-col gap-4 md:gap-6'>
             <ErrorsBox errors={errors} />
-            <div className='grid gap-3'>
-              <Input.Label htmlFor='shortDescription'>Short Description</Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='shortDescription'
-                name='shortDescription'
-                type='text'
-                placeholder='Briefly describe the scenario'
-              />
-              <p className='text-xs text-gray-500'>Enter a short description for the new scenario.</p>
-            </div>
 
             <Input.Root>
               <Input.Label htmlFor='name'>Name</Input.Label>
@@ -155,9 +144,11 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 id='chatModelId'
                 name='chatModelId'
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                defaultValue={getOptions(true).flatMap(group => 
-                  group.options.find(option => option.recommended)?.value || ''
-                ).filter(value => value !== '')[0]}
+                defaultValue={
+                  getOptions(true)
+                    .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
+                    .filter((value) => value !== '')[0]
+                }
               >
                 {getOptions(true).map((group) => (
                   <optgroup key={group.groupName} label={group.groupName}>
@@ -178,9 +169,11 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 id='embeddingModelId'
                 name='embeddingModelId'
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                defaultValue={getOptions(false).flatMap(group => 
-                  group.options.find(option => option.recommended)?.value || ''
-                ).filter(value => value !== '')[0]}
+                defaultValue={
+                  getOptions(false)
+                    .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
+                    .filter((value) => value !== '')[0]
+                }
               >
                 {getOptions(false).map((group) => (
                   <optgroup key={group.groupName} label={group.groupName}>

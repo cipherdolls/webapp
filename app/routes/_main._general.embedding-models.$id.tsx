@@ -144,10 +144,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <span className='text-neutral-01'>Dollar Per Output Token:</span>
                   <span className='font-medium'>${embeddingModel.dollarPerOutputToken}</span>
                 </div>
-                <div className='flex justify-between items-center'>
-                  <span className='text-neutral-01'>Base Path:</span>
-                  <code className='mt-1 block bg-neutral-05 p-2 rounded text-body-sm'>{embeddingModel.aiProvider?.basePath}</code>
-                </div>
               </div>
             </div>
           </div>
