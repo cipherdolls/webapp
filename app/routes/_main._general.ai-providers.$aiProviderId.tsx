@@ -23,13 +23,13 @@ const chatModelColumns: Array<TTableColumn<ChatModel>> = [
   {
     id: 'dollarPerInputToken',
     label: 'Output',
-    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
     align: 'right',
   },
   {
     id: 'dollarPerOutputToken',
     label: 'Output',
-    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
     align: 'right',
   },
   {
@@ -56,13 +56,13 @@ const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
   {
     id: 'dollarPerInputToken',
     label: 'Output',
-    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken)}</span>,
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
     align: 'right',
   },
   {
     id: 'dollarPerOutputToken',
     label: 'Output',
-    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken)}</span>,
+    render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
     align: 'right',
   },
   {
@@ -202,6 +202,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 <DataCard.Text>No chat models found</DataCard.Text>
               )}
             </DataCard.Wrapper>
+            <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>Prices are per million token</span>
           </DataCard.Root>
         </div>
         <div className='flex flex-col gap-5'>
@@ -267,6 +268,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 <DataCard.Text>No embedding models found</DataCard.Text>
               )}
             </DataCard.Wrapper>
+            <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>Prices are per million token</span>
           </DataCard.Root>
         </div>
       </div>

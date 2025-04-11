@@ -9,6 +9,7 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import EmbeddingModelDestroy from './embedding-models.$id.destroy';
 import DeleteModal from '~/components/ui/deleteModal';
 import { formatDate } from '~/utils/date.utils';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
@@ -137,14 +138,15 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Dollar Per Input Token:</span>
-                  <span className='font-medium'>${embeddingModel.dollarPerInputToken}</span>
+                  <span className='font-medium'>${scientificNumConvert(embeddingModel.dollarPerInputToken * 1000000)}</span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Dollar Per Output Token:</span>
-                  <span className='font-medium'>${embeddingModel.dollarPerOutputToken}</span>
+                  <span className='font-medium'>${scientificNumConvert(embeddingModel.dollarPerOutputToken * 1000000)}</span>
                 </div>
               </div>
+              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>Prices are per million token</span>
             </div>
           </div>
         </div>

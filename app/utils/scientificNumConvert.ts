@@ -23,7 +23,7 @@ export const scientificNumConvert = (number: number | string) => {
   } else {
     let decimalPlaces = Math.abs(exponent);
     let baseStr = base.toString().replace('.', '');
-    let zerosToAdd = decimalPlaces - baseStr.length + 1;
+    let zerosToAdd = decimalPlaces - baseStr.length;
     return '0.' + '0'.repeat(zerosToAdd) + baseStr;
   }
 };

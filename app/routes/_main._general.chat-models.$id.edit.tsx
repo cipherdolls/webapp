@@ -9,6 +9,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { cn } from '~/utils/cn';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Models' }];
@@ -59,6 +60,7 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
     navigate(`/chat-models/${chatModel.id}`);
   };
 
+  console.log(chatModel, 'edit');
   return (
     <Drawer.Root
       defaultOpen
@@ -107,9 +109,9 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
                   type='number'
-                  step="0.00000001"
-                  min="0"
-                  defaultValue={chatModel.dollarPerInputToken}
+                  step='any'
+                  min='0'
+                  defaultValue={scientificNumConvert(chatModel.dollarPerInputToken)}
                 />
               </Input.Root>
               <Input.Root>
@@ -121,9 +123,9 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
                   type='number'
-                  step="0.00000001"
-                  min="0"
-                  defaultValue={chatModel.dollarPerOutputToken}
+                  step='any'
+                  min='0'
+                  defaultValue={scientificNumConvert(chatModel.dollarPerOutputToken)}
                 />
               </Input.Root>
             </div>

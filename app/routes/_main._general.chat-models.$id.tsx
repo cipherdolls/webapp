@@ -32,6 +32,8 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     return `${time} ms`;
   };
 
+  console.log(chatModel);
+
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
@@ -185,6 +187,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <span className='font-medium'>${scientificNumConvert(chatModel.dollarPerOutputToken * 1000000)}</span>
                 </div>
               </div>
+              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>Prices are per million token</span>
             </div>
             <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Performance Stats</h2>

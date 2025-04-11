@@ -93,9 +93,8 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   className='text-base-black border border-neutral-04 py-3.5 px-3'
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
-                  type='number'
+                  type='text'
                   placeholder='0.0001'
-                  step='any'
                 />
               </Input.Root>
 
@@ -107,9 +106,8 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   className='text-base-black border border-neutral-04 py-3.5 px-3'
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
-                  type='number'
+                  type='text'
                   placeholder='0.0001'
-                  step='any'
                 />
               </Input.Root>
             </div>
