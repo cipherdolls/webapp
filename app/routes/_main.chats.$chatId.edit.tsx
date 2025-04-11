@@ -10,6 +10,8 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ChatDestroy from './chats.$id.edit.destroy';
 import type { Avatar, Chat } from '~/types';
+import { LOCAL_STORAGE_KEYS } from '~/constants';
+import { useLocalStorage } from 'usehooks-ts';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
@@ -17,10 +19,10 @@ export function meta({}: Route.MetaArgs) {
 
 export default function ChatEdit() {
   const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
-  
+
   const navigate = useNavigate();
   const alert = useAlert();
-  const [silentModeOn, setSilentModeOn] = useState(false);
+  const [silentMode, setSilentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
 
   const handleMessageClose = () => {
     navigate(`/chats/${chat.id}`);
@@ -40,7 +42,7 @@ export default function ChatEdit() {
               <Icons.chevronLeft />
             </button>
             <div className='flex items-center gap-3'>
-              <h3 className='text-heading-h3 text-base-black'>Freya</h3>
+              <h3 className='text-heading-h3 text-base-black'>{chat.avatar.name}</h3>
               <span className='text-body-lg text-neutral-01'>•</span>
               <p className='text-body-lg text-neutral-01'>{chat.avatar.shortDesc}</p>
             </div>
@@ -107,25 +109,25 @@ export default function ChatEdit() {
               <Card.Main>
                 <button
                   className={cn('flex flex-row items-center gap-6 p-6 rounded-xl', {
-                    'shadow-regular bg-white': silentModeOn,
+                    'shadow-regular bg-white': silentMode,
                   })}
-                  onClick={() => setSilentModeOn((prev) => !prev)}
+                  onClick={() => setSilentMode((prev) => !prev)}
                 >
-                  <div className='text-4xl'> {silentModeOn ? '🤫' : '📣'}</div>
+                  <div className='text-4xl'> {silentMode ? '🤫' : '📣'}</div>
                   <div className='flex flex-col gap-1 text-left'>
-                    <p className='text-body-lg font-semibold text-base-black'>Silent Mode is {silentModeOn ? 'On' : 'Off'}</p>
-                    <p className='text-body-md text-neutral-01'>An avatar will {silentModeOn && 'not'} speak</p>
+                    <p className='text-body-lg font-semibold text-base-black'>Silent Mode is {silentMode ? 'On' : 'Off'}</p>
+                    <p className='text-body-md text-neutral-01'>An avatar will {silentMode && 'not'} speak</p>
                   </div>
                   <div
                     className={cn('w-[40px] h-[24px] rounded-full bg-neutral-04 relative ml-auto', {
-                      '!bg-base-black': silentModeOn,
+                      '!bg-base-black': silentMode,
                     })}
                   >
                     <span
                       className={cn(
                         'absolute top-1 left-1 w-[16px] h-[16px] rounded-full bg-base-white shadow-regular transition-all duration-100',
                         {
-                          'translate-x-full': silentModeOn,
+                          'translate-x-full': silentMode,
                         }
                       )}
                     ></span>

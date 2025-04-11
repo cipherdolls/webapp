@@ -30,8 +30,8 @@ const ScenarioToggle = ({ chat, avatar, className }: ScenarioToggleProps) => {
             type='button'
             onClick={() => handleScenarioChange(scenario.id)}
             className={cn(
-              'flex items-center justify-center flex-1 px-4 h-[48px] text-body-sm font-semibold rounded-xl sm:rounded-[10px] border-4 border-neutral-04 bg-clip-padding bg-neutral-04',
-              'sm:h-[40px] sm:w-[110px] sm:bg-transparent sm:border-none',
+              'flex items-center justify-center flex-1 px-4 h-[48px] text-body-sm font-semibold rounded-xl border-4 border-neutral-04 bg-clip-padding bg-neutral-04',
+              'sm:h-[40px] sm:w-[110px] sm:rounded-[10px] sm:bg-transparent sm:border-none',
               'md:w-auto md:min-w-[120px]',
               chat.scenario.id === scenario.id && '!bg-base-white shadow-regular pointer-events-none'
             )}
