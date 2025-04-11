@@ -8,6 +8,7 @@ import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Models' }];
@@ -31,7 +32,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       }
     });
 
-    const res = await fetchWithAuth(`embedding-models/${params.embeddingModelId}`, {
+    const res = await fetchWithAuth(`embedding-models/${params.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(jsonData),
@@ -108,8 +109,9 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
                 id='dollarPerInputToken'
                 name='dollarPerInputToken'
                 type='number'
-                step='0.0000001'
-                defaultValue={embeddingModel.dollarPerInputToken}
+                step='any'
+                min='0'
+                defaultValue={scientificNumConvert(embeddingModel.dollarPerInputToken)}
               />
             </Input.Root>
 
@@ -122,8 +124,9 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
                 id='dollarPerOutputToken'
                 name='dollarPerOutputToken'
                 type='number'
-                step='0.0000001'
-                defaultValue={embeddingModel.dollarPerOutputToken}
+                step='any'
+                min='0'
+                defaultValue={scientificNumConvert(embeddingModel.dollarPerOutputToken)}
               />
             </Input.Root>
 
