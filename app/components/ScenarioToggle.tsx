@@ -6,9 +6,10 @@ interface ScenarioToggleProps {
   chat: Chat;
   avatar: Avatar;
   className?: string;
+  wideVariant?: boolean;
 }
 
-const ScenarioToggle = ({ chat, avatar, className }: ScenarioToggleProps) => {
+const ScenarioToggle = ({ chat, avatar, className, wideVariant = false }: ScenarioToggleProps) => {
   const fetcher = useFetcher();
 
   const handleScenarioChange = (scenarioId: string) => {
@@ -16,13 +17,21 @@ const ScenarioToggle = ({ chat, avatar, className }: ScenarioToggleProps) => {
       { scenarioId },
       {
         method: 'PATCH',
-        action: `/chats/${chat.id}`
+        action: `/chats/${chat.id}`,
       }
     );
   };
 
   return (
-    <div className={cn('grid grid-cols-2 md:flex gap-1 sm:gap-0 sm:bg-neutral-04 rounded-xl p-1 min-w-[200px]', className)}>
+    <div
+      className={cn(
+        'grid grid-cols-2 p-1 gap-1 rounded-xl',
+        {
+          'sm:gap-0 sm:bg-neutral-04 md:flex min-w-[200px]': wideVariant,
+        },
+        className
+      )}
+    >
       {avatar.scenarios.length > 0 ? (
         avatar.scenarios.map((scenario) => (
           <button
@@ -30,10 +39,10 @@ const ScenarioToggle = ({ chat, avatar, className }: ScenarioToggleProps) => {
             type='button'
             onClick={() => handleScenarioChange(scenario.id)}
             className={cn(
-              'flex items-center justify-center flex-1 px-4 h-[48px] text-body-sm font-semibold rounded-xl border-4 border-neutral-04 bg-clip-padding bg-neutral-04',
-              'sm:h-[40px] sm:w-[110px] sm:rounded-[10px] sm:bg-transparent sm:border-none',
-              'md:w-auto md:min-w-[120px]',
-              chat.scenario.id === scenario.id && '!bg-base-white shadow-regular pointer-events-none'
+              'flex items-center justify-center flex-1 px-4 h-[48px] text-body-sm font-semibold rounded-xl border-neutral-04 bg-clip-padding bg-neutral-04',
+              wideVariant && 'sm:h-[40px] sm:w-[110px] sm:rounded-[10px] sm:bg-transparent sm:border-none md:w-auto md:min-w-[120px]',
+              chat.scenario.id === scenario.id && '!bg-base-white shadow-regular pointer-events-none',
+              avatar.scenarios.length === 1 && !wideVariant && 'col-span-2'
             )}
           >
             {scenario.name}
