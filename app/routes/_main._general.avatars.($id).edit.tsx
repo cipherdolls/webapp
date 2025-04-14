@@ -257,6 +257,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
             </PublishAvatarModal>
           </div>
         </div>
+        <input type='hidden' name='published' value={availability === 'public' ? 'true' : 'false'} />
       </div>
     </fetcher.Form>
   );
