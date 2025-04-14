@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouteLoaderData } from 'react-router';
+import { Link, useNavigate, useRouteLoaderData, useSubmit } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -9,23 +9,39 @@ import { useState } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ChatDestroy from './chats.$id.edit.destroy';
-import type { Avatar, Chat } from '~/types';
+import type { Avatar, Chat, SttProvider } from '~/types';
 import { LOCAL_STORAGE_KEYS } from '~/constants';
 import { useLocalStorage } from 'usehooks-ts';
-
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
-export default function ChatEdit() {
+export async function clientLoader({ params }: Route.LoaderArgs) {
+  const sttProvidersRes = await fetchWithAuth(`stt-providers`);
+  const sttProviders: SttProvider[] = await sttProvidersRes.json();
+  return { sttProviders };
+}
+
+export default function ChatEdit({ loaderData }: Route.ComponentProps) {
+  const { sttProviders } = loaderData;
   const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
 
+  const submit = useSubmit();
   const navigate = useNavigate();
   const alert = useAlert();
   const [silentMode, setSilentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
 
   const handleMessageClose = () => {
     navigate(`/chats/${chat.id}`);
+  };
+
+  const handleSttProviderChange = (sttProvider: SttProvider) => {
+    submit({ sttProviderId: sttProvider.id }, { 
+      method: 'PATCH', 
+      action: `/chats/${chat.id}`,
+      navigate: false 
+    });
   };
 
   return (
@@ -99,6 +115,27 @@ export default function ChatEdit() {
 
               <Card.Main>
                 <ScenarioToggle chat={chat} avatar={avatar} className='!bg-transparent !backdrop-blur-none w-full' />
+              </Card.Main>
+            </Card.Root>
+
+            {/* scenario toggle  */}
+            <Card.Root className='sm:h-auto'>
+              <Card.Label className='sm:text-heading-h4'>STT Provider</Card.Label>
+              <Card.Main>
+                <div className='grid grid-cols-2 gap-1  p-1 min-w-[200px]'>
+                  {sttProviders.map((sttProvider) => (
+                    <button
+                      key={sttProvider.id}
+                      onClick={() => handleSttProviderChange(sttProvider)}
+                      className={cn(
+                        'flex items-center justify-center flex-1 px-4 h-[40px] text-body-sm font-semibold rounded-[10px]',
+                        chat.sttProvider?.id === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
+                      )}
+                    >
+                      {sttProvider.name}
+                    </button>
+                  ))}
+                </div>
               </Card.Main>
             </Card.Root>
 
