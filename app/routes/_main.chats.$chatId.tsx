@@ -104,7 +104,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     if (!silentMode && event.type === 'audio' && event.action === 'play') {
       setCurrentChatState(ChatState.avatarSpeaking);
       const newAudioMessage = new Audio(`${apiUrl}/messages/${event.messageId}/audio`);
-      playAudio(newAudioMessage, () => setCurrentChatState(ChatState.Idle));
+      playAudio(newAudioMessage, () => setCurrentChatState(ChatState.userSpeaking));
     }
   };
 
