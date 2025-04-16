@@ -67,7 +67,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 id='name'
                 name='name'
                 type='text'
-                placeholder='GPT-4.5'
+                placeholder='GPT 4'
               />
             </Input.Root>
 
@@ -80,7 +80,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 id='providerModelName'
                 name='providerModelName'
                 type='text'
-                placeholder='Deepseek'
+                placeholder='gpt4'
               />
             </Input.Root>
 
