@@ -7,6 +7,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
@@ -44,7 +45,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
       label: '$/Output',
       render: (data) => (
         <div className='flex items-center justify-end gap-2.5'>
-          <span className='font-semibold'>${data.dollarPerSecond}</span>
+          <span className='font-semibold'>${data.dollarPerSecond * 60}</span>
           <ViewButton link={`/stt-providers/${data.id}`} />
         </div>
       ),
