@@ -2,7 +2,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { Link, Outlet } from 'react-router';
+import { Link, Outlet, useFetcher } from 'react-router';
 
 import { getPicture } from '~/utils/getPicture';
 import type { Scenario } from '~/types';
@@ -22,6 +22,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const scenario = loaderData as Scenario;
+  const fetcher = useFetcher();
 
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
@@ -37,6 +38,19 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             </h3>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
+            <fetcher.Form method='POST' action='/preferences/scenarios/new'>
+              <input hidden readOnly name='name' defaultValue={`${scenario.name} copy`} />
+              <input hidden readOnly name='systemMessage' defaultValue={scenario.systemMessage} />
+              <input hidden readOnly name='chatModelId' defaultValue={scenario.chatModel.id} />
+              <input hidden readOnly name='embeddingModelId' defaultValue={scenario.embeddingModel.id} />
+              <input hidden readOnly name='temperature' defaultValue={scenario.temperature} />
+              <input hidden readOnly name='topP' defaultValue={scenario.topP} />
+              <input hidden readOnly name='frequencyPenalty' defaultValue={scenario.frequencyPenalty} />
+              <input hidden readOnly name='presencePenalty' defaultValue={scenario.presencePenalty} />
+              <Button.Root variant='secondary' className='w-[130px]' type='submit'>
+                Duplicate
+              </Button.Root>
+            </fetcher.Form>
             <Link to={`/scenarios/${scenario.id}/edit`}>
               <Button.Root variant='secondary' className='w-[130px]'>
                 Edit
