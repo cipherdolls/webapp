@@ -35,7 +35,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat, avatar }) => {
       </div>
       {/* <ChatDestroy /> */}
       <div className='flex gap-3 items-center'>
-        <ScenarioToggle chat={chat} avatar={avatar} className='max-sm:hidden' />
+        <ScenarioToggle chat={chat} avatar={avatar} className='max-md:hidden' wideVariant={true} />
         <Link to={`/chats/${chat.id}/edit`} className=' text-base-black shrink-0'>
           <Icons.gear />
         </Link>
