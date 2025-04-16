@@ -171,6 +171,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               <div className='flex flex-col gap-3'>
                 <div className='p-1 bg-gradient-1 grid grid-cols-2 rounded-xl'>
                   <button
+                    type='button'
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
                       availability === 'private' ? 'bg-white' : 'bg-transparent'
@@ -180,6 +181,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                     🔒 Private
                   </button>
                   <button
+                    type='button'
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
                       availability === 'public' ? 'bg-white' : 'bg-transparent'
@@ -197,6 +199,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </div>
+        <input type='hidden' name='published' value={availability === 'public' ? 'true' : 'false'} />
       </div>
     </fetcher.Form>
   );
