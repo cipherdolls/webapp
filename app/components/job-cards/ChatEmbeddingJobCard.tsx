@@ -4,7 +4,6 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   const embeddingJob = message?.embeddingJob;
-  const embeddingModel = message?.chat?.scenario?.embeddingModel;
 
   return (
     <DataCard.Root>
@@ -14,11 +13,11 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'AI Provider',
-              value: embeddingModel.aiProvider.name,
+              value: embeddingJob.embeddingModel?.aiProvider.name,
             },
             {
               label: 'Embedding Model',
-              value: embeddingModel.name,
+              value: embeddingJob.embeddingModel?.name,
             },
           ]}
         />

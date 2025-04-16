@@ -26,7 +26,7 @@ export default function ChatMessage({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const handleMessageClose = () => {
-    navigate(`/chats/${message.chat.id}`);
+    navigate(`/chats/${message.chatId}`);
   };
 
   return (

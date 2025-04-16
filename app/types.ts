@@ -140,7 +140,6 @@ export interface Message {
   ttsJob: TtsJob;
   embeddingJob: EmbeddingJob;
   chatCompletionJob: ChatCompletionJob;
-  chat: Chat;
 }
 
 export interface Firmware {
@@ -169,6 +168,7 @@ export interface SttJob {
   usdCost: number;
   timeTakenMs: number;
   paymentJob: PaymentJob;
+  sttProvider: SttProvider;
 }
 
 export interface TtsJob {
@@ -179,6 +179,7 @@ export interface TtsJob {
   timeTakenMs: number;
   paymentJob: PaymentJob;
   message: Message;
+  ttsVoice: TtsVoice;
 }
 
 export interface EmbeddingJob {
@@ -187,6 +188,7 @@ export interface EmbeddingJob {
   updatedAt: Date;
   usdCost: number;
   timeTakenMs: number;
+  embeddingModel: EmbeddingModel;
 }
 
 export interface ChatCompletionJob {
