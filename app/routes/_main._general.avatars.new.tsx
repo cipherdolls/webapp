@@ -166,7 +166,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                 selectedScenarios.length > 0 &&
                 selectedScenarios.map((scenario) => <input key={scenario.id} type='hidden' name='scenarioIds[]' value={scenario.id} />)}
             </div>
-            <div className='flex flex-col gap-5'>
+            <div className='flex flex-col gap-5 pb-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Availability</h1>
               <div className='flex flex-col gap-3'>
                 <div className='p-1 bg-gradient-1 grid grid-cols-2 rounded-xl'>

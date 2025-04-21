@@ -9,9 +9,10 @@ interface AccountInfoCardProps {
   value: string;
   link?: string;
   information?: ReactNode;
+  className?: string;
 }
 
-const AccountInfoCard = ({ label, value, link, information }: AccountInfoCardProps) => {
+const AccountInfoCard = ({ label, value, link, information, className }: AccountInfoCardProps) => {
   const { copied, copyToClipboard } = useCopyToClipboard();
 
   return (
@@ -21,7 +22,7 @@ const AccountInfoCard = ({ label, value, link, information }: AccountInfoCardPro
         {information && information}
       </div>
       <div className='sm:py-0.5 sm:px-5 px-3 w-full rounded-xl bg-base-white shadow-regular'>
-        <div className='py-4.5 flex items-center gap-5'>
+        <div className={cn('py-4.5 flex items-center gap-5', className)}>
           {link ? (
             <Link
               to={link}
