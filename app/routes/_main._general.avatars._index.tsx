@@ -26,7 +26,7 @@ export default function AvatarsIndex({ loaderData }: Route.ComponentProps) {
             Public Avatars
           </Link>
         </div>
-        <div className='grid w-full gap-3 sm:grid-cols-2 md:gap-5 '>
+        <div className='grid w-full gap-3 sm:grid-cols-2 md:gap-5 pb-3 sm:pb-5'>
           {avatars.map((avatar) => (
             <PublicAvatarCard key={avatar.id} avatar={avatar} />
           ))}

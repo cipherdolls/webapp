@@ -70,11 +70,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                   {aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 ? (
                     <>
                       {/* DESKTOP TABLE */}
-                      <Table
-                        columns={columnProperties}
-                        data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]}
-                        wrapperClassName='hidden md:block'
-                      />
+                      <Table columns={columnProperties} data={[...aiProvider.chatModels, ...aiProvider.embeddingModels]} />
 
                       {/* MOBILE CARD */}
                       {aiProvider.chatModels.map((chatModel, index) => {

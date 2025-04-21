@@ -68,7 +68,7 @@ export default function Account({ loaderData }: Route.ComponentProps) {
             link={`https://optimistic.etherscan.io/address/${me.walletAddress}`}
             information={<YourWalletModal walletAddress={me.walletAddress} />}
           />
-          <AccountInfoCard label='API Key' value={me.apikey} information={<ApiKeyModal apiKey={me.apikey} />} />
+          <AccountInfoCard className='justify-between' label='API Key' value={me.apikey} information={<ApiKeyModal apiKey={me.apikey} />} />
         </div>
       </div>
     </div>
