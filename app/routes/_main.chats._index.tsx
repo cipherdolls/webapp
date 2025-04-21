@@ -16,15 +16,15 @@ export async function clientLoader() {
 
 export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
   const { chats, avatars } = loaderData;
-  const isMobile = useMediaQuery('(min-width: 768px)');
+  const isDesktopView = useMediaQuery('(min-width: 1024px)');
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (chats.length > 0 && isMobile) {
+    if (chats.length > 0 && isDesktopView) {
       const firstChat = chats[0];
       navigate(`/chats/${firstChat.id}`);
     }
-  }, [chats, isMobile, navigate]);
+  }, [chats, isDesktopView, navigate]);
 
   return <ChatWelcome chats={chats} avatars={avatars} />;
 }
