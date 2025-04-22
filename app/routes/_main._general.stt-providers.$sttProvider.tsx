@@ -97,7 +97,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                 )}
               </div>
               <p className='text-body-sm text-neutral-01'>
-                Dollar per second: <span className='text-body-md text-base-black/80 font-medium'>{sttProvider.dollarPerSecond}</span>
+                Dollar per second: <span className='text-body-md text-base-black/80 font-medium'>${sttProvider.dollarPerSecond * 60}</span>
               </p>
             </div>
           </div>

@@ -4,7 +4,6 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatEther } from 'ethers';
 
 const ChatTTSJobCard = ({ message }: { message: Message }) => {
-  const ttsVoice = message?.chat?.avatar?.ttsVoice;
   const ttsJob = message?.ttsJob;
 
   return (
@@ -15,11 +14,11 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'TTS Provider',
-              value: ttsVoice.ttsProvider.name,
+              value: ttsJob?.ttsVoice.ttsProvider.name,
             },
             {
               label: 'TTS Voice',
-              value: ttsVoice.name,
+              value: ttsJob?.ttsVoice.name,
             },
           ]}
         />
@@ -43,14 +42,14 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Cost',
-              value: `${formatEther(ttsJob.paymentJob.weiCost)} Ether`,
+              value: `${formatEther(ttsJob.paymentJob?.weiCost || 0)} Ether`,
             },
             {
               label: 'txHash',
-              value: ttsJob.paymentJob.txHash ? (
+              value: ttsJob.paymentJob?.txHash ? (
                 <>
                   <a
-                    href={`https://optimistic.etherscan.io/tx/${ttsJob.paymentJob.txHash}`}
+                    href={`https://optimistic.etherscan.io/tx/${ttsJob.paymentJob?.txHash}`}
                     className='underline line-clamp-1 block truncate break-normal max-w-[244px]'
                     target='_blank'
                     rel='noreferrer noopener'

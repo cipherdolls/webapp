@@ -4,7 +4,6 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatSTTJobCard = ({ message }: { message: Message }) => {
   const sttJob = message?.sttJob;
-  const sttProvider = message?.chat?.sttProvider;
   return (
     <DataCard.Root>
       <DataCard.Label>STT Job</DataCard.Label>
@@ -12,7 +11,7 @@ const ChatSTTJobCard = ({ message }: { message: Message }) => {
         <DataCard.ItemDataGrid data={[
           {
             label: 'STT Provider',
-            value: sttProvider?.name,
+            value: sttJob.sttProvider?.name,
           },         
          ]} />
          <DataCard.Divider />

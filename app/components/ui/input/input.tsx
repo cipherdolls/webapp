@@ -14,12 +14,7 @@ export const inputVariants = tv({
     // Label - exactly like the original label
     label: ['text-body-sm font-semibold text-neutral-01'],
     // Input - exactly like the original input
-    input: [
-      'py-3 px-3.5 rounded-xl text-body-md text-neutral-02',
-      'bg-gradient-1',
-      'w-full',
-      'outline-none focus:outline-none',
-    ],
+    input: ['py-3 px-3.5 rounded-xl text-body-md text-base-black', 'bg-gradient-1', 'w-full', 'outline-none focus:outline-none'],
     // Icon styles
     icon: ['absolute left-3.5 top-1/2 -translate-y-1/2', 'flex size-5 shrink-0 items-center justify-center', 'text-text-sub-600'],
     // Wrapper for when we need an icon
