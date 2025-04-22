@@ -19,39 +19,47 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
   const fetcher = useFetcher();
   const { stopAudio } = useAudioPlayer();
   const [wasRecording, setWasRecording] = useState(false);
+  const [previousState, setPreviousState] = useState<ChatStateType>(chatState);
 
-  const handleAudioBlob = (data: Blob) => {
-    // return;
-    const file = new File([data], 'audio.webm', { type: 'audio/webm' });
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('chatId', chat.id);
-    fetcher.submit(formData, {
-      method: 'post',
-      action: '/messages/new',
-      encType: 'multipart/form-data',
-    });
+  const handleAudioBlob = (data: Blob | null) => {
+    if (data) {
+      const file = new File([data], 'audio.webm', { type: 'audio/webm' });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('chatId', chat.id);
+      fetcher.submit(formData, {
+        method: 'post',
+        action: '/messages/new',
+        encType: 'multipart/form-data',
+      });
+    }
     setCurrentChatState(ChatState.Idle);
+    // setCurrentChatState(ChatState.avatarSpeaking);
+    // setTimeout(() => {
+    //   setCurrentChatState(ChatState.Idle);
+    // }, 1000);
   };
 
-  const { startRecording, stopRecording, recordingState } = useVoiceRecorder({
+  const { startRecording, stopRecording, recordingState, hasMicAccess } = useVoiceRecorder({
     onRecordingComplete: handleAudioBlob,
     autoStopOnSilence: true,
   });
 
+  // restart recording when avatar speaking is finished
   useEffect(() => {
-    if (wasRecording && chatState === ChatState.userSpeaking) {
+    if (wasRecording && chatState === ChatState.Idle && previousState === ChatState.avatarSpeaking) {
       handleStartRecording();
     }
+    setPreviousState(chatState);
   }, [chatState]);
 
   const handleStartRecording = () => {
-    if (!wasRecording) {
+    if (hasMicAccess) {
       setCurrentChatState(ChatState.userSpeaking);
       setWasRecording(true);
+      stopAudio();
+      startRecording();
     }
-    stopAudio();
-    startRecording();
   };
 
   const handleStopRecording = () => {
@@ -59,8 +67,6 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
     setWasRecording(false);
   };
 
-  console.log(recordingState);
-  
   return chatState === ChatState.userSpeaking ? (
     <Button.Root size='icon' type='button' onClick={handleStopRecording} className={cn('relative z-[1]')}>
       <Button.Icon as={Icons.stopSound} />

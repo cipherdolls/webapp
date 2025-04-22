@@ -8,9 +8,7 @@ interface UseVoiceRecorderOptions {
   silenceThreshold?: number;
   requiredSilenceDuration?: number;
   analysisInterval?: number;
-  onRecordingComplete: (blob: Blob) => void;
-  onError?: (error: Error) => void;
-  onMicAccessChange?: (hasAccess: boolean) => void;
+  onRecordingComplete: (blob: Blob | null) => void;
   onStateChange?: (state: RecordingState) => void;
 }
 
@@ -24,39 +22,44 @@ export enum RecordingState {
 }
 
 // --- Default values ---
-const DEFAULT_AUTO_STOP_ON_SILENCE = false; // Enable auto-stop by default
-const DEFAULT_SILENCE_THRESHOLD = 0.01;
-const DEFAULT_REQUIRED_SILENCE_DURATION = 1500;
-const DEFAULT_ANALYSIS_INTERVAL = 300;
+const DEFAULTS = {
+  AUTO_STOP_ON_SILENCE: false,
+  SILENCE_THRESHOLD: 0.01,
+  REQUIRED_SILENCE_DURATION: 1500,
+  ANALYSIS_INTERVAL: 300,
+} as const;
 // -----------------------------
 
 export const useVoiceRecorder = ({
-  autoStopOnSilence = DEFAULT_AUTO_STOP_ON_SILENCE, // Use new option
-  silenceThreshold = DEFAULT_SILENCE_THRESHOLD,
-  requiredSilenceDuration = DEFAULT_REQUIRED_SILENCE_DURATION,
-  analysisInterval = DEFAULT_ANALYSIS_INTERVAL,
+  autoStopOnSilence = DEFAULTS.AUTO_STOP_ON_SILENCE, // Use new option
+  silenceThreshold = DEFAULTS.SILENCE_THRESHOLD,
+  requiredSilenceDuration = DEFAULTS.REQUIRED_SILENCE_DURATION,
+  analysisInterval = DEFAULTS.ANALYSIS_INTERVAL,
   onRecordingComplete,
-  onError,
-  onMicAccessChange,
   onStateChange,
 }: UseVoiceRecorderOptions) => {
   const [recordingState, setRecordingState] = useState<RecordingState>(RecordingState.Idle);
   const [hasMicAccess, setHasMicAccess] = useState<boolean | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const recordingStateRef = useRef(recordingState);
-  const recorder = useRef<MediaRecorder | null>(null);
+  // --- Audio api ---
   const audioContext = useRef<AudioContext | null>(null);
   const analyserNode = useRef<AnalyserNode | null>(null);
   const sourceNode = useRef<MediaStreamAudioSourceNode | null>(null);
-  const silenceTimer = useRef<NodeJS.Timeout | null>(null);
-  const analysisIntervalId = useRef<NodeJS.Timeout | null>(null);
+
+  // Refs for recording control
+  const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recordedChunks = useRef<Blob[]>([]);
 
+  // Timers and identifiers
+  const silenceTimer = useRef<NodeJS.Timeout | null>(null);
+  const analysisIntervalId = useRef<NodeJS.Timeout | null>(null);
+
+  const recordingStateRef = useRef(recordingState);
+  const hasVoiceBeenDetected = useRef(false);
+
   const onRecordingCompleteRef = useRef(onRecordingComplete);
-  const onErrorRef = useRef(onError);
-  const onMicAccessChangeRef = useRef(onMicAccessChange);
   const onStateChangeRef = useRef(onStateChange);
 
   useEffect(() => {
@@ -65,36 +68,28 @@ export const useVoiceRecorder = ({
 
   useEffect(() => {
     onRecordingCompleteRef.current = onRecordingComplete;
-    onErrorRef.current = onError;
-    onMicAccessChangeRef.current = onMicAccessChange;
     onStateChangeRef.current = onStateChange;
-  }, [onRecordingComplete, onError, onMicAccessChange, onStateChange]);
+  }, [onRecordingComplete, onStateChange]);
 
   const updateState = useCallback(
     (newState: RecordingState) => {
       setRecordingState(newState);
       onStateChangeRef.current?.(newState);
-      if (newState === RecordingState.Error && error) {
-        onErrorRef.current?.(error);
-      }
     },
-    [error]
+    []
   );
 
+  // --- Initial mic access check ---
   useEffect(() => {
     const checkInitialMicAccess = async () => {
-      // ... (mic access check logic remains unchanged)
       try {
         updateState(RecordingState.RequestingMic);
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach((track) => track.stop());
+        await navigator.mediaDevices.getUserMedia({ audio: true });
         setHasMicAccess(true);
-        onMicAccessChangeRef.current?.(true);
         updateState(RecordingState.Idle);
       } catch (err) {
         console.error('Initial microphone access check failed:', err);
         setHasMicAccess(false);
-        onMicAccessChangeRef.current?.(false);
         setError(err instanceof Error ? err : new Error('Failed to get microphone access'));
         updateState(RecordingState.Error);
       }
@@ -103,7 +98,6 @@ export const useVoiceRecorder = ({
       checkInitialMicAccess();
     } else {
       setHasMicAccess(false);
-      onMicAccessChangeRef.current?.(false);
       setError(new Error('MediaDevices API not supported'));
       updateState(RecordingState.Error);
     }
@@ -148,14 +142,20 @@ export const useVoiceRecorder = ({
       recorder.current.removeEventListener('dataavailable', handleDataAvailable);
       recorder.current.onstop = () => {
         // ... (blob handling logic remains unchanged)
-        console.log('MediaRecorder stopped. Processing recorded data.');
+        // console.log('MediaRecorder stopped. Processing recorded data.');
         const recordedBlob = new Blob(recordedChunks.current, { type: recorder.current?.mimeType || 'audio/webm' });
         recordedChunks.current = [];
 
-        if (recordedBlob.size > 0) {
+        if (hasVoiceBeenDetected.current && recordedBlob.size > 0) {
+          // console.log('Sound detected and blob is not empty. Calling onRecordingComplete with Blob.');
           onRecordingCompleteRef.current?.(recordedBlob);
         } else {
-          console.warn('Recording resulted in an empty blob.');
+          if (!hasVoiceBeenDetected.current) {
+            console.log('No sound detected above threshold. Calling onRecordingComplete with null.');
+          } else {
+            console.warn('Sound detected, but the resulting blob is empty. Calling onRecordingComplete with null.');
+          }
+          onRecordingCompleteRef.current?.(null);
         }
 
         recorder.current = null;
@@ -176,7 +176,7 @@ export const useVoiceRecorder = ({
           recorder.current.stop();
         } else {
           // If recorder is inactive, manually simulate onstop logic
-          recorder.current.onstop();
+          recorder.current.onstop(new Event('stop'));
         }
       } catch (e) {
         console.error('Error calling recorder.stop():', e);
@@ -224,12 +224,16 @@ export const useVoiceRecorder = ({
     const average = sum / bufferLength;
     const volume = average / 128.0;
 
-    console.log(`Volume: ${volume.toFixed(4)} | Threshold: ${silenceThreshold}`);
+    // console.log(`Volume: ${volume.toFixed(4)} | Threshold: ${silenceThreshold}`);
+
+    if (volume > silenceThreshold) {
+      hasVoiceBeenDetected.current = true;
+    }
 
     if (volume < silenceThreshold) {
-      if (!silenceTimer.current) {
+      if (hasVoiceBeenDetected.current && !silenceTimer.current) {
         silenceTimer.current = setTimeout(() => {
-          console.log('Silence detected. Stopping recording...');
+          // console.log('Silence detected. Stopping recording...');
           // Request final data before stopping
           if (recorder.current?.state === 'recording') {
             recorder.current.requestData();
@@ -251,30 +255,16 @@ export const useVoiceRecorder = ({
       console.warn(`Cannot start recording from state: ${recordingState}`);
       return;
     }
-
+    hasVoiceBeenDetected.current = false;
+    
     setError(null);
-    console.log(`Starting recording process... AutoStop: ${autoStopOnSilence}`);
+    // console.log(`Starting recording process... AutoStop: ${autoStopOnSilence}`);
     updateState(RecordingState.Initializing);
 
     try {
-      // --- Get stream --- (remains unchanged)
+      // --- Get streamand mic access
       if (!hasMicAccess) {
-        updateState(RecordingState.RequestingMic);
-        console.log('Mic access was not granted initially. Requesting again...');
-        try {
-          streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-          setHasMicAccess(true);
-          onMicAccessChangeRef.current?.(true);
-          console.log('Mic access granted upon request.');
-          updateState(RecordingState.Initializing);
-        } catch (err) {
-          console.error('Microphone access denied on start:', err);
-          setHasMicAccess(false);
-          onMicAccessChangeRef.current?.(false);
-          setError(err instanceof Error ? err : new Error('Microphone access denied'));
-          updateState(RecordingState.Error);
-          return;
-        }
+        console.log('Mic access denied. Cannot start recording.');
       } else {
         streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
       }
@@ -283,9 +273,9 @@ export const useVoiceRecorder = ({
       }
       // -----------------------
 
-      // --- Conditional Web Audio API setup for silence analysis ---
+      // --- Conditional Web Audio API setup for silence analysis
       if (autoStopOnSilence) {
-        console.log('Setting up Web Audio API for silence detection.');
+        // console.log('Setting up Web Audio API for silence detection.');
         if (!audioContext.current || audioContext.current.state === 'closed') {
           audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         } else if (audioContext.current.state === 'suspended') {
@@ -296,7 +286,7 @@ export const useVoiceRecorder = ({
         sourceNode.current = audioContext.current.createMediaStreamSource(streamRef.current);
         sourceNode.current.connect(analyserNode.current);
       } else {
-        console.log('Silence detection is disabled. Skipping Web Audio setup.');
+        // console.log('Silence detection is disabled. Skipping Web Audio setup.');
         // Make sure old analysis refs are cleaned up
         audioContext.current = null;
         analyserNode.current = null;
@@ -319,13 +309,13 @@ export const useVoiceRecorder = ({
       recorder.current.addEventListener('dataavailable', handleDataAvailable);
 
       recorder.current.onstart = () => {
-        console.log('MediaRecorder started, state:', recorder.current?.state);
+        // console.log('MediaRecorder started, state:', recorder.current?.state);
         updateState(RecordingState.Recording);
         // --- Conditional silence analysis start ---
         if (autoStopOnSilence) {
           if (analysisIntervalId.current) clearInterval(analysisIntervalId.current);
           analysisIntervalId.current = setInterval(checkSilence, analysisInterval);
-          console.log(`Silence check started with interval ${analysisInterval}ms.`);
+          // console.log(`Silence check started with interval ${analysisInterval}ms.`);
         }
         // ---------------------------------
       };
@@ -368,7 +358,7 @@ export const useVoiceRecorder = ({
   const stopRecording = useCallback(() => {
     if (recordingState === RecordingState.Recording || recordingState === RecordingState.Initializing) {
       // Allow stopping during initialization too
-      console.log('Manual stop requested.');
+      // console.log('Manual stop requested.');
       performStopRecording();
     } else {
       console.warn(`Cannot stop recording from state: ${recordingState}. Already stopping or idle.`);
@@ -378,7 +368,7 @@ export const useVoiceRecorder = ({
   // Cleanup effect on unmount
   useEffect(() => {
     return () => {
-      console.log('useVoiceRecorder unmounting. Cleaning up...');
+      // console.log('useVoiceRecorder unmounting. Cleaning up...');
       // Stop recorder without saving data
       if (recorder.current && recorder.current.state !== 'inactive') {
         recorder.current.removeEventListener('dataavailable', handleDataAvailable);
