@@ -15,7 +15,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat, avatar }) => {
   return (
     <div className='flex items-center justify-between px-5 py-3.5 lg:border-b lg:border-neutral-04 lg:bg-white'>
       <div className='flex gap-3 items-center w-full sm:w-auto'>
-        <Link to={`/chats/`} className='shrink-0 text-base-black lg:hidden'>
+        <Link to={`/chats`} className='shrink-0 text-base-black lg:hidden'>
           <Icons.chevronLeft />
         </Link>
         <AvatarPicture avatar={chat.avatar} sizeType={PICTURE_SIZE.semiMedium} className='size-10 shrink-0' />
