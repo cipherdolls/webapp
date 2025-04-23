@@ -67,8 +67,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, c
               <MessageRecordingButton
                 chat={chat}
                 chatState={currentChatState}
-                onStartRecording={() => setCurrentChatState(ChatState.userSpeaking)}
-                onEndRecording={() => setCurrentChatState(ChatState.Idle)}
+                setCurrentChatState={setCurrentChatState}
               />
             )}
           </div>

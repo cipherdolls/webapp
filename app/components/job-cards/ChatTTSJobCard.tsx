@@ -14,11 +14,11 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'TTS Provider',
-              value: ttsJob?.ttsVoice.ttsProvider.name,
+              value: ttsJob?.ttsVoice?.ttsProvider?.name ?? 'N/A',
             },
             {
               label: 'TTS Voice',
-              value: ttsJob?.ttsVoice.name,
+              value: ttsJob?.ttsVoice?.name ?? 'N/A',
             },
           ]}
         />
@@ -27,11 +27,11 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Time Taken',
-              value: `${ttsJob.timeTakenMs} ms`,
+              value: `${ttsJob?.timeTakenMs ?? 0} ms`,
             },
             {
               label: 'Cost (USD)',
-              value: `$${scientificNumConvert(ttsJob.usdCost)}`,
+              value: `$${scientificNumConvert(ttsJob?.usdCost ?? 0)}`,
             },
           ]}
         />
