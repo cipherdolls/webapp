@@ -34,10 +34,6 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
       });
     }
     setCurrentChatState(ChatState.Idle);
-    // setCurrentChatState(ChatState.avatarSpeaking);
-    // setTimeout(() => {
-    //   setCurrentChatState(ChatState.Idle);
-    // }, 1000);
   };
 
   const { startRecording, stopRecording, recordingState, hasMicAccess } = useVoiceRecorder({
