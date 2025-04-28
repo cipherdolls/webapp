@@ -48,6 +48,11 @@ export const useVoiceRecorder = ({
   onRecordingComplete,
   onStateChange,
 }: UseVoiceRecorderOptions) => {
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const adjustedSilenceThreshold = isIOS ? 0.03 : silenceThreshold;
+  const adjustedAnalysisInterval = isIOS ? 100 : analysisInterval;
+
   // --- State management ---
   const [state, setState] = useState({
     recordingState: RecordingState.Idle,
@@ -138,24 +143,33 @@ export const useVoiceRecorder = ({
     const { audio, timers } = refs.current;
     if (!audio.analyser) return;
 
-    const buffer = new Uint8Array(audio.analyser.fftSize);
-    audio.analyser.getByteTimeDomainData(buffer);
+    const buffer = new Float32Array(audio.analyser.fftSize);
+    audio.analyser.getFloatTimeDomainData(buffer);
 
-    const volume = buffer.reduce((sum, val) => sum + Math.abs(val - 128), 0) / (buffer.length * 128);
-    refs.current.hasVoiceBeenDetected ||= volume > silenceThreshold;
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++) {
+      sum += Math.abs(buffer[i]);
+    }
+    const volume = sum / buffer.length;
 
-    if (volume < silenceThreshold && refs.current.hasVoiceBeenDetected) {
+    refs.current.hasVoiceBeenDetected ||= volume > adjustedSilenceThreshold;
+
+
+    if (volume < adjustedSilenceThreshold && refs.current.hasVoiceBeenDetected) {
       timers.silence = timers.silence || setTimeout(stopRecording, requiredSilenceDuration);
     } else if (timers.silence) {
       clearTimeout(timers.silence);
       timers.silence = null;
     }
-  }, [silenceThreshold, requiredSilenceDuration, stopRecording]);
+  }, [adjustedSilenceThreshold, requiredSilenceDuration, stopRecording]);
 
   // --- Recording setup ---
   const initializeAudioAnalysis = async (stream: MediaStream) => {
     const { audio } = refs.current;
     audio.context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (audio.context.state === 'suspended') {
+      await audio.context.resume();
+    }
     audio.analyser = audio.context.createAnalyser();
     audio.analyser.fftSize = 2048;
     audio.source = audio.context.createMediaStreamSource(stream);
@@ -172,7 +186,8 @@ export const useVoiceRecorder = ({
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/mp4'; // Fallback on iOS
+      const recorder = new MediaRecorder(stream, { mimeType });
 
       refs.current.recording = { recorder, stream, chunks: [] };
       recorder.addEventListener('dataavailable', handleDataAvailable);
