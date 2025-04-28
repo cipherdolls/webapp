@@ -249,6 +249,7 @@ export interface Avatar {
   chats: Chat[];
   language: string;
   scenarios: Scenario[];
+  gender: 'Female' | 'Male';
 }
 export interface AvatarCount {
   chats: number;
