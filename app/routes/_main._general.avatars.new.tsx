@@ -1,7 +1,7 @@
-import { Form, Link, redirect, useFetcher } from 'react-router';
+import { Link, redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
 import type { ApiError, Avatar, TtsVoice, Scenario } from '~/types';
-import { use, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
@@ -13,6 +13,7 @@ import { showToast } from '~/components/ui/toast';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import * as Select from '~/components/ui/input/select';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -47,15 +48,26 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
+const genreOptions = [
+  {
+    value: 'Male',
+    label: 'Male',
+  },
+  {
+    value: 'Female',
+    label: 'Female',
+  },
+];
+
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: Scenario[] } = loaderData;
   const fetcher = useFetcher();
   const apiError: ApiError = fetcher.data;
-  console.log(ttsVoices);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null);
   const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>([]);
   const [availability, setAvailability] = useState<'private' | 'public'>('private');
+  const [gender, setGender] = useState<string>('');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -148,11 +160,27 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                   <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(selectedVoice.id)} />
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
-                    <span className='text-body-md text-neutral-01'>Unrealspeach</span>
+                    <span className='text-body-md text-neutral-01'>{selectedVoice.ttsProvider.name}</span>
                     <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={selectedVoice.id} />
                   </div>
                 </div>
               )}
+            </div>
+            <div className='col-span-2 flex flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
+              <Select.Root value={gender} onValueChange={setGender}>
+                <Select.Trigger>
+                  <Select.Value placeholder='Select gender for this avatar' />
+                </Select.Trigger>
+                <Select.Content>
+                  {genreOptions.map((item) => (
+                    <Select.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+              <input type='hidden' name='gender' value={gender} />
             </div>
             <div className='col-span-2 flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Scenarios</h1>

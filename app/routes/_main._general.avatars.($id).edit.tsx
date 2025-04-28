@@ -7,6 +7,7 @@ import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import Multiselect from '~/components/ui/input/multiselect';
+import * as Select from '~/components/ui/input/select';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { useRef, useState } from 'react';
@@ -34,15 +35,29 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return { avatar, ttsVoices, scenarios };
 }
 
+const genreOptions = [
+  {
+    value: 'Male',
+    label: 'Male',
+  },
+  {
+    value: 'Female',
+    label: 'Female',
+  },
+];
+
 export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
   const { avatar, ttsVoices, scenarios } = loaderData;
   const fetcher = useFetcher();
-  const [selectedVoice, setSelectedVoice] = useState<TtsVoice>(avatar.ttsVoice);
+  const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(
+    avatar.ttsVoice || (ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null)
+  );
   const [selectedImage, setSelectedImage] = useState<string | null>(avatar.picture ?? null);
   const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>(Array.isArray(avatar.scenarios) ? avatar.scenarios : []);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
+  const [gender, setGender] = useState<string>(avatar.gender || '');
 
   const handleVoiceChange = (voice: TtsVoice) => {
     setSelectedVoice(voice);
@@ -181,14 +196,32 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                 <h1 className='text-base-black text-heading-h3 font-semibold'>Voice</h1>
                 <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={selectedVoice} onVoiceChange={handleVoiceChange} />
               </div>
-              <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(selectedVoice.id)} />
-                <div className='flex flex-col gap-1'>
-                  <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
-                  <span className='text-body-md text-neutral-01'>Unrealspeach</span>
-                  <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={selectedVoice.id} />
+              {selectedVoice && (
+                <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
+                  <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(selectedVoice.id)} />
+                  <div className='flex flex-col gap-1'>
+                    <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
+                    <span className='text-body-md text-neutral-01'>{selectedVoice.ttsProvider?.name || 'Voice Provider'}</span>
+                    <input type='hidden' name='ttsVoiceId' id='ttsVoiceId' value={selectedVoice.id} />
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
+            <div className='col-span-2 flex flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
+              <Select.Root value={gender} onValueChange={setGender}>
+                <Select.Trigger>
+                  <Select.Value placeholder='Select gender for this avatar' />
+                </Select.Trigger>
+                <Select.Content>
+                  {genreOptions.map((item) => (
+                    <Select.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+              <input type='hidden' name='gender' value={gender} />
             </div>
             <div className='col-span-2 flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Scenarios</h1>

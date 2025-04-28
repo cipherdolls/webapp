@@ -12,6 +12,7 @@ import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -101,7 +102,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             <input hidden readOnly id='ttsVoiceId' name='ttsVoiceId' defaultValue={avatar.ttsVoiceId} />
             <input hidden readOnly id='shortDesc' name='shortDesc' defaultValue={avatar.shortDesc} />
             {avatar.scenarios?.map((scenario) => (
-              <input key={scenario.id} hidden readOnly name="scenarioIds[]" defaultValue={scenario.id} />
+              <input key={scenario.id} hidden readOnly name='scenarioIds[]' defaultValue={scenario.id} />
             ))}
             <Button.Root variant='secondary' className='w-[130px]' type='submit'>
               Duplicate
@@ -159,6 +160,29 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             <div className='absolute bottom-3 left-3'>
               <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
             </div>
+            {avatar.gender && (
+              <div className='absolute bottom-3 right-3'>
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <div className='flex items-center justify-center size-10 rounded-full bg-white shadow-bottom-level-1 text-xl leading-5 cursor-pointer'>
+                        {avatar.gender === 'Male' ? <Icons.male /> : avatar.gender === 'Female' ? <Icons.female /> : <Icons.male />}
+                      </div>
+                    </Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Content
+                        className='bg-base-black text-white text-body-sm py-2 px-3 rounded-md shadow-md z-50'
+                        sideOffset={5}
+                        side="top"
+                      >
+                        Gender: {avatar.gender}
+                        <Tooltip.Arrow className='fill-base-black' />
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              </div>
+            )}
           </div>
           <div className='sm:flex hidden flex-col gap-5'>
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
