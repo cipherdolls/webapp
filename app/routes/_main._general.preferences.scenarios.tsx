@@ -59,7 +59,9 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       <div className='space-y-10 pb-5'>
         {scenarios.map((scenario) => (
           <DataCard.Root key={scenario.id}>
-            <DataCard.Label extra={<ViewButton link={`/scenarios/${scenario.id}`} />}>{scenario.name}</DataCard.Label>
+            <DataCard.Label extra={<ViewButton link={`/scenarios/${scenario.id}`} userId={scenario.userId} />}>
+              {scenario.name}
+            </DataCard.Label>
             <DataCard.Wrapper>
               <Table columns={columnProperties} data={[scenario]} wrapperClassName='hidden md:block' />
 

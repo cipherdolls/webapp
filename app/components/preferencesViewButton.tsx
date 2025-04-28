@@ -2,10 +2,9 @@ import { Link, useRouteLoaderData } from 'react-router';
 import type { User } from '~/types';
 import { Icons } from './ui/icons';
 
-export const ViewButton = ({ link }: { link: string }) => {
+export const ViewButton = ({ link, userId }: { link: string; userId: string }) => {
   const me = useRouteLoaderData('routes/_main') as User;
-
-  if (me.role !== 'ADMIN') {
+  if (me.role !== 'ADMIN' && me.id !== userId) {
     return null;
   }
   return (

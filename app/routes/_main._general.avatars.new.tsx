@@ -51,7 +51,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: Scenario[] } = loaderData;
   const fetcher = useFetcher();
   const apiError: ApiError = fetcher.data;
-
+  console.log(ttsVoices);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null);
   const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>([]);
