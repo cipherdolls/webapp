@@ -47,7 +47,7 @@ const SelectVoiceModal = ({
                   <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(voice.id)} />
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{voice.name}</p>
-                    <span className='text-body-md text-neutral-01 text-left'>Unrealspeach</span>
+                    <span className='text-body-md text-neutral-01 text-left capitalize'>{voice.ttsProvider.name}</span>
                   </div>
                 </button>
               );

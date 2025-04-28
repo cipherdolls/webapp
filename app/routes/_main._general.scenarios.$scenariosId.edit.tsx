@@ -194,19 +194,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
             </div>
 
             <Input.Root>
-              <Input.Label htmlFor='shortDescription'>Short Description</Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='shortDescription'
-                name='shortDescription'
-                type='text'
-                defaultValue={scenario.shortDescription || ''}
-                placeholder='Briefly describe the scenario'
-              />
-              <p className='text-xs text-gray-500'>Enter a short description for this scenario (optional).</p>
-            </Input.Root>
-
-            <Input.Root>
               <Input.Label htmlFor='name'>Name</Input.Label>
               <Input.Input
                 className='text-base-black border border-neutral-04 py-3.5 px-3'
@@ -243,7 +230,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 {getOptions(true).map((group) => (
                   <optgroup key={group.groupName} label={group.groupName}>
                     {group.options.map((option: Option) => (
-                      <option key={option.value} value={option.value} selected={option.value === scenario.chatModel.id}>
+                      <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
@@ -264,7 +251,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 {getOptions(false).map((group) => (
                   <optgroup key={group.groupName} label={group.groupName}>
                     {group.options.map((option: Option) => (
-                      <option key={option.value} value={option.value} selected={option.value === scenario.embeddingModel.id}>
+                      <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}

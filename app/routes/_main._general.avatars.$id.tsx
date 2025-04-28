@@ -97,9 +97,12 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         <div className='md:flex hidden items-center gap-3'>
           <fetcher.Form method='POST' action='/avatars/new'>
             <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />
-            <input hidden readOnly id='character' name='character' defaultValue={avatar.character} />
+            <textarea hidden readOnly id='character' name='character' defaultValue={avatar.character} />
             <input hidden readOnly id='ttsVoiceId' name='ttsVoiceId' defaultValue={avatar.ttsVoiceId} />
             <input hidden readOnly id='shortDesc' name='shortDesc' defaultValue={avatar.shortDesc} />
+            {avatar.scenarios?.map((scenario) => (
+              <input key={scenario.id} hidden readOnly name="scenarioIds[]" defaultValue={scenario.id} />
+            ))}
             <Button.Root variant='secondary' className='w-[130px]' type='submit'>
               Duplicate
             </Button.Root>
