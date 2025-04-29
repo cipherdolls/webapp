@@ -16,15 +16,13 @@ interface MessageRecordingButtonProps {
 }
 
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, chatState, setCurrentChatState }) => {
-  const [counter, setCounter] = useState(0);
   const fetcher = useFetcher();
-  const { stopAudio } = useAudioPlayer();
+  const { stopAudio, unlockAudio } = useAudioPlayer();
   const [wasRecording, setWasRecording] = useState(false);
   const [previousState, setPreviousState] = useState<ChatStateType>(chatState);
 
   const handleAudioBlob = (data: Blob | null) => {
     if (data) {
-      setCounter(prev => prev + 1);
       const file = new File([data], 'audio.webm', { type: 'audio/webm' });
       const formData = new FormData();
       formData.append('file', file);
@@ -53,6 +51,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, c
 
   const handleStartRecording = () => {
     if (hasMicAccess) {
+      unlockAudio();
       setCurrentChatState(ChatState.userSpeaking);
       setWasRecording(true);
       stopAudio();

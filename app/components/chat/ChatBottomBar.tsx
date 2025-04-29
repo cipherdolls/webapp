@@ -7,6 +7,7 @@ import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
 import { ChatState, type ChatJobType, type ChatStateType } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
+import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 
 interface ChatBottomBarProps {
   chat: Chat;
@@ -18,9 +19,11 @@ interface ChatBottomBarProps {
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, currentJob, setCurrentChatState }) => {
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
+  const { unlockAudio } = useAudioPlayer();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    unlockAudio();
     const formData = new FormData(e.currentTarget);
     fetcher.submit(formData, {
       method: 'post',
@@ -64,11 +67,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, c
                 <Button.Icon as={Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton
-                chat={chat}
-                chatState={currentChatState}
-                setCurrentChatState={setCurrentChatState}
-              />
+              <MessageRecordingButton chat={chat} chatState={currentChatState} setCurrentChatState={setCurrentChatState} />
             )}
           </div>
         </fetcher.Form>
