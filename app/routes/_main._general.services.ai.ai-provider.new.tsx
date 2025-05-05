@@ -31,7 +31,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     const aiProvider: AiProvider = await res.json();
-    return redirect(`/services/ai/${aiProvider.id}`);
+    return redirect(`/services/ai`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
