@@ -95,9 +95,9 @@ const DataCardRoot: React.FC<DataCardRootProps> = ({ children, className }) => {
 /** Label component for the DataCard */
 const DataCardLabel: React.FC<DataCardLabelProps> = ({ children, className, extra }) => {
   return (
-    <div className={cnExt('flex items-center justify-between mb-4 px-3 gap-3', className)}>
-      <h3 className={cn('text-heading-h4', className)}>{children}</h3>
-      {extra && <div className='items-end max-w-[40%] text-right'>{extra}</div>}
+    <div className={cnExt('flex items-center justify-between mb-4 px-0 gap-3', className)}>
+      <h3 className={cn('text-heading-h3', className)}>{children}</h3>
+      {extra && <div className='flex items-end max-w-[40%] text-right'>{extra}</div>}
     </div>
   );
 };

@@ -54,7 +54,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
               <DataCard.Root>
                 <DataCard.Label
                   className='text-2xl font-semibold flex items-center gap-2'
-                  extra={<ViewButton link={`/ai-providers/${aiProvider.id}`} />}
+                  // extra={<ViewButton link={`/ai-providers/${aiProvider.id}`} />}
                 >
                   <div className='size-10'>
                     <img

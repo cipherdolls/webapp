@@ -63,7 +63,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               <ScenarioDestroy />
             </DeleteModal>
           </div>
-          <div className='md:hidden flex'>
+          <div className='md:hidden flex text-base-black'>
             <Icons.more />
           </div>
         </div>

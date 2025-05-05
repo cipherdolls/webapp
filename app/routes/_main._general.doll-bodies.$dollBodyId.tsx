@@ -49,7 +49,7 @@ export default function DollBodyId({ loaderData }: Route.ComponentProps) {
               <DollBodyDestroy />
             </DeleteModal>
           </div>
-          <div className='md:hidden flex'>
+          <div className='md:hidden flex text-base-black'>
             <Icons.more />
           </div>
         </div>
