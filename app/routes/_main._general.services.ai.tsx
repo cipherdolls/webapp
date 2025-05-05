@@ -62,7 +62,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => (
         <ViewButton
           popoverItems={[
-            { text: 'Edit', href: `/chat-models/${data.id}/edit` },
+            { text: 'Edit', href: `/services/ai/chat-models/${data.id}/edit` },
             { text: 'Delete', href: `/services/ai/chat-models/delete?id=${data.id}`, isDelete: true },
           ]}
           className='flex items-center justify-center'
