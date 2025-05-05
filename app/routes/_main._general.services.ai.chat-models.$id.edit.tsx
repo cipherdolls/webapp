@@ -58,6 +58,8 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
     navigate(`/services/ai`);
   };
 
+  console.log(chatModel);
+
   return (
     <Modal.Root
       defaultOpen
@@ -66,8 +68,8 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
       }}
     >
       <Modal.Content>
-        <Modal.Title>Edit Chat Model</Modal.Title>
-        <Modal.Description className='sr-only'>Edit Chat Model</Modal.Description>
+        <Modal.Title>Edit Chat Model for {chatModel.name}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Chat Model for {chatModel.name}</Modal.Description>
         <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='chatModelId' value={chatModel.id} />
