@@ -110,7 +110,7 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
             <TtsProviderDestroy />
           </DeleteModal>
         </div>
-        <div className='md:hidden flex'>
+        <div className='md:hidden flex text-base-black'>
           <Icons.more />
         </div>
       </div>

@@ -8,7 +8,7 @@ const ApiKeyModal = ({ apiKey }: { apiKey: string }) => {
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <button>
-          <Icons.information />
+          <Icons.information className='text-pink-01' />
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>

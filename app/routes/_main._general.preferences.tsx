@@ -17,24 +17,6 @@ const preferencesNavItems = [
     href: '/preferences/scenarios/new',
   },
   {
-    label: 'AI',
-    to: 'ai',
-    link: 'AI Provider',
-    href: '/preferences/ai/ai-provider/new',
-  },
-  {
-    label: 'TTS',
-    to: 'tts',
-    link: 'TTS Provider',
-    href: '/preferences/tts/tts-provider/new',
-  },
-  {
-    label: 'STT',
-    to: 'stt',
-    link: 'STT Provider',
-    href: '/preferences/stt/stt-provider/new',
-  },
-  {
     label: 'Firmwares',
     to: 'firmwares',
     // link: 'Firmware',

@@ -5,8 +5,6 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { ChatModel } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
 import { getPicture } from '~/utils/getPicture';
-import * as Checkbox from '@radix-ui/react-checkbox';
-import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import DeleteModal from '~/components/ui/deleteModal';
 import ChatModelDestroy from './chat-models.$id.destroy';
 import { formatDate } from '~/utils/date.utils';
@@ -32,13 +30,11 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     return `${time} ms`;
   };
 
-  console.log(chatModel);
-
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/ai-providers/${chatModel.aiProviderId}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <h3 className='text-body-md font-semibold text-base-black hover:underline transition-all duration-200'>
               Go back to <span className='text-neutral-01 text-body-lg'>{chatModel.aiProvider?.name}</span>
@@ -58,7 +54,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             </DeleteModal>
           </div>
           {/* TODO: How is this gonna work? */}
-          <div className='md:hidden flex'>
+          <div className='md:hidden flex text-base-black'>
             <Icons.more />
           </div>
         </div>

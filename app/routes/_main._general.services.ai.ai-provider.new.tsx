@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.preferences.ai.ai-provider.new';
+import type { Route } from './+types/_main._general.services.ai.ai-provider.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -22,7 +22,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       method: request.method,
       body: formData,
     });
-   
+
     if (!res.ok) {
       const responseData = await res.json();
       return {
@@ -46,7 +46,6 @@ export default function ApiProviderNew() {
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const errors = fetcher.data?.errors;
 
-  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -76,9 +75,8 @@ export default function ApiProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/preferences/ai`);
+    navigate(`/services/ai`);
   };
-
 
   return (
     <Drawer.Root

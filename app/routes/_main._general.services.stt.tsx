@@ -1,13 +1,12 @@
 import { Outlet, redirect } from 'react-router';
 import type { SttProvider } from '~/types';
-import type { Route } from './+types/_main._general.preferences.stt';
+import type { Route } from './+types/_main._general.services.stt';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
@@ -46,7 +45,13 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
       render: (data) => (
         <div className='flex items-center justify-end gap-2.5'>
           <span className='font-semibold'>${data.dollarPerSecond * 60}</span>
-          <ViewButton link={`/stt-providers/${data.id}`} />
+          <ViewButton
+            popoverItems={[
+              { text: 'Add Chat Model', href: '/chat-model/new' },
+              { text: 'Add Embedding Model', href: '/embedding-model/new' },
+              { text: 'Delete', href: '/delete-item', isDelete: true },
+            ]}
+          />
         </div>
       ),
       align: 'right',

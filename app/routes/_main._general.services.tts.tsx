@@ -1,6 +1,6 @@
 import { Outlet, redirect } from 'react-router';
 import type { TtsProvider, TtsVoice } from '~/types';
-import type { Route } from './+types/_main._general.preferences.tts';
+import type { Route } from './+types/_main._general.services.tts';
 import { DataCard } from '~/components/DataCard';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
@@ -9,6 +9,7 @@ import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
+import { InformationBadge } from '~/components/ui/InformationBadge';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
@@ -44,19 +45,25 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
         {ttsProviders.map((ttsProvider) => {
           const ExtraSection = () => {
             return (
-              <div className='flex items-center gap-3'>
-                <p className='text-body-sm text-base-black break-words'>
-                  $/Character <span className='text-neutral-01'>-</span> <b className='font-semibold'>${ttsProvider.dollarPerCharacter}</b>
-                </p>
-                •
-                <ViewButton link={`/tts-providers/${ttsProvider.id}`} />
+              <div className='flex items-center gap-6'>
+                <div className='flex items-center gap-2 text-body-sm'>
+                  <span className='text-base-black font-normal'>$/Character</span>
+                  <span className='text-neutral-01 font-normal'>-</span>
+                  <span className='font-semibold text-base-black'>$0</span>
+                </div>
+                <ViewButton
+                  popoverItems={[
+                    { text: 'Edit', href: '/' },
+                    { text: 'Delete', href: '/', isDelete: true },
+                  ]}
+                />
               </div>
             );
           };
           return (
             <DataCard.Root key={ttsProvider.id}>
               <DataCard.Label className='text-2xl font-semibold flex items-center gap-2' extra={<ExtraSection />}>
-                <div className='size-10'>
+                <div className='size-6'>
                   <img
                     src={getPicture(ttsProvider, 'tts-providers', false)}
                     srcSet={getPicture(ttsProvider, 'tts-providers', true)}
@@ -64,7 +71,10 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                     className='size-full object-cover rounded-lg'
                   />
                 </div>
-                {ttsProvider.name}
+                <div className='flex items-center gap-1'>
+                  {ttsProvider.name}
+                  <InformationBadge />
+                </div>
               </DataCard.Label>
               <DataCard.Wrapper>
                 {ttsProvider.ttsVoices.length > 0 ? (

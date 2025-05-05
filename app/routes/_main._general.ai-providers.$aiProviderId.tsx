@@ -105,7 +105,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
     <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
       <div className='flex items-center justify-between sm:px-0 px-4.5'>
         <div className='flex items-center gap-3 sm:gap-4'>
-          <Link to={'/preferences/ai'} className='hover:bg-white/40 rounded-full'>
+          <Link to={'/services/ai'} className='hover:bg-white/40 rounded-full'>
             <Icons.chevronLeft />
           </Link>
           <div className='flex items-center  sm:gap-3 gap-1'>
@@ -133,7 +133,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             <AiProviderDestroy />
           </DeleteModal>
         </div>
-        <div className='md:hidden flex'>
+        <div className='md:hidden flex text-base-black'>
           <Icons.more />
         </div>
       </div>

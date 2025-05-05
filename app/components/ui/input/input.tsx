@@ -13,8 +13,8 @@ export const inputVariants = tv({
     root: ['flex flex-col gap-2'],
     // Label - exactly like the original label
     label: ['text-body-sm font-semibold text-neutral-01'],
-    // Input - exactly like the original input
-    input: ['py-3 px-3.5 rounded-xl text-body-md text-base-black', 'bg-gradient-1', 'w-full', 'outline-none focus:outline-none'],
+    // Input - without hardcoded background (added conditionally)
+    input: ['py-3 px-3.5 rounded-xl text-body-md text-base-black', 'w-full', 'focus:outline-neutral-05'],
     // Icon styles
     icon: ['absolute left-3.5 top-1/2 -translate-y-1/2', 'flex size-5 shrink-0 items-center justify-center', 'text-text-sub-600'],
     // Wrapper for when we need an icon
@@ -57,17 +57,39 @@ function InputWrapper({ className, children, ...rest }: React.HTMLAttributes<HTM
   );
 }
 
-// Input component - exactly like the original input
+// Input component with conditional background styling
 const Input = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & {
     asChild?: boolean;
   }
->(({ className, type = 'text', asChild, ...rest }, forwardedRef) => {
+>(({ className, type = 'text', asChild, value, defaultValue, ...rest }, forwardedRef) => {
   const Component = asChild ? Slot : 'input';
   const { input } = inputVariants();
+  const [isEmpty, setIsEmpty] = React.useState(!value && !defaultValue);
 
-  return <Component type={type} className={input({ class: className })} ref={forwardedRef} {...rest} />;
+  // Handle changes to update the empty state
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsEmpty(e.target.value === '');
+    if (rest.onChange) {
+      rest.onChange(e);
+    }
+  };
+
+  // Determine background class based on empty state
+  const bgClass = isEmpty ? 'bg-neutral-05' : 'bg-gradient-1 outline  outline-neutral-04';
+
+  return (
+    <Component
+      type={type}
+      className={input({ class: `${className} ${bgClass}` })}
+      value={value}
+      defaultValue={defaultValue}
+      onChange={handleChange}
+      ref={forwardedRef}
+      {...rest}
+    />
+  );
 });
 Input.displayName = INPUT_EL_NAME;
 

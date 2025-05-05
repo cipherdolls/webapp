@@ -59,7 +59,17 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       <div className='space-y-10 pb-5'>
         {scenarios.map((scenario) => (
           <DataCard.Root key={scenario.id}>
-            <DataCard.Label extra={<ViewButton link={`/scenarios/${scenario.id}`} userId={scenario.userId} />}>
+            <DataCard.Label
+              extra={
+                <ViewButton
+                  popoverItems={[
+                    { text: 'Add Chat Model', href: '/chat-model/new' },
+                    { text: 'Add Embedding Model', href: '/embedding-model/new' },
+                    { text: 'Delete', href: '/delete-item', isDelete: true },
+                  ]}
+                />
+              }
+            >
               {scenario.name}
             </DataCard.Label>
             <DataCard.Wrapper>

@@ -48,7 +48,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
             </DeleteModal>
           </div>
           {/* TODO: How is this gonna work? */}
-          <div className='md:hidden flex'>
+          <div className='md:hidden flex text-base-black'>
             <Icons.more />
           </div>
         </div>
