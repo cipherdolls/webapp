@@ -63,7 +63,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
         <ViewButton
           popoverItems={[
             { text: 'Edit', href: `/services/ai/chat-models/${data.id}/edit` },
-            { text: 'Delete', href: `/services/ai/chat-models/delete?id=${data.id}`, isDelete: true },
+            { text: 'Delete', href: `/services/ai/chat-models/${data.id}/delete`, isDelete: true },
           ]}
           className='flex items-center justify-center'
           isDataCard={true}
@@ -113,8 +113,8 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => (
         <ViewButton
           popoverItems={[
-            { text: 'Edit', href: `/embedding-models/${data.id}/edit` },
-            { text: 'Delete', href: `/services/ai/embedding-models/delete?id=${data.id}`, isDelete: true },
+            { text: 'Edit', href: `/services/ai/embedding-models/${data.id}/edit` },
+            { text: 'Delete', href: `/services/ai/embedding-models/${data.id}/delete`, isDelete: true },
           ]}
           className='flex items-center justify-center'
           isDataCard={true}
@@ -142,7 +142,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                           text: 'Add Embedding Model',
                           href: `/services/ai/embedding-models/new?id=${aiProvider.id}&name=${aiProvider.name}`,
                         },
-                        { text: 'Delete', href: `/services/ai/providers/delete?id=${aiProvider.id}`, isDelete: true },
+                        {
+                          text: 'Delete',
+                          href: `/services/ai/providers/delete?id=${aiProvider.id}&name=${aiProvider.name}`,
+                          isDelete: true,
+                        },
                       ]}
                     />
                   }
