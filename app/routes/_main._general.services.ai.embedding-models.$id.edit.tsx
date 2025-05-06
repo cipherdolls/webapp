@@ -66,8 +66,8 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
       }}
     >
       <Modal.Content>
-        <Modal.Title>Edit Embedding Model</Modal.Title>
-        <Modal.Description className='sr-only'>Edit Embedding Model</Modal.Description>
+        <Modal.Title>Edit Embedding Model for {embeddingModel.name}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Embedding Model for {embeddingModel.name}</Modal.Description>
         <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
