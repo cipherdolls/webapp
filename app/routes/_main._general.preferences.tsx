@@ -41,12 +41,6 @@ export default function Preferences() {
     }
   }, [location.pathname, navigate]);
 
-  useEffect(() => {
-    if (location.pathname === '/preferences') {
-      navigate('/preferences/scenarios', { replace: true });
-    }
-  }, [location.pathname, navigate]);
-
   const activeItem = preferencesNavItems.find((item) => location.pathname.includes(`/${item.to}`));
 
   return (

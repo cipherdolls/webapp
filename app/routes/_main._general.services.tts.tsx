@@ -1,4 +1,4 @@
-import { Outlet, redirect } from 'react-router';
+import { Link, Outlet, redirect } from 'react-router';
 import type { TtsProvider, TtsVoice } from '~/types';
 import type { Route } from './+types/_main._general.services.tts';
 import { DataCard } from '~/components/DataCard';
@@ -10,6 +10,9 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from '~/components/ui/InformationBadge';
+import RecommendedBadge from '~/components/ui/RecommendedBadge';
+import * as Button from '~/components/ui/button/button';
+import { Icons } from '~/components/ui/icons';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
@@ -27,15 +30,32 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
     {
       id: 'name',
       label: 'Name',
-      render: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => (
+        <div className='flex items-center gap-3'>
+          <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />
+          <span className='font-semibold text-body-md flex items-center gap-2'>
+            {data.name}
+            <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
+          </span>
+        </div>
+      ),
       align: 'left',
     },
     {
       id: 'id',
-      label: 'Preview',
-      render: (data) => <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />,
+      label: '',
+      render: (data) => (
+        <ViewButton
+          popoverItems={[
+            { text: 'Edit', href: `/services/tts/tts-voices/${data.id}/edit` },
+            { text: 'Delete', href: `/services/tts/tts-voices/${data.id}/delete?name=${encodeURIComponent(data.name)}`, isDelete: true },
+          ]}
+          className='flex items-center justify-center'
+          isDataCard={true}
+        />
+      ),
+      width: '44px',
       align: 'right',
-      width: '100px',
     },
   ];
 
@@ -53,8 +73,8 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                 </div>
                 <ViewButton
                   popoverItems={[
-                    { text: 'Edit', href: '/' },
-                    { text: 'Delete', href: '/', isDelete: true },
+                    { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&name=${ttsProvider.name}` },
+                    { text: 'Delete', href: `/services/tts/providers/delete?id=${ttsProvider.id}&name=${ttsProvider.name}`, isDelete: true },
                   ]}
                 />
               </div>

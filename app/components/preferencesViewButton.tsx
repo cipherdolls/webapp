@@ -2,6 +2,7 @@ import { Link, useRouteLoaderData } from 'react-router';
 import type { User } from '~/types';
 import { Icons } from './ui/icons';
 import * as Popover from '~/components/ui/popover';
+import { cn } from '~/utils/cn';
 
 type PopoverLinkItem = {
   text: string;
@@ -23,8 +24,8 @@ export const ViewButton = ({ userId, popoverItems, className, isDataCard }: View
   }
   return (
     <Popover.Root>
-      <Popover.Trigger className={className}>
-        <Icons.more className='text-pink-01 group-hover:text-base-black' />
+      <Popover.Trigger className={cn('group', className)}>
+        <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
       </Popover.Trigger>
       <Popover.Content side='bottom' align='end' className='flex flex-col'>
         {popoverItems.map((item, index) => (
