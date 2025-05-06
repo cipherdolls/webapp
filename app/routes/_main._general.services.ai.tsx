@@ -39,7 +39,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'aiProviderId',
       label: '',
-      render: (data) => <span className='text-body-sm text-neutral-01'>Ensures secure communication</span>,
+      render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
       align: 'left',
     },
     {
@@ -90,7 +90,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'aiProviderId',
       label: '',
-      render: (data) => <span className='text-body-sm text-neutral-01'>Ensures secure communication</span>,
+      render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
       align: 'left',
     },
     {

@@ -129,13 +129,7 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
               <Input.Label id='info' htmlFor='info'>
                 Model description
               </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                type='text'
-                name='info'
-                id='info'
-                placeholder='The purpose of the model and its main feature'
-              />
+              <Input.Input className='text-base-black py-3.5 px-3' type='text' name='info' id='info' defaultValue={embeddingModel.info} />
               <span className='text-neutral-01 text-body-sm'>Maximum of 55 characters</span>
             </Input.Root>
 
