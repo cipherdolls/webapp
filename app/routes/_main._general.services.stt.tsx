@@ -25,8 +25,8 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
       id: 'name',
       label: 'Name',
       render: (data) => (
-        <div className='flex items-center gap-3'>
-          <div className='size-10'>
+        <div className='flex items-center gap-2'>
+          <div className='size-6'>
             <img
               src={getPicture(data, 'stt-providers', false)}
               srcSet={getPicture(data, 'stt-providers', true)}
@@ -34,27 +34,37 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
               className='size-full object-cover rounded-lg'
             />
           </div>
-          <span className='font-semibold'>{data.name}</span>
+          <span className='font-semibold text-body-md'>{data.name}</span>
         </div>
       ),
       align: 'left',
     },
     {
       id: 'dollarPerSecond',
-      label: '$/Output',
+      label: 'Output',
       render: (data) => (
         <div className='flex items-center justify-end gap-2.5'>
-          <span className='font-semibold'>${data.dollarPerSecond * 60}</span>
+          <span className='text-body-sm'>${data.dollarPerSecond * 60}</span>
           <ViewButton
             popoverItems={[
-              { text: 'Add Chat Model', href: '/chat-model/new' },
-              { text: 'Add Embedding Model', href: '/embedding-model/new' },
-              { text: 'Delete', href: '/delete-item', isDelete: true },
+              { text: 'Edit', href: `/services/stt/stt-providers/${data.id}/edit` },
+              {
+                text: 'Delete',
+                href: `/services/stt/stt-providers/${data.id}/delete`,
+                isDelete: true,
+              },
             ]}
           />
         </div>
       ),
       align: 'right',
+    },
+    {
+      id: 'id',
+      label: '',
+      render: () => <div className=''></div>,
+      align: 'right',
+      width: '44px',
     },
   ];
 
