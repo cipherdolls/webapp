@@ -7,6 +7,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { InformationBadge } from '~/components/ui/InformationBadge';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
@@ -71,7 +72,9 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
   return (
     <>
       <DataCard.Root>
-        <DataCard.Label>STT Providers</DataCard.Label>
+        <DataCard.Label className='flex gap-1 items-center'>
+          STT Providers <InformationBadge tooltipText='Services for converting speech to text.' />
+        </DataCard.Label>
         <DataCard.Wrapper>
           <Table wrapperClassName='hidden md:block' columns={columnProperties} data={sttProviders} />
           <div className='block md:hidden'>
