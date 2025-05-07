@@ -1,23 +1,23 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
+import { redirect, useNavigate, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.stt-providers.$sttProvider.edit';
+import type { SttProvider } from '~/types';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
-import { Icons } from '~/components/ui/icons';
+import * as Modal from '~/components/ui/new-modal';
+import type { Route } from './+types/_main._general.stt-providers.$sttProvider.edit';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Input from '~/components/ui/input/input';
+import * as Checkbox from '@radix-ui/react-checkbox';
+import { Icons } from '~/components/ui/icons';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import type { SttProvider } from '~/types';
-import * as Checkbox from '@radix-ui/react-checkbox';
 import { getPicture } from '~/utils/getPicture';
-import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Edit STT Provider' }];
+  return [{ title: 'Edit STT Voice' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
+  console.log(params);
   const res = await fetchWithAuth(`stt-providers/${params.sttProvider}`);
   return await res.json();
 }
@@ -45,7 +45,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   }
 }
 
-export default function SttProviderEdit({ loaderData }: Route.ComponentProps) {
+export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
   const sttProvider: SttProvider = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -88,16 +88,17 @@ export default function SttProviderEdit({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Edit {sttProvider.name}</Drawer.Title>
-        <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
+      <Modal.Content>
+        <Modal.Title>Edit {sttProvider.name}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit {sttProvider.name}</Modal.Description>
+        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -180,28 +181,19 @@ export default function SttProviderEdit({ loaderData }: Route.ComponentProps) {
                 Recommended
               </label>
             </div>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-            onClick={handleClose}
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

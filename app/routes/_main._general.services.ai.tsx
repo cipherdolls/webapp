@@ -170,7 +170,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                   <DataCard.Wrapper>
                     {/* DESKTOP TABLE */}
                     <div className='md:block hidden'>
-                      <Table columns={chatModelColumns} data={aiProvider.chatModels} />
+                      <Table
+                        columns={chatModelColumns}
+                        data={aiProvider.chatModels}
+                        getRowUrl={(chatModel) => `/chat-models/${chatModel.id}`}
+                      />
                     </div>
 
                     {/* MOBILE CARD */}
@@ -178,7 +182,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                       {aiProvider.chatModels.map((chatModel, index) => {
                         return (
                           <Fragment key={chatModel.id}>
-                            <DataCard.Item collapsible>
+                            <DataCard.Item collapsible href={`/services/ai/chat-models/${chatModel.id}`}>
                               <DataCard.ItemLabel>
                                 <span className='flex items-center gap-2'>
                                   {chatModel.name}

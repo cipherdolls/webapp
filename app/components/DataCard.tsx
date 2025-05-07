@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { cn, cnExt } from '~/utils/cn';
 import { Icons } from './ui/icons';
+import { useNavigate } from 'react-router';
 
 /* -------------------------------------------------------------------------- */
 /*                                 CONSTANTS                                  */
@@ -33,6 +34,8 @@ interface DataCardItemProps {
   className?: string;
   collapsible?: boolean;
   defaultOpen?: boolean;
+  onClick?: () => void;
+  href?: string;
 }
 
 interface DataCardItemLabelProps {
@@ -67,6 +70,8 @@ interface DataCardItemContextType {
   collapsible: boolean;
   isOpen: boolean;
   toggleOpen: () => void;
+  onClick?: () => void;
+  href?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -77,6 +82,8 @@ const DataCardItemContext = createContext<DataCardItemContextType>({
   collapsible: false,
   isOpen: false,
   toggleOpen: () => {},
+  onClick: undefined,
+  href: undefined,
 });
 
 function useDataCardItem() {
@@ -108,8 +115,9 @@ const DataCardWrapper: React.FC<DataCardWrapperProps> = ({ children, className }
 };
 
 /** DataCard Item which can optionally be collapsible */
-const DataCardItem: React.FC<DataCardItemProps> = ({ children, className, collapsible = false, defaultOpen = false }) => {
+const DataCardItem: React.FC<DataCardItemProps> = ({ children, className, collapsible = false, defaultOpen = false, onClick, href }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const navigate = useNavigate();
 
   const toggleOpen = () => {
     if (collapsible) {
@@ -117,9 +125,41 @@ const DataCardItem: React.FC<DataCardItemProps> = ({ children, className, collap
     }
   };
 
+  const handleItemClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Don't trigger navigation if clicking on excluded elements
+    const element = e.target as Element;
+    const isExcluded =
+      element.classList.contains('navigation-exclude') ||
+      !!element.closest('.navigation-exclude') ||
+      element instanceof HTMLButtonElement ||
+      element instanceof HTMLAnchorElement ||
+      !!element.closest('button') ||
+      !!element.closest('a');
+
+    if (isExcluded) {
+      return;
+    }
+
+    if (onClick) {
+      onClick();
+    } else if (href) {
+      navigate(href);
+    }
+  };
+
+  const isClickable = onClick || href;
+
   return (
-    <DataCardItemContext.Provider value={{ collapsible, isOpen, toggleOpen }}>
-      <div className={cn('', className)}>{children}</div>
+    <DataCardItemContext.Provider value={{ collapsible, isOpen, toggleOpen, onClick, href }}>
+      <div
+        className={cn('', isClickable && 'cursor-pointer hover:bg-neutral-05 transition-colors relative group', className)}
+        onClick={isClickable ? handleItemClick : undefined}
+      >
+        {isClickable && (
+          <div className='absolute left-0 right-0 bottom-0 h-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity z-20'></div>
+        )}
+        {children}
+      </div>
     </DataCardItemContext.Provider>
   );
 };

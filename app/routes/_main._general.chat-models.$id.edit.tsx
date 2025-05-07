@@ -3,16 +3,14 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { ChatModel } from '~/types';
 import type { Route } from './+types/_main._general.chat-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { cn } from '~/utils/cn';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import * as Modal from '~/components/ui/new-modal';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Chat Models' }];
+  return [{ title: 'Edit Chat Model' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -44,14 +42,14 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     }
 
     const chatModel: ChatModel = await res.json();
-    return redirect(`/chat-models/${chatModel.id}`);
+    return redirect(`/services/ai`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function chatModelShow({ loaderData }: Route.ComponentProps) {
+export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
   const chatModel: ChatModel = loaderData;
   const navigate = useNavigate();
   const fetcher = useFetcher();
@@ -60,52 +58,48 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
     navigate(`/chat-models/${chatModel.id}`);
   };
 
-  console.log(chatModel, 'edit');
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Edit Chat Model</Drawer.Title>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
+      <Modal.Content>
+        <Modal.Title>Edit Chat Model for {chatModel.name}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Chat Model for {chatModel.name}</Modal.Description>
+        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='chatModelId' value={chatModel.id} />
             <input type='hidden' name='aiProviderId' value={chatModel.aiProviderId} />
 
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
-                Name
+                Model Name
               </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                defaultValue={chatModel.name}
-              />
+              <Input.Input className='text-base-black py-3.5 px-3' id='name' name='name' type='text' defaultValue={chatModel.name} />
             </Input.Root>
+
             <Input.Root>
               <Input.Label id='providerModelName' htmlFor='providerModelName'>
                 Provider Model Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='providerModelName'
                 name='providerModelName'
                 type='text'
                 defaultValue={chatModel.providerModelName}
               />
             </Input.Root>
-            <div className='grid grid-cols-2 gap-3'>
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
               <Input.Root>
                 <Input.Label id='dollarPerInputToken' htmlFor='dollarPerInputToken'>
-                  Dollar Per Input Token
+                  $ per Input Token
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
                   type='number'
@@ -114,12 +108,13 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   defaultValue={scientificNumConvert(chatModel.dollarPerInputToken)}
                 />
               </Input.Root>
+
               <Input.Root>
                 <Input.Label id='dollarPerOutputToken' htmlFor='dollarPerOutputToken'>
-                  Dollar Per Output Token
+                  $ per Output Token
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
                   type='number'
@@ -129,20 +124,29 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                 />
               </Input.Root>
             </div>
+
             <Input.Root>
               <Input.Label id='contextWindow' htmlFor='contextWindow'>
                 Context Window
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='contextWindow'
                 name='contextWindow'
                 type='number'
                 defaultValue={chatModel.contextWindow}
               />
             </Input.Root>
-            <div className='flex flex-col gap-2'>
-              <span className='text-sm font-medium text-base-black'>Options</span>
+
+            <Input.Root>
+              <Input.Label id='info' htmlFor='info'>
+                Model description
+              </Input.Label>
+              <Input.Input className='text-base-black py-3.5 px-3' type='text' name='info' id='info' defaultValue={chatModel.info} />
+              <span className='text-neutral-01 text-body-sm'>Maximum of 55 characters</span>
+            </Input.Root>
+
+            <div className='flex gap-2'>
               <div className='flex items-center gap-2'>
                 <Checkbox.Root
                   className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
@@ -158,6 +162,7 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                   Recommended
                 </label>
               </div>
+
               <div className='flex items-center gap-2'>
                 <Checkbox.Root
                   className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
@@ -174,27 +179,19 @@ export default function chatModelShow({ loaderData }: Route.ComponentProps) {
                 </label>
               </div>
             </div>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

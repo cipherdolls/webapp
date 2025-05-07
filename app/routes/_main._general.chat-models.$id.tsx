@@ -36,9 +36,13 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
           <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
-            <h3 className='text-body-md font-semibold text-base-black hover:underline transition-all duration-200'>
-              Go back to <span className='text-neutral-01 text-body-lg'>{chatModel.aiProvider?.name}</span>
-            </h3>
+            <div className='flex items-center gap-3'>
+              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
+                {chatModel.name}
+              </h3>
+              <span className='text-neutral-01 word text-body-lg'>•</span>
+              <span className='text-neutral-01 text-body-lg'>AI</span>
+            </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
             <Link to={`/chat-models/${chatModel.id}/edit`}>
@@ -53,160 +57,111 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               <ChatModelDestroy />
             </DeleteModal>
           </div>
-          {/* TODO: How is this gonna work? */}
           <div className='md:hidden flex text-base-black'>
             <Icons.more />
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
-          <div className='flex flex-col gap-4 border-b border-neutral-03 pb-4'>
-            <div className='flex items-center sm:gap-5 gap-1'>
-              <div className='size-32'>
-                <img
-                  src={getPicture(chatModel.aiProvider, 'ai-providers', false)}
-                  srcSet={getPicture(chatModel.aiProvider, 'ai-providers', true)}
-                  alt={chatModel.name}
-                  className='size-full object-cover rounded-lg'
-                />
-              </div>
-              <div className='flex flex-1 items-center justify-between'>
-                <div className='flex flex-col gap-1'>
-                  <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{chatModel.name}</h3>
-                  <p className='text-neutral-01'>{chatModel.providerModelName}</p>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-sm text-gray-600'>Provider:</span>
-                    <Link to={`/ai-providers/${chatModel.aiProviderId}`} className='text-base-black hover:underline font-medium'>
-                      {chatModel.aiProvider?.name}
-                    </Link>
-                  </div>
+          <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl '>
+            <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-start md:justify-between md:flex-row flex-col'>
+              <div className='flex items-center gap-5'>
+                <div className='size-[72px]'>
+                  <img
+                    src={getPicture(chatModel.aiProvider, 'ai-providers', false)}
+                    srcSet={getPicture(chatModel.aiProvider, 'ai-providers', true)}
+                    alt={chatModel.name}
+                    className='size-full object-cover rounded-lg'
+                  />
                 </div>
-                <div className='lg:flex hidden flex-col justify-between gap-6'>
-                  <div className='grid grid-cols-2 gap-4'>
-                    <div className='flex flex-col items-center justify-center gap-1'>
-                      <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                        Recommended
-                      </label>
-                      {chatModel.recommended ? (
-                        <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
-                          <Icons.check className='text-white size-4.5' />
-                        </div>
-                      ) : (
-                        <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
-                          <Icons.close className='text-white size-4.5' />
-                        </div>
-                      )}
-                    </div>
-                    <div className='flex flex-col items-center justify-center gap-1'>
-                      <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                        Censored
-                      </label>
-                      {chatModel.censored ? (
-                        <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
-                          <Icons.check className='text-white size-4.5' />
-                        </div>
-                      ) : (
-                        <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
-                          <Icons.close className='text-white size-4.5' />
-                        </div>
-                      )}
-                    </div>
+                <div className='flex flex-col gap-2'>
+                  <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black'>{chatModel.providerModelName}</h4>
+                  <div className='flex items-center gap-1'>
+                    {chatModel.recommended && (
+                      <div className='flex items-center gap-1'>
+                        <Icons.thumb className='size-4' />
+                        <span className='text-neutral-01 text-body-sm'>Recommended •</span>
+                      </div>
+                    )}
+                    {chatModel.censored && (
+                      <div className='flex items-center gap-1'>
+                        <Icons.warning className='size-4 text-specials-danger' />
+                        <span className='text-neutral-01 text-body-sm'>Censored</span>
+                      </div>
+                    )}
                   </div>
-                  <div className='flex flex-col gap-1'>
-                    <p className='text-body-sm text-neutral-01'>
-                      Created at: <span className='text-body-md text-base-black/80 font-medium'>{createdDate}</span>
-                    </p>
-                    <p className='text-body-sm text-neutral-01'>
-                      Updated at: <span className='text-body-md text-base-black/80 font-medium'>{updatedDate}</span>
-                    </p>
-                  </div>
+                  <p className='text-body-sm text-base-black'>Ensures secure communication</p>
                 </div>
               </div>
-            </div>
-            <div className='flex lg:hidden flex-col justify-between gap-6'>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='flex flex-col items-center justify-center gap-1'>
-                  <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                    Recommended
-                  </label>
-                  {chatModel.recommended ? (
-                    <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
-                      <Icons.check className='text-white size-4.5' />
-                    </div>
-                  ) : (
-                    <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
-                      <Icons.close className='text-white size-4.5' />
-                    </div>
-                  )}
+              <div className='flex flex-1 justify-end items-end'>
+                <div className='flex flex-col gap-2'>
+                  <p className='md:text-right text-body-sm text-neutral-01 text-center'>
+                    Provider: <span className='text-base-black font-semibold'>{chatModel.aiProvider?.name}</span>
+                  </p>
+                  <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                    Created at: <span className='text-base-black font-semibold'>{createdDate}</span>
+                  </p>
+                  <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                    Updated at: <span className='text-base-black font-semibold'>{updatedDate}</span>
+                  </p>
                 </div>
-                <div className='flex flex-col items-center justify-center gap-1'>
-                  <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                    Censored
-                  </label>
-                  {chatModel.censored ? (
-                    <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
-                      <Icons.check className='text-white size-4.5' />
-                    </div>
-                  ) : (
-                    <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
-                      <Icons.close className='text-white size-4.5' />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className='flex flex-col gap-1'>
-                <p className='text-body-sm text-neutral-01'>
-                  Created at: <span className='text-body-md text-base-black/80 font-medium'>{createdDate}</span>
-                </p>
-                <p className='text-body-sm text-neutral-01'>
-                  Updated at: <span className='text-body-md text-base-black/80 font-medium'>{updatedDate}</span>
-                </p>
               </div>
             </div>
           </div>
           <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
-            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
-              <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Model Properties</h2>
-
+            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max relative'>
+              <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Model Properties</h2>
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
-                  <span className='text-neutral-01'>Context Window:</span>
-                  <span className='font-medium'>{chatModel.contextWindow.toLocaleString()} token</span>
+                  <span className='text-neutral-01 text-body-sm'>Context Window:</span>
+                  <span className='text-body-sm font-semibold'>{chatModel.contextWindow.toLocaleString()} token</span>
                 </div>
 
                 <div className='flex justify-between'>
-                  <span className='text-neutral-01'>Dollar Per Input Token: </span>
-                  <span className='font-medium'>${scientificNumConvert(chatModel.dollarPerInputToken * 1000000)}</span>
+                  <span className='text-neutral-01 text-body-sm'>Dollar Per Input Token: </span>
+                  <span className='text-body-sm font-semibold'>${scientificNumConvert(chatModel.dollarPerInputToken * 1000000)}</span>
                 </div>
 
                 <div className='flex justify-between'>
-                  <span className='text-neutral-01'>Dollar Per Output Token:</span>
-                  <span className='font-medium'>${scientificNumConvert(chatModel.dollarPerOutputToken * 1000000)}</span>
+                  <span className='text-neutral-01 text-body-sm'>Dollar Per Output Token:</span>
+                  <span className='text-body-sm font-semibold'>${scientificNumConvert(chatModel.dollarPerOutputToken * 1000000)}</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-neutral-01 text-body-sm'>Base Path</span>
+                  <span className='text-body-sm font-semibold py-1 px-2 rounded-full bg-neutral-05 hover:underline transition-all duration-200 cursor-pointer word-break max-w-3/4'>
+                    {chatModel.aiProvider?.basePath}
+                  </span>
                 </div>
               </div>
-              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>Prices are per million token</span>
+              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-3'>Prices are per million token</span>
             </div>
-            <div className='bg-gradient-1 backdrop-blur-48 rounded-xl p-4'>
-              <h2 className='text-lg font-semibold mb-4 text-gray-800 border-b pb-2'>Performance Stats</h2>
+            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max'>
+              <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Performance Stats</h2>
 
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
-                  <span className='text-gray-600'>Average Response Time:</span>
-                  <span className='font-medium'>{formatResponseTime(chatModel.aggregateChatCompletions.avgTimeTakenMs)}</span>
+                  <span className='text-neutral-01 text-body-sm'>Average Response Time:</span>
+                  <span className='text-body-sm font-semibold'>
+                    {formatResponseTime(chatModel.aggregateChatCompletions.avgTimeTakenMs)}
+                  </span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-gray-600'>Min Response Time:</span>
-                  <span className='font-medium'>{formatResponseTime(chatModel.aggregateChatCompletions.minTimeTakenMs)}</span>
+                  <span className='text-body-sm font-semibold'>
+                    {formatResponseTime(chatModel.aggregateChatCompletions.minTimeTakenMs)}
+                  </span>
                 </div>
 
                 <div className='flex justify-between'>
-                  <span className='text-gray-600'>Max Response Time:</span>
-                  <span className='font-medium'>{formatResponseTime(chatModel.aggregateChatCompletions.maxTimeTakenMs)}</span>
+                  <span className='text-neutral-01 text-body-sm'>Max Response Time:</span>
+                  <span className='text-body-sm font-semibold'>
+                    {formatResponseTime(chatModel.aggregateChatCompletions.maxTimeTakenMs)}
+                  </span>
                 </div>
 
                 <div className='flex justify-between'>
-                  <span className='text-gray-600'>Average Cost:</span>
-                  <span className='font-medium'>${chatModel.aggregateChatCompletions.avgUsdCost || '0.00'}</span>
+                  <span className='text-neutral-01 text-body-sm'>Average Cost:</span>
+                  <span className='text-body-sm font-semibold'>${chatModel.aggregateChatCompletions.avgUsdCost || '0.00'}</span>
                 </div>
               </div>
             </div>
