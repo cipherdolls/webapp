@@ -66,8 +66,8 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
       }}
     >
       <Modal.Content>
-        <Modal.Title>Edit Embedding Model</Modal.Title>
-        <Modal.Description className='sr-only'>Edit Embedding Model</Modal.Description>
+        <Modal.Title>Edit Embedding Model for {embeddingModel.name}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Embedding Model for {embeddingModel.name}</Modal.Description>
         <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
@@ -129,13 +129,7 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
               <Input.Label id='info' htmlFor='info'>
                 Model description
               </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                type='text'
-                name='info'
-                id='info'
-                placeholder='The purpose of the model and its main feature'
-              />
+              <Input.Input className='text-base-black py-3.5 px-3' type='text' name='info' id='info' defaultValue={embeddingModel.info} />
               <span className='text-neutral-01 text-body-sm'>Maximum of 55 characters</span>
             </Input.Root>
 

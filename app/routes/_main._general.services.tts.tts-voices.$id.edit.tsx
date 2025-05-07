@@ -1,4 +1,4 @@
-import { redirect, useNavigate, useFetcher } from 'react-router';
+import { redirect, useNavigate, useFetcher, useSearchParams } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { TtsVoice } from '~/types';
 import * as Button from '~/components/ui/button/button';
@@ -51,6 +51,8 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
   const ttsVoice = loaderData as TtsVoice;
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const providerName = searchParams.get('providerName') || '';
 
   const errors = fetcher.data?.errors;
 
@@ -66,8 +68,12 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
       }}
     >
       <Modal.Content>
-        <Modal.Title>Edit {ttsVoice.name}</Modal.Title>
-        <Modal.Description className='sr-only'>Edit</Modal.Description>
+        <Modal.Title>
+          Edit {ttsVoice.name} for {providerName}
+        </Modal.Title>
+        <Modal.Description className='sr-only'>
+          Edit {ttsVoice.name} for {providerName}
+        </Modal.Description>
         <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
