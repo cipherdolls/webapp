@@ -20,7 +20,6 @@ export async function clientLoader() {
 
 export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
   const sttProviders: SttProvider[] = loaderData;
-
   const columnProperties: Array<TTableColumn<SttProvider>> = [
     {
       id: 'name',
