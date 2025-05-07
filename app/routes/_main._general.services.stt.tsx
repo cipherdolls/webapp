@@ -76,7 +76,12 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
           STT Providers <InformationBadge tooltipText='Services for converting speech to text.' />
         </DataCard.Label>
         <DataCard.Wrapper>
-          <Table wrapperClassName='hidden md:block' columns={columnProperties} data={sttProviders} />
+          <Table
+            wrapperClassName='hidden md:block'
+            columns={columnProperties}
+            data={sttProviders}
+            getRowUrl={(stt) => `/stt-providers/${stt.id}`}
+          />
           <div className='block md:hidden'>
             {sttProviders.map((sttProvider, index) => {
               return (

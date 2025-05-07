@@ -24,15 +24,15 @@ export const ViewButton = ({ userId, popoverItems, className, isDataCard }: View
   }
   return (
     <Popover.Root>
-      <Popover.Trigger className={cn('group', className)}>
+      <Popover.Trigger className={cn('group navigation-exclude', className)}>
         <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
       </Popover.Trigger>
-      <Popover.Content side='bottom' align='end' className='flex flex-col'>
+      <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude'>
         {popoverItems.map((item, index) => (
           <Link
             key={index}
             to={item.href}
-            className={`cursor-pointer w-full py-3.5 px-3 ${
+            className={`cursor-pointer w-full py-3.5 px-3 navigation-exclude ${
               item.isDelete ? 'hover:bg-specials-danger/10 text-specials-danger' : 'hover:bg-neutral-05 text-base-black'
             } bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
           >

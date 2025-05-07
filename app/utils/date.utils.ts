@@ -12,13 +12,7 @@ export function formatTime(timestamp: Date | string): string {
 export function formatDayMonth(timestamp: Date | string): string {
   return moment(timestamp).local().format('MMMM Do');
 }
-export const formatDate = (dateString: Date) => {
+export const formatDate = (dateString: Date | string) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  return moment(date).format('DD MMM YYYY,HH:mm');
 };
