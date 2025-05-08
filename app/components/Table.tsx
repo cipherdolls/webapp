@@ -9,6 +9,7 @@ export interface TTableColumn<TData> {
   align?: 'left' | 'right' | 'center';
   width?: string;
   className?: string;
+  headerClassName?: string;
 }
 
 interface TableProps<TData> extends TableHTMLAttributes<HTMLTableElement> {
@@ -61,9 +62,9 @@ const Table = <TData,>({
           <thead>
             <tr className='border-b border-neutral-04'>
               {columns.map((column: any) => {
-                const { id, label, className, render, ...props } = column;
+                const { id, label, className, headerClassName, render, ...props } = column;
                 return (
-                  <th key={id.toString()} className={cn('text-xs font-semibold text-neutral-01 py-4', className)} {...props}>
+                  <th key={id.toString()} className={cn('text-xs font-semibold text-neutral-01 py-4', headerClassName || className)} {...props}>
                     {label}
                   </th>
                 );

@@ -42,6 +42,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
     {
       id: 'dollarPerSecond',
       label: 'Output',
+      headerClassName: 'pr-11',
       render: (data) => (
         <div className='flex items-center justify-end gap-2.5'>
           <span className='text-body-sm'>${data.dollarPerSecond * 60}</span>
@@ -58,13 +59,6 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
         </div>
       ),
       align: 'right',
-    },
-    {
-      id: 'id',
-      label: '',
-      render: () => <div className=''></div>,
-      align: 'right',
-      width: '44px',
     },
   ];
 
