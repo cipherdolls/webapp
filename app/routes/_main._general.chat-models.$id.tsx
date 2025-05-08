@@ -63,7 +63,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
           <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl '>
-            <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-start md:justify-between md:flex-row flex-col'>
+            <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-end md:justify-between md:flex-row flex-col'>
               <div className='flex items-center gap-5'>
                 <div className='size-[72px]'>
                   <img
@@ -89,7 +89,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                       </div>
                     )}
                   </div>
-                  <p className='text-body-sm text-base-black'>Ensures secure communication</p>
+                  <p className='text-body-sm text-base-black'>{chatModel.info}</p>
                 </div>
               </div>
               <div className='flex flex-1 justify-end items-end h-full'>
