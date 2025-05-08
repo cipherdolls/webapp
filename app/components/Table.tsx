@@ -9,6 +9,7 @@ export interface TTableColumn<TData> {
   align?: 'left' | 'right' | 'center';
   width?: string;
   className?: string;
+  headerClassName?: string;
 }
 
 interface TableProps<TData> extends TableHTMLAttributes<HTMLTableElement> {
@@ -37,13 +38,13 @@ const Table = <TData,>({
   const handleRowClick = (e: React.MouseEvent, item: TData) => {
     // Check if the click happened on or inside the ViewButton or any interactive element
     const element = e.target as Element;
-    const isExcluded = 
-      element.classList.contains('navigation-exclude') || 
+    const isExcluded =
+      element.classList.contains('navigation-exclude') ||
       !!element.closest('.navigation-exclude') ||
-      !!element.closest('[role="button"]') || 
+      !!element.closest('[role="button"]') ||
       !!element.closest('button') ||
       !!element.closest('a');
-    
+
     // Only navigate if it wasn't a click on an excluded element
     if (!isExcluded) {
       if (onRowClick) {
@@ -56,14 +57,18 @@ const Table = <TData,>({
 
   return (
     <div className={cn('px-5', wrapperClassName)}>
-      <table className={cn('w-full border-collapse border-transparent', className)} {...props}>
+      <table className={cn('w-full border-collapse border-transparent table-hover-border', className)} {...props}>
         {!hideHeader && (
           <thead>
             <tr className='border-b border-neutral-04'>
               {columns.map((column: any) => {
-                const { id, label, className, render, ...props } = column;
+                const { id, label, className, headerClassName, render, ...props } = column;
                 return (
-                  <th key={id.toString()} className={cn('text-xs font-semibold text-neutral-01 py-4', className)} {...props}>
+                  <th
+                    key={id.toString()}
+                    className={cn('text-xs font-semibold text-neutral-01 py-4', headerClassName || className)}
+                    {...props}
+                  >
                     {label}
                   </th>
                 );
@@ -75,7 +80,7 @@ const Table = <TData,>({
           {data.map((dt, index) => (
             <tr
               key={index}
-              className={cn((onRowClick || getRowUrl) && 'cursor-pointer')}
+              className={cn((onRowClick || getRowUrl) && 'cursor-pointer relative hover-effect transition-all duration-200')}
               onClick={(e) => (onRowClick || getRowUrl) && handleRowClick(e, dt)}
             >
               {columns.map((column: any) => {

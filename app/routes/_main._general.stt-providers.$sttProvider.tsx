@@ -28,7 +28,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/preferences/stt`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`/services/stt`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
@@ -82,7 +82,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                     <p className='text-body-sm text-base-black'>A fast service, great for simple transcriptions</p>
                   </div>
                 </div>
-                <div className='flex flex-1 justify-end items-end'>
+                <div className='flex flex-1 justify-end items-end h-full'>
                   <div className='flex flex-col gap-2'>
                     <p className='md:text-right text-body-sm text-neutral-01 text-center'></p>
                     <p className='text-body-sm text-neutral-01 md:text-right text-center'>

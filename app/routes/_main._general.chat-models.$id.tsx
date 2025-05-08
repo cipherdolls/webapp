@@ -92,7 +92,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <p className='text-body-sm text-base-black'>Ensures secure communication</p>
                 </div>
               </div>
-              <div className='flex flex-1 justify-end items-end'>
+              <div className='flex flex-1 justify-end items-end h-full'>
                 <div className='flex flex-col gap-2'>
                   <p className='md:text-right text-body-sm text-neutral-01 text-center'>
                     Provider: <span className='text-base-black font-semibold'>{chatModel.aiProvider?.name}</span>
@@ -124,12 +124,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 <div className='flex justify-between'>
                   <span className='text-neutral-01 text-body-sm'>Dollar Per Output Token:</span>
                   <span className='text-body-sm font-semibold'>${scientificNumConvert(chatModel.dollarPerOutputToken * 1000000)}</span>
-                </div>
-                <div className='flex justify-between'>
-                  <span className='text-neutral-01 text-body-sm'>Base Path</span>
-                  <span className='text-body-sm font-semibold py-1 px-2 rounded-full bg-neutral-05 hover:underline transition-all duration-200 cursor-pointer word-break max-w-3/4'>
-                    {chatModel.aiProvider?.basePath}
-                  </span>
                 </div>
               </div>
               <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-3'>Prices are per million token</span>

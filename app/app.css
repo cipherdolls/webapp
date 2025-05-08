@@ -212,3 +212,14 @@ input[type='number'] {
 .word-break {
   word-break: break-word;
 }
+
+/* Table row hover border effect */
+.table-hover-border tr.hover-effect:hover::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0px;
+  width: 100%;
+  height: 1px;
+  background-color: black;
+}
