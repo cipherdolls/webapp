@@ -230,7 +230,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                   <DataCard.Wrapper className='mt-3'>
                     {/* DESKTOP TABLE */}
                     <div className='md:block hidden'>
-                      <Table columns={embeddingModelColumns} data={aiProvider.embeddingModels} />
+                      <Table
+                        columns={embeddingModelColumns}
+                        data={aiProvider.embeddingModels}
+                        getRowUrl={(embeddingModel) => `/embedding-models/${embeddingModel.id}`}
+                      />
                     </div>
                     {/* MOBILE CARD */}
                     <div className='block md:hidden'>
