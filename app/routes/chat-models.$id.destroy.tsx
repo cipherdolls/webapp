@@ -10,7 +10,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   if (!res.ok) {
     return await res.json();
   }
-  return redirect(`/preferences/ai`);
+  return redirect(`/services/ai`);
 }
 
 export default function ChatModelDestroy() {

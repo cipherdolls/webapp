@@ -1,31 +1,25 @@
-import { redirect, useNavigate, useFetcher } from 'react-router';
+import { redirect, useFetcher, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { SttProvider } from '~/types';
+import type { Route } from './+types/_main._general.services.stt.stt-provider.new';
 import * as Button from '~/components/ui/button/button';
-import * as Modal from '~/components/ui/new-modal';
-import type { Route } from './+types/_main._general.stt-providers.$sttProvider.edit';
-import ErrorsBox from '~/components/ui/input/errorsBox';
-import * as Input from '~/components/ui/input/input';
-import * as Checkbox from '@radix-ui/react-checkbox';
+import * as Dialog from '@radix-ui/react-dialog';
+import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
+import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import { getPicture } from '~/utils/getPicture';
+import type { SttProvider } from '~/types';
+import ErrorsBox from '~/components/ui/input/errorsBox';
+import * as Checkbox from '@radix-ui/react-checkbox';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Edit STT Voice' }];
+  return [{ title: 'New STT Provider' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  console.log(params);
-  const res = await fetchWithAuth(`stt-providers/${params.sttProvider}`);
-  return await res.json();
-}
-
-export async function clientAction({ request, params }: Route.ClientActionArgs) {
+export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
-    const res = await fetchWithAuth(`stt-providers/${params.sttProvider}`, {
+    const res = await fetchWithAuth('stt-providers', {
       method: request.method,
       body: formData,
     });
@@ -45,11 +39,10 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   }
 }
 
-export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
-  const sttProvider: SttProvider = loaderData;
+export default function TtsProviderNew() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState<string | null>(sttProvider.picture ?? null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
@@ -84,21 +77,20 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/stt-providers/${sttProvider.id}`);
+    navigate(`/services/stt`);
   };
 
   return (
-    <Modal.Root
+    <Drawer.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Modal.Content>
-        <Modal.Title>Edit {sttProvider.name}</Modal.Title>
-        <Modal.Description className='sr-only'>Edit {sttProvider.name}</Modal.Description>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
-          <Modal.Body className='flex flex-col gap-5'>
+      <Drawer.Content>
+        <Drawer.Title>Create STT Provider</Drawer.Title>
+        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
+          <Drawer.Body className='flex flex-col gap-3'>
             <ErrorsBox errors={errors} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -109,12 +101,7 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                   <input ref={fileInputRef} className='hidden' type='file' name='picture' accept='image/*' onChange={handleImageChange} />
                   {selectedImage !== null ? (
                     <div className='size-full'>
-                      <img
-                        src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(sttProvider, 'stt-providers', false)}
-                        srcSet={!selectedImage.startsWith('blob:') ? getPicture(sttProvider, 'stt-providers', true) : undefined}
-                        alt={sttProvider.name}
-                        className='size-full object-cover rounded-lg'
-                      />
+                      <img src={selectedImage} alt='API Provider' className='size-full object-cover rounded-lg' />
                     </div>
                   ) : (
                     <div className='flex items-center justify-center size-full'>
@@ -127,7 +114,7 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                     <div
                       className={cn(
                         'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                        (selectedImage || sttProvider.picture) && 'divide-x divide-neutral-04 gap-4'
+                        selectedImage && 'divide-x divide-neutral-04 gap-4'
                       )}
                     >
                       {selectedImage !== null && (
@@ -150,7 +137,19 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                 id='name'
                 name='name'
                 type='text'
-                defaultValue={sttProvider.name}
+                placeholder='Name'
+              />
+            </Input.Root>
+            <Input.Root>
+              <Input.Label id='apiKey' htmlFor='apiKey'>
+                API Key
+              </Input.Label>
+              <Input.Input
+                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                id='apiKey'
+                name='apiKey'
+                type='text'
+                placeholder='API Key'
               />
             </Input.Root>
             <Input.Root>
@@ -163,7 +162,7 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                 name='dollarPerSecond'
                 type='number'
                 step='0.0000001'
-                defaultValue={sttProvider.dollarPerSecond}
+                placeholder='0'
               />
             </Input.Root>
             <div className='flex items-center gap-2'>
@@ -171,7 +170,6 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                 className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
                 id='recommended'
                 name='recommended'
-                defaultChecked={sttProvider.recommended}
               >
                 <Checkbox.Indicator>
                   <Icons.check className='text-white size-4.5' />
@@ -181,19 +179,28 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                 Recommended
               </label>
             </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Modal.Close asChild>
-              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
-                Cancel
+          </Drawer.Body>
+          <Drawer.Footer>
+            <Dialog.Close asChild>
+              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
+                Close
               </Button.Root>
-            </Modal.Close>
+            </Dialog.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Modal.Footer>
+          </Drawer.Footer>
         </fetcher.Form>
-      </Modal.Content>
-    </Modal.Root>
+        <Dialog.Close asChild>
+          <button
+            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
+            aria-label='Close'
+            onClick={handleClose}
+          >
+            <Icons.close className='text-base-black' />
+          </button>
+        </Dialog.Close>
+      </Drawer.Content>
+    </Drawer.Root>
   );
 }

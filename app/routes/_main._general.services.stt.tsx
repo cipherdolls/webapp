@@ -1,13 +1,13 @@
 import { Outlet, redirect } from 'react-router';
 import type { SttProvider } from '~/types';
-import type { Route } from './+types/_main._general.preferences.stt';
+import type { Route } from './+types/_main._general.services.stt';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import { InformationBadge } from '~/components/ui/InformationBadge';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
@@ -20,14 +20,13 @@ export async function clientLoader() {
 
 export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
   const sttProviders: SttProvider[] = loaderData;
-
   const columnProperties: Array<TTableColumn<SttProvider>> = [
     {
       id: 'name',
       label: 'Name',
       render: (data) => (
-        <div className='flex items-center gap-3'>
-          <div className='size-10'>
+        <div className='flex items-center gap-2'>
+          <div className='size-6'>
             <img
               src={getPicture(data, 'stt-providers', false)}
               srcSet={getPicture(data, 'stt-providers', true)}
@@ -35,18 +34,28 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
               className='size-full object-cover rounded-lg'
             />
           </div>
-          <span className='font-semibold'>{data.name}</span>
+          <span className='font-semibold text-body-md'>{data.name}</span>
         </div>
       ),
       align: 'left',
     },
     {
       id: 'dollarPerSecond',
-      label: '$/Output',
+      label: 'Output',
+      headerClassName: 'pr-11',
       render: (data) => (
         <div className='flex items-center justify-end gap-2.5'>
-          <span className='font-semibold'>${data.dollarPerSecond * 60}</span>
-          <ViewButton link={`/stt-providers/${data.id}`} />
+          <span className='text-body-sm'>${data.dollarPerSecond * 60}</span>
+          <ViewButton
+            popoverItems={[
+              { text: 'Edit', href: `/services/stt/stt-providers/${data.id}/edit` },
+              {
+                text: 'Delete',
+                href: `/services/stt/stt-providers/${data.id}/delete`,
+                isDelete: true,
+              },
+            ]}
+          />
         </div>
       ),
       align: 'right',
@@ -56,9 +65,16 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
   return (
     <>
       <DataCard.Root>
-        <DataCard.Label>STT Providers</DataCard.Label>
+        <DataCard.Label className='flex gap-1 items-center'>
+          STT Providers <InformationBadge tooltipText='Services for converting speech to text.' />
+        </DataCard.Label>
         <DataCard.Wrapper>
-          <Table wrapperClassName='hidden md:block' columns={columnProperties} data={sttProviders} />
+          <Table
+            wrapperClassName='hidden md:block'
+            columns={columnProperties}
+            data={sttProviders}
+            getRowUrl={(stt) => `/stt-providers/${stt.id}`}
+          />
           <div className='block md:hidden'>
             {sttProviders.map((sttProvider, index) => {
               return (

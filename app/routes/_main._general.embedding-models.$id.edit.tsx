@@ -67,8 +67,8 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
       }}
     >
       <Drawer.Content>
-        <Drawer.Title>Edit Embedding Model</Drawer.Title>
-        <Dialog.Description className='hidden'>Edit Embedding Model</Dialog.Description>
+        <Drawer.Title>Edit Embedding Model for {embeddingModel.name}</Drawer.Title>
+        <Dialog.Description className='hidden'>Edit Embedding Model for {embeddingModel.name}</Dialog.Description>
         <fetcher.Form method='PATCH' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />

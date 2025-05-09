@@ -39,7 +39,19 @@ export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
       <div className='space-y-10 pb-5'>
         {dollBodies.map((dollBody) => (
           <DataCard.Root key={dollBody.id}>
-            <DataCard.Label extra={<ViewButton link={`/doll-bodies/${dollBody.id}`} />}>{dollBody.name}</DataCard.Label>
+            <DataCard.Label
+              extra={
+                <ViewButton
+                  popoverItems={[
+                    { text: 'Add Chat Model', href: '/chat-model/new' },
+                    { text: 'Add Embedding Model', href: '/embedding-model/new' },
+                    { text: 'Delete', href: '/delete-item', isDelete: true },
+                  ]}
+                />
+              }
+            >
+              {dollBody.name}
+            </DataCard.Label>
             <DataCard.Wrapper>
               <Table columns={columnProperties} data={[dollBody]} wrapperClassName='hidden md:block' />
 

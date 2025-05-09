@@ -28,11 +28,15 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/preferences/stt`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`/services/stt`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
-            <h3 className='text-body-md font-semibold text-base-black hover:underline transition-all duration-200'>
-              Go back to <span className='text-neutral-01 text-body-lg'>STT Providers</span>
-            </h3>
+            <div className='flex items-center gap-3'>
+              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
+                {sttProvider.name}
+              </h3>
+              <span className='text-neutral-01 text-body-lg'>•</span>
+              <span className='text-neutral-01 text-body-lg'>STT</span>
+            </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
             <Link to={`/stt-providers/${sttProvider.id}/edit`}>
@@ -48,57 +52,58 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
             </DeleteModal>
           </div>
           {/* TODO: How is this gonna work? */}
-          <div className='md:hidden flex'>
+          <div className='md:hidden flex text-base-black'>
             <Icons.more />
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
           <div className='flex flex-col gap-4'>
-            <div className='flex items-center sm:gap-5 gap-1'>
-              <div className='size-32'>
-                <img
-                  src={getPicture(sttProvider, 'stt-providers', false)}
-                  srcSet={getPicture(sttProvider, 'stt-providers', true)}
-                  alt={sttProvider.name}
-                  className='size-full object-cover rounded-lg'
-                />
-              </div>
-              <div className='flex flex-1 items-center justify-between'>
-                <div className='flex flex-col gap-1'>
-                  <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{sttProvider.name}</h3>
-                  <p className='text-neutral-01'>{sttProvider.name}</p>
+            <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl'>
+              <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-end md:justify-between md:flex-row flex-col'>
+                <div className='flex items-center gap-5'>
+                  <div className='size-[72px]'>
+                    <img
+                      src={getPicture(sttProvider, 'stt-providers', false)}
+                      srcSet={getPicture(sttProvider, 'stt-providers', true)}
+                      alt={sttProvider.name}
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
+                  <div className='flex flex-col gap-2'>
+                    <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black'>{sttProvider.name}</h4>
+                    <div className='flex items-center gap-1'>
+                      {sttProvider.recommended && (
+                        <div className='flex items-center gap-1'>
+                          <Icons.thumb className='size-4' />
+                          <span className='text-neutral-01 text-body-sm'>Recommended</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className='text-body-sm text-base-black'>A fast service, great for simple transcriptions</p>
+                  </div>
                 </div>
-                <div className='lg:flex hidden flex-col justify-between gap-6'>
-                  <div className='flex flex-col gap-1'>
-                    <p className='text-body-sm text-neutral-01'>
-                      Created at: <span className='text-body-md text-base-black/80 font-medium'>{createdDate}</span>
+                <div className='flex flex-1 justify-end items-end h-full'>
+                  <div className='flex flex-col gap-2'>
+                    <p className='md:text-right text-body-sm text-neutral-01 text-center'></p>
+                    <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                      Created at: <span className='text-base-black font-semibold'>{createdDate}</span>
                     </p>
-                    <p className='text-body-sm text-neutral-01'>
-                      Updated at: <span className='text-body-md text-base-black/80 font-medium'>{updatedDate}</span>
+                    <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                      Updated at: <span className='text-base-black font-semibold'>{updatedDate}</span>
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className='flex flex-col gap-4 mt-3'>
-              <div className='flex items-center gap-1'>
-                <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                  Recommended:
-                </label>
-                {sttProvider.recommended ? (
-                  <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 bg-base-black outline-none focus:shadow-neutral-02'>
-                    <Icons.check className='text-white size-4.5' />
-                  </div>
-                ) : (
-                  <div className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-specials-danger bg-specials-danger outline-none focus:shadow-specials-danger'>
-                    <Icons.close className='text-white size-4.5' />
-                  </div>
-                )}
+            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max relative'>
+              <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Provider Properties</h2>
+              <div className='flex flex-col gap-3'>
+                <div className='flex justify-between'>
+                  <span className='text-neutral-01 text-body-sm'>Dollar Per Second</span>
+                  <span className='text-body-sm font-semibold'>${sttProvider.dollarPerSecond * 60}</span>
+                </div>
               </div>
-              <p className='text-body-sm text-neutral-01'>
-                Dollar per second: <span className='text-body-md text-base-black/80 font-medium'>${sttProvider.dollarPerSecond * 60}</span>
-              </p>
+              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-3'>Prices are per million token</span>
             </div>
           </div>
         </div>

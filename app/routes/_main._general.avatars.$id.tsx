@@ -120,7 +120,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           )}
         </div>
         {/* TODO: How is this gonna work? */}
-        <div className='md:hidden flex'>
+        <div className='md:hidden flex text-base-black'>
           <Icons.more />
         </div>
       </div>
@@ -173,7 +173,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                       <Tooltip.Content
                         className='bg-base-black text-white text-body-sm py-2 px-3 rounded-md shadow-md z-50'
                         sideOffset={5}
-                        side="top"
+                        side='top'
                       >
                         Gender: {avatar.gender}
                         <Tooltip.Arrow className='fill-base-black' />

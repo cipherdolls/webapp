@@ -31,6 +31,7 @@ export interface ChatModel {
   createdAt: Date;
   updatedAt: Date;
   name: string;
+  info?: string;
   dollarPerInputToken: number;
   dollarPerOutputToken: number;
   contextWindow: number;
@@ -60,6 +61,7 @@ export interface EmbeddingModel {
   aiProviderId: string;
   createdAt: Date;
   updatedAt: Date;
+  info?: string;
 }
 
 export interface SttProvider {

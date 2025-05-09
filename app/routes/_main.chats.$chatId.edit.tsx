@@ -37,11 +37,14 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleSttProviderChange = (sttProvider: SttProvider) => {
-    submit({ sttProviderId: sttProvider.id }, { 
-      method: 'PATCH', 
-      action: `/chats/${chat.id}`,
-      navigate: false 
-    });
+    submit(
+      { sttProviderId: sttProvider.id },
+      {
+        method: 'PATCH',
+        action: `/chats/${chat.id}`,
+        navigate: false,
+      }
+    );
   };
 
   return (
@@ -109,7 +112,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                     });
                   }}
                 >
-                  <Icons.information />
+                  <Icons.information className='text-pink-01' />
                 </button>
               </div>
 

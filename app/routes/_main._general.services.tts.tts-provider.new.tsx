@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.preferences.ai.ai-provider.new';
+import type { Route } from './+types/_main._general.preferences.tts.tts-provider.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -8,21 +8,21 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import type { AiProvider } from '~/types';
+import type { TtsProvider } from '~/types';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'New AI Provider' }];
+  return [{ title: 'New TTS Provider' }];
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
-    const res = await fetchWithAuth('ai-providers', {
+    const res = await fetchWithAuth('tts-providers', {
       method: request.method,
       body: formData,
     });
-   
+
     if (!res.ok) {
       const responseData = await res.json();
       return {
@@ -30,23 +30,23 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       };
     }
 
-    const aiProvider: AiProvider = await res.json();
-    return redirect(`/ai-providers/${aiProvider.id}`);
+    const ttsProvider: TtsProvider = await res.json();
+    return redirect(`/tts-providers/${ttsProvider.id}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function ApiProviderNew() {
+export default function TtsProviderNew() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+
   const errors = fetcher.data?.errors;
 
-  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -76,9 +76,8 @@ export default function ApiProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/preferences/ai`);
+    navigate(`/services/tts`);
   };
-
 
   return (
     <Drawer.Root
@@ -88,7 +87,7 @@ export default function ApiProviderNew() {
       }}
     >
       <Drawer.Content>
-        <Drawer.Title>Create AI Provider</Drawer.Title>
+        <Drawer.Title>Create TTS Provider</Drawer.Title>
         <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <ErrorsBox errors={errors} />
@@ -153,15 +152,28 @@ export default function ApiProviderNew() {
               />
             </Input.Root>
             <Input.Root>
-              <Input.Label id='basePath' htmlFor='basePath'>
-                Base Path
+              <Input.Label id='dollarPerCharacter' htmlFor='dollarPerCharacter'>
+                Dollar per character
               </Input.Label>
               <Input.Input
                 className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='basePath'
-                name='basePath'
+                id='dollarPerCharacter'
+                name='dollarPerCharacter'
+                type='number'
+                step='0.0000001'
+                placeholder='0'
+              />
+            </Input.Root>
+            <Input.Root>
+              <Input.Label id='hostname' htmlFor='hostname'>
+                Hostname
+              </Input.Label>
+              <Input.Input
+                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                id='hostname'
+                name='hostname'
                 type='text'
-                placeholder='Base path'
+                placeholder='Hostname'
               />
             </Input.Root>
           </Drawer.Body>

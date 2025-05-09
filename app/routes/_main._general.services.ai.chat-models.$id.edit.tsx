@@ -1,7 +1,7 @@
 import { redirect, useNavigate, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { ChatModel } from '~/types';
-import type { Route } from './+types/_main._general.chat-models.$id.edit';
+import type { Route } from './+types/_main._general.services.ai.chat-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
@@ -55,7 +55,7 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
 
   const handleClose = () => {
-    navigate(`/chat-models/${chatModel.id}`);
+    navigate(`/services/ai`);
   };
 
   return (

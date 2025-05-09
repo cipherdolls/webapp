@@ -27,6 +27,11 @@ const SidebarItems = [
     icon: Icons.chats,
   },
   {
+    name: 'Services',
+    href: '/services',
+    icon: Icons.services,
+  },
+  {
     name: 'Preferences',
     href: '/preferences/scenarios',
     icon: Icons.preferences,

@@ -1,15 +1,22 @@
-import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
-import type { AiProvider, ChatModel } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.chat-models.new';
+import { redirect, useNavigate, useFetcher } from 'react-router';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { EmbeddingModel } from '~/types';
+import type { Route } from './+types/_main._general.services.ai.embedding-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import * as Modal from '~/components/ui/new-modal';
+
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'New Chat Model' }];
+  return [{ title: 'Edit Embedding Model' }];
+}
+
+export async function clientLoader({ params }: Route.LoaderArgs) {
+  const embeddingModelId = params.id;
+  const res = await fetchWithAuth(`embedding-models/${embeddingModelId}`);
+  return await res.json();
 }
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
@@ -17,14 +24,15 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     const formData = await request.formData();
     const jsonData: Record<string, any> = {};
     formData.forEach((value, key) => {
-      jsonData[key] = value;
+      if (key === 'recommended') {
+        jsonData[key] = value === 'on';
+      } else {
+        jsonData[key] = value;
+      }
     });
-    
-    // Use the aiProviderId from params instead of from the form
-    jsonData.aiProviderId = params.aiProviderId;
-    
-    const res = await fetchWithAuth('chat-models', {
-      method: request.method,
+
+    const res = await fetchWithAuth(`embedding-models/${params.id}`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(jsonData),
     });
@@ -32,47 +40,44 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     if (!res.ok) {
       return await res.json();
     }
-    const chatModel: ChatModel = await res.json();
-    return redirect(`/chat-models/${chatModel.id}`);
+
+    const embeddingModel: EmbeddingModel = await res.json();
+    return redirect(`/services/ai`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
-  const aiProvider = useRouteLoaderData('routes/_main._general.ai-providers.$aiProviderId') as AiProvider;
+export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps) {
+  const embeddingModel: EmbeddingModel = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/ai-providers/${aiProvider.id}`);
+    navigate(`/services/ai`);
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Add New Chat Model for {aiProvider.name}</Drawer.Title>
-        <fetcher.Form method='POST' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
-            <input type='hidden' name='aiProviderId' value={aiProvider.id} />
+      <Modal.Content>
+        <Modal.Title>Edit Embedding Model for {embeddingModel.name}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Embedding Model for {embeddingModel.name}</Modal.Description>
+        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
+            <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
+            <input type='hidden' name='aiProviderId' value={embeddingModel.aiProviderId} />
 
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
                 Model Name
               </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                placeholder='GPT 4'
-              />
+              <Input.Input className='text-base-black py-3.5 px-3' id='name' name='name' type='text' defaultValue={embeddingModel.name} />
             </Input.Root>
 
             <Input.Root>
@@ -80,11 +85,11 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 Provider Model Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='providerModelName'
                 name='providerModelName'
                 type='text'
-                placeholder='gpt4'
+                defaultValue={embeddingModel.providerModelName}
               />
             </Input.Root>
 
@@ -94,11 +99,13 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   $ per Input Token
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
-                  type='text'
-                  placeholder='0.0001'
+                  type='number'
+                  step='any'
+                  min='0'
+                  defaultValue={scientificNumConvert(embeddingModel.dollarPerInputToken)}
                 />
               </Input.Root>
 
@@ -107,25 +114,23 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   $ per Output Token
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
-                  type='text'
-                  placeholder='0.0001'
+                  type='number'
+                  step='any'
+                  min='0'
+                  defaultValue={scientificNumConvert(embeddingModel.dollarPerOutputToken)}
                 />
               </Input.Root>
             </div>
+
             <Input.Root>
-              <Input.Label id='contextWindow' htmlFor='contextWindow'>
-                Context Window
+              <Input.Label id='info' htmlFor='info'>
+                Model description
               </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='contextWindow'
-                name='contextWindow'
-                type='number'
-                placeholder='8192'
-              />
+              <Input.Input className='text-base-black py-3.5 px-3' type='text' name='info' id='info' defaultValue={embeddingModel.info} />
+              <span className='text-neutral-01 text-body-sm'>Maximum of 55 characters</span>
             </Input.Root>
 
             <div className='flex items-center gap-2'>
@@ -133,6 +138,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
                 id='recommended'
                 name='recommended'
+                defaultChecked={embeddingModel.recommended}
               >
                 <Checkbox.Indicator>
                   <Icons.check className='text-white size-4.5' />
@@ -142,27 +148,19 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 Recommended
               </label>
             </div>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }
