@@ -66,28 +66,6 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
     <>
       <div className='space-y-10 pb-5'>
         {ttsProviders.map((ttsProvider) => {
-          const ExtraSection = () => {
-            return (
-              <div className='flex items-center gap-6'>
-                <div className='flex items-center gap-2 text-body-sm'>
-                  <span className='text-base-black font-normal'>$/Character</span>
-                  <span className='text-neutral-01 font-normal'>-</span>
-                  <span className='font-semibold text-base-black'>$0</span>
-                </div>
-                <ViewButton
-                  popoverItems={[
-                    { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&name=${ttsProvider.name}` },
-                    {
-                      text: 'Delete',
-                      href: `/services/tts/providers/delete?id=${ttsProvider.id}&name=${ttsProvider.name}`,
-                      isDelete: true,
-                    },
-                  ]}
-                />
-              </div>
-            );
-          };
-
           const enhancedTtsVoices = ttsProvider.ttsVoices.map((voice) => ({
             ...voice,
             providerName: ttsProvider.name,
@@ -96,7 +74,28 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
 
           return (
             <DataCard.Root key={ttsProvider.id}>
-              <DataCard.Label className='text-2xl font-semibold flex items-center gap-2' extra={<ExtraSection />}>
+              <DataCard.Label
+                className='text-2xl font-semibold flex items-center gap-2'
+                extra={
+                  <div className='flex items-center gap-6'>
+                    <div className='flex items-center gap-2 text-body-sm'>
+                      <span className='text-base-black font-normal'>$/Character</span>
+                      <span className='text-neutral-01 font-normal'>-</span>
+                      <span className='font-semibold text-base-black'>$0</span>
+                    </div>
+                    <ViewButton
+                      popoverItems={[
+                        { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&name=${ttsProvider.name}` },
+                        {
+                          text: 'Delete',
+                          href: `/services/tts/providers/delete?id=${ttsProvider.id}&name=${ttsProvider.name}`,
+                          isDelete: true,
+                        },
+                      ]}
+                    />
+                  </div>
+                }
+              >
                 <div className='size-6'>
                   <img
                     src={getPicture(ttsProvider, 'tts-providers', false)}
