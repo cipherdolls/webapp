@@ -48,6 +48,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
+      tooltipText: 'Input tooltip',
     },
     {
       id: 'dollarPerOutputToken',
@@ -55,6 +56,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
+      tooltipText: 'Output tooltip',
     },
     {
       id: 'id',
@@ -99,6 +101,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
+      tooltipText: 'Input tooltip',
     },
     {
       id: 'dollarPerOutputToken',
@@ -106,6 +109,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
+      tooltipText: 'Output tooltip',
     },
     {
       id: 'id',

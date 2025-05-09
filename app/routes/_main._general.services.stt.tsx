@@ -59,6 +59,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
         </div>
       ),
       align: 'right',
+      tooltipText: 'Output tooltip',
     },
   ];
 
