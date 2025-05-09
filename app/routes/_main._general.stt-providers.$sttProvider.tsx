@@ -59,7 +59,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
           <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl'>
-              <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-start md:justify-between md:flex-row flex-col'>
+              <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-end md:justify-between md:flex-row flex-col'>
                 <div className='flex items-center gap-5'>
                   <div className='size-[72px]'>
                     <img
