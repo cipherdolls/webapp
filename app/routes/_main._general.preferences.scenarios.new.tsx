@@ -12,6 +12,7 @@ import type { AiProvider } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Slider from '~/components/ui/slider';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { formatModelName } from '~/utils/formatModelName';
 
 interface Option {
   label: string;
@@ -88,7 +89,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
 
       modelsArr.forEach((model) => {
         newOptionGroup.options.push({
-          label: model.name,
+          label: formatModelName(model.providerModelName),
           value: model.id,
           recommended: model.recommended,
         });

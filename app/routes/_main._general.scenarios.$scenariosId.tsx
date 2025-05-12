@@ -9,6 +9,7 @@ import type { Scenario } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
 import ScenarioDestroy from './scenarios.$scenariosId.destroy';
 import { formatDate } from '~/utils/date.utils';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -85,11 +86,11 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black'>{scenario.name}</h3>
                   <div className='flex items-center gap-2'>
                     <span className='text-sm text-gray-600'>Chat Model:</span>
-                    <span className='text-base-black font-medium'>{scenario.chatModel.name}</span>
+                    <span className='text-base-black font-medium'>{formatModelName(scenario.chatModel.providerModelName)}</span>
                   </div>
                   <div className='flex items-center gap-2'>
                     <span className='text-sm text-gray-600'>Embedding Model:</span>
-                    <span className='text-base-black font-medium'>{scenario.embeddingModel.name}</span>
+                    <span className='text-base-black font-medium'>{formatModelName(scenario.embeddingModel.providerModelName)}</span>
                   </div>
                 </div>
 
@@ -215,7 +216,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Name:</span>
-                  <span className='font-medium'>{scenario.chatModel.name}</span>
+                  <span className='font-medium'>{formatModelName(scenario.chatModel.providerModelName)}</span>
                 </div>
 
                 <div className='flex justify-between'>
@@ -241,7 +242,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
                   <span className='text-neutral-01'>Name:</span>
-                  <span className='font-medium'>{scenario.embeddingModel.name}</span>
+                  <span className='font-medium'>{formatModelName(scenario.embeddingModel.providerModelName)}</span>
                 </div>
 
                 <div className='flex justify-between'>

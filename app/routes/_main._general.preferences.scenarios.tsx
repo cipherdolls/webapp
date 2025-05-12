@@ -5,6 +5,7 @@ import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
@@ -21,7 +22,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'name',
       label: 'Name',
-      render: (data) => <span className='font-semibold'>{data.chatModel.name}</span>,
+      render: (data) => <span className='font-semibold'>{formatModelName(data.chatModel.providerModelName)}</span>,
       align: 'left',
     },
     {

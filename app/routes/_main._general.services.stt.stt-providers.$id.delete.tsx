@@ -5,6 +5,7 @@ import type { Route } from './+types/_main._general.services.ai.chat-models.$id.
 import * as Button from '~/components/ui/button/button';
 import * as Modal from '~/components/ui/new-modal';
 import type { ChatModel } from '~/types';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Delete STT Provider' }];
@@ -33,8 +34,8 @@ export default function STTProviderDelete({ loaderData }: Route.ComponentProps) 
       }}
     >
       <Modal.Content>
-        <Modal.Title className='sr-only'>Delete Provider {sttProvider.name}</Modal.Title>
-        <Modal.Description className='sr-only'>Delete Provider {sttProvider.name}</Modal.Description>
+        <Modal.Title className='sr-only'>Delete Provider {formatModelName(sttProvider.providerModelName)}</Modal.Title>
+        <Modal.Description className='sr-only'>Delete Provider {formatModelName(sttProvider.providerModelName)}</Modal.Description>
         <fetcher.Form
           action={`/stt-providers/${sttProvider.id}/destroy`}
           method='DELETE'
@@ -43,7 +44,9 @@ export default function STTProviderDelete({ loaderData }: Route.ComponentProps) 
           <Modal.Body className='flex flex-col gap-3.5'>
             <h1 className='text-heading-h1 font-semibold text-center'>🗑️</h1>
             <div className='flex flex-col gap-2'>
-              <h2 className='text-heading-h2 font-semibold text-center text-base-black'>Delete provider {sttProvider.name}?</h2>
+              <h2 className='text-heading-h2 font-semibold text-center text-base-black'>
+                Delete provider {formatModelName(sttProvider.providerModelName)}?
+              </h2>
               <span className='text-center text-base-black text-body-lg'>You will not be able to restore the data.</span>
             </div>
           </Modal.Body>

@@ -11,6 +11,7 @@ import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
 import { InformationBadge } from '~/components/ui/InformationBadge';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
@@ -25,11 +26,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const aiProviders: AiProvider[] = loaderData;
   const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     {
-      id: 'name',
+      id: 'providerModelName',
       label: 'Chat model',
       render: (data) => (
         <span className='font-semibold text-body-md flex items-center gap-2'>
-          {data.name}
+          {formatModelName(data.providerModelName)}
           <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         </span>
       ),
@@ -78,11 +79,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
 
   const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     {
-      id: 'name',
+      id: 'providerModelName',
       label: 'Embedding model',
       render: (data) => (
         <span className='font-semibold text-body-md flex items-center gap-2'>
-          {data.name}
+          {formatModelName(data.providerModelName)}
           <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         </span>
       ),
@@ -189,7 +190,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                             <DataCard.Item collapsible href={`/services/ai/chat-models/${chatModel.id}`}>
                               <DataCard.ItemLabel>
                                 <span className='flex items-center gap-2'>
-                                  {chatModel.name}
+                                  {chatModel.providerModelName}
                                   <RecommendedBadge recommended={chatModel.recommended} tooltipText='Recommended' />
                                 </span>
                               </DataCard.ItemLabel>
@@ -248,7 +249,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                             <DataCard.Item collapsible>
                               <DataCard.ItemLabel>
                                 <span className='flex items-center gap-2'>
-                                  {embeddingModel.name}
+                                  {formatModelName(embeddingModel.providerModelName)}
                                   <RecommendedBadge recommended={embeddingModel.recommended} tooltipText='Recommended' />
                                 </span>
                               </DataCard.ItemLabel>

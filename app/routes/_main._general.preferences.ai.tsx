@@ -9,6 +9,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AiProviders' }];
@@ -24,9 +25,9 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
 
   const columnProperties: Array<TTableColumn<ChatModel | EmbeddingModel>> = [
     {
-      id: 'name',
+      id: 'providerModelName',
       label: 'Name',
-      render: (data) => <span className='font-semibold'>{data.name}</span>,
+      render: (data) => <span className='font-semibold'>{formatModelName(data.providerModelName)}</span>,
       align: 'left',
     },
     {
@@ -77,7 +78,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                         return (
                           <Fragment key={chatModel.id}>
                             <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
-                              <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
+                              <DataCard.ItemLabel>{formatModelName(chatModel.providerModelName)}</DataCard.ItemLabel>
                               <DataCard.ItemCollapsibleContent>
                                 <DataCard.ItemDataGrid
                                   data={[
