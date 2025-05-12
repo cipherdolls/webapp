@@ -1,6 +1,8 @@
 import React, { type TableHTMLAttributes } from 'react';
 import { cn } from '~/utils/cn';
 import { useNavigate } from 'react-router';
+import { Icons } from './ui/icons';
+import Tooltip from './ui/tooltip';
 
 export interface TTableColumn<TData> {
   id: keyof TData;
@@ -10,6 +12,7 @@ export interface TTableColumn<TData> {
   width?: string;
   className?: string;
   headerClassName?: string;
+  tooltipText?: string;
 }
 
 interface TableProps<TData> extends TableHTMLAttributes<HTMLTableElement> {
@@ -65,7 +68,7 @@ const Table = <TData,>({
           <thead>
             <tr className='border-b border-neutral-04'>
               {columns.map((column: any) => {
-                const { id, label, className, headerClassName, render, ...props } = column;
+                const { id, label, className, headerClassName, tooltipText, render, ...props } = column;
                 return (
                   <th
                     key={id.toString()}
@@ -73,6 +76,10 @@ const Table = <TData,>({
                     {...props}
                   >
                     {label}
+
+                    {tooltipText && (
+                      <Tooltip side='top' trigger={<Icons.info className='inline-block size-4 ml-1' />} content={tooltipText} />
+                    )}
                   </th>
                 );
               })}

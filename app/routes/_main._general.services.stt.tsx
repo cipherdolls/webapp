@@ -59,6 +59,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
         </div>
       ),
       align: 'right',
+      tooltipText: 'Cost 1 unit of the token you received at the same rate',
     },
   ];
 
