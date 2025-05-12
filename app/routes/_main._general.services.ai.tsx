@@ -48,7 +48,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
-      tooltipText: 'Input tooltip',
+      tooltipText: 'The cost of processing one million tokens that you send to the model',
     },
     {
       id: 'dollarPerOutputToken',
@@ -56,7 +56,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
-      tooltipText: 'Output tooltip',
+      tooltipText: 'Cost 1 unit of the token you received at the same rate',
     },
     {
       id: 'id',
@@ -101,7 +101,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
-      tooltipText: 'Input tooltip',
+      tooltipText: 'The cost of processing one million tokens that you send to the model',
     },
     {
       id: 'dollarPerOutputToken',
@@ -109,7 +109,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
       align: 'right',
       width: '104px',
-      tooltipText: 'Output tooltip',
+      tooltipText: 'Cost 1 unit of the token you received at the same rate',
     },
     {
       id: 'id',
