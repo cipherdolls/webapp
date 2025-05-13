@@ -1,5 +1,6 @@
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
+import { formatModelName } from '~/utils/formatModelName';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
@@ -17,7 +18,7 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
             },
             {
               label: 'Embedding Model',
-              value: embeddingJob.embeddingModel?.name,
+              value: formatModelName(embeddingJob.embeddingModel?.providerModelName),
             },
           ]}
         />

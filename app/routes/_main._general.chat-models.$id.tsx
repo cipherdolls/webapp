@@ -9,6 +9,7 @@ import DeleteModal from '~/components/ui/deleteModal';
 import ChatModelDestroy from './chat-models.$id.destroy';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Model' }];
@@ -38,7 +39,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
-                {chatModel.name}
+                {formatModelName(chatModel.providerModelName)}
               </h3>
               <span className='text-neutral-01 word text-body-lg'>•</span>
               <span className='text-neutral-01 text-body-lg'>AI</span>
@@ -69,7 +70,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <img
                     src={getPicture(chatModel.aiProvider, 'ai-providers', false)}
                     srcSet={getPicture(chatModel.aiProvider, 'ai-providers', true)}
-                    alt={chatModel.name}
+                    alt={chatModel.providerModelName}
                     className='size-full object-cover rounded-lg'
                   />
                 </div>

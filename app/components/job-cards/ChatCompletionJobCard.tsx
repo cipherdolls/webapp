@@ -1,5 +1,6 @@
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
+import { formatModelName } from '~/utils/formatModelName';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatCompletionJobCard = ({ message }: { message: Message }) => {
@@ -17,7 +18,7 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
             },
             {
               label: 'Chat Model',
-              value: chatCompletionJob.chatModel.name,
+              value: formatModelName(chatCompletionJob.chatModel.providerModelName),
             },
           ]}
         />
