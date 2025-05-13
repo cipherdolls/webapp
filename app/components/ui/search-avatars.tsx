@@ -81,28 +81,32 @@ const SearchAvatars = () => {
         }`}
       >
         {searchValue && !hasMatchingItems && <div className='py-6 text-center text-sm text-slate-500'>No results found.</div>}
-        {hasMatchingItems && (
+        {searchValue && hasMatchingItems && (
           <div className='pt-4 pb-2 px-2 flex flex-col gap-5'>
-            {filteredAvatars.myAvatars.length > 0 && (
-              <div className='flex flex-col gap-1'>
-                <p className='text-label px-2 text-neutral-02'>My Avatars</p>
-                <div className='flex flex-col'>
-                  {filteredAvatars.myAvatars.map((avatar) => (
+            <div className='flex flex-col gap-1'>
+              <p className='text-label px-2 text-neutral-02'>My Avatars</p>
+              <div className='flex flex-col'>
+                {filteredAvatars.myAvatars.length > 0 ? (
+                  filteredAvatars.myAvatars.map((avatar) => (
                     <AvatarItem key={avatar.id} avatar={avatar} searchTerm={searchValue} highlightMatch={highlightMatch} />
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className='p-2 text-label text-neutral-02'>Not found</div>
+                )}
               </div>
-            )}
-            {filteredAvatars.publicAvatars.length > 0 && (
-              <div className='flex flex-col gap-1'>
-                <p className='text-label px-2 text-neutral-02'>Public Avatars</p>
-                <div className='flex flex-col'>
-                  {filteredAvatars.publicAvatars.map((avatar) => (
+            </div>
+            <div className='flex flex-col gap-1'>
+              <p className='text-label px-2 text-neutral-02'>Public Avatars</p>
+              <div className='flex flex-col'>
+                {filteredAvatars.publicAvatars.length > 0 ? (
+                  filteredAvatars.publicAvatars.map((avatar) => (
                     <AvatarItem key={avatar.id} avatar={avatar} searchTerm={searchValue} highlightMatch={highlightMatch} />
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className='p-2 text-label text-neutral-02'>Not found</div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
