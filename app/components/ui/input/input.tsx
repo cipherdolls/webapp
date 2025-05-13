@@ -10,7 +10,7 @@ const INPUT_ICON_NAME = 'InputIcon';
 export const inputVariants = tv({
   slots: {
     // Root - basic container
-    root: ['flex flex-col gap-2'],
+    root: ['flex flex-col gap-2 relative'],
     // Label - exactly like the original label
     label: ['text-body-sm font-semibold text-neutral-01'],
     // Input - without hardcoded background (added conditionally)

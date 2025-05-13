@@ -81,7 +81,7 @@ export const buttonVariants = tv({
         ],
       },
     },
-     // White variant
+    // White variant
     {
       variant: 'white',
       class: {
