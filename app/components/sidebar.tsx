@@ -27,14 +27,14 @@ const SidebarItems = [
     icon: Icons.chats,
   },
   {
+    name: 'Community',
+    href: '/community',
+    icon: Icons.users,
+  },
+  {
     name: 'Services',
     href: '/services',
     icon: Icons.services,
-  },
-  {
-    name: 'Preferences',
-    href: '/preferences/scenarios',
-    icon: Icons.preferences,
   },
   {
     name: 'Account',
