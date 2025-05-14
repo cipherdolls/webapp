@@ -1,6 +1,5 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.preferences.tts.tts-provider.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -10,6 +9,7 @@ import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import type { TtsProvider } from '~/types';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import type { Route } from './+types/_main._general.services.tts.tts-provider.new';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Provider' }];

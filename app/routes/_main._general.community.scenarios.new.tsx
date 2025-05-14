@@ -50,7 +50,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     const scenario = await res.json();
-    return redirect(`/preferences/scenarios`);
+    return redirect(`/community/scenarios`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
@@ -72,7 +72,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
-    navigate(`/preferences/scenarios`);
+    navigate(`/community/scenarios`);
   };
 
   const getOptions = (forChatModels: boolean): OptionGroup[] => {

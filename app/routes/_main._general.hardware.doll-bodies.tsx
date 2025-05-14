@@ -3,7 +3,7 @@ import type { DollBody } from '~/types';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.preferences.doll-bodies';
+import type { Route } from './+types/_main._general.hardware.doll-bodies';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { formatDate } from '~/utils/date.utils';
 

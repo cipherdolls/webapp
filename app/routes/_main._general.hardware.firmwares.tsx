@@ -4,21 +4,18 @@ import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.preferences.firmwares';
+import type { Route } from './+types/_main._general.hardware.firmwares';
 import { InstallButton } from '~/components/buttons/InstallButton';
 import { apiUrl } from '~/constants';
-
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Firmwares' }];
 }
 
-
 export async function clientLoader() {
   const res = await fetchWithAuth(`firmwares`);
   return await res.json();
 }
-
 
 export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
   const firmwares: Firmware[] = loaderData;
@@ -40,18 +37,13 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'bin',
       label: 'Download',
-      render: (data) => <InstallButton
-      manifest={`${apiUrl}/firmwares/${data.id}/manifest.json`}
-      label="Flash Device"
-    />,
+      render: (data) => <InstallButton manifest={`${apiUrl}/firmwares/${data.id}/manifest.json`} label='Flash Device' />,
       align: 'right',
     },
-
   ];
 
   return (
     <>
-
       <DataCard.Root>
         <DataCard.Label>Firmwares</DataCard.Label>
         <DataCard.Wrapper>
@@ -62,14 +54,15 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
                 <DataCard.Item key={firmware.id}>
                   <DataCard.ItemLabel>{firmware.version}</DataCard.ItemLabel>
 
-                  
                   <DataCard.ItemDataGrid
                     data={[
                       {
-                        label: "Download",
-                        value: <a href={`${apiUrl}/firmwares/${firmware.id}/download`} download>
-                        Download
-                      </a>,
+                        label: 'Download',
+                        value: (
+                          <a href={`${apiUrl}/firmwares/${firmware.id}/download`} download>
+                            Download
+                          </a>
+                        ),
                       },
                     ]}
                   />

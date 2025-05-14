@@ -32,14 +32,14 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={'/preferences/scenarios'} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={'/community/scenarios'} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <h3 className='text-body-md font-semibold text-base-black hover:underline transition-all duration-200'>
               Go back to <span className='text-neutral-01 text-body-lg'>Scenarios</span>
             </h3>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
-            <fetcher.Form method='POST' action='/preferences/scenarios/new'>
+            <fetcher.Form method='POST' action='/community/scenarios/new'>
               <input hidden readOnly name='name' defaultValue={`${scenario.name} copy`} />
               <input hidden readOnly name='systemMessage' defaultValue={scenario.systemMessage} />
               <input hidden readOnly name='chatModelId' defaultValue={scenario.chatModel.id} />
