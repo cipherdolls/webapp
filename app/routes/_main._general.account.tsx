@@ -10,6 +10,7 @@ import YourWalletModal from '~/components/yourWalletModal';
 import ApiKeyModal from '~/components/apiKeyModal';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { formatEther } from 'ethers';
+import SignOutModal from '~/components/signOutModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Account' }];
@@ -40,9 +41,11 @@ export default function Account({ loaderData }: Route.ComponentProps) {
       <div className='flex flex-col gap-4'>
         <div className='flex items-center justify-between sm:py-3 py-2'>
           <h3 className='text-heading-h3'>Account</h3>
-          <button className='sm:hidden block'>
-            <Icons.signOut className='fill-base-black' />
-          </button>
+          <SignOutModal>
+            <button className='sm:hidden block'>
+              <Icons.signOut className='fill-base-black' />
+            </button>
+          </SignOutModal>
         </div>
         <div className='flex flex-col gap-1'>
           <AccountBalance balance={Number(formatEther(weiBalance)) === 0 ? '0.00' : String(Number(formatEther(weiBalance)).toFixed(5))} />
