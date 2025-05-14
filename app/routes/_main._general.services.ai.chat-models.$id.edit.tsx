@@ -8,6 +8,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import * as Modal from '~/components/ui/new-modal';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Chat Model' }];
@@ -66,8 +67,8 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
       }}
     >
       <Modal.Content>
-        <Modal.Title>Edit Chat Model for {chatModel.name}</Modal.Title>
-        <Modal.Description className='sr-only'>Edit Chat Model for {chatModel.name}</Modal.Description>
+        <Modal.Title>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Description>
         <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='chatModelId' value={chatModel.id} />
@@ -77,7 +78,13 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
               <Input.Label id='name' htmlFor='name'>
                 Model Name
               </Input.Label>
-              <Input.Input className='text-base-black py-3.5 px-3' id='name' name='name' type='text' defaultValue={chatModel.name} />
+              <Input.Input
+                className='text-base-black py-3.5 px-3'
+                id='name'
+                name='name'
+                type='text'
+                defaultValue={formatModelName(chatModel.providerModelName)}
+              />
             </Input.Root>
 
             <Input.Root>

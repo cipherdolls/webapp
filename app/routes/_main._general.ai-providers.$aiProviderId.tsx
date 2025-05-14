@@ -15,9 +15,9 @@ import AiProviderDestroy from './ai-providers.$id.destroy';
 
 const chatModelColumns: Array<TTableColumn<ChatModel>> = [
   {
-    id: 'name',
+    id: 'providerModelName',
     label: 'Name',
-    render: (data) => <span className='font-semibold'>{data.name}</span>,
+    render: (data) => <span className='font-semibold'>{data.providerModelName}</span>,
     align: 'left',
   },
   {
@@ -48,9 +48,9 @@ const chatModelColumns: Array<TTableColumn<ChatModel>> = [
 
 const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
   {
-    id: 'name',
+    id: 'providerModelName',
     label: 'Name',
-    render: (data) => <span className='font-semibold'>{data.name}</span>,
+    render: (data) => <span className='font-semibold'>{data.providerModelName}</span>,
     align: 'left',
   },
   {
@@ -164,7 +164,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                       return (
                         <Fragment key={chatModel.id}>
                           <DataCard.Item key={chatModel.id} collapsible className='block md:hidden'>
-                            <DataCard.ItemLabel>{chatModel.name}</DataCard.ItemLabel>
+                            <DataCard.ItemLabel>{chatModel.providerModelName}</DataCard.ItemLabel>
                             <DataCard.ItemCollapsibleContent>
                               <DataCard.ItemDataGrid
                                 data={[
@@ -230,7 +230,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                       return (
                         <Fragment key={embeddingModel.id}>
                           <DataCard.Item key={embeddingModel.id} collapsible className='block md:hidden'>
-                            <DataCard.ItemLabel>{embeddingModel.name}</DataCard.ItemLabel>
+                            <DataCard.ItemLabel>{embeddingModel.providerModelName}</DataCard.ItemLabel>
                             <DataCard.ItemCollapsibleContent>
                               <DataCard.ItemDataGrid
                                 data={[

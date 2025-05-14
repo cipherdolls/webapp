@@ -30,7 +30,6 @@ export interface ChatModel {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  name: string;
   info?: string;
   dollarPerInputToken: number;
   dollarPerOutputToken: number;
@@ -52,7 +51,6 @@ export interface ChatModel {
 
 export interface EmbeddingModel {
   id: string;
-  name: string;
   providerModelName: string;
   dollarPerInputToken: number;
   dollarPerOutputToken: number;

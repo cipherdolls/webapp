@@ -10,13 +10,23 @@ const INPUT_ICON_NAME = 'InputIcon';
 export const inputVariants = tv({
   slots: {
     // Root - basic container
-    root: ['flex flex-col gap-2 relative'],
+    root: ['flex flex-col gap-2 relative '],
     // Label - exactly like the original label
     label: ['text-body-sm font-semibold text-neutral-01'],
     // Input - without hardcoded background (added conditionally)
-    input: ['py-3 px-3.5 rounded-xl text-body-md text-base-black', 'w-full', 'focus:outline-neutral-05'],
+    input: [
+      'py-3 px-3.5 rounded-xl text-body-md text-base-black',
+      'w-full',
+      'border-[1.5px] border-transparent',
+      'focus:border-[1.5px] focus:border-neutral-05 focus:outline-none',
+    ],
     // Icon styles
-    icon: ['absolute left-3.5 top-1/2 -translate-y-1/2', 'flex size-5 shrink-0 items-center justify-center', 'text-text-sub-600'],
+    icon: [
+      'absolute left-1 top-1/2 -translate-y-1/2',
+      'flex size-10 shrink-0 items-center justify-center rounded-[10px] transition-all duration-200',
+      'text-text-sub-600',
+      'peer-focus:bg-gradient-1 transition-colors',
+    ],
     // Wrapper for when we need an icon
     wrapper: ['relative'],
   },
@@ -82,7 +92,7 @@ const Input = React.forwardRef<
   return (
     <Component
       type={type}
-      className={input({ class: `${className} ${bgClass}` })}
+      className={input({ class: `peer ${className} ${bgClass}` })}
       value={value}
       defaultValue={defaultValue}
       onChange={handleChange}
@@ -104,7 +114,11 @@ function InputIcon<T extends React.ElementType = 'div'>({
   const Component = as || 'div';
   const { icon } = inputVariants();
 
-  return <Component className={icon({ class: className })} {...rest} />;
+  return (
+    <div className={icon({ class: className })}>
+      <Component {...rest} />
+    </div>
+  );
 }
 InputIcon.displayName = INPUT_ICON_NAME;
 

@@ -13,6 +13,7 @@ import * as Slider from '~/components/ui/slider';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Scenario' }];
@@ -126,7 +127,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
 
       modelsArr.forEach((model) => {
         newOptionGroup.options.push({
-          label: model.name,
+          label: formatModelName(model.providerModelName),
           value: model.id,
           recommended: model.recommended,
         });

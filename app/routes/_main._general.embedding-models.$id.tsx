@@ -9,6 +9,7 @@ import EmbeddingModelDestroy from './embedding-models.$id.destroy';
 import DeleteModal from '~/components/ui/deleteModal';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
@@ -33,7 +34,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
-                {embeddingModel.name}
+                {formatModelName(embeddingModel.providerModelName)}
               </h3>
               <span className='text-neutral-01 word text-body-lg'>•</span>
               <span className='text-neutral-01 text-body-lg'>AI</span>
@@ -64,7 +65,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <img
                     src={getPicture(embeddingModel.aiProvider, 'ai-providers', false)}
                     srcSet={getPicture(embeddingModel.aiProvider, 'ai-providers', true)}
-                    alt={embeddingModel.name}
+                    alt={embeddingModel.providerModelName}
                     className='size-full object-cover rounded-lg'
                   />
                 </div>
