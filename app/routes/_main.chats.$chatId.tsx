@@ -15,6 +15,7 @@ import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { LOCAL_STORAGE_KEYS } from '~/constants';
 import { useLocalStorage } from 'usehooks-ts';
 import { useAlert, usePrompt } from '~/providers/AlertDialogProvider';
+import { jobFailureConfig, ResourceName } from '~/config/jobFailureConfig';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -108,28 +109,50 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   };
 
   const handleProcessEvent = async (event: ProcessEvent) => {
-    // failed chat completion job
-    if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
+    if (event.jobStatus === 'failed') {
+      const jobVariant = jobFailureConfig[event.resourceName as ChatJobType];
+
       try {
-        const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
+        const res = await fetchWithAuth(jobVariant.jobEndpoint(event.resourceId));
+
         if (!res.ok) {
           throw new Error('Failed to fetch chat completion job');
         }
 
         const job = await res.json();
-
-        alert({
-          icon: '❌',
-          title: 'Chat Completion',
-          body: job.error || 'The chat completion is failed.',
-        });
         
+        alert({
+          icon: jobVariant.icon,
+          title: jobVariant.title,
+          body: jobVariant.getBody(job.error),
+        });
+
         return;
       } catch (error) {
         console.error(error);
       }
-      return;
     }
+    // if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
+    //   try {
+    //     const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
+    //     if (!res.ok) {
+    //       throw new Error('Failed to fetch chat completion job');
+    //     }
+
+    //     const job = await res.json();
+
+    //     alert({
+    //       icon: '❌',
+    //       title: 'Chat Completion',
+    //       body: job.error || 'The chat completion is failed.',
+    //     });
+
+    //     return;
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    //   return;
+    // }
     // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
