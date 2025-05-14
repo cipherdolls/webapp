@@ -37,6 +37,11 @@ const SidebarItems = [
     icon: Icons.services,
   },
   {
+    name: 'Hardware',
+    href: '/hardware',
+    icon: Icons.gear,
+  },
+  {
     name: 'Account',
     href: '/account',
     icon: Icons.account,

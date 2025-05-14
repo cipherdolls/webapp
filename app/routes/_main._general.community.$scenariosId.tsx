@@ -1,5 +1,5 @@
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.scenarios.$scenariosId';
+import type { Route } from './+types/_main._general.community.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { Link, Outlet, useFetcher } from 'react-router';

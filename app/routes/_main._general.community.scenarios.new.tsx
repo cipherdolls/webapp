@@ -1,7 +1,7 @@
 import { redirect, useFetcher, useNavigate, useParams } from 'react-router';
 
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.preferences.scenarios.new';
+import type { Route } from './+types/_main._general.community.scenarios.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
