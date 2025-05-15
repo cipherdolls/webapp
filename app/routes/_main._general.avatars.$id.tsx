@@ -1,5 +1,5 @@
 import { Form, Link, redirect, useFetcher, useRouteLoaderData } from 'react-router';
-import type { Avatar, Chat, User } from '~/types';
+import type { Avatar, User } from '~/types';
 import type { Route } from './+types/_main._general.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
@@ -12,10 +12,9 @@ import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import * as Tooltip from '@radix-ui/react-tooltip';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Chats' }];
+  return [{ title: 'Avatars' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -53,6 +52,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isPublished = avatar.published;
+
+  console.log(avatar);
 
   useEffect(() => {
     return () => {
@@ -96,6 +97,21 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           </div>
         </Link>
         <div className='md:flex hidden items-center gap-3'>
+          <Link to={`/chats/${avatar.chats[0].id}`}></Link>
+          {avatar.chats.length > 0 ? (
+            <Link to={`/chats/${avatar.chats[0].id}`}>
+              <Button.Root variant='primary' className='w-[120px]' type='submit'>
+                Continue Chat
+              </Button.Root>
+            </Link>
+          ) : (
+            <Form method='POST' action='/chats'>
+              <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
+              <Button.Root variant='primary' className='w-[120px]' type='submit'>
+                Start Chat
+              </Button.Root>
+            </Form>
+          )}
           <fetcher.Form method='POST' action='/avatars/new'>
             <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />
             <textarea hidden readOnly id='character' name='character' defaultValue={avatar.character} />
@@ -160,29 +176,15 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             <div className='absolute bottom-3 left-3'>
               <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
             </div>
-            {avatar.gender && (
-              <div className='absolute bottom-3 right-3'>
-                <Tooltip.Provider>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <div className='flex items-center justify-center size-10 rounded-full bg-white shadow-bottom-level-1 text-xl leading-5 cursor-pointer'>
-                        {avatar.gender === 'Male' ? <Icons.male /> : avatar.gender === 'Female' ? <Icons.female /> : <Icons.male />}
-                      </div>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content
-                        className='bg-base-black text-white text-body-sm py-2 px-3 rounded-md shadow-md z-50'
-                        sideOffset={5}
-                        side='top'
-                      >
-                        Gender: {avatar.gender}
-                        <Tooltip.Arrow className='fill-base-black' />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
+          </div>
+          <div className='sm:flex hidden flex-col gap-5'>
+            <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
+            <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
+              <h2 className='text-heading-h2'>{avatar.gender === 'Female' ? '👩🏻' : avatar.gender === 'Male' ? '🧔🏻‍♂' : '-'}</h2>
+              <div className='flex flex-col gap-1'>
+                <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.gender}</p>
               </div>
-            )}
+            </div>
           </div>
           <div className='sm:flex hidden flex-col gap-5'>
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>

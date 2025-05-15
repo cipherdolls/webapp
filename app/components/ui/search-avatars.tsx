@@ -72,6 +72,7 @@ const SearchAvatars = () => {
           className='py-3.5 pl-[52px]'
           value={searchValue}
           onChange={handleInputChange}
+          autoComplete='off'
         />
         <Input.Icon as={Icons.search} className='[&_svg]:size-6' />
       </Input.Root>

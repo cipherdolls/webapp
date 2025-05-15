@@ -83,7 +83,12 @@ const Sidebar = ({ className }: { className?: string }) => {
           })}
         </div>
         <div className='sm:block hidden w-full'>
-          <SignOutModal />
+          <SignOutModal>
+            <button className='py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05'>
+              <Icons.signOut className='fill-[#350D2A]/40' />
+              Sign Out
+            </button>
+          </SignOutModal>
         </div>
         {/* Optional for now */}
         {/* <div className="h-[34px] w-full sm:hidden" /> */}

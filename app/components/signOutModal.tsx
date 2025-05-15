@@ -1,15 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from './ui/icons';
-const SignOutModal = () => {
+import type { ReactNode } from 'react';
+const SignOutModal = ({ children }: { children: ReactNode }) => {
   return (
     <Dialog.Root>
-      <Dialog.Trigger asChild>
-        <button className='py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05'>
-          <Icons.signOut className='fill-[#350D2A]/40' />
-          Sign Out
-        </button>
-      </Dialog.Trigger>
+      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
           <div
