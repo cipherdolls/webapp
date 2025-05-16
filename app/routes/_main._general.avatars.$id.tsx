@@ -53,8 +53,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isPublished = avatar.published;
 
-  console.log(avatar);
-
   useEffect(() => {
     return () => {
       if (copyTimeoutRef.current) {
@@ -97,7 +95,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           </div>
         </Link>
         <div className='md:flex hidden items-center gap-3'>
-          <Link to={`/chats/${avatar.chats[0].id}`}></Link>
           {avatar.chats.length > 0 ? (
             <Link to={`/chats/${avatar.chats[0].id}`}>
               <Button.Root variant='primary' className='w-[120px]' type='submit'>
@@ -177,15 +174,17 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
             </div>
           </div>
-          <div className='sm:flex hidden flex-col gap-5'>
-            <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
-            <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
-              <h2 className='text-heading-h2'>{avatar.gender === 'Female' ? '👩🏻' : avatar.gender === 'Male' ? '🧔🏻‍♂' : '-'}</h2>
-              <div className='flex flex-col gap-1'>
-                <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.gender}</p>
+          {avatar.gender && (
+            <div className='sm:flex hidden flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
+              <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
+                <h2 className='text-heading-h2'>{avatar.gender === 'Female' ? '👩🏻' : avatar.gender === 'Male' ? '🧔🏻‍♂' : '-'}</h2>
+                <div className='flex flex-col gap-1'>
+                  <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.gender}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className='sm:flex hidden flex-col gap-5'>
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
             <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>

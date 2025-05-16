@@ -63,7 +63,7 @@ const Table = <TData,>({
 
   return (
     <div className={cn('px-5', wrapperClassName)}>
-      <table className={cn('w-full border-collapse border-transparent', hasMultipleRows && 'table-hover-border', className)} {...props}>
+      <table className={cn('w-full border-Collapse border-transparent', hasMultipleRows && 'table-hover-border', className)} {...props}>
         {!hideHeader && (
           <thead>
             <tr className='border-b border-neutral-04'>

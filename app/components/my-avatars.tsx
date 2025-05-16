@@ -75,7 +75,7 @@ const MyAvatars = ({ avatars }: { avatars: Avatar[] }) => {
       {avatars.length > 4 && (
         <div className='mx-auto'>
           <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
-            {showAll ? 'Show less' : 'Show all'}
+            {showAll ? 'Collapse' : 'Show all'}
             <Button.Icon as={Icons.chevronDown} className={`size-6 ${showAll ? 'rotate-180' : ''}`} />
           </Button.Root>
         </div>
