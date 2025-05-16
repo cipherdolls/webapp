@@ -136,27 +136,27 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 <div className='flex justify-between'>
                   <span className='text-neutral-01 text-body-sm'>Average Response Time:</span>
                   <span className='text-body-sm font-semibold'>
-                    {formatResponseTime(chatModel.aggregateChatCompletions.avgTimeTakenMs)}
+                    {formatResponseTime(chatModel.aggregateChatCompletions?.avgTimeTakenMs)}
                   </span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-gray-600'>Min Response Time:</span>
                   <span className='text-body-sm font-semibold'>
-                    {formatResponseTime(chatModel.aggregateChatCompletions.minTimeTakenMs)}
+                    {formatResponseTime(chatModel.aggregateChatCompletions?.minTimeTakenMs)}
                   </span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-neutral-01 text-body-sm'>Max Response Time:</span>
                   <span className='text-body-sm font-semibold'>
-                    {formatResponseTime(chatModel.aggregateChatCompletions.maxTimeTakenMs)}
+                    {formatResponseTime(chatModel.aggregateChatCompletions?.maxTimeTakenMs)}
                   </span>
                 </div>
 
                 <div className='flex justify-between'>
                   <span className='text-neutral-01 text-body-sm'>Average Cost:</span>
-                  <span className='text-body-sm font-semibold'>${chatModel.aggregateChatCompletions.avgUsdCost || '0.00'}</span>
+                  <span className='text-body-sm font-semibold'>${chatModel.aggregateChatCompletions?.avgUsdCost || '0.00'}</span>
                 </div>
               </div>
             </div>
