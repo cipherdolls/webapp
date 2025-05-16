@@ -1,7 +1,6 @@
-import { Link, NavLink, Outlet, useLocation, useNavigate, useRouteLoaderData } from 'react-router';
+import { NavLink, Outlet, useLocation, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.services';
 import { cn } from '~/utils/cn';
-import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { User } from '~/types';
 import { useEffect, useMemo } from 'react';
@@ -23,7 +22,7 @@ const communityNavItems = [
     href: '/community/scenarios/new',
     banner: {
       emoji: '🗣️',
-      text: 'Services for converting text to speech.',
+      text: '',
     },
   },
 ];
