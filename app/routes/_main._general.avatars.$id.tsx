@@ -96,7 +96,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         </Link>
         <div className='md:flex hidden items-center gap-3'>
           {avatar.chats.length > 0 ? (
-            <Link to={`/chats/${avatar.chats[0].id}`}>
+            <Link to={`/chats/${avatar.chats[0]?.id}`}>
               <Button.Root variant='primary' className='w-[120px]' type='submit'>
                 Continue Chat
               </Button.Root>
