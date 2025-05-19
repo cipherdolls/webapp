@@ -154,7 +154,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
           <div className='relative'>
-            <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'>
+            <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
               {avatar.picture ? (
                 <div className='size-full'>
                   <img
@@ -170,7 +170,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 </div>
               )}
             </label>
-            <div className='absolute bottom-3 left-3'>
+            <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
               <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
             </div>
           </div>
