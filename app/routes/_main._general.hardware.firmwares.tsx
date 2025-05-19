@@ -1,5 +1,4 @@
-import { redirect } from 'react-router';
-import type { Firmware, SttProvider } from '~/types';
+import type { Firmware } from '~/types';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
@@ -24,7 +23,12 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
     {
       id: 'version',
       label: 'Version',
-      render: (data) => <span className='font-semibold'>{data.version}</span>,
+      render: (data) => (
+        <>
+          <span className='font-semibold'>{data.version}</span>
+          <span className='ml-3 text-specials-success font-semibold'>New</span>
+        </>
+      ),
       align: 'left',
     },
     {
@@ -42,10 +46,25 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
     },
   ];
 
+  const columnHistoryProperties: Array<TTableColumn<Firmware>> = [
+    {
+      id: 'version',
+      label: 'Version',
+      render: (data) => <span className='font-semibold'>{data.version}</span>,
+      align: 'left',
+    },
+    {
+      id: 'createdAt',
+      label: 'Release date',
+      render: (data) => data.createdAt.toString(),
+      align: 'right',
+    },
+  ];
+
   return (
     <>
       <DataCard.Root>
-        <DataCard.Label>Firmwares</DataCard.Label>
+        <DataCard.Label>Current</DataCard.Label>
         <DataCard.Wrapper>
           <Table wrapperClassName='hidden md:block' columns={columnProperties} data={firmwares} />
           <div className='block md:hidden'>
@@ -63,6 +82,32 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
                             Download
                           </a>
                         ),
+                      },
+                    ]}
+                  />
+                </DataCard.Item>
+                {firmwares.length - 1 !== index && <DataCard.Divider />}
+              </Fragment>
+            ))}
+          </div>
+        </DataCard.Wrapper>
+      </DataCard.Root>
+
+      <DataCard.Root>
+        <DataCard.Label>History</DataCard.Label>
+        <DataCard.Wrapper className='bg-white/0 bg-gradient-1'>
+          <Table wrapperClassName='hidden md:block' columns={columnHistoryProperties} data={firmwares} />
+          <div className='block md:hidden bg-white/0 bg-gradient-1'>
+            {firmwares.map((firmware, index) => (
+              <Fragment key={firmware.id}>
+                <DataCard.Item key={firmware.id}>
+                  <DataCard.ItemLabel>{firmware.version}</DataCard.ItemLabel>
+
+                  <DataCard.ItemDataGrid
+                    data={[
+                      {
+                        label: 'Release date',
+                        value: <span className='font-semibold'>{firmware.createdAt.toString()}</span>,
                       },
                     ]}
                   />
