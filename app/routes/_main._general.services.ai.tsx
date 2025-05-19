@@ -166,7 +166,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                   </div>
                   <div className='flex items-center gap-1'>
                     {aiProvider.name}
-                    <InformationBadge />
+                    <InformationBadge tooltipText='High-speed AI for real-time apps and chatbots' />
                   </div>
                 </DataCard.Label>
 
@@ -187,7 +187,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                       {aiProvider.chatModels.map((chatModel, index) => {
                         return (
                           <Fragment key={chatModel.id}>
-                            <DataCard.Item collapsible href={`/services/ai/chat-models/${chatModel.id}`}>
+                            <DataCard.Item collapsible href={`/chat-models/${chatModel.id}`}>
                               <DataCard.ItemLabel>
                                 <span className='flex items-center gap-2'>
                                   {chatModel.providerModelName}
