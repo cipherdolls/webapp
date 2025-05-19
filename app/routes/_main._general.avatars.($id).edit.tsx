@@ -15,6 +15,7 @@ import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import PublishAvatarModal from '~/components/publishAvatarModal';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatar edit' }];
@@ -57,7 +58,8 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
-  const [gender, setGender] = useState<string>(avatar.gender || '');
+  const [gender, setGender] = useState<'Male' | 'Female' | ''>(avatar.gender || '');
+  const errors = fetcher.data?.errors;
 
   const handleVoiceChange = (voice: TtsVoice) => {
     setSelectedVoice(voice);
@@ -108,6 +110,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
             Save Avatar
           </Button.Root>
         </div>
+        <ErrorsBox errors={errors} />
         <div className='flex sm:flex-row flex-col sm:gap-0 gap-6 sm:flex-1 sm:divide-x divide-neutral-04'>
           <div className='sm:pr-4 flex size-full'>
             <div className='grid grid-cols-2 gap-5 w-full h-max'>
@@ -209,19 +212,29 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
             </div>
             <div className='col-span-2 flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
-              <Select.Root value={gender} onValueChange={setGender}>
-                <Select.Trigger>
-                  <Select.Value placeholder='Select gender for this avatar' />
-                </Select.Trigger>
-                <Select.Content>
-                  {genreOptions.map((item) => (
-                    <Select.Item key={item.value} value={item.value}>
-                      {item.label}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
               <input type='hidden' name='gender' value={gender} />
+              <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 grid grid-cols-2 rounded-xl'>
+                <button
+                  type='button'
+                  className={cn(
+                    'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                    gender === 'Female' ? 'bg-white' : 'bg-transparent'
+                  )}
+                  onClick={() => setGender('Female')}
+                >
+                  👩🏻 Female
+                </button>
+                <button
+                  type='button'
+                  className={cn(
+                    'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                    gender === 'Male' ? 'bg-white' : 'bg-transparent'
+                  )}
+                  onClick={() => setGender('Male')}
+                >
+                  🧔🏻‍♂ Male
+                </button>
+              </div>
             </div>
             <div className='col-span-2 flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Scenarios</h1>
