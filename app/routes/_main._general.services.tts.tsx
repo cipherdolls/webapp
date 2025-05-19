@@ -106,7 +106,13 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                 </div>
                 <div className='flex items-center gap-1'>
                   {ttsProvider.name}
-                  <InformationBadge tooltipText='Real-time AI voice synthesis for apps and assistants' />
+                  <InformationBadge
+                    tooltipText='Real-time AI voice synthesis for apps and assistants'
+                    side={{
+                      default: 'top',
+                      lg: 'right',
+                    }}
+                  />
                 </div>
               </DataCard.Label>
               <DataCard.Wrapper>
