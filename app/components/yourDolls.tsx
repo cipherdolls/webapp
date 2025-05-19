@@ -4,13 +4,14 @@ import DollCard from './dollCard';
 import { cn } from '~/utils/cn';
 import type { Doll } from '~/types';
 import { Icons } from './ui/icons';
+import { InformationBadge } from './ui/InformationBadge';
 
 const YourDolls = ({ dolls }: { dolls: Doll[] }) => {
   return (
     <Card.Root className='sm:pl-4 sm:max-w-[352px]'>
       <div className='flex items-center justify-between'>
         <Card.Label>Your Dolls</Card.Label>
-        {dolls.length > 0 && <Icons.information className='text-pink-01' />}
+        <InformationBadge className='size-6' />
       </div>
       <Card.Main className={cn(dolls.length > 0 && 'bg-none', 'max-h-max')}>
         <Card.Content className={cn(dolls.length === 0 && 'border-t-0')}>

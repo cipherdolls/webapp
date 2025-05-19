@@ -1,6 +1,13 @@
 import * as Dialog from '@radix-ui/react-dialog';
+import { useRouteLoaderData } from 'react-router';
 import * as Button from '~/components/ui/button/button';
+import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+import type { User } from '~/types';
 const HowToAddDollModal = () => {
+  const { copied, copyToClipboard } = useCopyToClipboard();
+
+  const me = useRouteLoaderData('routes/_main') as User;
+
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -47,8 +54,7 @@ const HowToAddDollModal = () => {
               <Dialog.Close asChild>
                 <Button.Root variant='secondary'>Got It</Button.Root>
               </Dialog.Close>
-              {/* TODO: Copy to clipboard */}
-              <Button.Root>Copy API</Button.Root>
+              <Button.Root onClick={() => copyToClipboard(me.apikey)}>{copied ? 'API Copied' : 'Copy API'}</Button.Root>
             </div>
           </div>
         </Dialog.Content>
