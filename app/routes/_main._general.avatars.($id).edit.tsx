@@ -59,7 +59,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
   const [gender, setGender] = useState<'Male' | 'Female' | ''>(avatar.gender || '');
-  const errors = fetcher.data?.errors;
+  const errors = fetcher.data?.message;
 
   const handleVoiceChange = (voice: TtsVoice) => {
     setSelectedVoice(voice);

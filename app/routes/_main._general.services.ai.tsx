@@ -166,7 +166,13 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                   </div>
                   <div className='flex items-center gap-1'>
                     {aiProvider.name}
-                    <InformationBadge tooltipText='High-speed AI for real-time apps and chatbots' />
+                    <InformationBadge
+                      tooltipText='High-speed AI for real-time apps and chatbots'
+                      side={{
+                        default: 'top',
+                        lg: 'right',
+                      }}
+                    />
                   </div>
                 </DataCard.Label>
 

@@ -1,6 +1,20 @@
 import * as React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { Root as PopoverRoot, Trigger as PopoverTrigger, Content as PopoverContent } from './popover';
+import { cn } from '~/utils/cn';
+
+type TooltipSide = 'top' | 'right' | 'bottom' | 'left';
+
+type ResponsiveSide = {
+  default: TooltipSide;
+  sm?: TooltipSide;
+  md?: TooltipSide;
+  lg?: TooltipSide;
+  xl?: TooltipSide;
+  '2xl'?: TooltipSide;
+};
+
+export type SideType = TooltipSide | ResponsiveSide;
 
 type TooltipProps = {
   trigger: React.ReactNode;
@@ -9,8 +23,9 @@ type TooltipProps = {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   delayDuration?: number;
-  side?: 'top' | 'right' | 'bottom' | 'left';
+  side?: TooltipSide | ResponsiveSide;
   align?: 'start' | 'center' | 'end';
+  popoverClassName?: string;
 };
 
 export const Tooltip = ({
@@ -22,14 +37,51 @@ export const Tooltip = ({
   delayDuration = 200,
   side = 'top',
   align = 'center',
+  popoverClassName,
 }: TooltipProps) => {
+  const isResponsiveSide = typeof side === 'object';
+  const defaultSide = isResponsiveSide ? side.default : side;
+
+  const [currentSide, setCurrentSide] = React.useState<TooltipSide>(defaultSide);
+
+  React.useEffect(() => {
+    if (!isResponsiveSide) {
+      setCurrentSide(side as TooltipSide);
+      return;
+    }
+
+    const responsiveSide = side as ResponsiveSide;
+
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width >= 1536 && responsiveSide['2xl']) {
+        setCurrentSide(responsiveSide['2xl']);
+      } else if (width >= 1280 && responsiveSide.xl) {
+        setCurrentSide(responsiveSide.xl);
+      } else if (width >= 1024 && responsiveSide.lg) {
+        setCurrentSide(responsiveSide.lg);
+      } else if (width >= 768 && responsiveSide.md) {
+        setCurrentSide(responsiveSide.md);
+      } else if (width >= 640 && responsiveSide.sm) {
+        setCurrentSide(responsiveSide.sm);
+      } else {
+        setCurrentSide(responsiveSide.default);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [side, isResponsiveSide]);
+
   return (
     <>
       <div className='block md:hidden'>
-        <MobileView trigger={trigger} content={content} side={side} align={align} />
+        <MobileView trigger={trigger} content={content} side={currentSide} align={align} popoverClassName={popoverClassName} />
       </div>
 
-      <div className='hidden md:block'>
+      <div className='hidden md:inline-block'>
         <DesktopView
           trigger={trigger}
           content={content}
@@ -37,7 +89,7 @@ export const Tooltip = ({
           defaultOpen={defaultOpen}
           onOpenChange={onOpenChange}
           delayDuration={delayDuration}
-          side={side}
+          side={currentSide}
           align={align}
         />
       </div>
@@ -50,11 +102,13 @@ const MobileView = ({
   content,
   side,
   align,
+  popoverClassName,
 }: {
   trigger: React.ReactNode;
   content: React.ReactNode;
-  side: 'top' | 'right' | 'bottom' | 'left';
+  side: TooltipSide;
   align: 'start' | 'center' | 'end';
+  popoverClassName?: string;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const closeTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -91,7 +145,10 @@ const MobileView = ({
         side={side}
         sideOffset={5}
         unstyled
-        className='z-50 overflow-hidden rounded-[10px] bg-neutral-03 px-3 py-2 font-semibold text-label text-base-black animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 focus:outline-none min-[500px]:w-full w-2/3'
+        className={cn(
+          'z-50 overflow-hidden rounded-[10px] bg-neutral-03 p-1.5 sm:px-3 sm:py-2 font-semibold text-label text-base-black animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 focus:outline-none min-[500px]:w-full w-2/3',
+          popoverClassName
+        )}
       >
         {content}
       </PopoverContent>
@@ -99,7 +156,16 @@ const MobileView = ({
   );
 };
 
-const DesktopView = ({ trigger, content, open, defaultOpen, onOpenChange, delayDuration, side, align }: TooltipProps) => {
+const DesktopView = ({
+  trigger,
+  content,
+  open,
+  defaultOpen,
+  onOpenChange,
+  delayDuration,
+  side,
+  align,
+}: Omit<TooltipProps, 'side'> & { side: TooltipSide }) => {
   return (
     <TooltipPrimitive.Provider>
       <TooltipPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange} delayDuration={delayDuration}>

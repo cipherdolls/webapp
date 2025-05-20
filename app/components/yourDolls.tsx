@@ -11,7 +11,7 @@ const YourDolls = ({ dolls }: { dolls: Doll[] }) => {
     <Card.Root className='sm:pl-4 sm:max-w-[352px]'>
       <div className='flex items-center justify-between'>
         <Card.Label>Your Dolls</Card.Label>
-        <InformationBadge className='size-6' side='top' tooltipText='Your personal dolls' />
+        <InformationBadge className='size-6' side='top' tooltipText='Your personal dolls' popoverClassName='ml-auto' />
       </div>
       <Card.Main className={cn(dolls.length > 0 && 'bg-none', 'max-h-max')}>
         <Card.Content className={cn(dolls.length === 0 && 'border-t-0')}>
