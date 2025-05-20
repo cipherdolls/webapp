@@ -71,7 +71,9 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
             {firmwares.map((firmware, index) => (
               <Fragment key={firmware.id}>
                 <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemLabel>{firmware.version}</DataCard.ItemLabel>
+                  <DataCard.ItemLabel className='justify-start'>
+                    {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
+                  </DataCard.ItemLabel>
 
                   <DataCard.ItemDataGrid
                     data={[
