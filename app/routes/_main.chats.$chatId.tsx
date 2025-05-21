@@ -1,4 +1,4 @@
-import { Outlet, useRevalidator } from 'react-router';
+import { Outlet, useNavigate, useRevalidator } from 'react-router';
 import type { AudioEvent, Avatar, Chat, Message, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -6,7 +6,7 @@ import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl } from '~/constants';
+import { apiUrl, API_ENDPOINTS } from '~/constants';
 import { useEffect } from 'react';
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
@@ -14,8 +14,7 @@ import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { LOCAL_STORAGE_KEYS } from '~/constants';
 import { useLocalStorage } from 'usehooks-ts';
-import { useAlert, usePrompt } from '~/providers/AlertDialogProvider';
-import { jobFailureConfig, ResourceName } from '~/config/jobFailureConfig';
+import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -73,6 +72,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const revalidator = useRevalidator();
   const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
   const { playAudio, stopAudio } = useAudioPlayer();
+  const navigate = useNavigate();
   const alert = useAlert();
 
   // state
@@ -108,51 +108,86 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const handleProcessEvent = async (event: ProcessEvent) => {
-    if (event.jobStatus === 'failed') {
-      const jobVariant = jobFailureConfig[event.resourceName as ChatJobType];
+  const handleJobError = async (event: ProcessEvent) => {
+    let icon = '❗️';
+    let title = 'Unknown job error';
+    let defaultErrorText = 'Something went wrong…';
+    let endpoint: string | null = null;
+    let actionButton: { label: string; action: () => void } | undefined;
 
-      try {
-        const res = await fetchWithAuth(jobVariant.jobEndpoint(event.resourceId));
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch chat completion job');
-        }
-
-        const job = await res.json();
-        
-        alert({
-          icon: jobVariant.icon,
-          title: jobVariant.title,
-          body: jobVariant.getBody(job.error),
-        });
-
+    // job error settings
+    switch (event.resourceName) {
+      case 'ChatCompletionJob':
+        icon = '🧩🚫';
+        title = 'Chat Completion Job Error';
+        defaultErrorText = 'Something went wrong during ChatCompletionJob.';
+        endpoint = API_ENDPOINTS.chatCompletionJob(event.resourceId);
+        break;
+  
+      case 'TtsJob':
+        icon = '👄🚫';
+        title = 'TTS Job Error';
+        defaultErrorText = 'Text-to-speech task aborted. Please try again later.';
+        endpoint = API_ENDPOINTS.ttsJob(event.resourceId);
+        break;
+  
+      case 'SttJob':
+        icon = '👂🚫';
+        title = 'STT Job Error';
+        defaultErrorText = 'Speech-to-text task aborted by backend. Try changing the provider.';
+        endpoint = API_ENDPOINTS.sttJob(event.resourceId);
+        actionButton = {
+          label: 'Change provider',
+          action: () => navigate(`/chats/${chat.id}/edit`),
+        };
+        break;
+  
+      case 'EmbeddingJob':
+        icon = '🔢🚫';
+        title = 'Embedding Job Error';
+        defaultErrorText = 'Something went wrong during Embedding Job.';
+        endpoint = API_ENDPOINTS.embeddingJob(event.resourceId);
+        break;
+  
+      case 'PaymentJob':
+        icon = '💵🚫';
+        title = 'Payment Job Error';
+        defaultErrorText = 'Failed to process the transaction, please check your balance.';
+        // endpoint = API_ENDPOINTS.paymentJob(event.resourceId);
+        break;
+  
+      default:
+        console.warn('handleJobError: unhandled resourceName:', event.resourceName);
         return;
-      } catch (error) {
-        console.error(error);
+    }
+  
+    // getting backend alert
+    let body = defaultErrorText;
+    if (endpoint) {
+      try {
+        const res = await fetchWithAuth(endpoint);
+        if (res.ok) {
+          const job = await res.json();
+          body = job.error || defaultErrorText;
+        }
+      } catch (err) {
+        console.error('Failed to fetch job details', err);
       }
     }
-    // if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
-    //   try {
-    //     const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
-    //     if (!res.ok) {
-    //       throw new Error('Failed to fetch chat completion job');
-    //     }
 
-    //     const job = await res.json();
+    // showing alert
+    alert({
+      icon,
+      title,
+      body,
+      cancelButton: 'Close',
+      actionButton,
+    });
+  };
 
-    //     alert({
-    //       icon: '❌',
-    //       title: 'Chat Completion',
-    //       body: job.error || 'The chat completion is failed.',
-    //     });
+  const handleProcessEvent = async (event: ProcessEvent) => {
+    if (event.jobStatus === 'failed') handleJobError(event);
 
-    //     return;
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    //   return;
-    // }
     // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
