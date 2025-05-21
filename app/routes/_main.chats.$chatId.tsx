@@ -109,51 +109,67 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   };
 
   const handleJobError = async (event: ProcessEvent) => {
-    let icon = '❗️';
-    let title = 'Unknown job error';
-    let defaultErrorText = 'Something went wrong…';
-    let endpoint: string | null = null;
-    let actionButton: { label: string; action: () => void } | undefined;
-
-    // job error settings
+    const cfg: {
+      icon: string;
+      title: string;
+      body: string | JSX.Element;
+      endpoint: string | null;
+      actionButton?: { label: string; action: () => void };
+    } = {
+      icon: '❗️',
+      title: 'Unknown job error',
+      body: 'Something went wrong…',
+      endpoint: null,
+    };
+  
     switch (event.resourceName) {
       case 'ChatCompletionJob':
-        icon = '🧩🚫';
-        title = 'Chat Completion Job Error';
-        defaultErrorText = 'Something went wrong during ChatCompletionJob.';
-        endpoint = API_ENDPOINTS.chatCompletionJob(event.resourceId);
+        Object.assign(cfg, {
+          icon: '🧩🚫',
+          title: 'Chat Completion Job Error',
+          body: 'Something went wrong during ChatCompletionJob.',
+          endpoint: API_ENDPOINTS.chatCompletionJob(event.resourceId),
+        });
         break;
   
       case 'TtsJob':
-        icon = '👄🚫';
-        title = 'TTS Job Error';
-        defaultErrorText = 'Text-to-speech task aborted. Please try again later.';
-        endpoint = API_ENDPOINTS.ttsJob(event.resourceId);
+        Object.assign(cfg, {
+          icon: '👄🚫',
+          title: 'TTS Job Error',
+          body: 'Text-to-speech task aborted. Please try again later.',
+          endpoint: API_ENDPOINTS.ttsJob(event.resourceId),
+        });
         break;
   
       case 'SttJob':
-        icon = '👂🚫';
-        title = 'STT Job Error';
-        defaultErrorText = 'Speech-to-text task aborted by backend. Try changing the provider.';
-        endpoint = API_ENDPOINTS.sttJob(event.resourceId);
-        actionButton = {
-          label: 'Change provider',
-          action: () => navigate(`/chats/${chat.id}/edit`),
-        };
+        Object.assign(cfg, {
+          icon: '👂🚫',
+          title: 'STT Job Error',
+          body: 'Speech-to-text task aborted. Try changing the provider.',
+          endpoint: API_ENDPOINTS.sttJob(event.resourceId),
+          actionButton: {
+            label: 'Change provider',
+            action: () => navigate(`/chats/${chat.id}/edit`),
+          },
+        });
         break;
   
       case 'EmbeddingJob':
-        icon = '🔢🚫';
-        title = 'Embedding Job Error';
-        defaultErrorText = 'Something went wrong during Embedding Job.';
-        endpoint = API_ENDPOINTS.embeddingJob(event.resourceId);
+        Object.assign(cfg, {
+          icon: '🔢🚫',
+          title: 'Embedding Job Error',
+          body: (<p className='bg-neutral-05 rounded-xl p-4'>Something went wrong during Embedding Job.</p>),
+          endpoint: API_ENDPOINTS.embeddingJob(event.resourceId),
+        });
         break;
   
       case 'PaymentJob':
-        icon = '💵🚫';
-        title = 'Payment Job Error';
-        defaultErrorText = 'Failed to process the transaction, please check your balance.';
-        // endpoint = API_ENDPOINTS.paymentJob(event.resourceId);
+        Object.assign(cfg, {
+          icon: '💵🚫',
+          title: 'Payment Job Error',
+          body: 'Failed to process the transaction, please check your balance.',
+          // endpoint: API_ENDPOINTS.paymentJob(event.resourceId),
+        });
         break;
   
       default:
@@ -161,27 +177,25 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         return;
     }
   
-    // getting backend alert
-    let body = defaultErrorText;
-    if (endpoint) {
+    // getting job error details
+    if (cfg.endpoint) {
       try {
-        const res = await fetchWithAuth(endpoint);
+        const res = await fetchWithAuth(cfg.endpoint);
         if (res.ok) {
           const job = await res.json();
-          body = job.error || defaultErrorText;
+          cfg.body = job.error || cfg.body;
         }
-      } catch (err) {
-        console.error('Failed to fetch job details', err);
+      } catch (e) {
+        console.error('Failed to fetch job details', e);
       }
     }
-
-    // showing alert
+  
     alert({
-      icon,
-      title,
-      body,
+      icon: cfg.icon,
+      title: cfg.title,
+      body: cfg.body,
       cancelButton: 'Close',
-      actionButton,
+      actionButton: cfg.actionButton,
     });
   };
 
