@@ -1,11 +1,12 @@
 import { Icons } from './icons';
-import Tooltip from './tooltip';
+import Tooltip, { type SideType } from './tooltip';
 
 type InformationBadgeProps = {
   dontShow?: boolean;
   tooltipText?: string;
   className?: string;
-  side?: 'right' | 'left' | 'top' | 'bottom';
+  side?: SideType;
+  popoverClassName?: string;
 };
 
 export const InformationBadge = ({
@@ -13,8 +14,16 @@ export const InformationBadge = ({
   tooltipText = 'High-speed AI for real-time apps and chatbots.',
   className = 'h-4 w-4 ',
   side = 'right',
+  popoverClassName,
 }: InformationBadgeProps) => {
   if (dontShow) return null;
 
-  return <Tooltip side={side} trigger={<Icons.information className={`${className} text-base-black`} />} content={tooltipText} />;
+  return (
+    <Tooltip
+      side={side}
+      trigger={<Icons.information className={`${className} text-base-black`} />}
+      content={tooltipText}
+      popoverClassName={popoverClassName}
+    />
+  );
 };

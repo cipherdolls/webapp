@@ -4,6 +4,8 @@ import { cn } from '~/utils/cn';
 import { Icons } from '~/components/ui/icons';
 import type { User } from '~/types';
 import { useEffect, useMemo } from 'react';
+import * as Button from '~/components/ui/button/button';
+
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Services' }];
 }
@@ -23,6 +25,10 @@ const communityNavItems = [
     banner: {
       emoji: '🗣️',
       text: '',
+    },
+    new: {
+      text: 'Add New Scenario',
+      href: '/community/scenarios/new',
     },
   },
 ];
@@ -67,6 +73,14 @@ export default function Services() {
             );
           })}
         </div>
+        {activeItem.new?.href && (
+          <NavLink
+            to={activeItem.new.href}
+            className='flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors'
+          >
+            <Button.Root className='h-10 px-5'>{activeItem.new.text}</Button.Root>
+          </NavLink>
+        )}
       </nav>
 
       <div className='mt-10 flex flex-col gap-10'>

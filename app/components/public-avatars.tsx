@@ -108,7 +108,7 @@ const PublicAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                     <h4 className='text-heading-h4 text-base-black'>{avatar.name}</h4>
                     <Icons.thumb />
                   </div>
-                  <p className='text-body-md text-neutral-01 line-clamp-2'>{avatar.shortDesc}</p>
+                  <p className='text-body-md text-neutral-01 line-clamp-1'>{avatar.shortDesc}</p>
                 </div>
                 <div className='flex items-center gap-3'>
                   <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />

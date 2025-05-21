@@ -26,16 +26,17 @@ export const selectVariants = tv({
       'outline-none focus:outline-none',
       'border border-transparent',
       'data-[placeholder]:text-neutral-02',
+      'data-[state=open]:bg-neutral-04', // Change background when open
     ],
     // Icon for the trigger
     icon: ['size-4 opacity-50'],
     // Content - the dropdown
     content: [
-      'overflow-hidden', 
-      'rounded-xl', 
-      'border border-neutral-04', 
-      'bg-base-white', 
-      'shadow-bottom-level-1', 
+      'overflow-hidden',
+      'rounded-xl',
+      'border border-neutral-04',
+      'bg-base-white',
+      'shadow-bottom-level-1',
       'z-50',
       'w-[var(--radix-select-trigger-width)]', // Make content match trigger width
     ],
@@ -114,7 +115,7 @@ const SelectContent = React.forwardRef<
         className={content({ class: className })}
         position={position}
         sideOffset={sideOffset}
-        align="center"
+        align='center'
         avoidCollisions={false}
         {...props}
       >
