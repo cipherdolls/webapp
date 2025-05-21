@@ -18,9 +18,9 @@ export const textareaVariants = tv({
     // Textarea element - simplified to match input component
     textarea: [
       'p-3 min-h-[104px] max-h-[500px] rounded-xl text-body-md text-base-black',
-      'bg-gradient-1',
       'w-full resize-none overflow-y-auto',
-      'outline-none focus:outline-none',
+      'border-[1.5px] border-transparent',
+      'focus:border-[1.5px] focus:border-neutral-05 focus:outline-none',
     ],
   },
 });
@@ -67,10 +67,12 @@ const TextareaElement = React.forwardRef<
   React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     asChild?: boolean;
   }
->(({ className, asChild, ...rest }, forwardedRef) => {
+>(({ className, asChild, value, defaultValue, ...rest }, forwardedRef) => {
   const Component = asChild ? Slot : 'textarea';
   const { textarea } = textareaVariants();
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const [isEmpty, setIsEmpty] = React.useState(!value && !defaultValue);
+
   const combinedRef = React.useMemo(
     () => (node: HTMLTextAreaElement) => {
       if (typeof forwardedRef === 'function') forwardedRef(node);
@@ -91,11 +93,32 @@ const TextareaElement = React.forwardRef<
     node.style.height = `${Math.min(Math.max(node.scrollHeight, 104), 500)}px`;
   }, []);
 
+  // Handle changes to update the empty state
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setIsEmpty(e.target.value === '');
+    if (rest.onChange) {
+      rest.onChange(e);
+    }
+  };
+
+  // Determine background class based on empty state
+  const bgClass = isEmpty ? 'bg-neutral-05' : 'bg-gradient-1 outline outline-neutral-04';
+
   React.useEffect(() => {
     resizeTextarea();
-  }, [resizeTextarea, rest.value, rest.defaultValue]);
+  }, [resizeTextarea, value, defaultValue]);
 
-  return <Component className={textarea({ class: className })} ref={combinedRef} onInput={resizeTextarea} {...rest} />;
+  return (
+    <Component
+      className={textarea({ class: `${className} ${bgClass}` })}
+      ref={combinedRef}
+      onInput={resizeTextarea}
+      onChange={handleChange}
+      value={value}
+      defaultValue={defaultValue}
+      {...rest}
+    />
+  );
 });
 TextareaElement.displayName = TEXTAREA_EL_NAME;
 

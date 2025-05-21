@@ -41,7 +41,7 @@ const ModalContent = React.forwardRef<
           ref={forwardedRef}
           className={cn(
             // base
-            'relative w-full max-w-[480px] p-8',
+            'relative w-full max-w-[480px]  p-8',
             'rounded-xl bg-white shadow-bottom-level-2',
             // focus
             'focus:outline-none',

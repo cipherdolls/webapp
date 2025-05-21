@@ -22,15 +22,15 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const { scenarios, avatars }: { scenarios: Scenario[]; avatars: Avatar[] } = loaderData;
   const me = useRouteLoaderData('routes/_main') as User;
 
-  // Waiting for "isPublished"
-  // const myScenarios = scenarios.filter((scenario) => scenario.userId === me.id);
+  const myScenarios = scenarios.filter((scenario) => scenario.userId === me.id);
+
   // const publicScenarios = scenarios.filter((scenario) => scenario.pub === me.id);
 
   const myAvatars = avatars.filter((avatar) => avatar.userId === me.id);
 
   return (
     <>
-      <MyScenarios scenarios={scenarios} />
+      <MyScenarios scenarios={myScenarios} />
       <PublicScenarios scenarios={scenarios} avatars={myAvatars} />
       <Outlet />
     </>

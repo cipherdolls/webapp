@@ -11,7 +11,11 @@ const MyScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
     setShowAll(!showAll);
   };
 
-  const displayedScenarios = showAll ? scenarios : scenarios.slice(0, 4);
+  const sortedScenarios = [...scenarios].sort((a, b) => {
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+
+  const displayedScenarios = showAll ? sortedScenarios : sortedScenarios.slice(0, 4);
 
   return (
     <div className='mt-6 flex flex-col gap-5'>
