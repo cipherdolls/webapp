@@ -11,6 +11,18 @@ export const PICTURE_SIZE = {
   avatar: 'avatar',
 };
 
+
+export const API_ENDPOINTS = {
+
+  // Jobs
+  chatCompletionJob: (id: string) => `chat-completion-jobs/${id}`,
+  sttJob: (id: string) => `stt-jobs/${id}`,
+  embeddingJob: (id: string) => `embedding-jobs/${id}`,
+  ttsJob: (id: string) => `tts-jobs/${id}`,
+  // paymentJob: (id: string) => `paymentJobs/${id}`,
+};
+
+
 export const PATHS = {
   ttsVoice: (id: string) => `${apiUrl}/tts-voices/${id}/audio`,
 };

@@ -1,4 +1,4 @@
-import { Outlet, useRevalidator } from 'react-router';
+import { Outlet, useNavigate, useRevalidator } from 'react-router';
 import type { AudioEvent, Avatar, Chat, Message, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -6,7 +6,7 @@ import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl } from '~/constants';
+import { apiUrl, API_ENDPOINTS } from '~/constants';
 import { useEffect } from 'react';
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { LOCAL_STORAGE_KEYS } from '~/constants';
 import { useLocalStorage } from 'usehooks-ts';
-import { useAlert, usePrompt } from '~/providers/AlertDialogProvider';
+import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -72,6 +72,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const revalidator = useRevalidator();
   const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
   const { playAudio, stopAudio } = useAudioPlayer();
+  const navigate = useNavigate();
   const alert = useAlert();
 
   // state
@@ -107,29 +108,100 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const handleProcessEvent = async (event: ProcessEvent) => {
-    // failed chat completion job
-    if (event.resourceName === 'ChatCompletionJob' && event.jobStatus === 'failed') {
-      try {
-        const res = await fetchWithAuth(`chat-completion-jobs/${event.resourceId}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch chat completion job');
-        }
-
-        const job = await res.json();
-
-        alert({
-          icon: '❌',
-          title: 'Chat Completion',
-          body: job.error || 'The chat completion is failed.',
+  const handleJobError = async (event: ProcessEvent) => {
+    const cfg: {
+      icon: string;
+      title: string;
+      body: string | JSX.Element;
+      endpoint: string | null;
+      actionButton?: { label: string; action: () => void };
+    } = {
+      icon: '❗️',
+      title: 'Unknown job error',
+      body: 'Something went wrong…',
+      endpoint: null,
+    };
+  
+    switch (event.resourceName) {
+      case 'ChatCompletionJob':
+        Object.assign(cfg, {
+          icon: '🧩🚫',
+          title: 'Chat Completion Job Error',
+          body: 'Something went wrong during ChatCompletionJob.',
+          endpoint: API_ENDPOINTS.chatCompletionJob(event.resourceId),
         });
-        
+        break;
+  
+      case 'TtsJob':
+        Object.assign(cfg, {
+          icon: '👄🚫',
+          title: 'TTS Job Error',
+          body: 'Text-to-speech task aborted. Please try again later.',
+          endpoint: API_ENDPOINTS.ttsJob(event.resourceId),
+        });
+        break;
+  
+      case 'SttJob':
+        Object.assign(cfg, {
+          icon: '👂🚫',
+          title: 'STT Job Error',
+          body: 'Speech-to-text task aborted. Try changing the provider.',
+          endpoint: API_ENDPOINTS.sttJob(event.resourceId),
+          actionButton: {
+            label: 'Change provider',
+            action: () => navigate(`/chats/${chat.id}/edit`),
+          },
+        });
+        break;
+  
+      case 'EmbeddingJob':
+        Object.assign(cfg, {
+          icon: '🔢🚫',
+          title: 'Embedding Job Error',
+          body: (<p className='bg-neutral-05 rounded-xl p-4'>Something went wrong during Embedding Job.</p>),
+          endpoint: API_ENDPOINTS.embeddingJob(event.resourceId),
+        });
+        break;
+  
+      case 'PaymentJob':
+        Object.assign(cfg, {
+          icon: '💵🚫',
+          title: 'Payment Job Error',
+          body: 'Failed to process the transaction, please check your balance.',
+          // endpoint: API_ENDPOINTS.paymentJob(event.resourceId),
+        });
+        break;
+  
+      default:
+        console.warn('handleJobError: unhandled resourceName:', event.resourceName);
         return;
-      } catch (error) {
-        console.error(error);
-      }
-      return;
     }
+  
+    // getting job error details
+    if (cfg.endpoint) {
+      try {
+        const res = await fetchWithAuth(cfg.endpoint);
+        if (res.ok) {
+          const job = await res.json();
+          cfg.body = job.error || cfg.body;
+        }
+      } catch (e) {
+        console.error('Failed to fetch job details', e);
+      }
+    }
+  
+    alert({
+      icon: cfg.icon,
+      title: cfg.title,
+      body: cfg.body,
+      cancelButton: 'Close',
+      actionButton: cfg.actionButton,
+    });
+  };
+
+  const handleProcessEvent = async (event: ProcessEvent) => {
+    if (event.jobStatus === 'failed') handleJobError(event);
+
     // if message is received, revalidate the page
     if (event.resourceName === 'Message') {
       revalidator.revalidate();
