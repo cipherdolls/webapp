@@ -142,6 +142,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                   extra={
                     <ViewButton
                       popoverItems={[
+                        { text: 'Edit AI Provider', href: `/services/ai/ai-providers/${aiProvider.id}/edit` },
                         { text: 'Add Chat Model', href: `/services/ai/chat-models/new?id=${aiProvider.id}&name=${aiProvider.name}` },
                         {
                           text: 'Add Embedding Model',

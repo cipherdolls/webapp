@@ -11,18 +11,27 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const res = await fetchWithAuth(`avatars`);
-  return await res.json();
+  const [allAvatarsRes, publishedAvatarsRes] = await Promise.all([
+    fetchWithAuth(`avatars`),
+    fetchWithAuth(`avatars?published=true`)
+  ]);
+  
+  const [allAvatars, publishedAvatars] = await Promise.all([
+    allAvatarsRes.json(),
+    publishedAvatarsRes.json()
+  ]);
+  
+  return { allAvatars, publishedAvatars };
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const avatars: Avatar[] = loaderData;
+  const { allAvatars, publishedAvatars }: { allAvatars: Avatar[], publishedAvatars: Avatar[] } = loaderData;
 
   return (
     <>
       <SearchAvatars />
-      <MyAvatars avatars={avatars} />
-      <PublicAvatars avatars={avatars} />
+      <MyAvatars avatars={allAvatars} />
+      <PublicAvatars avatars={publishedAvatars} />
       <Outlet />
     </>
   );

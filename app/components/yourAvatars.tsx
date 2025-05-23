@@ -11,7 +11,7 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
       <Card.Label>Your Avatars</Card.Label>
       <Card.Main className='max-h-max'>
         <Card.Header>
-          <Link to='/avatars'>
+          <Link to='/community/avatars'>
             <Card.HeaderSection>
               <Icons.add />
               Add Avatar
