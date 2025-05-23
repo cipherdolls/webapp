@@ -7,36 +7,28 @@ import { cn } from '~/utils/cn';
 import { useFetcher } from 'react-router';
 import type { Chat } from '~/types';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
+import { useChatStore } from '~/store/useChatStore';
+import { useAlert } from '~/providers/AlertDialogProvider';
 
 interface MessageRecordingButtonProps {
   chat: Chat;
-  chatState: ChatStateType;
-  setCurrentChatState: (state: ChatStateType) => void;
 }
 
 
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
-  chat,
-  chatState,
-  setCurrentChatState,
+  chat
 }) => {
-  const [hasMicAccess, setHasMicAccess] = useState(false);
+  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore();
   const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null); 
   const fetcher = useFetcher();
   const { stopAudio, unlockAudio } = useAudioPlayer();
+  const alert = useAlert();
 
 
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then(stream => {
-        stream.getTracks().forEach(t => t.stop());
-        setHasMicAccess(true);
-      })
-      .catch(err => console.error('Microphone access denied:', err));
+    requestMicAccess();
   }, []);
-
 
   useEffect(() => {
     return () => cleanUp();
@@ -46,7 +38,15 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   const startRecording = async () => {
     try {
       unlockAudio();
-      if (!hasMicAccess) return;  
+      if (!hasMicAccess) {
+        requestMicAccess();
+        alert({
+          icon: "🎤 ❌",
+          title: 'Microphone access',
+          body: 'Please allow access to your microphone in your browser settings for voice messages',
+        });
+        return
+      };  
 
       setCurrentChatState(ChatState.userSpeaking);
       stopAudio();
@@ -87,7 +87,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
     streamRef.current = null;
   };
 
-  return chatState === ChatState.userSpeaking ? (
+  return currentChatState === ChatState.userSpeaking ? (
     <Button.Root size="icon" onClick={stopRecording} className={cn('relative z-[1]')} type="button">
       <Button.Icon as={Icons.stopSound} />
       <AnimationRecording className="absolute top-1/2 left-1/2 -translate-1/2 -z-10" />
@@ -96,7 +96,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
     <Button.Root
       size="icon"
       onClick={startRecording}
-      disabled={chatState === ChatState.error}
+      disabled={currentChatState === ChatState.error}
       type="button"
     >
       <Button.Icon as={Icons.microphone} />

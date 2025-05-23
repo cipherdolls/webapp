@@ -5,14 +5,12 @@ import { Icons } from '~/components/ui/icons';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import ScenarioToggle from '~/components/ScenarioToggle';
 import { Card } from '~/components/card';
-import { useState } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ChatDestroy from './chats.$id.edit.destroy';
 import type { Avatar, Chat, SttProvider } from '~/types';
-import { LOCAL_STORAGE_KEYS } from '~/constants';
-import { useLocalStorage } from 'usehooks-ts';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { useChatStore } from '~/store/useChatStore';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
@@ -30,7 +28,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const navigate = useNavigate();
   const alert = useAlert();
-  const [silentMode, setSilentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
+  const { silentMode, toggleSilentMode } = useChatStore();
 
   const handleMessageClose = () => {
     navigate(`/chats/${chat.id}`);
@@ -151,7 +149,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                   className={cn('flex flex-row items-center gap-6 p-6 rounded-xl', {
                     'shadow-regular bg-white': silentMode,
                   })}
-                  onClick={() => setSilentMode((prev) => !prev)}
+                  onClick={() => toggleSilentMode()}
                 >
                   <div className='text-4xl'> {silentMode ? '🤫' : '📣'}</div>
                   <div className='flex flex-col gap-1 text-left'>

@@ -1,7 +1,10 @@
 import { cn } from '~/utils/cn';
 import { ChatJob, ChatState, type ChatJobType, type ChatStateType } from '~/components/chat/types/chatState';
+import { useChatStore } from '~/store/useChatStore';
 
-const eyeVariants: Record<ChatStateType | ChatJobType, { bg: string; shadow: string }> = {
+type EyeVariant = ChatStateType | ChatJobType;
+
+const eyeVariants: Partial<Record<EyeVariant, { bg: string; shadow: string }>> = {
   [ChatState.Idle]: {
     bg: 'radial-gradient(43.3% 81.25% at 50% 100%, #D1DDE1 0%, #F0F3F4 100%)',
     shadow: '0px 4px 8px rgba(2, 4, 52, 0.04)',
@@ -34,20 +37,28 @@ const eyeVariants: Record<ChatStateType | ChatJobType, { bg: string; shadow: str
   },
 } as const;
 
-interface EyeStatusProps {
-  chatState: ChatStateType;
-  currentJob: ChatJobType | null;
-}
 
-const EyeStatus: React.FC<EyeStatusProps> = ({ chatState, currentJob }) => {
-  const variant = chatState === ChatState.Idle && currentJob ? currentJob : chatState;
-  const eyeVariant = eyeVariants[variant];
+const EyeStatus: React.FC = () => {
+  const { currentJob, currentChatState } = useChatStore();
+
+
+  const variant: EyeVariant = 
+    currentChatState === ChatState.Idle && currentJob 
+      ? currentJob 
+      : currentChatState;
+
+  const eyeVariant = eyeVariants[variant] ?? eyeVariants[ChatState.Idle]!;
+  
+
+  
+  const pulseAnimation = variant === ChatState.avatarSpeaking || variant === ChatState.userSpeaking;
+  const sizeDecrease = variant === ChatJob.ChatCompletionJob || variant === ChatJob.SttJob;
 
   return (
     <div
       className={cn('size-10 animate-eye flex-shrink-0 flex items-center justify-center rounded-full', {
-        'animate-pulse-speak': variant === ChatState.avatarSpeaking || variant === ChatState.userSpeaking,
-        'scale-75': variant === ChatJob.ChatCompletionJob || variant === ChatJob.SttJob,
+        'animate-pulse-speak': pulseAnimation,
+        'scale-75': sizeDecrease,
       })}
       style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow }}
     >

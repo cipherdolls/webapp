@@ -8,15 +8,15 @@ import EyeStatus from './ui/EyeStatus';
 import { ChatState, type ChatJobType, type ChatStateType } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
+import { useChatStore } from '~/store/useChatStore';
 
 interface ChatBottomBarProps {
   chat: Chat;
-  currentChatState: ChatStateType;
-  currentJob: ChatJobType | null;
-  setCurrentChatState: (state: ChatStateType) => void;
 }
 
-const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, currentJob, setCurrentChatState }) => {
+const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
+  const { currentChatState } = useChatStore();
+
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
   const { unlockAudio } = useAudioPlayer();
@@ -38,7 +38,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, c
       <div className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'>
         <fetcher.Form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
           {/* eye status of the current chat state */}
-          <EyeStatus chatState={currentChatState} currentJob={currentJob} />
+          <EyeStatus />
           <div className='flex flex-1 items-center min-h-10 gap-4'>
             {/* chat id input */}
             <input name='chatId' defaultValue={chat.id} hidden />
@@ -67,7 +67,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, currentChatState, c
                 <Button.Icon as={Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton chat={chat} chatState={currentChatState} setCurrentChatState={setCurrentChatState} />
+              <MessageRecordingButton chat={chat} />
             )}
           </div>
         </fetcher.Form>
