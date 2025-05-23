@@ -164,9 +164,24 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 </div>
               </DetailCard>
             </div>
-            <DetailCard title='System Message'>
-              <p>{scenario.systemMessage}</p>
-            </DetailCard>
+            <div className='flex flex-col gap-4'>
+              <DetailCard title='Reasoning Model'>
+                {scenario.reasoningModel ? (
+                  <div className='flex flex-col gap-4'>
+                    <DetailRow title='Name' value={formatModelName(scenario.reasoningModel.providerModelName)} />
+                    <DetailRow title='AI Provider ID' value={scenario.reasoningModel.aiProviderId} />
+                    <DetailRow title='Input Token Cost' value={`$${scenario.reasoningModel.dollarPerInputToken}`} />
+                    <DetailRow title='Output Token Cost' value={`$${scenario.reasoningModel.dollarPerOutputToken}`} />
+                    <DetailRow title='Recommended' value={scenario.reasoningModel.recommended ? 'Yes' : 'No'} />
+                  </div>
+                ) : (
+                  <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
+                )}
+              </DetailCard>
+              <DetailCard title='System Message'>
+                <p>{scenario.systemMessage}</p>
+              </DetailCard>
+            </div>
           </div>
         </div>
       </div>
