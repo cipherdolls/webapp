@@ -2,7 +2,7 @@ import { Link, redirect, useFetcher, useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { TtsProvider } from '~/types';
-import type { Route } from './+types/_main._general.tts-providers.$ttsProvider.edit';
+import type { Route } from './+types/_main._general.services.tts.tts-providers.$ttsProvider.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -95,7 +95,7 @@ export default function TtsProviderEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/tts-providers/${ttsProvider.id}`);
+    navigate(`/services/tts`);
   };
 
   return (
