@@ -178,7 +178,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
                 )}
               </DetailCard>
-              <DetailCard title='System Message'>
+              <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage}>
                 <p>{scenario.systemMessage}</p>
               </DetailCard>
             </div>
