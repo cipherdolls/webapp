@@ -3,7 +3,6 @@ import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware'; // Add persist middleware
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatState } from '~/components/chat/types/chatState';
-import type { Message } from '~/types';
 
 interface ChatStore {
   silentMode: boolean;
@@ -22,7 +21,7 @@ interface ChatStore {
   setMicAccess: (hasAccess: boolean) => void;
 
 
-  initChatStore: (chatId: string, messages: Message[]) => void;
+  initChatStore: (chatId: string) => void;
   resetChatStore: () => void;
 }
 
@@ -40,7 +39,10 @@ export const useChatStore = create<ChatStore>()(
       setChatId: (id) => set({ chatId: id }),
       setCurrentChatState: (state) => set({ currentChatState: state }),
       setCurrentJob: (job) => set({ currentJob: job }),
-      toggleSilentMode: () => set((state) => !state.silentMode),
+      toggleSilentMode: () =>
+        set((state) => {
+          state.silentMode = !state.silentMode;
+        }),
 
       requestMicAccess: async () => {
         try {

@@ -11,6 +11,7 @@ import ChatDestroy from './chats.$id.edit.destroy';
 import type { Avatar, Chat, SttProvider } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useChatStore } from '~/store/useChatStore';
+import { useShallow } from 'zustand/react/shallow';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
@@ -28,7 +29,11 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const navigate = useNavigate();
   const alert = useAlert();
-  const { silentMode, toggleSilentMode } = useChatStore();
+  
+  const { silentMode, toggleSilentMode } = useChatStore(useShallow(state => ({
+    silentMode: state.silentMode,
+    toggleSilentMode: state.toggleSilentMode,
+  })));
 
   const handleMessageClose = () => {
     navigate(`/chats/${chat.id}`);

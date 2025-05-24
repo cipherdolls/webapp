@@ -7,13 +7,14 @@ import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { apiUrl, API_ENDPOINTS } from '~/constants';
-import { useEffect } from 'react';
+import { use, useEffect } from 'react';
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 import { useChatStore } from '~/store/useChatStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -72,18 +73,23 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { playAudio, stopAudio } = useAudioPlayer();
   const navigate = useNavigate();
   const alert = useAlert();
-  const { silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState } = useChatStore((state) => ({
+  
+  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState } = useChatStore(useShallow((state) => ({
+    chatId: state.chatId,
     silentMode: state.silentMode,
     initChatStore: state.initChatStore,
     setCurrentJob: state.setCurrentJob,
     currentChatState: state.currentChatState,
     setCurrentChatState: state.setCurrentChatState,
-  }));
+  })));
 
   useEffect(() => {
-    initChatStore(chat.id, messages);
-  }, [chat.id]);
-
+    console.log('chatId', chat.id);
+    if (chat.id !== chatId) {
+      initChatStore(chat.id);
+    }
+  }, [chat.id, chatId, initChatStore]); 
+  
   useChatEvents({
     chat,
     onProcessEvent: (event) => handleProcessEvent(event),
