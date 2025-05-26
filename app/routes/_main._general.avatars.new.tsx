@@ -1,5 +1,5 @@
 import { Link, redirect, useFetcher } from 'react-router';
-import type { Route } from './+types/_main._general.community.avatars.new';
+import type { Route } from './+types/_main._general.avatars.new';
 import type { ApiError, Avatar, TtsVoice, Scenario } from '~/types';
 import { useState } from 'react';
 import { Icons } from '~/components/ui/icons';
