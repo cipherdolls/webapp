@@ -65,7 +65,7 @@ export const InstallButton = ({
           border: 'none',
           borderRadius: '9999px',
           color: '#fff',
-          backgroundColor: '#03a9f4',
+          backgroundColor: '#000000',
           opacity: installing ? 0.5 : 1,
           pointerEvents: installing ? 'none' : 'auto',
         }}

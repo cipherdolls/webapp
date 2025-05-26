@@ -15,13 +15,15 @@ const communityNavItems = [
     label: 'Avatars',
     to: 'avatars',
     link: 'Avatars',
-    href: '/community/avatar/new',
+    new: {
+      text: 'Add New Avatar',
+      href: '/avatars/new',
+    },
   },
   {
     label: 'Scenarios',
     to: 'scenarios',
     link: 'Scenario',
-    href: '/community/scenarios/new',
     banner: {
       emoji: '🗣️',
       text: '',

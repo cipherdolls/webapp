@@ -1,50 +1,111 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router';
-import { Card } from '~/components/card';
 import { Icons } from '~/components/ui/icons';
-import { AvatarCard } from './avatarCard';
 import { cn } from '~/utils/cn';
 import type { Avatar } from '~/types';
+import AvatarPicture from './AvatarPicture';
+import * as Button from '~/components/ui/button/button';
 
 const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
+  const [showAll, setShowAll] = useState(false);
+  const hasAvatars = avatars.length > 0;
+
+  const sortedAvatars = useMemo(() => {
+    return [...avatars].sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [avatars]);
+
+  const handleShowAll = () => {
+    setShowAll(!showAll);
+  };
+
   return (
-    <Card.Root className='sm:pr-4'>
-      <Card.Label>Your Avatars</Card.Label>
-      <Card.Main className='max-h-max'>
-        <Card.Header>
-          <Link to='/avatars'>
-            <Card.HeaderSection>
-              <Icons.add />
-              Add Avatar
-            </Card.HeaderSection>
-          </Link>
-          <Link to='/avatars/new'>
-            <Card.HeaderSection>
-              <Icons.pen />
-              Create Avatar
-            </Card.HeaderSection>
-          </Link>
-        </Card.Header>
-        <Card.Content className={cn(avatars.length > 0 && 'border-t-0')}>
-          {avatars.length === 0 ? (
-            <div className='sm:pb-14'>
-              <div className='py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
-                <h1 className='sm:text-heading-h1 text-heading-h2'>🎨</h1>
-                <div className='flex flex-col sm:gap-2 gap-1'>
-                  <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
-                  <p className='text-body-md text-neutral-01 sm:text-center'>You can add public avatar, or create a brand new own</p>
+    <div className='flex flex-col gap-5'>
+      <h3 className='text-heading-h3 text-base-black'>Your Avatars</h3>
+      <div className={cn('p-2 pt-0 rounded-xl flex flex-col', hasAvatars && 'bg-gradient-1')}>
+        {hasAvatars ? (
+          <>
+            <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
+              <Link to={'/community/avatars'} className='group '>
+                <div className='flex items-center justify-center gap-2'>
+                  <Icons.add className='group-hover:text-base-black/50 transition-colors' />
+                  <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
+                    Add Avatar
+                  </span>
                 </div>
-              </div>
+              </Link>
+              <Link to={'/avatars/new'} className='group '>
+                <div className='flex items-center justify-center gap-2'>
+                  <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
+                  <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
+                    Create Avatar
+                  </span>
+                </div>
+              </Link>
             </div>
-          ) : (
-            <div className='flex flex-col bg-base-white shadow-regular rounded-xl sm:p-2 divide-y divide-neutral-04 max-h-[350px] sm:max-h-[500px] overflow-y-auto scrollbar-medium'>
-              {avatars.map((avatar) => (
-                <AvatarCard key={avatar.id} avatar={avatar} />
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+              {sortedAvatars.map((avatar, index) => (
+                <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                  <Link
+                    to={`/avatars/${avatar.id}`}
+                    className={cn(
+                      'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                      sortedAvatars.length === 1 && 'col-span-2'
+                    )}
+                  >
+                    <AvatarPicture avatar={avatar} className='size-14' />
+                    <div className='flex items-center gap-4 min-w-0 flex-1'>
+                      <div className='flex flex-col gap-1 overflow-hidden min-w-0 flex-1'>
+                        <span className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</span>
+                        <div className='flex items-center gap-2'>
+                          <p className={cn('truncate text-body-sm font-semibold text-neutral-01')}>{avatar.shortDesc}</p>
+                        </div>
+                      </div>
+
+                      <Button.Root
+                        variant='secondary'
+                        className='h-10 px-0 group-hover:px-6 max-w-0 group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (avatar.chats && avatar.chats.length > 0) {
+                            window.location.href = `/chats/${avatar.chats[0].id}`;
+                          }
+                        }}
+                      >
+                        Chat
+                      </Button.Root>
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
-          )}
-        </Card.Content>
-      </Card.Main>
-    </Card.Root>
+          </>
+        ) : (
+          <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
+            <h1 className='text-heading-h2'>👤</h1>
+            <div className='flex flex-col items-center sm:gap-2 gap-1'>
+              <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
+              <Link
+                to='/avatars/new'
+                className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
+              >
+                Add new avatar
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+      {avatars.length > 4 && (
+        <div className='mx-auto -mt-2'>
+          <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
+            {showAll ? 'Collapse' : 'Show all'}
+            <Button.Icon as={Icons.chevronDown} className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+          </Button.Root>
+        </div>
+      )}
+    </div>
   );
 };
 

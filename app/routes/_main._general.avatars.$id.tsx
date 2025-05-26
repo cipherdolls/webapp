@@ -97,14 +97,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         <div className='md:flex hidden items-center gap-3'>
           {avatar.chats.length > 0 ? (
             <Link to={`/chats/${avatar.chats[0]?.id}`}>
-              <Button.Root variant='primary' className='w-[120px]' type='submit'>
+              <Button.Root variant='primary' className='px-6' type='submit'>
                 Continue Chat
               </Button.Root>
             </Link>
           ) : (
             <Form method='POST' action='/chats'>
               <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-              <Button.Root variant='primary' className='w-[120px]' type='submit'>
+              <Button.Root variant='primary' className='px-6' type='submit'>
                 Start Chat
               </Button.Root>
             </Form>
@@ -189,18 +189,18 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
             <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
               <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
-              <div className='flex flex-col gap-1'>
-                <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>
+              <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                <p className='text-body-lg font-semibold text-base-black text-left truncate'>
                   {isPublished ? 'Published' : 'Your Special'}
                 </p>
-                <span className='text-body-md text-neutral-01 text-left line-clamp-1'>
+                <span className='text-body-md text-neutral-01 text-left truncate'>
                   {me.id === avatar.userId ? 'Made by you' : avatar.userId}
                 </span>
               </div>
             </div>
           </div>
           {avatar.scenarios && avatar.scenarios.length > 0 && (
-            <div className='sm:bg-gradient-1 rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
+            <div className='sm:bg-gradient-1 rounded-xl p-5 flex flex-col gap-5  max-h-max text-body-md text-base-black'>
               <div className='flex flex-col gap-4'>
                 <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Scenarios</h3>
                 <div className='flex flex-col gap-4'>

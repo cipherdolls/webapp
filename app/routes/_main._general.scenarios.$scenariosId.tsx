@@ -2,10 +2,10 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { Link, Outlet, useFetcher } from 'react-router';
+import { Link, Outlet, useFetcher, useRouteLoaderData } from 'react-router';
 
 import { getPicture } from '~/utils/getPicture';
-import type { Scenario } from '~/types';
+import type { Scenario, User } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
 import ScenarioDestroy from './scenarios.$scenariosId.destroy';
 import { formatDate } from '~/utils/date.utils';
@@ -27,6 +27,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const scenario = loaderData as Scenario;
   const fetcher = useFetcher();
+  const me = useRouteLoaderData('routes/_main') as User;
 
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
@@ -59,17 +60,18 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 Duplicate
               </Button.Root>
             </fetcher.Form>
-            <Link to={`/scenarios/${scenario.id}/edit`}>
-              <Button.Root variant='secondary' className='w-[130px]'>
-                Edit
-              </Button.Root>
-            </Link>
-            <DeleteModal
-              title='Delete a Scenario?'
-              description='By deleting a scenario all related data will be deleted as well. You will not be able to restore the data.'
-            >
-              <ScenarioDestroy />
-            </DeleteModal>
+            {me.id === scenario.userId && (
+              <>
+                <Link to={`/scenarios/${scenario.id}/edit`}>
+                  <Button.Root variant='secondary' className='w-[130px]'>
+                    Edit
+                  </Button.Root>
+                </Link>
+                <DeleteModal title={`Delete scenario ${scenario.name}?`} description='You will not be able to restore the data.'>
+                  <ScenarioDestroy />
+                </DeleteModal>
+              </>
+            )}
           </div>
           <div className='md:hidden flex text-base-black'>
             <Icons.more />
@@ -162,9 +164,24 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 </div>
               </DetailCard>
             </div>
-            <DetailCard title='System Message'>
-              <p>{scenario.systemMessage}</p>
-            </DetailCard>
+            <div className='flex flex-col gap-4'>
+              <DetailCard title='Reasoning Model'>
+                {scenario.reasoningModel ? (
+                  <div className='flex flex-col gap-4'>
+                    <DetailRow title='Name' value={formatModelName(scenario.reasoningModel.providerModelName)} />
+                    <DetailRow title='AI Provider ID' value={scenario.reasoningModel.aiProviderId} />
+                    <DetailRow title='Input Token Cost' value={`$${scenario.reasoningModel.dollarPerInputToken}`} />
+                    <DetailRow title='Output Token Cost' value={`$${scenario.reasoningModel.dollarPerOutputToken}`} />
+                    <DetailRow title='Recommended' value={scenario.reasoningModel.recommended ? 'Yes' : 'No'} />
+                  </div>
+                ) : (
+                  <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
+                )}
+              </DetailCard>
+              <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage}>
+                <p>{scenario.systemMessage}</p>
+              </DetailCard>
+            </div>
           </div>
         </div>
       </div>

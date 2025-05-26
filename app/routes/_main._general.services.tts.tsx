@@ -85,6 +85,8 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                     </div>
                     <ViewButton
                       popoverItems={[
+                        { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
+
                         { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&name=${ttsProvider.name}` },
                         {
                           text: 'Delete',
