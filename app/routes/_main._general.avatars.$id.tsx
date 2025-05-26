@@ -97,14 +97,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         <div className='md:flex hidden items-center gap-3'>
           {avatar.chats.length > 0 ? (
             <Link to={`/chats/${avatar.chats[0]?.id}`}>
-              <Button.Root variant='primary' className='w-[120px]' type='submit'>
+              <Button.Root variant='primary' className='px-6' type='submit'>
                 Continue Chat
               </Button.Root>
             </Link>
           ) : (
             <Form method='POST' action='/chats'>
               <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-              <Button.Root variant='primary' className='w-[120px]' type='submit'>
+              <Button.Root variant='primary' className='px-6' type='submit'>
                 Start Chat
               </Button.Root>
             </Form>

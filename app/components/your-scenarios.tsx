@@ -1,11 +1,25 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import type { Scenario } from '~/types';
 import { InformationBadge } from './ui/InformationBadge';
 import { cn } from '~/utils/cn';
+import * as Button from '~/components/ui/button/button';
 
 const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
+  const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
+
+  const sortedScenarios = useMemo(() => {
+    return [...scenarios].sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [scenarios]);
+
+  const handleShowAll = () => {
+    setShowAll(!showAll);
+  };
+
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Scenarios</h3>
@@ -31,22 +45,23 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
               </Link>
             </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-              {scenarios.slice(0, 4).map((scenario, index) => (
-                <Link
-                  to={`/scenarios/${scenario.id}`}
-                  className={cn(
-                    'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
-                    scenarios.length === 1 && 'col-span-2'
-                  )}
-                  key={index}
-                >
-                  <div className='flex items-center gap-2'>
-                    <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
-                    <InformationBadge className='size-4 text-neutral-02' />
-                  </div>
-                  <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
-                  <p className='text-base-black line-clamp-2 text-body-sm'>{scenario.systemMessage}</p>
-                </Link>
+              {sortedScenarios.map((scenario, index) => (
+                <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                  <Link
+                    to={`/scenarios/${scenario.id}`}
+                    className={cn(
+                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                      sortedScenarios.length === 1 && 'col-span-2'
+                    )}
+                  >
+                    <div className='flex items-center gap-2'>
+                      <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
+                      <InformationBadge className='size-4 text-neutral-02' />
+                    </div>
+                    <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
+                    <p className='text-base-black line-clamp-2 text-body-sm'>{scenario.systemMessage}</p>
+                  </Link>
+                </div>
               ))}
             </div>
           </>
@@ -65,6 +80,14 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
           </div>
         )}
       </div>
+      {scenarios.length > 4 && (
+        <div className='mx-auto -mt-2'>
+          <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
+            {showAll ? 'Collapse' : 'Show all'}
+            <Button.Icon as={Icons.chevronDown} className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+          </Button.Root>
+        </div>
+      )}
     </div>
   );
 };
