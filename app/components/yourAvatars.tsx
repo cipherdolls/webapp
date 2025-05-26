@@ -1,5 +1,5 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router';
-import { Card } from '~/components/card';
 import { Icons } from '~/components/ui/icons';
 import { cn } from '~/utils/cn';
 import type { Avatar } from '~/types';
@@ -7,7 +7,19 @@ import AvatarPicture from './AvatarPicture';
 import * as Button from '~/components/ui/button/button';
 
 const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
+  const [showAll, setShowAll] = useState(false);
   const hasAvatars = avatars.length > 0;
+
+  const sortedAvatars = useMemo(() => {
+    return [...avatars].sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [avatars]);
+
+  const handleShowAll = () => {
+    setShowAll(!showAll);
+  };
+
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Avatars</h3>
@@ -33,36 +45,40 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
               </Link>
             </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-              {avatars.slice(0, 4).map((avatar, index) => (
-                <Link
-                  to={`/avatars/${avatar.id}`}
-                  className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group'
-                  key={index}
-                >
-                  <AvatarPicture avatar={avatar} className='size-14' />
-                  <div className='flex items-center gap-4 min-w-0 flex-1'>
-                    <div className='flex flex-col gap-1 overflow-hidden min-w-0 flex-1'>
-                      <span className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</span>
-                      <div className='flex items-center gap-2'>
-                        <p className={cn('truncate text-body-sm font-semibold text-neutral-01')}>{avatar.shortDesc}</p>
+              {sortedAvatars.map((avatar, index) => (
+                <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                  <Link
+                    to={`/avatars/${avatar.id}`}
+                    className={cn(
+                      'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                      sortedAvatars.length === 1 && 'col-span-2'
+                    )}
+                  >
+                    <AvatarPicture avatar={avatar} className='size-14' />
+                    <div className='flex items-center gap-4 min-w-0 flex-1'>
+                      <div className='flex flex-col gap-1 overflow-hidden min-w-0 flex-1'>
+                        <span className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</span>
+                        <div className='flex items-center gap-2'>
+                          <p className={cn('truncate text-body-sm font-semibold text-neutral-01')}>{avatar.shortDesc}</p>
+                        </div>
                       </div>
-                    </div>
 
-                    <Button.Root
-                      variant='secondary'
-                      className='h-10 px-0 group-hover:px-6 max-w-0 group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (avatar.chats && avatar.chats.length > 0) {
-                          window.location.href = `/chats/${avatar.chats[0].id}`;
-                        }
-                      }}
-                    >
-                      Chat
-                    </Button.Root>
-                  </div>
-                </Link>
+                      <Button.Root
+                        variant='secondary'
+                        className='h-10 px-0 group-hover:px-6 max-w-0 group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (avatar.chats && avatar.chats.length > 0) {
+                            window.location.href = `/chats/${avatar.chats[0].id}`;
+                          }
+                        }}
+                      >
+                        Chat
+                      </Button.Root>
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
           </>
@@ -81,6 +97,14 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
           </div>
         )}
       </div>
+      {avatars.length > 4 && (
+        <div className='mx-auto -mt-2'>
+          <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
+            {showAll ? 'Collapse' : 'Show all'}
+            <Button.Icon as={Icons.chevronDown} className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+          </Button.Root>
+        </div>
+      )}
     </div>
   );
 };
