@@ -36,7 +36,10 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
               {avatars.slice(0, 4).map((avatar, index) => (
                 <Link
                   to={`/avatars/${avatar.id}`}
-                  className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group'
+                  className={cn(
+                    'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                    avatars.length === 1 && 'col-span-2'
+                  )}
                   key={index}
                 >
                   <AvatarPicture avatar={avatar} className='size-14' />

@@ -2,9 +2,10 @@ import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import type { Scenario } from '~/types';
 import { InformationBadge } from './ui/InformationBadge';
+import { cn } from '~/utils/cn';
 
 const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
-  const hasScenarios = scenarios.length < 0;
+  const hasScenarios = scenarios.length > 0;
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Scenarios</h3>
@@ -33,7 +34,10 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
               {scenarios.slice(0, 4).map((scenario, index) => (
                 <Link
                   to={`/scenarios/${scenario.id}`}
-                  className='bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group'
+                  className={cn(
+                    'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                    scenarios.length === 1 && 'col-span-2'
+                  )}
                   key={index}
                 >
                   <div className='flex items-center gap-2'>

@@ -13,7 +13,10 @@ const YourChats = ({ chats }: { chats: Chat[] }) => {
           chats.map((chat, index) => (
             <Link
               to={`/chats/${chat.id}`}
-              className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'
+              className={cn(
+                'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all',
+                chats.length === 1 && 'col-span-2'
+              )}
               key={index}
             >
               <AvatarPicture avatar={chat.avatar} className='size-14' />
