@@ -8,6 +8,7 @@ import { getPicture } from '~/utils/getPicture';
 import DeleteModal from '~/components/ui/deleteModal';
 import SttProviderDestroy from './stt-providers.$sttProvider.destroy';
 import { formatDate } from '~/utils/date.utils';
+import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Provider' }];
@@ -51,9 +52,31 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
               <SttProviderDestroy />
             </DeleteModal>
           </div>
-          {/* TODO: How is this gonna work? */}
+
           <div className='md:hidden flex text-base-black'>
-            <Icons.more />
+            <ViewMore
+              popoverItems={[
+                {
+                  type: 'link',
+                  text: 'Edit',
+                  href: `/stt-providers/${sttProvider.id}/edit`,
+                },
+                {
+                  type: 'component',
+                  text: 'Delete',
+                  isDelete: true,
+                  component: (
+                    <DeleteModal
+                      title='Delete an STT Provider?'
+                      description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
+                      dropdown
+                    >
+                      <SttProviderDestroy />
+                    </DeleteModal>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>

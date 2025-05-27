@@ -13,14 +13,7 @@ interface ScenarioCardProps {
   avatars?: Avatar[];
 }
 
-const ScenarioCard = ({ 
-  scenario, 
-  index, 
-  showAll, 
-  totalScenarios, 
-  isPublic = false, 
-  avatars 
-}: ScenarioCardProps) => {
+const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = false, avatars }: ScenarioCardProps) => {
   const isNewScenario = () => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -54,11 +47,9 @@ const ScenarioCard = ({
               <h6 className='text-body-md font-semibold text-base-black'>{scenario.name}</h6>
               <div className='flex items-center gap-2'>
                 <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
-                {isNewScenario() && (
-                  <span className='text-specials-success text-body-sm'>New</span>
-                )}
+                {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
               </div>
-              <p className='text-base-black text-body-sm line-clamp-2 min-h-8'>{scenario.systemMessage}</p>
+              <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
             </Link>
             {avatars && <SelectAvatarModal avatars={avatars} scenario={scenario} />}
           </div>
@@ -95,11 +86,9 @@ const ScenarioCard = ({
           <h6 className='text-body-md font-semibold text-base-black'>{scenario.name}</h6>
           <div className='flex items-center gap-2'>
             <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
-            {isNewScenario() && (
-              <span className='text-specials-success text-body-sm'>New</span>
-            )}
+            {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
           </div>
-          <p className='text-base-black text-body-sm line-clamp-2 min-h-8'>{scenario.systemMessage}</p>
+          <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
         </div>
         <div className='grid lg:grid-cols-2 sm:grid-cols-1 grid-cols-2 gap-y-2 gap-x-5 p-5'>
           <div className='flex items-center gap-3'>

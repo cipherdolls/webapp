@@ -54,6 +54,14 @@ export default function Services() {
     <div className='w-full'>
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold '>Community</h2>
+        {activeItem.new?.href && (
+          <NavLink to={activeItem.new.href}>
+            <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
+              <Button.Icon as={Icons.add} />
+              {activeItem.new.text}
+            </Button.Root>
+          </NavLink>
+        )}
       </div>
       <nav className='border-b border-neutral-04 flex items-center justify-between relative'>
         <div className='flex gap-x-5 gap-y-2 items-center flex-wrap'>
@@ -75,11 +83,6 @@ export default function Services() {
             );
           })}
         </div>
-        {activeItem.new?.href && (
-          <NavLink to={activeItem.new.href} className='absolute right-0 bottom-1'>
-            <Button.Root className='h-10 px-5'>{activeItem.new.text}</Button.Root>
-          </NavLink>
-        )}
       </nav>
 
       <div className='mt-10 flex flex-col gap-10'>

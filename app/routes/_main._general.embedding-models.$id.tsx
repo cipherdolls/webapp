@@ -10,6 +10,7 @@ import DeleteModal from '~/components/ui/deleteModal';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatModelName } from '~/utils/formatModelName';
+import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
@@ -54,7 +55,29 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             </DeleteModal>
           </div>
           <div className='md:hidden flex text-base-black'>
-            <Icons.more />
+            <ViewMore
+              popoverItems={[
+                {
+                  type: 'link',
+                  text: 'Edit',
+                  href: `/embedding-models/${embeddingModel.id}/edit`,
+                },
+                {
+                  type: 'component',
+                  text: 'Delete',
+                  isDelete: true,
+                  component: (
+                    <DeleteModal
+                      title='Delete an Embedding Model?'
+                      description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
+                      dropdown
+                    >
+                      <EmbeddingModelDestroy />
+                    </DeleteModal>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>

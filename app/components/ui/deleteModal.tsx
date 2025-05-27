@@ -7,37 +7,23 @@ interface DeleteModalProps {
   title: string;
   description: string;
   children: ReactNode;
+  dropdown?: boolean;
 }
 
-const DeleteModal = ({ title, description, children }: DeleteModalProps) => {
+const DeleteModal = ({ title, description, children, dropdown }: DeleteModalProps) => {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <Button.Root type='button' variant='danger'>
-          <Icons.trash className='w-12' />
+        <Button.Root
+          type='button'
+          variant={dropdown ? 'ghost' : 'danger'}
+          className={dropdown ? 'w-full justify-start text-left cursor-pointer py-3.5 px-3 text-base rounded-[10px]' : ''}
+        >
+          {dropdown ? 'Delete' : <Icons.trash className='w-12' />}
         </Button.Root>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
-          <div
-            className='absolute left-1/2 -translate-x-1/2
-            w-[375px] h-[514px] sm:w-[480px] sm:h-[338px] 
-            bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2
-            rounded-xl pointer-events-none sm:block hidden'
-          />
-          <div
-            className='absolute inset-0 bg-gradient-to-b from-neutral-02 to-neutral-02 sm:block hidden
-            [mask-image:linear-gradient(to_bottom,black_0%,black_100%),linear-gradient(to_right,black_0%,black_100%)] 
-            [mask-size:100%_100%,480px_338px] 
-            [mask-position:0_0,50%_50%] 
-            [mask-repeat:no-repeat] 
-            [mask-composite:exclude]'
-            style={{
-              maskImage:
-                "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='338' viewBox='0 0 480 338' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='338' rx='12' fill='black'/%3E%3C/svg%3E\")",
-            }}
-          />
-        </Dialog.Overlay>
+        <Dialog.Overlay className='bg-neutral-02 fixed inset-0 pointer-events-none'></Dialog.Overlay>
 
         <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20'>
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />

@@ -13,6 +13,7 @@ import { formatModelName } from '~/utils/formatModelName';
 import DetailCard from '~/components/ui/detail/detail-card';
 import DetailRow from '~/components/ui/detail/detail-row';
 import { formatNumberWithCommas } from '~/utils/formatNumberWithCommas';
+import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -74,7 +75,44 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             )}
           </div>
           <div className='md:hidden flex text-base-black'>
-            <Icons.more />
+            <ViewMore
+              userId={scenario.userId}
+              popoverItems={[
+                {
+                  type: 'form',
+                  text: 'Duplicate',
+                  action: '/community/scenarios/new',
+                  method: 'POST',
+                  formData: {
+                    name: `${scenario.name} copy`,
+                    systemMessage: scenario.systemMessage,
+                    chatModelId: scenario.chatModel.id,
+                    embeddingModelId: scenario.embeddingModel.id,
+                    temperature: scenario.temperature.toString(),
+                    topP: scenario.topP.toString(),
+                    frequencyPenalty: scenario.frequencyPenalty.toString(),
+                    presencePenalty: scenario.presencePenalty.toString(),
+                  },
+                },
+                {
+                  type: 'link',
+                  text: 'Edit',
+                  href: `/scenarios/${scenario.id}/edit`,
+                  visible: me.id === scenario.userId,
+                },
+                {
+                  type: 'component',
+                  text: 'Delete',
+                  isDelete: true,
+                  component: (
+                    <DeleteModal title={`Delete scenario ${scenario.name}?`} description='You will not be able to restore the data.'>
+                      <ScenarioDestroy />
+                    </DeleteModal>
+                  ),
+                  visible: me.id === scenario.userId,
+                },
+              ]}
+            />
           </div>
         </div>
 
@@ -179,7 +217,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 )}
               </DetailCard>
               <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage}>
-                <p>{scenario.systemMessage}</p>
+                <p className='break-all'>{scenario.systemMessage}</p>
               </DetailCard>
             </div>
           </div>
