@@ -71,18 +71,25 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
             {firmwares.map((firmware, index) => (
               <Fragment key={firmware.id}>
                 <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemLabel className='justify-start'>
-                    {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
+                  <DataCard.ItemLabel>
+                    <div>
+                      {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
+                    </div>
+
+                    <span className='font-normal'>{firmware.createdAt.toString()}</span>
                   </DataCard.ItemLabel>
 
                   <DataCard.ItemDataGrid
+                    variant={'mobile'}
                     data={[
                       {
-                        label: 'Download',
+                        label: '',
                         value: (
-                          <a href={`${apiUrl}/firmwares/${firmware.id}/download`} download>
-                            Download
-                          </a>
+                          <InstallButton
+                            className='w-full'
+                            manifest={`${apiUrl}/firmwares/${firmware.id}/manifest.json`}
+                            label='Flash Device'
+                          />
                         ),
                       },
                     ]}
@@ -103,13 +110,11 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
             {firmwares.map((firmware, index) => (
               <Fragment key={firmware.id}>
                 <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemLabel>{firmware.version}</DataCard.ItemLabel>
-
                   <DataCard.ItemDataGrid
                     data={[
                       {
-                        label: 'Release date',
-                        value: <span className='font-semibold'>{firmware.createdAt.toString()}</span>,
+                        label: <span className='font-semibold text-base-black'>{firmware.version}</span>,
+                        value: <span className='font-normal'>{firmware.createdAt.toString()}</span>,
                       },
                     ]}
                   />
