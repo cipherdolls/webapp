@@ -6,7 +6,7 @@ import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl, API_ENDPOINTS } from '~/constants';
+import { apiUrl, API_ENDPOINTS, PICTURE_SIZE } from '~/constants';
 import { use, useEffect } from 'react';
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
@@ -15,6 +15,9 @@ import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
+import { Icons } from '~/components/ui/icons';
+import AvatarPicture from '~/components/AvatarPicture';
+import LiveTalk from '~/components/chat/LiveTalk';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -73,26 +76,43 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { playAudio, stopAudio } = useAudioPlayer();
   const navigate = useNavigate();
   const alert = useAlert();
-  
-  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState } = useChatStore(useShallow((state) => ({
-    chatId: state.chatId,
-    silentMode: state.silentMode,
-    initChatStore: state.initChatStore,
-    setCurrentJob: state.setCurrentJob,
-    currentChatState: state.currentChatState,
-    setCurrentChatState: state.setCurrentChatState,
-  })));
+
+  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState, liveTalkMode } = useChatStore(
+    useShallow((state) => ({
+      chatId: state.chatId,
+      silentMode: state.silentMode,
+      initChatStore: state.initChatStore,
+      setCurrentJob: state.setCurrentJob,
+      currentChatState: state.currentChatState,
+      setCurrentChatState: state.setCurrentChatState,
+      liveTalkMode: state.liveTalkMode,
+    }))
+  );
 
   useEffect(() => {
-    console.log('chatId', chat.id);
     if (chat.id !== chatId) {
       initChatStore(chat.id);
     }
-  }, [chat.id, chatId, initChatStore]); 
-  
+  }, [chat.id, chatId, initChatStore]);
+
   useChatEvents({
     chat,
-    onProcessEvent: (event) => handleProcessEvent(event),
+    onProcessEvent: (event) => {
+      console.log('event', event);
+      if (event.jobStatus === 'failed') handleJobError(event);
+
+      // if message is received, revalidate the page
+      if (event.resourceName === 'Message') {
+        revalidator.revalidate();
+        return;
+      }
+
+      // checking if a job exist in a chat jobs enum
+      const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
+      if (isValidJob(event.resourceName)) {
+        setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
+      }
+    },
     onActionEvent: (event) => {
       if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
     },
@@ -204,33 +224,25 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     });
   };
 
-  const handleProcessEvent = async (event: ProcessEvent) => {
-    if (event.jobStatus === 'failed') handleJobError(event);
-
-    // if message is received, revalidate the page
-    if (event.resourceName === 'Message') {
-      revalidator.revalidate();
-      return;
-    }
-
-    // checking if a job exist in a chat jobs enum
-    const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
-    if (isValidJob(event.resourceName)) {
-      setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
-    }
-  };
-
   return (
     <>
       <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
         {/* chat header */}
-        <ChatTopBar chat={chat} avatar={avatar} />
+        {liveTalkMode ? (
+          <LiveTalk avatar={avatar} />
+        ) : (
+          <>
+            {/* chat header */}
+            <ChatTopBar chat={chat} avatar={avatar} />
 
-        {/* chat messages scroll */}
-        <ChatBody messages={messages} />
+            {/* chat messages scroll */}
+            <ChatBody messages={messages} />
+              {/* chat input field  */}
+            <ChatBottomBar chat={chat} />
+          </>
+        )}
 
-        {/* chat input field  */}
-        <ChatBottomBar chat={chat} />
+        
       </div>
       <Outlet />
     </>

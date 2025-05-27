@@ -42,7 +42,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
         requestMicAccess();
         alert({
           icon: "🎤 ❌",
-          title: 'Microphone access',
+          title: 'Microphone access required',
           body: 'Please allow access to your microphone in your browser settings for voice messages',
         });
         return

@@ -38,7 +38,7 @@ const eyeVariants: Partial<Record<EyeVariant, { bg: string; shadow: string }>> =
 } as const;
 
 
-const EyeStatus: React.FC = () => {
+const EyeStatus: React.FC<{ className?: string }> = ({ className }) => {
   const { currentJob, currentChatState } = useChatStore();
 
 
@@ -59,10 +59,10 @@ const EyeStatus: React.FC = () => {
       className={cn('size-10 animate-eye flex-shrink-0 flex items-center justify-center rounded-full', {
         'animate-pulse-speak': pulseAnimation,
         'scale-75': sizeDecrease,
-      })}
+      }, className)}
       style={{ background: eyeVariant.bg, boxShadow: eyeVariant.shadow }}
     >
-      <svg width='22' height='20' viewBox='0 0 22 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      <svg  className='h-1/2 w-1/2' viewBox='0 0 22 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <g style={{ mixBlendMode: 'soft-light' }}>
           <path
             fillRule='evenodd'

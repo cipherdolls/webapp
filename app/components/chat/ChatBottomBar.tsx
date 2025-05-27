@@ -9,13 +9,25 @@ import { ChatState, type ChatJobType, type ChatStateType } from './types/chatSta
 import MessageRecordingButton from './MessageRecordingButton';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useChatStore } from '~/store/useChatStore';
+import { useAlert } from '~/providers/AlertDialogProvider';
+import { useShallow } from 'zustand/react/shallow';
 
 interface ChatBottomBarProps {
   chat: Chat;
 }
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
-  const { currentChatState } = useChatStore();
+  const { currentChatState, liveTalkMode, setLiveTalkMode, hasMicAccess } = useChatStore(useShallow(state=> (
+    {
+      currentChatState: state.currentChatState,
+      liveTalkMode: state.liveTalkMode,
+      setLiveTalkMode: state.setLiveTalkMode,
+      hasMicAccess: state.hasMicAccess,
+      requestMicAccess: state.requestMicAccess,
+    }
+  )));
+  
+  const alert = useAlert();
 
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
@@ -31,6 +43,19 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
       encType: 'multipart/form-data',
     });
     setNewMessage('');
+  };
+
+  const handleLiveTalk = () => {
+    unlockAudio();
+    if (!hasMicAccess) {
+      alert({
+        icon: '🎤 ❌',
+        title: 'Microphone access required',
+        body: 'Please allow access to your microphone in your browser settings for live talk mode',
+      });
+      return;
+    }
+    setLiveTalkMode(!liveTalkMode);
   };
 
   return (
@@ -60,7 +85,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
               />
             )}
           </div>
-          <div className='shrink-0'>
+          <div className='shrink-0 flex items-center gap-2'>
             {/* render microphone button only if the message field is empty */}
             {newMessage.length > 0 ? (
               <Button.Root size='icon' type='submit' disabled={currentChatState === ChatState.error}>
@@ -69,6 +94,16 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
             ) : (
               <MessageRecordingButton chat={chat} />
             )}
+            <Button.Root
+              size='icon'
+              type='button'
+              disabled={currentChatState === ChatState.error}
+              onClick={() => {
+                handleLiveTalk();
+              }}
+            >
+              <Button.Icon as={Icons.liveTalk} />
+            </Button.Root>
           </div>
         </fetcher.Form>
       </div>
