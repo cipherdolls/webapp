@@ -56,7 +56,17 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                   >
                     <div className='flex items-center gap-2'>
                       <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
-                      <InformationBadge className='size-4 text-neutral-02' tooltipText='' />
+                      <InformationBadge
+                        className='size-4 text-neutral-02'
+                        tooltipText={
+                          <div className='flex flex-col gap-1 text-body-sm text-base-black'>
+                            <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
+                            <span>Presence Penalty: {scenario.presencePenalty}</span>
+                            <span>Temperature: {scenario.temperature}</span>
+                            <span>Top P: {scenario.topP}</span>
+                          </div>
+                        }
+                      />
                     </div>
                     <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
                     <p className='text-base-black line-clamp-2 text-body-sm break-all'>{scenario.systemMessage}</p>
