@@ -168,7 +168,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 type: 'component',
                 text: 'Delete',
                 isDelete: true,
-                component: <DeleteAvatarModal />,
+                component: <DeleteAvatarModal dropdown />,
                 visible: me.id === avatar.userId,
               },
             ]}
