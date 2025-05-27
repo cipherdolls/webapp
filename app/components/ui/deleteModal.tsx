@@ -7,14 +7,19 @@ interface DeleteModalProps {
   title: string;
   description: string;
   children: ReactNode;
+  dropdown?: boolean;
 }
 
-const DeleteModal = ({ title, description, children }: DeleteModalProps) => {
+const DeleteModal = ({ title, description, children, dropdown }: DeleteModalProps) => {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <Button.Root type='button' variant='danger'>
-          <Icons.trash className='w-12' />
+        <Button.Root
+          type='button'
+          variant={dropdown ? 'ghost' : 'danger'}
+          className={dropdown ? 'w-full justify-start text-left cursor-pointer py-3.5 px-3 text-base rounded-[10px]' : ''}
+        >
+          {dropdown ? 'Delete' : <Icons.trash className='w-12' />}
         </Button.Root>
       </Dialog.Trigger>
       <Dialog.Portal>
