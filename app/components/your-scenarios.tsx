@@ -56,10 +56,10 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                   >
                     <div className='flex items-center gap-2'>
                       <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
-                      <InformationBadge className='size-4 text-neutral-02' />
+                      <InformationBadge className='size-4 text-neutral-02' tooltipText='' />
                     </div>
                     <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
-                    <p className='text-base-black line-clamp-2 text-body-sm'>{scenario.systemMessage}</p>
+                    <p className='text-base-black line-clamp-2 text-body-sm break-all'>{scenario.systemMessage}</p>
                   </Link>
                 </div>
               ))}

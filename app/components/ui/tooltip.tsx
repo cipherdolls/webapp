@@ -127,6 +127,12 @@ const MobileView = ({
     }
   };
 
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
   React.useEffect(() => {
     return () => {
       if (closeTimerRef.current) {
@@ -137,8 +143,10 @@ const MobileView = ({
 
   return (
     <PopoverRoot open={isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <span>{trigger}</span>
+      <PopoverTrigger asChild={false}>
+        <span onClick={handleTriggerClick} style={{ cursor: 'pointer' }}>
+          {trigger}
+        </span>
       </PopoverTrigger>
       <PopoverContent
         align={align}
