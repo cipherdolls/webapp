@@ -58,6 +58,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                       <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
                       <InformationBadge
                         className='size-4 text-neutral-02'
+                        popoverClassName='!w-full'
                         tooltipText={
                           <div className='flex flex-col gap-1 text-body-sm text-base-black'>
                             <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
