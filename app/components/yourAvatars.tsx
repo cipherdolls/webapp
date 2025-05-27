@@ -30,9 +30,9 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
               <Link to={'/community/avatars'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
-                  <Icons.add className='group-hover:text-base-black/50 transition-colors' />
+                  <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                    Add Avatar
+                    Find Avatar
                   </span>
                 </div>
               </Link>

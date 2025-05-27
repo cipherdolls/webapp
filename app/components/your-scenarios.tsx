@@ -29,9 +29,9 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
               <Link to={'/community/scenarios'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
-                  <Icons.add className='group-hover:text-base-black/50 transition-colors' />
+                  <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                    Add Scenario
+                    Find Scenario
                   </span>
                 </div>
               </Link>
@@ -50,7 +50,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                   <Link
                     to={`/scenarios/${scenario.id}`}
                     className={cn(
-                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group h-full',
                       sortedScenarios.length === 1 && 'col-span-2'
                     )}
                   >
