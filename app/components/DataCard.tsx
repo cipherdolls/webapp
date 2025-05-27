@@ -11,7 +11,6 @@ const CARDS_SIDE_PADDING = 'px-3 md:px-5';
 
 /* -------------------------------------------------------------------------- */
 /*                                  INTERFACES                                */
-
 /* -------------------------------------------------------------------------- */
 
 interface DataCardRootProps {
@@ -192,8 +191,7 @@ const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, 
     <dl
       className={cn(
         `${CARDS_SIDE_PADDING}`,
-        variant === 'default' && 'py-4 space-y-3',
-        variant === 'mobile' && 'py-4 space-y-3',
+        variant === 'default' || 'mobile' ? 'py-4 space-y-3' : '',
         variant === 'secondary' && 'divide-y divide-dashed divide-neutral-03 bg-neutral-05',
         className
       )}
