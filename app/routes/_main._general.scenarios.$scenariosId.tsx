@@ -179,7 +179,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 )}
               </DetailCard>
               <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage}>
-                <p>{scenario.systemMessage}</p>
+                <p className='break-all'>{scenario.systemMessage}</p>
               </DetailCard>
             </div>
           </div>
