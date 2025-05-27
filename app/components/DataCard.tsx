@@ -45,7 +45,7 @@ interface DataCardItemLabelProps {
 
 interface DataCardItemDataGridProps {
   className?: string;
-  variant?: 'default' | 'secondary';
+  variant?: 'default' | 'secondary' | 'mobile';
   data: Array<{
     label: React.ReactNode;
     value: React.ReactNode;
@@ -191,14 +191,17 @@ const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, 
     <dl
       className={cn(
         `${CARDS_SIDE_PADDING}`,
-        variant === 'default' && 'py-4 space-y-3',
+        variant === 'default' || 'mobile' ? 'py-4 space-y-3' : '',
         variant === 'secondary' && 'divide-y divide-dashed divide-neutral-03 bg-neutral-05',
         className
       )}
     >
       {data.map((item, index) => {
         return (
-          <div key={index} className={cn('flex justify-between text-body-sm gap-4', variant === 'secondary' && 'py-3')}>
+          <div
+            key={index}
+            className={cn('flex justify-between text-body-sm gap-4', variant === 'secondary' && 'py-3', variant === 'mobile' && '!gap-0')}
+          >
             <dt
               className={cn('text-neutral-01', {
                 'text-base-black': variant === 'secondary',
@@ -206,7 +209,7 @@ const DataCardItemDataGrid: React.FC<DataCardItemDataGridProps> = ({ className, 
             >
               {item.label}
             </dt>
-            <dd className='overflow-hidden font-semibold text-right'>{item.value}</dd>
+            <dd className={cn('overflow-hidden font-semibold text-right', variant === 'mobile' && 'w-full')}>{item.value}</dd>
           </div>
         );
       })}
