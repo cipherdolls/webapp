@@ -10,6 +10,8 @@ export enum ChatJob {
   TtsJob = 'TtsJob',
   SttJob = 'SttJob',
   ChatCompletionJob = 'ChatCompletionJob',
+  EmbeddingJob = 'EmbeddingJob',
+  PaymentJob = 'PaymentJob',
 }
 
 export type ChatStateType = keyof typeof ChatState;

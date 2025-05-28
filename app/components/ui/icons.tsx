@@ -2,13 +2,13 @@ export type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
   loading: (props: IconProps) => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeOpacity="0.25" />
-      <path 
-        d="M12 2C13.3132 2 14.6136 2.25866 15.8268 2.7612C17.04 3.26375 18.1425 4.00035 19.0711 4.92893C19.9997 5.85752 20.7362 6.95991 21.2388 8.17317C21.7413 9.38642 22 10.6868 22 12" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
+      <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2' strokeOpacity='0.25' />
+      <path
+        d='M12 2C13.3132 2 14.6136 2.25866 15.8268 2.7612C17.04 3.26375 18.1425 4.00035 19.0711 4.92893C19.9997 5.85752 20.7362 6.95991 21.2388 8.17317C21.7413 9.38642 22 10.6868 22 12'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
       />
     </svg>
   ),
@@ -529,6 +529,24 @@ export const Icons = {
         d='M1.33203 8.00065C1.33203 4.31865 4.3167 1.33398 7.9987 1.33398C11.6807 1.33398 14.6654 4.31865 14.6654 8.00065C14.6654 11.6827 11.6807 14.6673 7.9987 14.6673C4.3167 14.6673 1.33203 11.6827 1.33203 8.00065ZM10.47 7.13865C10.5915 7.01292 10.6587 6.84452 10.6571 6.66972C10.6556 6.49492 10.5855 6.32771 10.4619 6.20411C10.3383 6.0805 10.1711 6.01039 9.9963 6.00887C9.8215 6.00735 9.6531 6.07455 9.52736 6.19598L7.33203 8.39132L6.1367 7.19598C6.01096 7.07455 5.84256 7.00735 5.66776 7.00887C5.49297 7.01039 5.32576 7.0805 5.20215 7.20411C5.07855 7.32771 5.00843 7.49492 5.00692 7.66972C5.0054 7.84452 5.07259 8.01292 5.19403 8.13865L6.8607 9.80532C6.98572 9.9303 7.15526 10.0005 7.33203 10.0005C7.50881 10.0005 7.67835 9.9303 7.80336 9.80532L10.47 7.13865Z'
         fill='#03CC9C'
       />
+    </svg>
+  ),
+  liveTalk: (props: IconProps) => (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width='24'
+      height='24'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+      stroke-linecap='round'
+      stroke-linejoin='round'
+      {...props}
+    >
+      <path d='M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20' />
+      <path d='M19.8 17.8a7.5 7.5 0 0 0 .003-10.603' />
+      <path d='M17 15a3.5 3.5 0 0 0-.025-4.975' />
     </svg>
   ),
 };
