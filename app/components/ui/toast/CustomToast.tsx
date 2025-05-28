@@ -20,6 +20,7 @@ export interface CustomToasterProps {
 export const CustomToaster: React.FC<CustomToasterProps> = ({ position = 'top-right' }) => {
   return (
     <Toaster
+      style={{ width: 'fit-content' }}
       position={position}
       toastOptions={{
         unstyled: true,
