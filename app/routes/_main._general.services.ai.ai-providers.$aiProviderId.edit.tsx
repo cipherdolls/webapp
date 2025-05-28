@@ -2,7 +2,7 @@ import { Link, redirect, useFetcher, useNavigate, data } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { AiProvider, User } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId.edit';
+import type { Route } from './+types/_main._general.services.ai.ai-providers.$aiProviderId.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -90,7 +90,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/ai-providers/${aiProvider.id}`);
+    navigate(`/services/ai`);
   };
 
   return (

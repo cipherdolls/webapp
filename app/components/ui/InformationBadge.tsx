@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import { Icons } from './icons';
 import Tooltip, { type SideType } from './tooltip';
 
 type InformationBadgeProps = {
   dontShow?: boolean;
-  tooltipText?: string;
+  tooltipText?: ReactNode;
   className?: string;
   side?: SideType;
   popoverClassName?: string;

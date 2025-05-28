@@ -105,6 +105,7 @@ export interface Scenario {
   presencePenalty: number;
   chatModel: ChatModel;
   embeddingModel: EmbeddingModel;
+  reasoningModel?: ChatModel;
   userId: string;
   chats: Chat[];
   recommended: boolean;

@@ -3,7 +3,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { SttProvider } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import * as Modal from '~/components/ui/new-modal';
-import type { Route } from './+types/_main._general.stt-providers.$sttProvider.edit';
+import type { Route } from './+types/_main._general.services.stt.stt-providers.$sttProvider.edit';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
@@ -84,7 +84,7 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/stt-providers/${sttProvider.id}`);
+    navigate(`/services/stt`);
   };
 
   return (

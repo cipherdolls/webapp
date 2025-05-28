@@ -12,6 +12,7 @@ import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import DeleteModal from '~/components/ui/deleteModal';
 import TtsProviderDestroy from './tts-providers.$ttsProvider.destroy';
+import { ViewMore } from '~/view-more';
 
 const ttsVoiceColumns: Array<TTableColumn<TtsVoice>> = [
   {
@@ -111,7 +112,29 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
           </DeleteModal>
         </div>
         <div className='md:hidden flex text-base-black'>
-          <Icons.more />
+          <ViewMore
+            popoverItems={[
+              {
+                type: 'link',
+                text: 'Edit',
+                href: `/tts-providers/${ttsProvider.id}/edit`,
+              },
+              {
+                type: 'component',
+                text: 'Delete',
+                isDelete: true,
+                component: (
+                  <DeleteModal
+                    title='Delete a TTS Provider?'
+                    description='By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.'
+                    dropdown
+                  >
+                    <TtsProviderDestroy />
+                  </DeleteModal>
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
       <div className='pb-5'>

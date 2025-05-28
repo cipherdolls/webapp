@@ -13,7 +13,7 @@ const YourDolls = ({ dolls }: { dolls: Doll[] }) => {
         <Card.Label>Your Dolls</Card.Label>
         <InformationBadge className='size-6' side='top' tooltipText='Your personal dolls' popoverClassName='ml-auto' />
       </div>
-      <Card.Main className={cn(dolls.length > 0 && 'bg-none', 'max-h-max')}>
+      <Card.Main className={cn(dolls.length > 0 && 'bg-none', 'max-h-max flex-none')}>
         <Card.Content className={cn(dolls.length === 0 && 'border-t-0')}>
           {dolls.length === 0 ? (
             <div className='sm:py-14'>
