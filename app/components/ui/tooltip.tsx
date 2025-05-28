@@ -143,7 +143,7 @@ const MobileView = ({
 
   return (
     <PopoverRoot open={isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild={false}>
+      <PopoverTrigger asChild={true}>
         <span onClick={handleTriggerClick} style={{ cursor: 'pointer' }}>
           {trigger}
         </span>
