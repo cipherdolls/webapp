@@ -90,6 +90,7 @@ export interface TtsVoice {
   ttsProvider: TtsProvider;
   ttsProviderId: string;
   createdAt: Date;
+  gender: Gender;
 }
 
 export interface Scenario {
@@ -232,6 +233,8 @@ export interface PaymentJob {
   timeTakenMs: number;
 }
 
+type Gender = 'Female' | 'Male';
+
 export interface Avatar {
   id: string;
   name: string;
@@ -250,7 +253,7 @@ export interface Avatar {
   chats: Chat[];
   language: string;
   scenarios: Scenario[];
-  gender: 'Female' | 'Male';
+  gender: Gender;
 }
 export interface AvatarCount {
   chats: number;

@@ -72,6 +72,15 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
           <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />
           <span className='font-semibold text-body-md flex items-center gap-2'>
             {data.name}
+            {data.gender === 'Female' ? (
+              <div className='flex items-center gap-1 bg-[#FF85B7] size-5 justify-center rounded-full text-label text-base-black font-semibold'>
+                👩🏻
+              </div>
+            ) : data.gender === 'Male' ? (
+              <div className='flex items-center gap-1 bg-[#85D2FF] size-5 justify-center rounded-full text-label text-base-black font-semibold'>
+                🧔🏻‍♂️
+              </div>
+            ) : null}
             <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
           </span>
         </div>
