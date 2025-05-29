@@ -175,9 +175,9 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           />
         </div>
       </div>
-      <div className='flex sm:flex-row flex-col-reverse md:gap-0 sm:gap-8 sm:flex-1 sm:divide-x divide-neutral-04 bg-gradient-1 backdrop-blur-48 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
+      <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-5 sm:flex-1 sm:divide-x divide-neutral-04 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
         <div className='sm:pr-4 flex size-full flex-col gap-4'>
-          <div className='sm:bg-gradient-1 rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
+          <div className='bg-gradient-1 rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
             <div className='flex items-center justify-between'>
               <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Characteristic</h3>
               <div className='flex items-center gap-2'>
@@ -213,7 +213,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
           {avatar.gender && (
-            <div className='sm:flex hidden flex-col gap-5'>
+            <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
               <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
                 <h2 className='text-heading-h2'>{avatar.gender === 'Female' ? '👩🏻' : avatar.gender === 'Male' ? '🧔🏻‍♂' : '-'}</h2>
@@ -223,7 +223,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           )}
-          <div className='sm:flex hidden flex-col gap-5'>
+          <div className='flex flex-col gap-5 max-sm:-mt-5'>
             <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
             <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
               <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>

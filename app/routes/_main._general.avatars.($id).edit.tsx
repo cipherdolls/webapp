@@ -100,7 +100,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
   return (
     <fetcher.Form method='PATCH' action='/avatars/update' encType='multipart/form-data' className='w-full'>
       <input hidden name='avatarId' defaultValue={avatar.id} />
-      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
+      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full relative'>
         <div className='flex items-center justify-between'>
           <Link to={`/avatars/${avatar.id}`} className='flex items-center gap-4 text-heading-h3 font-semibold'>
             <Icons.chevronLeft />
@@ -277,7 +277,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </div>
-        <div className='flex sm:hidden flex-col gap-5 sm:static absolute w-full sm:w-auto left-0 px-4.5 pt-4.5 sm:px-0 sm:pt-0 sm:pb-0 pb-4.5 sm:rounded-t-none rounded-t-xl bottom-0 sm:bg-none bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] shadow-bottom-bar backdrop-blur-48'>
+        <div className='flex sm:hidden flex-col gap-5 sm:static sticky w-full sm:w-auto left-0 px-4.5 pt-4.5 sm:px-0 sm:pt-0 sm:pb-0 pb-4.5 sm:rounded-t-none rounded-t-xl bottom-0 sm:bg-none bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] shadow-bottom-bar backdrop-blur-48'>
           <h1 className='text-base-black text-heading-h3 font-semibold sm:block hidden'>Availability</h1>
           <div className='p-1 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 grid grid-cols-2 rounded-xl'>
             <button

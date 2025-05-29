@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router';
-import type { Avatar } from '~/types';
+import { Outlet, useRouteLoaderData } from 'react-router';
+import type { Avatar, User } from '~/types';
 import type { Route } from './+types/_main._general.community.avatars';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import MyAvatars from '~/components/my-avatars';
@@ -42,9 +42,8 @@ export async function clientLoader() {
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   const { allAvatars, publishedAvatars }: { allAvatars: Avatar[]; publishedAvatars: Avatar[] } = loaderData;
-
+  const me = useRouteLoaderData('routes/_main') as User;
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
-
   useEffect(() => {
     if (loaderData) {
       const timer = setTimeout(() => {
@@ -67,7 +66,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <SearchAvatars />
-      <MyAvatars avatars={allAvatars} />
+      <MyAvatars avatars={allAvatars.filter((avatar) => avatar.userId === me.id)} />
       <PublicAvatars avatars={publishedAvatars} />
       <Outlet />
     </>
