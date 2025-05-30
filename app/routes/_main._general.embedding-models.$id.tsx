@@ -58,29 +58,31 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             </div>
           )}
           <div className='md:hidden flex text-base-black'>
-            <ViewMore
-              popoverItems={[
-                {
-                  type: 'link',
-                  text: 'Edit',
-                  href: `/embedding-models/${embeddingModel.id}/edit`,
-                },
-                {
-                  type: 'component',
-                  text: 'Delete',
-                  isDelete: true,
-                  component: (
-                    <DeleteModal
-                      title='Delete an Embedding Model?'
-                      description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
-                      dropdown
-                    >
-                      <EmbeddingModelDestroy />
-                    </DeleteModal>
-                  ),
-                },
-              ]}
-            />
+            {me.role === 'ADMIN' && (
+              <ViewMore
+                popoverItems={[
+                  {
+                    type: 'link',
+                    text: 'Edit',
+                    href: `/embedding-models/${embeddingModel.id}/edit`,
+                  },
+                  {
+                    type: 'component',
+                    text: 'Delete',
+                    isDelete: true,
+                    component: (
+                      <DeleteModal
+                        title='Delete an Embedding Model?'
+                        description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
+                        dropdown
+                      >
+                        <EmbeddingModelDestroy />
+                      </DeleteModal>
+                    ),
+                  },
+                ]}
+              />
+            )}
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>

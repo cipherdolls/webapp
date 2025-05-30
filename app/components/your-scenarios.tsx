@@ -55,7 +55,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                     )}
                   >
                     <div className='flex items-center gap-2'>
-                      <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
+                      <span className='text-body-md text-base-black font-semibold break-all line-clamp-1'>{scenario.name}</span>
                       <InformationBadge
                         className='size-4 text-neutral-02'
                         popoverClassName='!w-full'
