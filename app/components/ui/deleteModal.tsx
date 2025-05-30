@@ -31,7 +31,9 @@ const DeleteModal = ({ title, description, children, dropdown }: DeleteModalProp
             <div className='flex flex-col gap-4.5 items-center justify-center'>
               <h1 className='text-heading-h2 sm:text-heading-h1'>🗑️</h1>
               <div className='flex flex-col gap-2'>
-                <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center'>{title}</Dialog.Title>
+                <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center break-all line-clamp-3'>
+                  {title}
+                </Dialog.Title>
                 <Dialog.Description className='sm:text-body-lg text-base-black text-body-md text-center'>{description}</Dialog.Description>
               </div>
             </div>

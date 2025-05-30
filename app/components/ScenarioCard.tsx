@@ -51,7 +51,7 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
         >
           <div className={publicContentClassName}>
             <Link to={`/scenarios/${scenario.id}`} className='flex flex-col gap-3 flex-1'>
-              <h6 className='text-body-md font-semibold text-base-black'>{scenario.name}</h6>
+              <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
               <div className='flex items-center gap-2'>
                 <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
                 {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
