@@ -13,6 +13,7 @@ import { formatModelName } from '~/utils/formatModelName';
 import DetailCard from '~/components/ui/detail/detail-card';
 import DetailRow from '~/components/ui/detail/detail-row';
 import { formatNumberWithCommas } from '~/utils/formatNumberWithCommas';
+import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -35,15 +36,15 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
-        <div className='flex items-center justify-between sm:px-0 px-4.5'>
+        <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
           <Link to={`/community/scenarios`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
-            <div className='flex items-center gap-3'>
-              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
+            <div className='flex items-center gap-3 break-all'>
+              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200 line-clamp-2'>
                 {formatModelName(scenario.name)}
               </h3>
               <span className='text-neutral-01 word text-body-lg'>•</span>
-              <span className='text-neutral-01 text-body-lg'>Scenarios</span>
+              <span className='text-neutral-01 text-body-lg shrink-0'>Scenarios</span>
             </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
@@ -74,15 +75,56 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             )}
           </div>
           <div className='md:hidden flex text-base-black'>
-            <Icons.more />
+            <ViewMore
+              userId={scenario.userId}
+              popoverItems={[
+                {
+                  type: 'form',
+                  text: 'Duplicate',
+                  action: '/community/scenarios/new',
+                  method: 'POST',
+                  formData: {
+                    name: `${scenario.name} copy`,
+                    systemMessage: scenario.systemMessage,
+                    chatModelId: scenario.chatModel.id,
+                    embeddingModelId: scenario.embeddingModel.id,
+                    temperature: scenario.temperature.toString(),
+                    topP: scenario.topP.toString(),
+                    frequencyPenalty: scenario.frequencyPenalty.toString(),
+                    presencePenalty: scenario.presencePenalty.toString(),
+                  },
+                },
+                {
+                  type: 'link',
+                  text: 'Edit',
+                  href: `/scenarios/${scenario.id}/edit`,
+                  visible: me.id === scenario.userId,
+                },
+                {
+                  type: 'component',
+                  text: 'Delete',
+                  isDelete: true,
+                  component: (
+                    <DeleteModal
+                      dropdown
+                      title={`Delete scenario ${scenario.name}?`}
+                      description='You will not be able to restore the data.'
+                    >
+                      <ScenarioDestroy />
+                    </DeleteModal>
+                  ),
+                  visible: me.id === scenario.userId,
+                },
+              ]}
+            />
           </div>
         </div>
 
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
           <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl '>
-            <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-end md:justify-between md:flex-row flex-col'>
-              <div className='flex items-center gap-5'>
-                <div className='size-24'>
+            <div className='flex sm:gap-5 md:gap-10 gap-5 sm:justify-center sm:items-center md:items-end md:justify-between md:flex-row flex-col'>
+              <div className='flex sm:items-center gap-5 s'>
+                <div className='size-24 shrink-0'>
                   <img
                     src={getPicture(scenario, 'scenarios', false)}
                     srcSet={getPicture(scenario, 'scenarios', true)}
@@ -91,7 +133,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   />
                 </div>
                 <div className='flex flex-col gap-2'>
-                  <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black'>{scenario.name}</h4>
+                  <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black break-all line-clamp-2'>{scenario.name}</h4>
 
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-1'>
@@ -127,13 +169,13 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   </div>
                 </div>
               </div>
-              <div className='flex flex-1 justify-end items-end h-full'>
+              <div className='flex flex-1 sm:justify-end sm:items-end h-full'>
                 <div className='flex flex-col gap-2'>
                   <p className='text-body-sm text-neutral-01 md:text-right text-center'>
                     Created at: <span className='text-base-black font-semibold'>{createdDate}</span>
                   </p>
-                  <p className='text-body-sm text-neutral-01 md:text-right text-center'>
-                    Updated at: <span className='text-base-black font-semibold'>{updatedDate}</span>
+                  <p className='text-body-sm text-neutral-01 md:text-right text-center shrink-0'>
+                    Updated at: <span className='text-base-black font-semibold '>{updatedDate}</span>
                   </p>
                 </div>
               </div>
@@ -179,7 +221,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 )}
               </DetailCard>
               <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage}>
-                <p>{scenario.systemMessage}</p>
+                <p className='break-all'>{scenario.systemMessage}</p>
               </DetailCard>
             </div>
           </div>

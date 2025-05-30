@@ -29,9 +29,9 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
               <Link to={'/community/scenarios'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
-                  <Icons.add className='group-hover:text-base-black/50 transition-colors' />
+                  <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                    Add Scenario
+                    Find Scenario
                   </span>
                 </div>
               </Link>
@@ -50,16 +50,27 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                   <Link
                     to={`/scenarios/${scenario.id}`}
                     className={cn(
-                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
+                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group h-full',
                       sortedScenarios.length === 1 && 'col-span-2'
                     )}
                   >
                     <div className='flex items-center gap-2'>
-                      <span className='text-body-md text-base-black font-semibold'>{scenario.name}</span>
-                      <InformationBadge className='size-4 text-neutral-02' />
+                      <span className='text-body-md text-base-black font-semibold break-all line-clamp-1'>{scenario.name}</span>
+                      <InformationBadge
+                        className='size-4 text-neutral-02'
+                        popoverClassName='!w-full'
+                        tooltipText={
+                          <div className='flex flex-col gap-1 text-body-sm text-base-black'>
+                            <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
+                            <span>Presence Penalty: {scenario.presencePenalty}</span>
+                            <span>Temperature: {scenario.temperature}</span>
+                            <span>Top P: {scenario.topP}</span>
+                          </div>
+                        }
+                      />
                     </div>
                     <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
-                    <p className='text-base-black line-clamp-2 text-body-sm'>{scenario.systemMessage}</p>
+                    <p className='text-base-black line-clamp-2 text-body-sm break-all'>{scenario.systemMessage}</p>
                   </Link>
                 </div>
               ))}

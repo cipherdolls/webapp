@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router';
+import { Form, Link, useNavigate } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import { cn } from '~/utils/cn';
 import type { Avatar } from '~/types';
@@ -8,6 +8,7 @@ import * as Button from '~/components/ui/button/button';
 
 const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
   const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
   const hasAvatars = avatars.length > 0;
 
   const sortedAvatars = useMemo(() => {
@@ -29,9 +30,9 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
               <Link to={'/community/avatars'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
-                  <Icons.add className='group-hover:text-base-black/50 transition-colors' />
+                  <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                    Add Avatar
+                    Find Avatar
                   </span>
                 </div>
               </Link>
@@ -62,20 +63,40 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                           <p className={cn('truncate text-body-sm font-semibold text-neutral-01')}>{avatar.shortDesc}</p>
                         </div>
                       </div>
-
-                      <Button.Root
-                        variant='secondary'
-                        className='h-10 px-0 group-hover:px-6 max-w-0 group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          if (avatar.chats && avatar.chats.length > 0) {
-                            window.location.href = `/chats/${avatar.chats[0].id}`;
-                          }
-                        }}
-                      >
-                        Chat
-                      </Button.Root>
+                      {avatar.chats.length > 0 ? (
+                        <Button.Root
+                          variant='secondary'
+                          className='h-10 md:px-0 px-6 md:group-hover:px-6 md:max-w-0 md:group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (avatar.chats && avatar.chats.length > 0) {
+                              navigate(`/chats/${avatar.chats[0].id}`);
+                            }
+                          }}
+                        >
+                          Chat
+                        </Button.Root>
+                      ) : (
+                        <Form
+                          method='POST'
+                          action='/chats'
+                          onSubmit={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
+                          <Button.Root
+                            variant='secondary'
+                            className='h-10 md:px-0 px-6 md:group-hover:px-6 md:max-w-0 md:group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          >
+                            Chat
+                          </Button.Root>
+                        </Form>
+                      )}
                     </div>
                   </Link>
                 </div>

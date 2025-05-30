@@ -6,15 +6,18 @@ import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl, API_ENDPOINTS } from '~/constants';
-import { useEffect } from 'react';
+import { apiUrl, API_ENDPOINTS, PICTURE_SIZE } from '~/constants';
+import { use, useEffect } from 'react';
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
-import { LOCAL_STORAGE_KEYS } from '~/constants';
-import { useLocalStorage } from 'usehooks-ts';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
+import { useChatStore } from '~/store/useChatStore';
+import { useShallow } from 'zustand/react/shallow';
+import { Icons } from '~/components/ui/icons';
+import AvatarPicture from '~/components/AvatarPicture';
+import LiveTalk from '~/components/chat/LiveTalk';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -70,24 +73,46 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages, avatar } = loaderData;
   const revalidator = useRevalidator();
-  const [silentMode] = useLocalStorage(LOCAL_STORAGE_KEYS.silentMode, false);
   const { playAudio, stopAudio } = useAudioPlayer();
   const navigate = useNavigate();
   const alert = useAlert();
 
-  // state
-  const [currentChatState, setCurrentChatState] = useState<ChatStateType>(ChatState.Idle);
-  const [currentJob, setCurrentJob] = useState<ChatJobType | null>(null);
+  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState, liveTalkMode } = useChatStore(
+    useShallow((state) => ({
+      chatId: state.chatId,
+      silentMode: state.silentMode,
+      initChatStore: state.initChatStore,
+      setCurrentJob: state.setCurrentJob,
+      currentChatState: state.currentChatState,
+      setCurrentChatState: state.setCurrentChatState,
+      liveTalkMode: state.liveTalkMode,
+    }))
+  );
 
-  // reset the chat state when the chat id changes
   useEffect(() => {
-    setCurrentChatState(ChatState.Idle);
-    setCurrentJob(null);
-  }, [chat.id]);
+    if (chat.id !== chatId) {
+      initChatStore(chat.id);
+    }
+  }, [chat.id, chatId, initChatStore]);
 
   useChatEvents({
     chat,
-    onProcessEvent: (event) => handleProcessEvent(event),
+    onProcessEvent: (event) => {
+      console.log('event', event);
+      if (event.jobStatus === 'failed') handleJobError(event);
+
+      // if message is received, revalidate the page
+      if (event.resourceName === 'Message') {
+        revalidator.revalidate();
+        return;
+      }
+
+      // checking if a job exist in a chat jobs enum
+      const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
+      if (isValidJob(event.resourceName)) {
+        setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
+      }
+    },
     onActionEvent: (event) => {
       if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
     },
@@ -112,7 +137,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     const cfg: {
       icon: string;
       title: string;
-      body: string | JSX.Element;
+      body: string | React.ReactNode;
       endpoint: string | null;
       actionButton?: { label: string; action: () => void };
     } = {
@@ -121,9 +146,9 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       body: 'Something went wrong…',
       endpoint: null,
     };
-  
+
     switch (event.resourceName) {
-      case 'ChatCompletionJob':
+      case ChatJob.ChatCompletionJob:
         Object.assign(cfg, {
           icon: '🧩🚫',
           title: 'Chat Completion Job Error',
@@ -131,8 +156,8 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
           endpoint: API_ENDPOINTS.chatCompletionJob(event.resourceId),
         });
         break;
-  
-      case 'TtsJob':
+
+      case ChatJob.TtsJob:
         Object.assign(cfg, {
           icon: '👄🚫',
           title: 'TTS Job Error',
@@ -140,8 +165,8 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
           endpoint: API_ENDPOINTS.ttsJob(event.resourceId),
         });
         break;
-  
-      case 'SttJob':
+
+      case ChatJob.SttJob:
         Object.assign(cfg, {
           icon: '👂🚫',
           title: 'STT Job Error',
@@ -153,17 +178,17 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
           },
         });
         break;
-  
-      case 'EmbeddingJob':
+
+      case ChatJob.EmbeddingJob:
         Object.assign(cfg, {
           icon: '🔢🚫',
           title: 'Embedding Job Error',
-          body: (<p className='bg-neutral-05 rounded-xl p-4'>Something went wrong during Embedding Job.</p>),
+          body: <p className='bg-neutral-05 rounded-xl p-4'>Something went wrong during Embedding Job.</p>,
           endpoint: API_ENDPOINTS.embeddingJob(event.resourceId),
         });
         break;
-  
-      case 'PaymentJob':
+
+      case ChatJob.PaymentJob:
         Object.assign(cfg, {
           icon: '💵🚫',
           title: 'Payment Job Error',
@@ -171,12 +196,12 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
           // endpoint: API_ENDPOINTS.paymentJob(event.resourceId),
         });
         break;
-  
+
       default:
         console.warn('handleJobError: unhandled resourceName:', event.resourceName);
         return;
     }
-  
+
     // getting job error details
     if (cfg.endpoint) {
       try {
@@ -189,7 +214,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         console.error('Failed to fetch job details', e);
       }
     }
-  
+
     alert({
       icon: cfg.icon,
       title: cfg.title,
@@ -199,33 +224,25 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     });
   };
 
-  const handleProcessEvent = async (event: ProcessEvent) => {
-    if (event.jobStatus === 'failed') handleJobError(event);
-
-    // if message is received, revalidate the page
-    if (event.resourceName === 'Message') {
-      revalidator.revalidate();
-      return;
-    }
-
-    // checking if a job exist in a chat jobs enum
-    const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
-    if (isValidJob(event.resourceName)) {
-      setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
-    }
-  };
-
   return (
     <>
       <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
         {/* chat header */}
-        <ChatTopBar chat={chat} avatar={avatar} />
+        {liveTalkMode ? (
+          <LiveTalk avatar={avatar} />
+        ) : (
+          <>
+            {/* chat header */}
+            <ChatTopBar chat={chat} avatar={avatar} />
 
-        {/* chat messages scroll */}
-        <ChatBody messages={messages} />
+            {/* chat messages scroll */}
+            <ChatBody messages={messages} />
+              {/* chat input field  */}
+            <ChatBottomBar chat={chat} />
+          </>
+        )}
 
-        {/* chat input field  */}
-        <ChatBottomBar chat={chat} currentChatState={currentChatState} currentJob={currentJob} setCurrentChatState={setCurrentChatState} />
+        
       </div>
       <Outlet />
     </>

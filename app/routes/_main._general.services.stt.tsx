@@ -8,6 +8,20 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { InformationBadge } from '~/components/ui/InformationBadge';
+import { useEffect, useState } from 'react';
+
+function STTSkeleton({ count = 1 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-10 pb-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className='flex flex-col gap-4'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
+          <div className='rounded-[10px] h-[170px] bg-gradient-1 w-full animate-pulse'></div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
@@ -20,6 +34,27 @@ export async function clientLoader() {
 
 export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
   const sttProviders: SttProvider[] = loaderData;
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaderData) {
+      const timer = setTimeout(() => {
+        setHasInitiallyLoaded(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loaderData]);
+
+  if (!hasInitiallyLoaded || !loaderData) {
+    return (
+      <>
+        <STTSkeleton />
+        <Outlet />
+      </>
+    );
+  }
+
   const columnProperties: Array<TTableColumn<SttProvider>> = [
     {
       id: 'name',

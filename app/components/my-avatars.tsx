@@ -39,12 +39,17 @@ const MyAvatars = ({ avatars }: { avatars: Avatar[] }) => {
               !showAll && index >= (avatars.length > 6 ? 6 : 4)
                 ? 'hidden'
                 : avatars.length > 6 && !showAll && index >= 4
-                  ? 'h-16 overflow-hidden relative rounded-xl transition-all duration-300 ease-in-out'
+                  ? 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl'
                   : 'transition-all duration-500 ease-out'
             }`}
             key={index}
           >
-            <div className='p-4 shadow-bottom-level-1 bg-white rounded-xl flex lg:items-center lg:flex-row flex-col justify-between gap-4'>
+            <div
+              className={cn(
+                avatars.length > 6 && !showAll && index >= 4 ? 'px-4 py-6' : 'p-4 bg-white ',
+                'shadow-bottom-level-1 rounded-xl flex lg:items-center lg:flex-row flex-col justify-between gap-4'
+              )}
+            >
               <div className='flex items-center gap-[18px]'>
                 <div className='shrink-0'>
                   <Link to={`/avatars/${avatar.id}`}>
@@ -76,9 +81,6 @@ const MyAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                 </Form>
               )}
             </div>
-            {avatars.length > 6 && !showAll && index >= 4 && (
-              <div className='absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/20 via-black/5 to-transparent pointer-events-none transition-opacity duration-200 ease-in-out rounded-b-xl'></div>
-            )}
           </div>
         ))}
       </div>

@@ -1,13 +1,14 @@
-import { Link, Outlet } from 'react-router';
+import { Link, Outlet, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { SttProvider } from '~/types';
+import type { SttProvider, User } from '~/types';
 import type { Route } from './+types/_main._general.stt-providers.$sttProvider';
 import { getPicture } from '~/utils/getPicture';
 import DeleteModal from '~/components/ui/deleteModal';
 import SttProviderDestroy from './stt-providers.$sttProvider.destroy';
 import { formatDate } from '~/utils/date.utils';
+import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Provider' }];
@@ -20,6 +21,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function SttProviderId({ loaderData }: Route.ComponentProps) {
   const sttProvider: SttProvider = loaderData;
+  const me = useRouteLoaderData('routes/_main') as User;
 
   const createdDate = formatDate(sttProvider.createdAt);
   const updatedDate = formatDate(sttProvider.updatedAt);
@@ -38,22 +40,48 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
               <span className='text-neutral-01 text-body-lg'>STT</span>
             </div>
           </Link>
-          <div className='md:flex hidden items-center gap-3'>
-            <Link to={`/stt-providers/${sttProvider.id}/edit`}>
-              <Button.Root variant='secondary' className='w-[130px]'>
-                Edit
-              </Button.Root>
-            </Link>
-            <DeleteModal
-              title='Delete an STT Provider?'
-              description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
-            >
-              <SttProviderDestroy />
-            </DeleteModal>
-          </div>
-          {/* TODO: How is this gonna work? */}
+          {me.role === 'ADMIN' && (
+            <div className='md:flex hidden items-center gap-3'>
+              <Link to={`/stt-providers/${sttProvider.id}/edit`}>
+                <Button.Root variant='secondary' className='w-[130px]'>
+                  Edit
+                </Button.Root>
+              </Link>
+              <DeleteModal
+                title='Delete an STT Provider?'
+                description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
+              >
+                <SttProviderDestroy />
+              </DeleteModal>
+            </div>
+          )}
+
           <div className='md:hidden flex text-base-black'>
-            <Icons.more />
+            {me.role === 'ADMIN' && (
+              <ViewMore
+                popoverItems={[
+                  {
+                    type: 'link',
+                    text: 'Edit',
+                    href: `/stt-providers/${sttProvider.id}/edit`,
+                  },
+                  {
+                    type: 'component',
+                    text: 'Delete',
+                    isDelete: true,
+                    component: (
+                      <DeleteModal
+                        title='Delete an STT Provider?'
+                        description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
+                        dropdown
+                      >
+                        <SttProviderDestroy />
+                      </DeleteModal>
+                    ),
+                  },
+                ]}
+              />
+            )}
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>

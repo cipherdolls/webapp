@@ -127,6 +127,12 @@ const MobileView = ({
     }
   };
 
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
   React.useEffect(() => {
     return () => {
       if (closeTimerRef.current) {
@@ -137,8 +143,10 @@ const MobileView = ({
 
   return (
     <PopoverRoot open={isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <span>{trigger}</span>
+      <PopoverTrigger asChild={true}>
+        <span onClick={handleTriggerClick} style={{ cursor: 'pointer' }}>
+          {trigger}
+        </span>
       </PopoverTrigger>
       <PopoverContent
         align={align}
@@ -146,7 +154,7 @@ const MobileView = ({
         sideOffset={5}
         unstyled
         className={cn(
-          'z-50 overflow-hidden rounded-[10px] bg-neutral-03 p-1.5 sm:px-3 sm:py-2 font-semibold text-label text-base-black animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 focus:outline-none min-[500px]:w-full w-2/3',
+          'z-50 overflow-hidden rounded-[10px] backdrop-blur-xl bg-neutral-03 p-1.5 sm:px-3 sm:py-2 font-semibold text-label text-base-black animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 focus:outline-none min-[500px]:w-full w-2/3',
           popoverClassName
         )}
       >
@@ -176,7 +184,7 @@ const DesktopView = ({
           <TooltipPrimitive.Content
             side={side}
             align={align}
-            className='z-50 overflow-hidden rounded-[10px] bg-neutral-03 px-3 py-2 font-semibold text-label text-base-black animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2'
+            className='z-50 overflow-hidden backdrop-blur-xl rounded-[10px] bg-neutral-03 px-3 py-2 font-semibold text-label text-base-black animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2'
             sideOffset={5}
           >
             {content}

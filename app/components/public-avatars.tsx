@@ -76,16 +76,7 @@ const PublicAvatars = ({ avatars }: { avatars: Avatar[] }) => {
           <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>No published avatars found.</p>
         ) : (
           filteredAndSortedAvatars.map((avatar, index) => (
-            <div
-              className={`${
-                !showAll && index >= (filteredAndSortedAvatars.length > 6 ? 6 : 4)
-                  ? 'hidden'
-                  : filteredAndSortedAvatars.length > 6 && !showAll && index >= 4
-                    ? 'h-20 overflow-hidden relative rounded-xl transition-all duration-300 ease-in-out'
-                    : 'transition-all duration-500 ease-out'
-              }`}
-              key={index}
-            >
+            <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
               <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                 <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
                   <img

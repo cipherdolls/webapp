@@ -1,8 +1,8 @@
-import { Link, Outlet } from 'react-router';
+import { Link, Outlet, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { ChatModel } from '~/types';
+import type { ChatModel, User } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
 import { getPicture } from '~/utils/getPicture';
 import DeleteModal from '~/components/ui/deleteModal';
@@ -10,6 +10,7 @@ import ChatModelDestroy from './chat-models.$id.destroy';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatModelName } from '~/utils/formatModelName';
+import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Model' }];
@@ -22,6 +23,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const chatModel: ChatModel = loaderData;
+  const me = useRouteLoaderData('routes/_main') as User;
 
   const createdDate = formatDate(chatModel.createdAt);
   const updatedDate = formatDate(chatModel.updatedAt);
@@ -45,21 +47,47 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               <span className='text-neutral-01 text-body-lg'>AI</span>
             </div>
           </Link>
-          <div className='md:flex hidden items-center gap-3'>
-            <Link to={`/chat-models/${chatModel.id}/edit`}>
-              <Button.Root variant='secondary' className='w-[130px]'>
-                Edit
-              </Button.Root>
-            </Link>
-            <DeleteModal
-              title='Delete a Chat Model?'
-              description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
-            >
-              <ChatModelDestroy />
-            </DeleteModal>
-          </div>
+          {me.role === 'ADMIN' && (
+            <div className='md:flex hidden items-center gap-3'>
+              <Link to={`/chat-models/${chatModel.id}/edit`}>
+                <Button.Root variant='secondary' className='w-[130px]'>
+                  Edit
+                </Button.Root>
+              </Link>
+              <DeleteModal
+                title='Delete a Chat Model?'
+                description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
+              >
+                <ChatModelDestroy />
+              </DeleteModal>
+            </div>
+          )}
           <div className='md:hidden flex text-base-black'>
-            <Icons.more />
+            {me.role === 'ADMIN' && (
+              <ViewMore
+                popoverItems={[
+                  {
+                    type: 'link',
+                    text: 'Edit',
+                    href: `/chat-models/${chatModel.id}/edit`,
+                  },
+                  {
+                    type: 'component',
+                    text: 'Delete',
+                    isDelete: true,
+                    component: (
+                      <DeleteModal
+                        title='Delete a Chat Model?'
+                        description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
+                        dropdown
+                      >
+                        <ChatModelDestroy />
+                      </DeleteModal>
+                    ),
+                  },
+                ]}
+              />
+            )}
           </div>
         </div>
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>

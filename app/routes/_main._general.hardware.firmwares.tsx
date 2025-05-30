@@ -6,6 +6,20 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.hardware.firmwares';
 import { InstallButton } from '~/components/buttons/InstallButton';
 import { apiUrl } from '~/constants';
+import { useEffect, useState } from 'react';
+
+function FirmwareSkeleton({ count = 2 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-4 pb-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div className='flex flex-col gap-4'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
+          <div className='rounded-[10px] h-[205px] bg-gradient-1 w-full animate-pulse'></div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Firmwares' }];
@@ -18,6 +32,26 @@ export async function clientLoader() {
 
 export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
   const firmwares: Firmware[] = loaderData;
+
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaderData) {
+      const timer = setTimeout(() => {
+        setHasInitiallyLoaded(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loaderData]);
+
+  if (!hasInitiallyLoaded || !loaderData) {
+    return (
+      <>
+        <FirmwareSkeleton />
+      </>
+    );
+  }
 
   const columnProperties: Array<TTableColumn<Firmware>> = [
     {
@@ -71,18 +105,25 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
             {firmwares.map((firmware, index) => (
               <Fragment key={firmware.id}>
                 <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemLabel className='justify-start'>
-                    {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
+                  <DataCard.ItemLabel>
+                    <div>
+                      {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
+                    </div>
+
+                    <span className='font-normal'>{firmware.createdAt.toString()}</span>
                   </DataCard.ItemLabel>
 
                   <DataCard.ItemDataGrid
+                    variant={'mobile'}
                     data={[
                       {
-                        label: 'Download',
+                        label: '',
                         value: (
-                          <a href={`${apiUrl}/firmwares/${firmware.id}/download`} download>
-                            Download
-                          </a>
+                          <InstallButton
+                            className='w-full'
+                            manifest={`${apiUrl}/firmwares/${firmware.id}/manifest.json`}
+                            label='Flash Device'
+                          />
                         ),
                       },
                     ]}
@@ -103,13 +144,11 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
             {firmwares.map((firmware, index) => (
               <Fragment key={firmware.id}>
                 <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemLabel>{firmware.version}</DataCard.ItemLabel>
-
                   <DataCard.ItemDataGrid
                     data={[
                       {
-                        label: 'Release date',
-                        value: <span className='font-semibold'>{firmware.createdAt.toString()}</span>,
+                        label: <span className='font-semibold text-base-black'>{firmware.version}</span>,
+                        value: <span className='font-normal'>{firmware.createdAt.toString()}</span>,
                       },
                     ]}
                   />

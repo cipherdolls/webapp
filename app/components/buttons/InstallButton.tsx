@@ -9,6 +9,7 @@ type InstallButtonProps = {
   logConsole?: boolean;
   overrides?: Record<string, unknown>;
   label?: string;
+  className?: string;
 };
 
 export const InstallButton = ({
@@ -19,6 +20,7 @@ export const InstallButton = ({
   logConsole = false,
   overrides,
   label = 'Install Firmware',
+  className,
 }: InstallButtonProps) => {
   const [installing, setInstalling] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,11 +54,12 @@ export const InstallButton = ({
   }
 
   return (
-    <div style={{ display: 'inline-block' }}>
+    <div style={{ display: 'inline-block' }} className={className}>
       <button
         onClick={handleClick}
         disabled={installing}
         style={{
+          width: '100%',
           position: 'relative',
           cursor: 'pointer',
           fontSize: '14px',

@@ -16,6 +16,20 @@ import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
+import { useEffect, useState } from 'react';
+
+function TTSSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-10 pb-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className='flex flex-col gap-4'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
+          <div className='rounded-[10px] h-screen bg-gradient-1 w-full animate-pulse'></div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
@@ -28,6 +42,26 @@ export async function clientLoader() {
 
 export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) {
   const ttsProviders: TtsProvider[] = loaderData;
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaderData) {
+      const timer = setTimeout(() => {
+        setHasInitiallyLoaded(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loaderData]);
+
+  if (!hasInitiallyLoaded || !loaderData) {
+    return (
+      <>
+        <TTSSkeleton />
+        <Outlet />
+      </>
+    );
+  }
 
   const columnProperties: Array<TTableColumn<EnhancedTtsVoice>> = [
     {
@@ -38,6 +72,15 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
           <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />
           <span className='font-semibold text-body-md flex items-center gap-2'>
             {data.name}
+            {data.gender === 'Female' ? (
+              <div className='flex items-center gap-1 bg-[#FF85B7] size-5 justify-center rounded-full text-label text-base-black font-semibold'>
+                👩🏻
+              </div>
+            ) : data.gender === 'Male' ? (
+              <div className='flex items-center gap-1 bg-[#85D2FF] size-5 justify-center rounded-full text-label text-base-black font-semibold'>
+                🧔🏻‍♂️
+              </div>
+            ) : null}
             <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
           </span>
         </div>

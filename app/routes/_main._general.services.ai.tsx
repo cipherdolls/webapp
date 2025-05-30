@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router';
+import { useState, useEffect } from 'react';
 import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.services.ai';
 import Table from '~/components/Table';
@@ -13,8 +14,24 @@ import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import { formatModelName } from '~/utils/formatModelName';
 
+function AiProviderSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-10 pb-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className='flex flex-col gap-4'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
+          <div className='flex flex-col gap-3'>
+            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'AiProviders' }];
+  return [{ title: 'AI Providers' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -23,6 +40,27 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaderData) {
+      const timer = setTimeout(() => {
+        setHasInitiallyLoaded(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loaderData]);
+
+  if (!hasInitiallyLoaded || !loaderData) {
+    return (
+      <>
+        <AiProviderSkeleton />
+        <Outlet />
+      </>
+    );
+  }
+
   const aiProviders: AiProvider[] = loaderData;
   const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     {

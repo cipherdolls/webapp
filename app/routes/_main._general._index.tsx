@@ -8,6 +8,41 @@ import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
+import { useEffect, useState } from 'react';
+
+function DashboardSkeleton({ count = 1 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-4 pb-5 w-full'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div className='flex flex-col gap-4 pl-5'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
+          <div className='rounded-[10px] h-[276px] bg-gradient-1 w-full animate-pulse '></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LeftSkeleton({ count = 2 }: { count?: number }) {
+  return (
+    <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div className='flex flex-col gap-5'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+          </div>
+          <div className='-mt-2 mx-auto'>
+            <div className='rounded-[10px] h-10 bg-gradient-1 w-[118px] animate-pulse'></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export async function clientLoader() {
   const [avatarsRes, dollsRes, chatsRes, scenariosRes] = await Promise.all([
@@ -30,6 +65,18 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
   const { avatars, dolls, chats, scenarios } = loaderData;
   const me = useRouteLoaderData('routes/_main') as User;
 
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaderData) {
+      const timer = setTimeout(() => {
+        setHasInitiallyLoaded(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loaderData]);
+
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
       <div className='flex flex-col sm:gap-4 gap-7'>
@@ -39,21 +86,27 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
         </div>
         <DashboardBanner username={me.name} variant='welcome' description='What do you want to start from?' />
       </div>
-
-      {/* <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04 pb-2.5'>
-        <YourAvatars avatars={avatars} />
-        <YourDolls dolls={dolls} />
-      </div> */}
-      <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
-        <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
-          <YourChats chats={chats} />
-          <YourAvatars avatars={avatars} />
-          <YourScenarios scenarios={scenarios} />
+      {!hasInitiallyLoaded || !loaderData ? (
+        <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
+          <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
+            <LeftSkeleton />
+          </div>
+          <div className=''>
+            <DashboardSkeleton />
+          </div>
         </div>
-        <div className=''>
-          <YourDolls dolls={dolls} />
+      ) : (
+        <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
+          <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
+            <YourChats chats={chats} />
+            <YourAvatars avatars={avatars} />
+            <YourScenarios scenarios={scenarios} />
+          </div>
+          <div className=''>
+            <YourDolls dolls={dolls} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

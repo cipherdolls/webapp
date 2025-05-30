@@ -13,14 +13,7 @@ interface ScenarioCardProps {
   avatars?: Avatar[];
 }
 
-const ScenarioCard = ({ 
-  scenario, 
-  index, 
-  showAll, 
-  totalScenarios, 
-  isPublic = false, 
-  avatars 
-}: ScenarioCardProps) => {
+const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = false, avatars }: ScenarioCardProps) => {
   const isNewScenario = () => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -31,7 +24,9 @@ const ScenarioCard = ({
     !showAll && index >= (totalScenarios > 6 ? 6 : 4)
       ? 'hidden'
       : totalScenarios > 6 && !showAll && index >= 4
-        ? 'max-h-28 overflow-hidden relative rounded-b-xl transition-all duration-300 ease-in-out'
+        ? index === 5
+          ? 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl hidden sm:block'
+          : 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl'
         : 'transition-all duration-500 ease-out'
   }`;
 
@@ -41,24 +36,27 @@ const ScenarioCard = ({
   );
 
   const publicContentClassName = cn(
-    'flex sm:gap-2 gap-5 p-5 justify-between transition-colors duration-200 ease-in-out',
-    totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent' : 'bg-white'
+    'flex sm:gap-2 gap-5  justify-between transition-colors duration-200 ease-in-out',
+    totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent px-5 py-8' : 'bg-white p-5'
   );
 
   if (isPublic) {
     return (
       <div className={cardClassName} key={index}>
-        <div className='flex flex-col bg-gradient-1 rounded-xl overflow-hidden'>
+        <div
+          className={cn(
+            'flex flex-col rounded-xl overflow-hidden',
+            totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent' : 'bg-gradient-1 '
+          )}
+        >
           <div className={publicContentClassName}>
             <Link to={`/scenarios/${scenario.id}`} className='flex flex-col gap-3 flex-1'>
-              <h6 className='text-body-md font-semibold text-base-black'>{scenario.name}</h6>
+              <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
               <div className='flex items-center gap-2'>
                 <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
-                {isNewScenario() && (
-                  <span className='text-specials-success text-body-sm'>New</span>
-                )}
+                {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
               </div>
-              <p className='text-base-black text-body-sm line-clamp-2 min-h-8'>{scenario.systemMessage}</p>
+              <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
             </Link>
             {avatars && <SelectAvatarModal avatars={avatars} scenario={scenario} />}
           </div>
@@ -81,25 +79,26 @@ const ScenarioCard = ({
             </div>
           </Link>
         </div>
-        {totalScenarios > 6 && !showAll && index >= 4 && (
-          <div className='absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/20 via-black/5 to-transparent pointer-events-none transition-opacity duration-200 ease-in-out'></div>
-        )}
       </div>
     );
   }
 
   return (
     <div className={cardClassName} key={index}>
-      <Link to={`/scenarios/${scenario.id}`} className='flex flex-col bg-gradient-1 rounded-xl overflow-hidden'>
+      <Link
+        to={`/scenarios/${scenario.id}`}
+        className={cn(
+          'flex flex-col rounded-xl overflow-hidden',
+          totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent' : 'bg-gradient-1 '
+        )}
+      >
         <div className={contentClassName}>
-          <h6 className='text-body-md font-semibold text-base-black'>{scenario.name}</h6>
+          <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
           <div className='flex items-center gap-2'>
             <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
-            {isNewScenario() && (
-              <span className='text-specials-success text-body-sm'>New</span>
-            )}
+            {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
           </div>
-          <p className='text-base-black text-body-sm line-clamp-2 min-h-8'>{scenario.systemMessage}</p>
+          <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
         </div>
         <div className='grid lg:grid-cols-2 sm:grid-cols-1 grid-cols-2 gap-y-2 gap-x-5 p-5'>
           <div className='flex items-center gap-3'>

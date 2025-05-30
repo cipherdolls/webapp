@@ -6,6 +6,20 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.hardware.doll-bodies';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { formatDate } from '~/utils/date.utils';
+import { useEffect, useState } from 'react';
+
+function HardwareSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-16 pb-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div className='flex flex-col gap-4'>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div>
+          <div className='rounded-[10px] h-[205px] bg-gradient-1 w-full animate-pulse'></div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Bodies' }];
@@ -18,6 +32,28 @@ export async function clientLoader() {
 
 export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
   const dollBodies: DollBody[] = loaderData;
+
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaderData) {
+      const timer = setTimeout(() => {
+        setHasInitiallyLoaded(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loaderData]);
+
+  if (!hasInitiallyLoaded || !loaderData) {
+    return (
+      <>
+        <HardwareSkeleton />
+        <Outlet />
+      </>
+    );
+  }
+
   const columnProperties: Array<TTableColumn<DollBody>> = [
     {
       id: 'name',

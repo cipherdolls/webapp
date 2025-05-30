@@ -27,9 +27,3 @@ export const PATHS = {
   ttsVoice: (id: string) => `${apiUrl}/tts-voices/${id}/audio`,
 };
 
-
-
-// local storage keys
-export const LOCAL_STORAGE_KEYS = {
-  silentMode: 'silent-mode',
-};

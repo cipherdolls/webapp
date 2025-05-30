@@ -16,7 +16,6 @@ const PublicScenarios = ({ scenarios, avatars }: PublicScenariosProps) => {
     setShowAll(!showAll);
   };
 
-
   return (
     <div className='mt-6 flex flex-col gap-5 pb-5'>
       <h3 className='text-heading-h3 text-base-black'>Public Scenarios</h3>
