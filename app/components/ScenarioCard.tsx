@@ -24,7 +24,7 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
     !showAll && index >= (totalScenarios > 6 ? 6 : 4)
       ? 'hidden'
       : totalScenarios > 6 && !showAll && index >= 4
-        ? index === 5 
+        ? index === 5
           ? 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl hidden sm:block'
           : 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl'
         : 'transition-all duration-500 ease-out'
@@ -93,7 +93,7 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
         )}
       >
         <div className={contentClassName}>
-          <h6 className='text-body-md font-semibold text-base-black'>{scenario.name}</h6>
+          <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
           <div className='flex items-center gap-2'>
             <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
             {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
