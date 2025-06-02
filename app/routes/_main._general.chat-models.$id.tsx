@@ -55,7 +55,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 </Button.Root>
               </Link>
               <DeleteModal
-                title='Delete a Chat Model?'
+                title={`Delete chat model ${formatModelName(chatModel.providerModelName)}?`}
                 description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
               >
                 <ChatModelDestroy />
@@ -77,7 +77,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     isDelete: true,
                     component: (
                       <DeleteModal
-                        title='Delete a Chat Model?'
+                        title={`Delete chat model ${formatModelName(chatModel.providerModelName)}?`}
                         description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
                         dropdown
                       >

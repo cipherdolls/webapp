@@ -50,7 +50,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                 </Button.Root>
               </Link>
               <DeleteModal
-                title='Delete an Embedding Model?'
+                title={`Delete embedding model ${formatModelName(embeddingModel.providerModelName)}?`}
                 description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
               >
                 <EmbeddingModelDestroy />
@@ -72,7 +72,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     isDelete: true,
                     component: (
                       <DeleteModal
-                        title='Delete an Embedding Model?'
+                        title={`Delete embedding model ${formatModelName(embeddingModel.providerModelName)}?`}
                         description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
                         dropdown
                       >

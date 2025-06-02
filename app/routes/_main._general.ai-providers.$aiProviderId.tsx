@@ -127,7 +127,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             </Button.Root>
           </Link>
           <DeleteModal
-            title='Delete an AI Provider?'
+            title={`Delete AI Provider ${aiProvider.name}?`}
             description=' By deleting an AI Provider all of your data will be deleted as well. You will no able to restore the data'
           >
             <AiProviderDestroy />

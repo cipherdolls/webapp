@@ -19,16 +19,20 @@ const MyScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
     <div className='mt-6 flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>My Scenarios</h3>
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-5 w-full'>
-        {sortedScenarios.map((scenario, index) => (
-          <ScenarioCard
-            key={index}
-            scenario={scenario}
-            index={index}
-            showAll={showAll}
-            totalScenarios={scenarios.length}
-            isPublic={false}
-          />
-        ))}
+        {sortedScenarios.length === 0 ? (
+          <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>No scenarios found.</p>
+        ) : (
+          sortedScenarios.map((scenario, index) => (
+            <ScenarioCard
+              key={index}
+              scenario={scenario}
+              index={index}
+              showAll={showAll}
+              totalScenarios={scenarios.length}
+              isPublic={false}
+            />
+          ))
+        )}
       </div>
       {scenarios.length > 4 && (
         <div className='mx-auto'>

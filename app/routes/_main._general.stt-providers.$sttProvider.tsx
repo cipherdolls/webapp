@@ -48,7 +48,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                 </Button.Root>
               </Link>
               <DeleteModal
-                title='Delete an STT Provider?'
+                title={`Delete provider ${sttProvider.name}?`}
                 description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
               >
                 <SttProviderDestroy />
@@ -71,7 +71,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                     isDelete: true,
                     component: (
                       <DeleteModal
-                        title='Delete an STT Provider?'
+                        title={`Delete provider ${sttProvider.name}?`}
                         description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
                         dropdown
                       >

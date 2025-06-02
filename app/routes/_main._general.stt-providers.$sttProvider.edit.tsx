@@ -3,7 +3,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { SttProvider } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import * as Modal from '~/components/ui/new-modal';
-import type { Route } from './+types/_main._general.services.stt.stt-providers.$sttProvider.edit';
+import type { Route } from './+types/_main._general.stt-providers.$sttProvider.edit';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
@@ -17,7 +17,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  console.log(params);
   const res = await fetchWithAuth(`stt-providers/${params.sttProvider}`);
   return await res.json();
 }
@@ -84,7 +83,7 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/services/stt`);
+    navigate(`/stt-providers/${sttProvider.id}`);
   };
 
   return (
