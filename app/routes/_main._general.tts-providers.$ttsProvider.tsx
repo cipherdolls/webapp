@@ -105,7 +105,7 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
             </Button.Root>
           </Link>
           <DeleteModal
-            title='Delete a TTS Provider?'
+            title={`Delete provider ${ttsProvider.name}?`}
             description='By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.'
           >
             <TtsProviderDestroy />
@@ -125,7 +125,7 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
                 isDelete: true,
                 component: (
                   <DeleteModal
-                    title='Delete a TTS Provider?'
+                    title={`Delete provider ${ttsProvider.name}?`}
                     description='By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.'
                     dropdown
                   >
