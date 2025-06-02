@@ -73,6 +73,11 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
             />
           </div>
           <span className='font-semibold text-body-md'>{data.name}</span>
+          {data.recommended && (
+            <>
+              <Icons.checkCircle /> <RecommendedBadge recommended={data.recommended} />
+            </>
+          )}
         </div>
       ),
       align: 'left',
@@ -132,11 +137,12 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
                             className='size-full object-cover rounded-lg'
                           />
                         </div>
+
                         {sttProvider.name}
 
                         {sttProvider.recommended && (
                           <>
-                            <Icons.checkCircle className='fill-black' /> <RecommendedBadge recommended={sttProvider.recommended} />
+                            <Icons.checkCircle /> <RecommendedBadge recommended={sttProvider.recommended} />
                           </>
                         )}
                       </div>
