@@ -223,3 +223,11 @@ input[type='number'] {
   height: 1px;
   background-color: black;
 }
+
+.male-gradient {
+  background: radial-gradient(200% 1695% at -100% 50%, #e5e1ff 0%, #afd8ef 50%, #e5e1ff 100%);
+}
+
+.female-gradient {
+  background: radial-gradient(200% 1695% at -100% 50%, #ffdad2 0%, #e4c8e5 50%, #ffdad2 100%);
+}
