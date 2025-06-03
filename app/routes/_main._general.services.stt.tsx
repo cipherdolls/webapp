@@ -1,4 +1,4 @@
-import { Outlet, redirect } from 'react-router';
+import { Outlet } from 'react-router';
 import type { SttProvider } from '~/types';
 import type { Route } from './+types/_main._general.services.stt';
 import { DataCard } from '~/components/DataCard';
@@ -8,7 +8,10 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { InformationBadge } from '~/components/ui/InformationBadge';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Tooltip from '~/components/ui/tooltip';
+import { Icons } from '~/components/ui/icons';
+import RecommendedBadge from '~/components/ui/RecommendedBadge';
 
 function STTSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -70,6 +73,11 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
             />
           </div>
           <span className='font-semibold text-body-md'>{data.name}</span>
+          {data.recommended && (
+            <>
+              <Icons.checkCircle className='text-black/[0.56]' /> <RecommendedBadge recommended={data.recommended} />
+            </>
+          )}
         </div>
       ),
       align: 'left',
@@ -105,23 +113,65 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
           STT Providers <InformationBadge tooltipText='Services for converting speech to text.' />
         </DataCard.Label>
         <DataCard.Wrapper>
+          {/* DESKTOP */}
           <Table
             wrapperClassName='hidden md:block'
             columns={columnProperties}
             data={sttProviders}
             getRowUrl={(stt) => `/stt-providers/${stt.id}`}
           />
+
+          {/* MOBILE */}
           <div className='block md:hidden'>
             {sttProviders.map((sttProvider, index) => {
               return (
                 <Fragment key={sttProvider.id}>
-                  <DataCard.Item key={sttProvider.id}>
-                    <DataCard.ItemLabel>{sttProvider.name}</DataCard.ItemLabel>
+                  <DataCard.Item key={sttProvider.id} href={`/stt-providers/${sttProvider.id}`}>
+                    <DataCard.ItemLabel>
+                      <div className='flex items-center justify-start gap-2'>
+                        <div className='size-6'>
+                          <img
+                            src={getPicture(sttProvider, 'stt-providers', false)}
+                            srcSet={getPicture(sttProvider, 'stt-providers', true)}
+                            alt={sttProvider.name}
+                            className='size-full object-cover rounded-lg'
+                          />
+                        </div>
+
+                        {sttProvider.name}
+
+                        {sttProvider.recommended && (
+                          <>
+                            <Icons.checkCircle className='text-black/[0.56]' /> <RecommendedBadge recommended={sttProvider.recommended} />
+                          </>
+                        )}
+                      </div>
+
+                      <ViewButton
+                        popoverItems={[
+                          { text: 'Edit', href: `/services/stt/stt-providers/${sttProvider.id}/edit` },
+                          {
+                            text: 'Delete',
+                            href: `/services/stt/stt-providers/${sttProvider.id}/delete`,
+                            isDelete: true,
+                          },
+                        ]}
+                      />
+                    </DataCard.ItemLabel>
                     <DataCard.ItemDataGrid
                       data={[
                         {
-                          label: '$/Output',
-                          value: <>${sttProvider.dollarPerSecond}</>,
+                          label: (
+                            <div className='flex items-center'>
+                              <span>Output</span>
+                              <Tooltip
+                                side='top'
+                                trigger={<Icons.info className='inline-block size-4 ml-1' />}
+                                content={columnProperties[1].tooltipText}
+                              />
+                            </div>
+                          ),
+                          value: <>${sttProvider.dollarPerSecond * 60}</>,
                         },
                       ]}
                     />

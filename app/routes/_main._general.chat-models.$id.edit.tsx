@@ -9,6 +9,7 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import * as Modal from '~/components/ui/new-modal';
 import { formatModelName } from '~/utils/formatModelName';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Chat Model' }];
@@ -54,6 +55,7 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
   const chatModel: ChatModel = loaderData;
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const errors = fetcher.data?.message;
 
   const handleClose = () => {
     navigate(`/chat-models/${chatModel.id}`);
@@ -69,6 +71,9 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
       <Modal.Content>
         <Modal.Title>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Title>
         <Modal.Description className='sr-only'>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Description>
+        <div className='mt-2'>
+          <ErrorsBox errors={errors} />
+        </div>
         <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='chatModelId' value={chatModel.id} />
