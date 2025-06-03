@@ -10,7 +10,7 @@ function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-16 pb-5 mt-6'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-5'>
+        <div className='flex flex-col gap-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div>
           <div className='grid md:gap-5 gap-3.5 grid-cols-1 sm:grid-cols-2'>
             <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
