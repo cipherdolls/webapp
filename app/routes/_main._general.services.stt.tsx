@@ -75,7 +75,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
           <span className='font-semibold text-body-md'>{data.name}</span>
           {data.recommended && (
             <>
-              <Icons.checkCircle /> <RecommendedBadge recommended={data.recommended} />
+              <Icons.checkCircle className='fill-black/[0.56]' /> <RecommendedBadge recommended={data.recommended} />
             </>
           )}
         </div>
@@ -142,7 +142,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
 
                         {sttProvider.recommended && (
                           <>
-                            <Icons.checkCircle /> <RecommendedBadge recommended={sttProvider.recommended} />
+                            <Icons.checkCircle className='fill-black/[0.56]' /> <RecommendedBadge recommended={sttProvider.recommended} />
                           </>
                         )}
                       </div>
