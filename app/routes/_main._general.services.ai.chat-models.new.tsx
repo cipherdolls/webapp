@@ -7,6 +7,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Chat Model' }];
@@ -43,6 +44,7 @@ export default function NewChatModel() {
   const name = searchParams.get('name') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const errors = fetcher.data?.message;
 
   const handleClose = () => {
     navigate(`/services/ai`, { replace: true });
@@ -58,6 +60,9 @@ export default function NewChatModel() {
       <Modal.Content>
         <Modal.Title>Add Chat Model for {name}</Modal.Title>
         <Modal.Description className='sr-only'>Add Chat Model for {name}</Modal.Description>
+        <div className='mt-2'>
+          <ErrorsBox errors={errors} />
+        </div>
         <fetcher.Form method='POST' className='size-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
