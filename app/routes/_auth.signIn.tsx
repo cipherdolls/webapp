@@ -49,17 +49,31 @@ export default function SignInRoute() {
   const fetcher = useFetcher();
   const [token, setToken] = useLocalStorage('token', undefined);
   const [connected, setConnected] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
+
+  const handleSuccessfulAuth = () => {
+    if (hasNavigated) return;
+
+    setHasNavigated(true);
+    const redirectUrl = localStorage.getItem('redirectAfterSignIn');
+    if (redirectUrl) {
+      localStorage.removeItem('redirectAfterSignIn');
+      navigate(redirectUrl);
+    } else {
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
     if (fetcher.data?.token) {
       setToken(fetcher.data.token);
-      navigate('/');
+      handleSuccessfulAuth();
     }
     if (fetcher.data?.error) {
       console.error('Sign-in error:', fetcher.data.error);
     }
-  }, [fetcher.data, token]);
+  }, [fetcher.data]);
 
   useEffect(() => {
     checkConnection();
@@ -74,7 +88,7 @@ export default function SignInRoute() {
   useEffect(() => {
     if (connected === true && token !== undefined) {
       console.log('Connected and token is set');
-      navigate('/');
+      handleSuccessfulAuth();
     }
     // eslint-disable-next-line
   }, [connected, token]);

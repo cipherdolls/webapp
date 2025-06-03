@@ -14,7 +14,7 @@ function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-4 pb-5 w-full'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-4 pl-5'>
+        <div className='flex flex-col gap-4 pl-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
           <div className='rounded-[10px] h-[276px] bg-gradient-1 w-full animate-pulse '></div>
         </div>
@@ -27,7 +27,7 @@ function LeftSkeleton({ count = 2 }: { count?: number }) {
   return (
     <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-5'>
+        <div className='flex flex-col gap-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
             <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>

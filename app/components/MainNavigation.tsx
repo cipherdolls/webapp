@@ -49,10 +49,14 @@ const MainNavigation = ({ className }: { className?: string }) => {
         </nav>
 
         <div className='hidden h-24 shrink-0 md:block'>
-          <button onClick={() => {
-                localStorage.removeItem('token');
-                navigate('/signin');
-              }}className='flex flex-col gap-1 items-center justify-center w-full h-[72px] rounded-xl text-xs text-center font-semibold text-[#350D2A]/40 hover:bg-black/5 hover:text-black hover:cursor-pointer'>
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('redirectAfterSignIn');
+              navigate('/signin');
+            }}
+            className='flex flex-col gap-1 items-center justify-center w-full h-[72px] rounded-xl text-xs text-center font-semibold text-[#350D2A]/40 hover:bg-black/5 hover:text-black hover:cursor-pointer'
+          >
             <Logout />
             <span>Logout</span>
           </button>

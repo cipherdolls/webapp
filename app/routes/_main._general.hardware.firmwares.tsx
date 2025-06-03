@@ -12,7 +12,7 @@ function FirmwareSkeleton({ count = 2 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-4 pb-5'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
           <div className='rounded-[10px] h-[205px] bg-gradient-1 w-full animate-pulse'></div>
         </div>

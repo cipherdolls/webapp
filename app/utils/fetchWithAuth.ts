@@ -3,7 +3,6 @@
 import { redirect } from 'react-router';
 import { apiUrl } from '~/constants';
 
-
 /**
  * If you want to do a *second* check to confirm the token is invalid,
  * you can call this from inside fetchWithAuth if you get 401.
@@ -48,14 +47,12 @@ async function verifyToken(): Promise<boolean> {
  *   3) If response is 401 or 403, optionally re-checks token validity,
  *      removes it, and throws redirect('/signin').
  */
-export async function fetchWithAuth(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<Response> {
+export async function fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
   // 1) Check localStorage for a token
   const localToken = localStorage.getItem('token')?.replaceAll('"', '');
   if (!localToken) {
-    // Immediately redirect if no token
+    const currentUrl = window.location.pathname + window.location.search;
+    localStorage.setItem('redirectAfterSignIn', currentUrl);
     throw redirect('/signin');
   }
 
@@ -77,6 +74,8 @@ export async function fetchWithAuth(
     const stillValid = await verifyToken();
     if (!stillValid) {
       localStorage.removeItem('token');
+      const currentUrl = window.location.pathname + window.location.search;
+      localStorage.setItem('redirectAfterSignIn', currentUrl);
       throw redirect('/signin');
     }
   }
