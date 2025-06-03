@@ -20,7 +20,7 @@ const MyScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
     <div className='mt-6 flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>My Scenarios</h3>
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-5 w-full'>
-        {sortedScenarios.length !== 0 ? (
+        {sortedScenarios.length === 0 ? (
           <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 lg:py-8 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
             <h1 className='text-heading-h2'>📚</h1>
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
