@@ -8,6 +8,8 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Icons } from '~/components/ui/icons';
+import { useState } from 'react';
+import * as Select from '~/components/ui/input/select';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
@@ -47,13 +49,28 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return await res.json();
 }
 
+const genreOptions = [
+  {
+    value: 'All',
+    label: 'All',
+  },
+  {
+    value: 'Male',
+    label: 'Male',
+  },
+  {
+    value: 'Female',
+    label: 'Female',
+  },
+];
+
 export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
   const ttsVoice = loaderData as TtsVoice;
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const providerName = searchParams.get('providerName') || '';
-
+  const [gender, setGender] = useState<string>(ttsVoice.gender || '');
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
@@ -104,6 +121,20 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
                 defaultValue={ttsVoice.providerVoiceId}
               />
             </Input.Root>
+            <Select.Root value={gender} onValueChange={setGender}>
+              <Select.Label>Gender</Select.Label>
+              <Select.Trigger className='border-neutral-04 outline-neutral-04 outline py-3.5 -mt-2'>
+                <Select.Value placeholder='Gender' />
+              </Select.Trigger>
+              <Select.Content className='z-[1000001]'>
+                {genreOptions.map((item) => (
+                  <Select.Item key={item.value} value={item.value}>
+                    {item.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+              <input type='hidden' name='gender' value={gender} />
+            </Select.Root>
 
             <div className='flex items-center gap-2'>
               <Checkbox.Root
