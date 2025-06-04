@@ -11,6 +11,7 @@ import { useChatStore } from '~/store/useChatStore';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useShallow } from 'zustand/react/shallow';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
+import VoiceVisualizer from './VoiceVisualizer';
 
 interface LiveTalkProps {
   avatar: Avatar;
@@ -40,7 +41,7 @@ const LiveTalk: React.FC<LiveTalkProps> = ({ avatar }) => {
 
 
 
-  const { startRecording, stopRecording, cancelRecording } = useVoiceRecorder({
+  const { audioData, startRecording, stopRecording, cancelRecording } = useVoiceRecorder({
     onRecordingComplete: async (blob: Blob) => {
       if (blob && chatId) {
         const file = new File([blob], 'audio.webm', { type: 'audio/webm' });
@@ -86,9 +87,14 @@ const LiveTalk: React.FC<LiveTalkProps> = ({ avatar }) => {
   return (
     <div className='flex-1 flex flex-col bg-black'>
       <div className='flex-1 flex items-center justify-center'>
-        <div className='relative'>
-          <AvatarPicture avatar={avatar} sizeType={PICTURE_SIZE.semiMedium} className='size-32 shrink-0' />
-          <EyeStatus className='size-12 absolute left-full bottom-full' />
+        <div className='relative size-32'>
+          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[260px] z-0'>
+            <VoiceVisualizer audioData={audioData} isActive={currentChatState === ChatState.userSpeaking} />
+          </div>
+          <AvatarPicture avatar={avatar} sizeType={PICTURE_SIZE.semiMedium} className='relative size-full shrink-0 z-10' />
+          
+         
+          {/* <EyeStatus className='size-12 absolute left-full bottom-full' /> */}
         </div>
       </div>
       <div className='p-5 flex items-center justify-center gap-5'>
