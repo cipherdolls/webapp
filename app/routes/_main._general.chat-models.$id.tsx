@@ -104,10 +104,10 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     />
                   </div>
 
-                  <h4 className='text-body-md font-semibold sm:text-heading-h4 text-base-black sm:hidden'>{chatModel.providerModelName}</h4>
+                  <h4 className='text-body-md font-semibold text-base-black sm:text-heading-h4 sm:hidden'>{chatModel.providerModelName}</h4>
                 </div>
                 <div className='flex flex-col gap-2'>
-                  <h4 className='hidden text-body-md font-semibold sm:text-heading-h4 text-base-black sm:block'>
+                  <h4 className='hidden text-body-md font-semibold text-base-black sm:text-heading-h4 sm:block'>
                     {chatModel.providerModelName}
                   </h4>
                   <div className='flex items-center gap-1'>
@@ -124,14 +124,14 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                       </div>
                     )}
                   </div>
-                  <p className='text-body-sm text-base-black sm:block'>Ensures secure communication</p>
+                  <p className='text-body-sm text-base-black'>Ensures secure communication</p>
                 </div>
               </div>
 
               <div className='border-neutral-04 border w-full md:hidden' />
 
               <div className='flex flex-1 justify-end w-full h-full md:items-end'>
-                <div className='flex flex-col gap-2 w-full md:w-fit'>
+                <div className='flex flex-col flex-1 gap-2'>
                   <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
                     Provider: <span className='text-base-black font-semibold'>{chatModel.aiProvider?.name}</span>
                   </p>
