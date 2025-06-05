@@ -96,9 +96,9 @@ const YourInfo = ({ me, fetcher }: { me: User; fetcher: FetcherWithComponents<an
             <div className='flex flex-col bg-base-white shadow-regular rounded-xl sm:p-5 p-3 divide-y divide-neutral-04 max-h-[350px] sm:max-h-[500px] overflow-y-auto scrollbar-medium'>
               <div className='flex flex-col gap-4'>
                 <div className='flex items-center justify-between'>
-                  {me.name && <h4 className='text-heading-h4 font-semibold text-base-black'>{me.name}</h4>}
+                  {me.name && <h4 className='text-heading-h4 font-semibold text-base-black break-all'>{me.name}</h4>}
                 </div>
-                {me.character && <p className='text-body-md text-base-black'>{me.character}</p>}
+                {me.character && <p className='text-body-md text-base-black break-all'>{me.character}</p>}
               </div>
             </div>
           )}
