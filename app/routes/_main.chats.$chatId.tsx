@@ -6,18 +6,14 @@ import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl, API_ENDPOINTS, PICTURE_SIZE } from '~/constants';
-import { use, useEffect } from 'react';
-import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
+import { apiUrl, API_ENDPOINTS } from '~/constants';
+import { useEffect } from 'react';
+import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
-import { useState } from 'react';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
-import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
+import { useAlert } from '~/providers/AlertDialogProvider';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
-import { Icons } from '~/components/ui/icons';
-import AvatarPicture from '~/components/AvatarPicture';
-import LiveTalk from '~/components/chat/LiveTalk';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -77,7 +73,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const alert = useAlert();
 
-  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState, liveTalkMode } = useChatStore(
+  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       chatId: state.chatId,
       silentMode: state.silentMode,
@@ -85,7 +81,6 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
       setCurrentJob: state.setCurrentJob,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
-      liveTalkMode: state.liveTalkMode,
     }))
   );
 
@@ -95,10 +90,10 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     }
   }, [chat.id, chatId, initChatStore]);
 
+
   useChatEvents({
     chat,
     onProcessEvent: (event) => {
-      console.log('event', event);
       if (event.jobStatus === 'failed') handleJobError(event);
 
       // if message is received, revalidate the page
@@ -228,21 +223,11 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
     <>
       <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
         {/* chat header */}
-        {liveTalkMode ? (
-          <LiveTalk avatar={avatar} />
-        ) : (
-          <>
-            {/* chat header */}
-            <ChatTopBar chat={chat} avatar={avatar} />
-
-            {/* chat messages scroll */}
-            <ChatBody messages={messages} />
-              {/* chat input field  */}
-            <ChatBottomBar chat={chat} />
-          </>
-        )}
-
-        
+        <ChatTopBar chat={chat} avatar={avatar} />
+        {/* chat messages scroll */}
+        <ChatBody messages={messages} />
+        {/* chat input field  */}
+        <ChatBottomBar chat={chat} />
       </div>
       <Outlet />
     </>

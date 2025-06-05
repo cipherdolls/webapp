@@ -74,7 +74,7 @@ export default function useVoiceRecorder({
       } else if (speechStartedRef.current) {
         if (silenceStartRef.current === null) silenceStartRef.current = performance.now();
         else if (performance.now() - silenceStartRef.current >= requiredSilenceDuration) {
-          stopRecording();
+          stop();
           return;
         }
       }
@@ -101,7 +101,7 @@ export default function useVoiceRecorder({
   };
 
   /* ------------------------------------------------ recording */
-  const startRecording = async () => {
+  const start = async () => {
     const stream = await getStream();
     if (enableSilenceDetection) {
       startMeter(stream);
@@ -119,7 +119,7 @@ export default function useVoiceRecorder({
     rec.start();
   };
 
-  const stopRecording = () => {
+  const stop = () => {
     recorderRef.current?.stop();
   };
 
@@ -133,19 +133,19 @@ export default function useVoiceRecorder({
     streamRef.current = null;
   };
 
-  const cancelRecording = () => {
+  const cancel = () => {
     if (recorderRef.current && dataHandlerRef.current) {
       recorderRef.current.removeEventListener('dataavailable', dataHandlerRef.current);
     }
-    stopRecording();
+    stop();
   };
 
   useEffect(() => {
     return () => {
-      cancelRecording();
+      cancel();
       cleanUp();
     };
   }, []);
 
-  return { audioData, startRecording, stopRecording, cancelRecording };
+  return { audioData, start, stop, cancel };
 }

@@ -9,6 +9,7 @@ import type { Chat } from '~/types';
 import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
+import { useShallow } from 'zustand/react/shallow';
 
 interface MessageRecordingButtonProps {
   chat: Chat;
@@ -18,7 +19,13 @@ interface MessageRecordingButtonProps {
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   chat
 }) => {
-  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore();
+  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(useShallow(state => ({
+    currentChatState: state.currentChatState,
+    setCurrentChatState: state.setCurrentChatState,
+    hasMicAccess: state.hasMicAccess,
+    requestMicAccess: state.requestMicAccess,
+  })));
+  
   const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null); 
   const fetcher = useFetcher();

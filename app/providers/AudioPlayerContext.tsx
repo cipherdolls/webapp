@@ -56,6 +56,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const playAudio = useCallback(
     (url: string, onEnded?: () => void) => {
       const audio = audioRef.current;
+      
       audio.pause();
       audio.currentTime = 0;
 

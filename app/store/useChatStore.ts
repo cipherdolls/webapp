@@ -7,14 +7,10 @@ import { ChatState } from '~/components/chat/types/chatState';
 interface ChatStore {
   silentMode: boolean;
   hasMicAccess: boolean;
-
   chatId: string | null;
   currentChatState: ChatStateType;
   currentJob: ChatJobType | null;
 
-
-  liveTalkMode: boolean;
-  
 
   setChatId: (id: string) => void;
   setCurrentChatState: (state: ChatStateType) => void;
@@ -22,8 +18,6 @@ interface ChatStore {
   toggleSilentMode: () => void;
   requestMicAccess: () => Promise<void>; 
   setMicAccess: (hasAccess: boolean) => void;
-
-  setLiveTalkMode: (mode: boolean) => void;
 
   initChatStore: (chatId: string) => void;
   resetChatStore: () => void;
@@ -34,7 +28,7 @@ export const useChatStore = create<ChatStore>()(
     immer((set) => ({
       silentMode: false,
       hasMicAccess: false,
-      liveTalkMode: false,
+    
       
       chatId: null,
       currentChatState: ChatState.Idle,
@@ -62,17 +56,16 @@ export const useChatStore = create<ChatStore>()(
       },
       setMicAccess: (hasAccess) => set({ hasMicAccess: hasAccess }),
 
-      setLiveTalkMode: (mode) => set({ liveTalkMode: mode }),
+   
 
       initChatStore: (chatId: string) =>
-        set({ chatId, currentChatState: ChatState.Idle, currentJob: null, liveTalkMode: false }),
+        set({ chatId, currentChatState: ChatState.Idle, currentJob: null }),
 
       resetChatStore: () =>
         set({
           chatId: null,
           currentChatState: ChatState.Idle,
-          currentJob: null,
-          liveTalkMode: false,
+          currentJob: null
         }),
     })),
     {

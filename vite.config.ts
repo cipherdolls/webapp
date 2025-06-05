@@ -19,4 +19,11 @@ export default defineConfig({
       include: '**/*.svg',
     }),
   ],
+  server: {
+    host: true,
+    cors: true,
+    hmr: {
+      host: '1f20-109-95-54-222.ngrok-free.app'
+    }
+  },
 });

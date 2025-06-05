@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useFetcher, useNavigate } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
@@ -17,13 +17,11 @@ interface ChatBottomBarProps {
 }
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
-  const { currentChatState, liveTalkMode, setLiveTalkMode, hasMicAccess } = useChatStore(useShallow(state=> (
+  const navigate = useNavigate();
+  const { currentChatState, hasMicAccess } = useChatStore(useShallow(state=> (
     {
       currentChatState: state.currentChatState,
-      liveTalkMode: state.liveTalkMode,
-      setLiveTalkMode: state.setLiveTalkMode,
       hasMicAccess: state.hasMicAccess,
-      requestMicAccess: state.requestMicAccess,
     }
   )));
   
@@ -55,7 +53,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
       });
       return;
     }
-    setLiveTalkMode(!liveTalkMode);
+    navigate(`/chats/${chat.id}/talk-mode`);
   };
 
   return (
