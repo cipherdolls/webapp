@@ -40,11 +40,11 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
           <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
-              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
+              <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
                 {formatModelName(chatModel.providerModelName)}
               </h3>
-              <span className='text-neutral-01 word text-body-lg'>•</span>
-              <span className='text-neutral-01 text-body-lg'>AI</span>
+              <span className='text-body-md text-neutral-01 word sm:text-body-lg'>•</span>
+              <span className='text-body-md text-neutral-01 sm:text-body-lg'>AI</span>
             </div>
           </Link>
           {me.role === 'ADMIN' && (
