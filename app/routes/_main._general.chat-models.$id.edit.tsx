@@ -69,7 +69,7 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
       <Modal.Content>
         <Modal.Title>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Title>
         <Modal.Description className='sr-only'>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Description>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='chatModelId' value={chatModel.id} />
             <input type='hidden' name='aiProviderId' value={chatModel.aiProviderId} />

@@ -58,7 +58,7 @@ export default function NewEmbeddingModel() {
       <Modal.Content>
         <Modal.Title>Add Embedding Model for {name}</Modal.Title>
         <Modal.Description className='sr-only'>Add Embedding Model for {name}</Modal.Description>
-        <fetcher.Form method='POST' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
 
