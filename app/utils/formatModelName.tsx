@@ -1,4 +1,8 @@
-export function formatModelName(modelName: string): string {
+export function formatModelName(modelName: string | undefined): string {
+  if (!modelName) {
+    return '';
+  }
+
   // Split organization and model name
   let organization = '';
   let nameWithoutOrg = modelName;
@@ -13,10 +17,10 @@ export function formatModelName(modelName: string): string {
   const parts = nameWithoutOrg.split('-');
 
   // Handle model family name
-  let modelFamily = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  let modelFamily = parts[0]?.charAt(0).toUpperCase() + parts[0]?.slice(1);
 
   // Special case: if model family is "Gpt", make it uppercase
-  if (modelFamily.toLowerCase() === 'gpt') {
+  if (modelFamily?.toLowerCase() === 'gpt') {
     modelFamily = 'GPT';
   }
 
@@ -29,16 +33,19 @@ export function formatModelName(modelName: string): string {
   // Add organization if present (take only the first word and capitalize)
   if (organization) {
     const orgWords = organization.split('-');
-    const formattedOrg = orgWords[0].charAt(0).toUpperCase() + orgWords[0].slice(1);
+    const formattedOrg = orgWords[0]?.charAt(0).toUpperCase() + orgWords[0]?.slice(1);
     mainParts.push(formattedOrg);
   }
 
   // Add model family
-  mainParts.push(modelFamily);
+  if (modelFamily) {
+    mainParts.push(modelFamily);
+  }
 
   // Analyze other parts
   for (let i = 1; i < parts.length; i++) {
     const part = parts[i];
+    if (!part) continue;
 
     // Version number check (e.g., 2.0, 3.3, 4)
     if (/^\d+(\.\d+)?$/.test(part)) {
