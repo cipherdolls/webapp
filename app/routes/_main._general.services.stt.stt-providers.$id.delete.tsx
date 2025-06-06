@@ -4,7 +4,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.services.ai.chat-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Modal from '~/components/ui/new-modal';
-import type { ChatModel } from '~/types';
+import type { ChatModel, SttProvider } from '~/types';
 import { formatModelName } from '~/utils/formatModelName';
 
 export function meta({}: Route.MetaArgs) {
@@ -18,7 +18,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 }
 
 export default function STTProviderDelete({ loaderData }: Route.ComponentProps) {
-  const sttProvider: ChatModel = loaderData;
+  const sttProvider: SttProvider = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
@@ -34,8 +34,8 @@ export default function STTProviderDelete({ loaderData }: Route.ComponentProps) 
       }}
     >
       <Modal.Content>
-        <Modal.Title className='sr-only'>Delete Provider {formatModelName(sttProvider.providerModelName)}</Modal.Title>
-        <Modal.Description className='sr-only'>Delete Provider {formatModelName(sttProvider.providerModelName)}</Modal.Description>
+        <Modal.Title className='sr-only'>Delete Provider {formatModelName(sttProvider.name)}</Modal.Title>
+        <Modal.Description className='sr-only'>Delete Provider {formatModelName(sttProvider.name)}</Modal.Description>
         <fetcher.Form
           action={`/stt-providers/${sttProvider.id}/destroy`}
           method='DELETE'
@@ -45,7 +45,7 @@ export default function STTProviderDelete({ loaderData }: Route.ComponentProps) 
             <h1 className='text-heading-h1 font-semibold text-center'>🗑️</h1>
             <div className='flex flex-col gap-2'>
               <h2 className='text-heading-h2 font-semibold text-center text-base-black'>
-                Delete provider {formatModelName(sttProvider.providerModelName)}?
+                Delete provider {formatModelName(sttProvider.name)}?
               </h2>
               <span className='text-center text-base-black text-body-lg'>You will not be able to restore the data.</span>
             </div>

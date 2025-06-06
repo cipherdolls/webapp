@@ -12,7 +12,7 @@ const PublishAvatarModal = ({ onConfirm, children }: PublishAvatarModalProps) =>
     <Dialog.Root>
       <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none'>
+        <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'>
           <div
             className='absolute left-1/2 -translate-x-1/2
         w-[375px] h-[514px] sm:w-[480px] sm:h-[338px] 

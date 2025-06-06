@@ -91,7 +91,7 @@ export default function TTSVoiceEdit({ loaderData }: Route.ComponentProps) {
         <Modal.Description className='sr-only'>
           Edit {ttsVoice.name} for {providerName}
         </Modal.Description>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='ttsVoiceId' value={ttsVoice.id} />
