@@ -1,17 +1,32 @@
 import React, { useRef, useEffect } from 'react';
 import { mapRange } from '~/utils/audio.utils';
 
+
 interface VoiceVisualizerProps {
   audioData: Uint8Array | null;
   isActive: boolean;
+  circleHideOne?: boolean;
+  circleHideTwo?: boolean;
+  circleHideThree?: boolean;
+  circleOneColor?: string;
+  circleTwoColor?: string;
+  circleThreeColor?: string;
 }
 
-const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }) => {
+const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ 
+  audioData, 
+  isActive,
+  circleHideOne = false,
+  circleHideTwo = false,
+  circleHideThree = false,
+  circleOneColor = '#000',
+  circleTwoColor = '#000',
+  circleThreeColor = '#000'
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
   const animationStateRef = useRef({
-    scale: isActive ? 1 : 0,
-    targetScale: isActive ? 1 : 0
+    circleScales: [1, 1, 1]
   });
   
   useEffect(() => {
@@ -27,8 +42,7 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }
     canvas.height = size * dpr;
     ctx.scale(dpr, dpr);
     
-    const colors = ['#ffffff', '#ffffff', '#ffffff'];
-    // Reduced gaps between circles
+    const colors = [circleOneColor, circleTwoColor, circleThreeColor];
     const radiusRatios = [1, 0.92, 0.84];
     const baseRadius = size * 0.35;
     
@@ -40,19 +54,21 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }
       frequency: number,
       phase: number,
       color: string,
-      scale: number
+      circleScale: number
     ) => {
+      if (circleScale < 0.01) return;
+      
       ctx.beginPath();
       ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = circleScale;
       
       for (let angle = 0; angle <= Math.PI * 2; angle += 0.01) {
-        const waveOffset = 
+        const waveOffset = isActive ? 
           amplitude * Math.sin(frequency * angle + phase) +
-          amplitude * 0.5 * Math.sin(frequency * 2 * angle + phase * 1.5);
+          amplitude * 0.5 * Math.sin(frequency * 2 * angle + phase * 1.5) : 0;
         
-        // Apply scale to both radius and wave offset
-        const r = (radius + waveOffset) * scale;
+        const r = (radius + waveOffset) * circleScale;
         const x = centerX + r * Math.cos(angle);
         const y = centerY + r * Math.sin(angle);
         
@@ -65,19 +81,27 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }
       
       ctx.closePath();
       ctx.stroke();
+      ctx.globalAlpha = 1;
     };
     
     let phase = 0;
     const animate = () => {
-      // Update scale with smooth animation
-      const { scale, targetScale } = animationStateRef.current;
-      const scaleDiff = targetScale - scale;
-
-      const easingFactor = targetScale > scale ? 0.15 : 0.05;
-
-      if (Math.abs(scaleDiff) > 0.001) {
-        animationStateRef.current.scale += scaleDiff * easingFactor;
-      }
+      const { circleScales } = animationStateRef.current;
+      
+      // Update circle scales with smooth animation
+      const targetScales = [
+        circleHideOne ? 0 : 1,
+        circleHideTwo ? 0 : 1,
+        circleHideThree ? 0 : 1
+      ];
+      
+      const circleEasingFactor = 0.04;
+      targetScales.forEach((target, i) => {
+        const diff = target - circleScales[i];
+        if (Math.abs(diff) > 0.001) {
+          circleScales[i] += diff * circleEasingFactor;
+        }
+      });
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
@@ -89,6 +113,7 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }
         let amplitude = 0;
         let frequency = 4 + i * 2;
         
+        // Only calculate amplitude if isActive is true AND we have audioData
         if (isActive && audioData) {
           const segment = audioData.slice(
             Math.floor((i * audioData.length) / 3),
@@ -106,11 +131,15 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }
           frequency,
           phase + i * Math.PI / 3,
           colors[i],
-          animationStateRef.current.scale
+          circleScales[i]
         );
       });
       
-      phase += 0.03;
+      // Only update phase if isActive is true
+      if (isActive) {
+        phase += 0.03;
+      }
+      
       animationFrameRef.current = requestAnimationFrame(animate);
     };
     
@@ -121,16 +150,15 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ audioData, isActive }
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [audioData, isActive]);
-  
-  // Update target scale when isActive changes
-  useEffect(() => {
-    animationStateRef.current.targetScale = isActive ? 1 : 0;
-  }, [isActive]);
+  }, [audioData, isActive, circleHideOne, circleHideTwo, circleHideThree]);
   
   return (
     <canvas
       ref={canvasRef}
+      style={{
+        opacity: 1,
+        transition: 'opacity 0.3s ease-in-out'
+      }}
       className="size-full"
     />
   );

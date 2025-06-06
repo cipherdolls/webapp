@@ -29,9 +29,9 @@ const useAudioAnalyzer = ({ onAudioData, onFinish }: UseAudioAnalyzerProps) => {
     sourceRef.current = null;
   }, []);
 
-  // useEffect(() => {
-  //   return cleanup;
-  // }, [cleanup]);
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
 
   const setupAudioContext = useCallback(() => {
     if (!audioRef.current) return;
@@ -61,7 +61,7 @@ const useAudioAnalyzer = ({ onAudioData, onFinish }: UseAudioAnalyzerProps) => {
     analyzeAudio();
   }, [onAudioData]);
 
-  const playAudio = useCallback(async (audioUrl: string) => {
+  const playAudio = async (audioUrl: string) => {
     try {
       cleanup();
 
@@ -82,7 +82,7 @@ const useAudioAnalyzer = ({ onAudioData, onFinish }: UseAudioAnalyzerProps) => {
       cleanup();
       onFinish();
     }
-  }, [cleanup, setupAudioContext, onFinish]);
+  };
 
   const stopAudio = useCallback(() => {
     cleanup();

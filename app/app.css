@@ -173,6 +173,12 @@
   @apply bg-linear-[86.23deg] from-[rgba(254,253,248,0.56)] to-[rgba(255,255,255,0.56)];
 }
 
+@utility bg-gradient-talkMode {
+  background: radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%), linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%), linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%), #fff;
+}
+
+
+
 @utility message-corner {
   content: '';
   position: absolute;

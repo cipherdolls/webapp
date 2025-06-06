@@ -26,7 +26,7 @@ const AvatarVoiceVisualizer = ({ audioData, isPlaying, avatar, className }: Avat
     }
 
     let sum = 0;
-    const lowerHalf = audioData.slice(0, audioData.length / 2); // Focus on lower frequencies
+    const lowerHalf = audioData.slice(0, audioData.length / 2);
     for (let i = 0; i < lowerHalf.length; i++) {
       sum += lowerHalf[i];
     }
@@ -44,7 +44,7 @@ const AvatarVoiceVisualizer = ({ audioData, isPlaying, avatar, className }: Avat
       className={cn(className, 'relative flex items-center justify-center transition-all duration-100')}
       style={{
         transform: `scale(${scale})`,
-        animation: isPlaying ? `pulse ${0.5 + (1 - avgFrequency / 255) * 1.5}s infinite alternate ease-in-out` : 'none',
+        // animation: isPlaying ? `pulse ${0.5 + (1 - avgFrequency / 255) * 1.5}s infinite alternate ease-in-out` : 'none',
       }}
     >
       <AvatarPicture avatar={avatar} sizeType={PICTURE_SIZE.semiMedium} className="size-full" />

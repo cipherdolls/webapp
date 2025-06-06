@@ -5,16 +5,17 @@ import './app.css';
 import { CustomToaster } from './components/ui/toast';
 
 export const links: Route.LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
-    crossOrigin: 'anonymous',
+    rel: 'preload',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+    as: 'style',
+    crossOrigin: 'anonymous'
   },
   {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
-  },
+    crossOrigin: 'anonymous'
+  }
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
