@@ -1,4 +1,4 @@
-import { Outlet, redirect, useNavigate } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import mqtt from 'mqtt';
 import Sidebar from '~/components/sidebar';
 import type { Route } from './+types/_main';
@@ -6,7 +6,6 @@ import type { ProcessEvent, User } from '~/types';
 import { useEffect, useRef, useState } from 'react';
 import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
-import { cn } from '~/utils/cn';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { showToast } from '~/components/ui/toast';
@@ -52,10 +51,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         let emoji = '⏳';
         let duration = 5000;
         let actionLink;
+        let description = 'Process has begun...';
 
         if (jobStatus === 'completed') {
           emoji = '✅';
           duration = 5000;
+          description = 'Process finished successfully.';
         } else if (jobStatus === 'failed') {
           emoji = '❌';
           duration = 8000;
@@ -75,11 +76,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
         const formattedResourceName = resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
         const formattedJobName = jobName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        const formattedJobStatus = `${jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)} (ID: ${resourceId})`;
 
         showToast({
           emoji,
           title: `${formattedResourceName} ${formattedJobName}`,
-          description: `${jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)} (ID: ${resourceId})`,
+          description: `${description ? description : formattedJobStatus}`,
           actionLink,
           actionText: actionLink ? 'View' : undefined,
           duration,
