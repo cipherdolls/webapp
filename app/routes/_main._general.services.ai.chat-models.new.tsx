@@ -7,6 +7,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Chat Model' }];
@@ -27,7 +28,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
     const chatModel: ChatModel = await res.json();
     return redirect(`/chat-models/${chatModel.id}`);
@@ -43,6 +47,8 @@ export default function NewChatModel() {
   const name = searchParams.get('name') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
+
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/services/ai`, { replace: true });
@@ -60,6 +66,7 @@ export default function NewChatModel() {
         <Modal.Description className='sr-only'>Add Chat Model for {name}</Modal.Description>
         <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
 
             <Input.Root>
