@@ -13,6 +13,7 @@ import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import MessagesMode from '~/components/chat/MessagesMode';
 import TalkMode from '~/components/chat/TalkMode';
+import { useAlert } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -71,6 +72,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const revalidator = useRevalidator();
   const navigate = useNavigate();
   const { load, stop, play, duration } = useAudioPlayerContext();
+  const alert = useAlert();
 
   const { talkMode, silentMode, setCurrentJob, initChatStore, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
