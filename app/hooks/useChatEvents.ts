@@ -1,70 +1,62 @@
-import { useEffect, useRef } from 'react';
-import mqtt from 'mqtt';
-import { Buffer } from 'buffer';
-import type { ActionEvent, Chat, ProcessEvent } from '~/types';
-import { wsURL } from '~/constants';
+import { useCallback } from 'react';
+import { useMqttSubscription } from './useMqttSubscription';
+import type { MqttMessage } from '~/providers/MqttContext';
+import type { ActionEvent, ProcessEvent } from '~/types';
 
-interface useChatEventsOptions {
-  chat: Chat; // entire chat object
+
+
+interface UseChatEventsOptions {
+  chatId: string;
   onActionEvent?: (data: ActionEvent) => void;
   onProcessEvent?: (data: ProcessEvent) => void;
+  enabled?: boolean;
 }
 
-export function useChatEvents({ chat, onActionEvent, onProcessEvent }: useChatEventsOptions) {
-  const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
-  const localStorageToken = localStorage.getItem('token');
-  const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+export function useChatEvents({ 
+  chatId, 
+  onActionEvent, 
+  onProcessEvent,
+  enabled = true
+}: UseChatEventsOptions) {
+  const processEventsTopic = `chats/${chatId}/processEvents`;
+  const actionEventsTopic = `chats/${chatId}/actionEvents`;
 
-  useEffect(() => {
-    if (!mqttClientRef.current) {
-      const mqttClient = mqtt.connect(wsURL, {
-        clientId,
-        username: 'frontend',
-        password: localStorageToken?.replaceAll('"', ''),
-        will: {
-          topic: `connections`,
-          payload: Buffer.from(JSON.stringify({ clientId, deviceType: 'browser', status: 'disconnected' })), // Convert string to Buffer
-          qos: 1,
-          retain: false,
-        },
-      });
-      mqttClientRef.current = mqttClient;
-
-      // Define topics
-      const processEventsTopic = `chats/${chat.id}/processEvents`;
-      const actionEventsTopic = `chats/${chat.id}/actionEvents`;
-
-      // Subscribe conditionally based on provided callbacks
-      if (onProcessEvent) {
-        mqttClient.subscribe(processEventsTopic);
-      }
-      if (onActionEvent) {
-        mqttClient.subscribe(actionEventsTopic);
-      }
-
-      const handleMessage = (topic: string, message: Buffer) => {
-        const data = JSON.parse(message.toString());
-        if (topic === processEventsTopic && onProcessEvent) onProcessEvent(data);
-        if (topic === actionEventsTopic && onActionEvent) onActionEvent(data);
-      };
-
-      mqttClient.on('message', handleMessage);
-      mqttClient.on('connect', () => {
-        mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), { qos: 1 });
-      });
-
-      return () => {
-        if (onProcessEvent) {
-          mqttClient.unsubscribe(processEventsTopic);
-        }
-        if (onActionEvent) {
-          mqttClient.unsubscribe(actionEventsTopic);
-        }
-        mqttClient.off('message', handleMessage);
-        mqttClient.end(); // Disconnect the client
-        mqttClientRef.current = null;
-      };
+  const handleProcessEvent = useCallback((message: MqttMessage) => {
+    try {
+      const data: ProcessEvent = JSON.parse(message.payload);
+      // console.log(`[useChatEvents] Process event for ${chatId}:`, data);
+      onProcessEvent?.(data);
+    } catch (error) {
+      console.error('Failed to parse process event:', error);
     }
-    // eslint-disable-next-line
-  }, [chat.id]);
+  }, [onProcessEvent, chatId]);
+
+  const handleActionEvent = useCallback((message: MqttMessage) => {
+    try {
+      const data: ActionEvent = JSON.parse(message.payload);
+      // console.log(`[useChatEvents] Action event for ${chatId}:`, data);
+      onActionEvent?.(data);
+    } catch (error) {
+      console.error('Failed to parse action event:', error);
+    }
+  }, [onActionEvent, chatId]);
+
+  // Subscribe to process events
+  useMqttSubscription(
+    processEventsTopic,
+    handleProcessEvent,
+    enabled && !!onProcessEvent
+  );
+
+  // Subscribe to action events
+  useMqttSubscription(
+    actionEventsTopic,
+    handleActionEvent,
+    enabled && !!onActionEvent
+  );
+
+  return {
+    processEventsTopic,
+    actionEventsTopic,
+  };
 }

@@ -3,13 +3,14 @@ import mqtt from 'mqtt';
 import Sidebar from '~/components/sidebar';
 import type { Route } from './+types/_main';
 import type { ProcessEvent, User } from '~/types';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { showToast } from '~/components/ui/toast';
 import { wsURL } from '~/constants';
+import { MqttProvider } from '~/providers/MqttContext';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -87,7 +88,9 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
       mqttClient.on('message', handleMessage);
       mqttClient.on('connect', () => {
-        mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), { qos: 1 });
+          mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), {
+          qos: 1,
+        });
       });
 
       return () => {
@@ -162,13 +165,54 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   }, [provider]);
 
   return (
-      <AudioPlayerProvider>
-        <div className='flex sm:flex-row flex-col-reverse size-full'>
-          <Sidebar />
-          <Outlet />
-        </div>
-      </AudioPlayerProvider>
+    <MainLayoutProviders>
+      <div className='flex sm:flex-row flex-col-reverse size-full'>
+        <Sidebar />
+        <Outlet />
+      </div>
+    </MainLayoutProviders>
   );
 };
 
 export default MainLayout;
+
+
+// PROVIDERS WRAPPER
+
+export const MainLayoutProviders = ({ children }: { children: React.ReactNode }) => {
+  const localStorageToken = localStorage.getItem('token');
+  const mqttConfig = useMemo(() => {
+    const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+
+    return {
+      brokerUrl: wsURL,
+      options: {
+        clientId,
+        username: 'frontend',
+        password: localStorageToken?.replaceAll('"', ''),
+        keepAlive: 60,
+        reconnectPeriod: 1000,
+        connectTimeout: 30000,
+        clean: true,
+        will: {
+          topic: 'connections',
+          payload: Buffer.from(
+            JSON.stringify({
+              clientId,
+              deviceType: 'browser',
+              status: 'disconnected',
+            })
+          ),
+          qos: 1 as const,
+          retain: false,
+        },
+      },
+    };
+  }, [localStorageToken]);
+
+  return (
+    <MqttProvider config={mqttConfig}>
+      <AudioPlayerProvider>{children}</AudioPlayerProvider>
+    </MqttProvider>
+  );
+};

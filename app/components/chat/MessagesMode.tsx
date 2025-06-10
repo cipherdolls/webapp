@@ -1,20 +1,16 @@
-import { Outlet, useNavigate, useRevalidator } from 'react-router';
-import type { AudioEvent, Avatar, Chat, Message, ProcessEvent } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { AudioEvent, Avatar, Chat, Message } from '~/types';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl, API_ENDPOINTS } from '~/constants';
+import { apiUrl } from '~/constants';
 import { useEffect } from 'react';
 import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
-import { useAlert } from '~/providers/AlertDialogProvider';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
-
 
 interface MessagesModeProps {
   chat: Chat;
@@ -23,11 +19,10 @@ interface MessagesModeProps {
 }
 
 const MessagesMode = ({ chat, avatar, messages }: MessagesModeProps) => {
+  
+  const { load, stop } = useAudioPlayerContext();
 
-  const revalidator = useRevalidator();
-  const { load, stop, play, duration} = useAudioPlayerContext();
-
-  const {  silentMode, setCurrentJob, initChatStore, currentChatState, setCurrentChatState } = useChatStore(
+  const { silentMode, setCurrentJob, initChatStore, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       talkMode: state.talkMode,
       silentMode: state.silentMode,
@@ -39,24 +34,17 @@ const MessagesMode = ({ chat, avatar, messages }: MessagesModeProps) => {
   );
 
   useEffect(() => {
-    initChatStore()
-    stop()
+    initChatStore();
+    stop();
   }, [chat.id]);
 
   useUnmount(() => {
-    stop()
-  })
+    stop();
+  });
 
   useChatEvents({
-    chat,
+    chatId: chat.id,
     onProcessEvent: (event) => {
-
-      // if message is received, revalidate the page
-      if (event.resourceName === 'Message') {
-        revalidator.revalidate();
-        return;
-      }
-
       // checking if a job exist in a chat jobs enum
       const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
       if (isValidJob(event.resourceName)) {
@@ -64,12 +52,12 @@ const MessagesMode = ({ chat, avatar, messages }: MessagesModeProps) => {
       }
     },
     onActionEvent: (event) => {
-      console.log(event);
-      if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
+      if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
     },
   });
 
-  // if silent mode is enabled, stop audio if the avatar is speaking
+
+
   useEffect(() => {
     if (silentMode && currentChatState === ChatState.avatarSpeaking) {
       stop();
@@ -80,14 +68,14 @@ const MessagesMode = ({ chat, avatar, messages }: MessagesModeProps) => {
   const handlePlayAudioMessage = (event: AudioEvent) => {
     if (!silentMode && event.type === 'audio' && event.action === 'play') {
       setCurrentChatState(ChatState.avatarSpeaking);
-      
+
       load(`${apiUrl}/messages/${event.messageId}/audio`, {
         format: 'mp3',
         html5: true,
         autoplay: true,
         onend: () => {
           setCurrentChatState(ChatState.Idle);
-        }
+        },
       });
     }
   };

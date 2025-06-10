@@ -9,15 +9,75 @@ type UseAudioDataOptions = {
   smoothing?: number;
 };
 
+// Global registry to track audio elements and their sources
+class AudioSourceRegistry {
+  private static instance: AudioSourceRegistry;
+  private sourceMap = new Map<HTMLAudioElement, MediaElementAudioSourceNode>();
+  private globalContext: AudioContext | null = null;
+  
+  static getInstance(): AudioSourceRegistry {
+    if (!AudioSourceRegistry.instance) {
+      AudioSourceRegistry.instance = new AudioSourceRegistry();
+    }
+    return AudioSourceRegistry.instance;
+  }
+  
+  getOrCreateContext(): AudioContext {
+    if (!this.globalContext) {
+      this.globalContext = new (window.AudioContext || 
+        (window as any).webkitAudioContext)();
+    }
+    return this.globalContext;
+  }
+  
+  getOrCreateSource(audioElement: HTMLAudioElement): MediaElementAudioSourceNode {
+    let source = this.sourceMap.get(audioElement);
+    
+    if (!source) {
+      try {
+        const context = this.getOrCreateContext();
+        source = context.createMediaElementSource(audioElement);
+        this.sourceMap.set(audioElement, source);
+      } catch (error) {
+        // If element is already connected, try to find existing source
+        const existingSource = this.sourceMap.get(audioElement);
+        if (existingSource) {
+          return existingSource;
+        }
+        throw error;
+      }
+    }
+    
+    return source;
+  }
+  
+  disconnectSource(audioElement: HTMLAudioElement) {
+    const source = this.sourceMap.get(audioElement);
+    if (source) {
+      source.disconnect();
+    }
+  }
+  
+  removeSource(audioElement: HTMLAudioElement) {
+    this.sourceMap.delete(audioElement);
+  }
+  
+  cleanup() {
+    this.sourceMap.clear();
+    if (this.globalContext?.state !== 'closed') {
+      this.globalContext?.close();
+      this.globalContext = null;
+    }
+  }
+}
+
 const useAudioData = (options: UseAudioDataOptions = {}) => {
   const { type = 'frequency', fftSize = 256, smoothing = 0.8 } = options;
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
   const { player, isPlaying } = useAudioPlayerContext();
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number>(0);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const connectedAudioRef = useRef<HTMLAudioElement | null>(null);
+  const sourceRegistry = AudioSourceRegistry.getInstance();
 
   // Set up audio analysis when player is available and isPlaying
   useEffect(() => {
@@ -35,35 +95,19 @@ const useAudioData = (options: UseAudioDataOptions = {}) => {
       const audioElement = sound?._node;
       if (!audioElement) return;
 
-
-      // Create audio context if not exists
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || 
-          (window as any).webkitAudioContext)();
-      }
-      const ctx = audioContextRef.current;
+      // Get global audio context from registry
+      const ctx = sourceRegistry.getOrCreateContext();
 
       // Disconnect previous analyser to avoid doubling sound
       if (analyserRef.current) {
         analyserRef.current.disconnect();
       }
       
-      // Check if this audio element is already connected
-      let source = sourceRef.current;
-      if (!source || connectedAudioRef.current !== audioElement) {
-        // Disconnect previous source if exists
-        if (sourceRef.current) {
-          sourceRef.current.disconnect();
-        }
-        
-        // Create new source for this audio element
-        source = ctx.createMediaElementSource(audioElement);
-        sourceRef.current = source;
-        connectedAudioRef.current = audioElement;
-      } else {
-        // Disconnect source from previous analyser
-        source.disconnect();
-      }
+      // Get or create source using registry
+      const source = sourceRegistry.getOrCreateSource(audioElement);
+      
+      // Disconnect source from any previous connections
+      source.disconnect();
       
       const analyser = ctx.createAnalyser();
       
@@ -104,7 +148,10 @@ const useAudioData = (options: UseAudioDataOptions = {}) => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      // Don't disconnect source here as it might be reused
+      // Disconnect analyser but keep source for reuse
+      if (analyserRef.current) {
+        analyserRef.current.disconnect();
+      }
     };
   }, [player, isPlaying, type, fftSize, smoothing]);
 
@@ -114,9 +161,10 @@ const useAudioData = (options: UseAudioDataOptions = {}) => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      if (audioContextRef.current?.state !== 'closed') {
-        audioContextRef.current?.close();
+      if (analyserRef.current) {
+        analyserRef.current.disconnect();
       }
+      // Don't close audio context as other instances might be using it
     };
   }, []);
 

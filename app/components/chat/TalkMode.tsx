@@ -1,21 +1,19 @@
 import type { AudioEvent, Avatar, Chat } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { apiUrl } from '~/constants';
-import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
+import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher } from 'react-router';
 import VoiceVisualizer from '~/components/chat/VoiceVisualizer';
-import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AvatarVoiceVisualizer from '~/components/chat/AvatarVoiceVisualizer';
 import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import useAudioData from '~/hooks/useAudioData';
-import { useAudioUnlock } from '~/hooks/useAudioUnlock';
 
 interface TalkModeProps {
   chat: Chat;
@@ -23,20 +21,16 @@ interface TalkModeProps {
 }
 
 const TalkMode = ({ chat, avatar }: TalkModeProps) => {
-  const navigate = useNavigate();
   const fetcher = useFetcher();
-  const [audioData, setAudioData] = useState<Uint8Array | null>(null);
   const [jobsDone, setJobsDone] = useState({
     stt: false,
     chat: false,
     tts: false,
   });
 
-  const { unlockAudio } = useAudioUnlock();
-  const { setTalkMode, hasMicAccess, currentChatState, setCurrentChatState, setCurrentJob } = useChatStore(
+  const { setTalkMode, currentChatState, setCurrentChatState, setCurrentJob } = useChatStore(
     useShallow((state) => ({
       setTalkMode: state.setTalkMode,
-      hasMicAccess: state.hasMicAccess,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
       setCurrentJob: state.setCurrentJob,
@@ -63,7 +57,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   const avatarAudioData = useAudioData();
 
   useChatEvents({
-    chat,
+    chatId: chat.id,
     onProcessEvent: (event) => {
       if (event.jobStatus === 'completed') {
         setJobsDone((p) => {
@@ -80,7 +74,9 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
       }
     },
     onActionEvent: (event) => {
-      if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
+      if (event.type === 'audio' && event.action === 'play') {
+        handlePlayAudioMessage(event as AudioEvent);
+      }
     },
   });
 
