@@ -5,8 +5,7 @@ import type { Route } from './+types/_main';
 import type { ProcessEvent, User } from '~/types';
 import { useEffect, useRef, useState } from 'react';
 import { Buffer } from 'buffer';
-import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
-import { cn } from '~/utils/cn';
+import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { showToast } from '~/components/ui/toast';
@@ -163,12 +162,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   }, [provider]);
 
   return (
-    <AudioPlayerProvider>
-      <div className='flex sm:flex-row flex-col-reverse size-full'>
-        <Sidebar />
-        <Outlet />
-      </div>
-    </AudioPlayerProvider>
+      <AudioPlayerProvider>
+        <div className='flex sm:flex-row flex-col-reverse size-full'>
+          <Sidebar />
+          <Outlet />
+        </div>
+      </AudioPlayerProvider>
   );
 };
 

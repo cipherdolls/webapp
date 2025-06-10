@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState, type ComponentProps } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { Icons } from './ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { cn } from '~/utils/cn';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useUnmount } from 'usehooks-ts';
+import { useAudioPlayerContext } from 'react-use-audio-player';
 
 const RADIUS = 16;
 const STROKE = 3;
@@ -14,18 +14,20 @@ type PlayerButtonProps = Omit<ComponentProps<typeof Button.Root>, 'onClick'> & {
   audioSrc: string;
 };
 
-const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...restProps }) => {
+const PlayerButton: React.FC<PlayerButtonProps> = React.memo(({ audioSrc, className, ...restProps }) => {
   const circleRef = useRef<SVGCircleElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
 
-  const { currentAudio, currentSrc, playAudio, stopAudio } = useAudioPlayer();
+  const uid = useId();
+  const taggedSrc = useMemo(() => `${audioSrc}#${uid}`, [audioSrc, uid]);
 
-  const isPlaying = currentSrc === audioSrc;
+  const { isPlaying, load, src, stop, duration, getPosition } = useAudioPlayerContext();
+
+  const isThisPlaying = isPlaying && src === taggedSrc;
 
   /* ---------------- progress ---------------- */
   useEffect(() => {
-    if (!isPlaying) {
-      /* if track stopped - reset circle */
+    if (!isThisPlaying) {
       if (circleRef.current) {
         circleRef.current.style.strokeDashoffset = String(CIRCUMFERENCE);
       }
@@ -33,29 +35,38 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
       return;
     }
 
-    /* RAF-cycle for progress updates */
     const step = () => {
-      if (currentAudio && circleRef.current && currentAudio.duration > 0) {
-        const fraction = currentAudio.currentTime / currentAudio.duration;
-        const offset = CIRCUMFERENCE - fraction * CIRCUMFERENCE;
+      const pos = getPosition();
+      const frac = duration ? pos / duration : 0;
+      const offset = CIRCUMFERENCE - frac * CIRCUMFERENCE;
+
+      if (circleRef.current) {
         circleRef.current.style.strokeDashoffset = String(offset);
       }
       rafIdRef.current = requestAnimationFrame(step);
     };
 
-    step(); 
+    rafIdRef.current = requestAnimationFrame(step);
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
-  }, [isPlaying, currentAudio]);
+  }, [isThisPlaying, duration, getPosition]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    isPlaying ? stopAudio() : playAudio(audioSrc);
+    if (isThisPlaying) {
+      stop();
+      return;
+    }
+    load(taggedSrc, {
+      initialVolume: 1,
+      autoplay: true,
+      format: 'mp3',
+    });
   };
 
   useUnmount(() => {
-    stopAudio();
+    stop();
   });
 
   return (
@@ -65,9 +76,9 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
       className={cn('relative shrink-0 size-10 rounded-full flex items-center justify-center', className)}
       {...restProps}
     >
-      <Button.Icon as={isPlaying ? Icons.stopSound : Icons.sound} className='size-auto' />
+      <Button.Icon as={isThisPlaying ? Icons.stopSound : Icons.sound} className='size-auto' />
 
-      {isPlaying && (
+      {isThisPlaying && (
         <svg className='absolute top-1/2 left-1/2 -translate-1/2 -rotate-90' width={RADIUS * 2 + STROKE} height={RADIUS * 2 + STROKE}>
           <circle fill='transparent' strokeWidth='1' className='stroke-neutral-04' r={RADIUS} cx={CENTER} cy={CENTER} />
           <circle
@@ -86,6 +97,6 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({ audioSrc, className, ...res
       )}
     </Button.Root>
   );
-};
+});
 
 export default PlayerButton;

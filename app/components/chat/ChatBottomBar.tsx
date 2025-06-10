@@ -7,10 +7,10 @@ import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
 import { ChatState, type ChatJobType, type ChatStateType } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
+import { useAudioUnlock } from '~/hooks/useAudioUnlock';
 
 interface ChatBottomBarProps {
   chat: Chat;
@@ -18,10 +18,11 @@ interface ChatBottomBarProps {
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   const navigate = useNavigate();
-  const { currentChatState, hasMicAccess } = useChatStore(useShallow(state=> (
+  const { currentChatState, hasMicAccess, setTalkMode } = useChatStore(useShallow(state=> (
     {
       currentChatState: state.currentChatState,
       hasMicAccess: state.hasMicAccess,
+      setTalkMode: state.setTalkMode,
     }
   )));
   
@@ -29,7 +30,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
-  const { unlockAudio } = useAudioPlayer();
+  const { isUnlocked, isUnlocking, unlockAudio } = useAudioUnlock();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,7 +54,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
       });
       return;
     }
-    navigate(`/chats/${chat.id}/talk-mode`);
+    setTalkMode(true);
   };
 
   return (

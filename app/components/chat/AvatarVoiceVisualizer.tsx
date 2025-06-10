@@ -1,5 +1,3 @@
-// import { useAudioAnalyzer } from '~/hooks/useAudioAnalyzer';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import AvatarPicture from '../AvatarPicture';
 import { PICTURE_SIZE } from '~/constants';
 import type { Avatar } from '~/types';

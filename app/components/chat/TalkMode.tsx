@@ -12,7 +12,10 @@ import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react
 import AvatarVoiceVisualizer from '~/components/chat/AvatarVoiceVisualizer';
 import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
-import useAudioAnalyzer from '~/hooks/useAudioAnalyzer';
+import { useAudioPlayerContext } from 'react-use-audio-player';
+import { useUnmount } from 'usehooks-ts';
+import useAudioData from '~/hooks/useAudioData';
+import { useAudioUnlock } from '~/hooks/useAudioUnlock';
 
 interface TalkModeProps {
   chat: Chat;
@@ -29,9 +32,10 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     tts: false,
   });
 
-
-  const { hasMicAccess, currentChatState, setCurrentChatState, setCurrentJob } = useChatStore(
+  const { unlockAudio } = useAudioUnlock();
+  const { setTalkMode, hasMicAccess, currentChatState, setCurrentChatState, setCurrentJob } = useChatStore(
     useShallow((state) => ({
+      setTalkMode: state.setTalkMode,
       hasMicAccess: state.hasMicAccess,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
@@ -55,16 +59,8 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     },
   });
 
-  const { playAudio, stopAudio } = useAudioAnalyzer({
-    onAudioData: (data) => {
-      setAudioData(data);
-    },
-    onFinish: () => {
-      setCurrentChatState(ChatState.userSpeaking);
-      // reset jobs
-      setJobsDone({ stt: false, chat: false, tts: false });
-    },
-  });
+  const { load, stop, player, isPlaying } = useAudioPlayerContext();
+  const avatarAudioData = useAudioData();
 
   useChatEvents({
     chat,
@@ -88,11 +84,30 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     },
   });
 
-  
-  const handlePlayAudioMessage = (event: AudioEvent) => {
+  const handlePlayAudioMessage = async (event: AudioEvent) => {
     setCurrentChatState(ChatState.avatarSpeaking);
     const audioUrl = `${apiUrl}/messages/${event.messageId}/audio`;
-    playAudio(audioUrl);
+
+    try {
+      // Fetch audio as blob to bypass CORS
+      const response = await fetch(audioUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      load(blobUrl, {
+        html5: true,
+        autoplay: true,
+        format: 'mp3',
+        onend: () => {
+          URL.revokeObjectURL(blobUrl); // Clean up blob URL
+          setCurrentChatState(ChatState.userSpeaking);
+          setJobsDone({ stt: false, chat: false, tts: false });
+        },
+      });
+    } catch (error) {
+      console.error('Failed to load audio:', error);
+      setCurrentChatState(ChatState.userSpeaking);
+    }
   };
 
   useEffect(() => {
@@ -106,48 +121,40 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   }, [currentChatState]);
 
   // cleanup
-  useEffect(
-    () => () => {
-      recorder.cancel();
-      stopAudio();
-      setCurrentChatState(ChatState.Idle);
-    },
-    []
-  );
+  useUnmount(() => {
+    recorder.cancel();
+    stop();
+    setCurrentChatState(ChatState.Idle);
+  });
 
   return (
-    <div
-      className='flex-1 flex flex-col'
-    >
-      <div className='flex-1 flex items-center justify-center'>
-        <div className='relative size-36'>
-          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[320px] z-0'>
-            <VoiceVisualizer
-              audioData={recorder.audioData}
-              isActive={currentChatState === ChatState.userSpeaking}
-              circleHideOne={currentChatState === ChatState.avatarSpeaking || jobsDone.tts}
-              circleHideTwo={currentChatState === ChatState.avatarSpeaking || jobsDone.chat}
-              circleHideThree={currentChatState === ChatState.avatarSpeaking || jobsDone.stt}
-              circleOneColor={'#dc2647'}
-              circleTwoColor={'#2fe98a'}
-              circleThreeColor={'#59a7e3'}
-            />
+    <div className='fixed inset-0 lg:static flex-1 flex flex-col overflow-hidden md:rounded-xl max-lg:bg-gradient-talkMode '>
+      <div className='flex-1 flex flex-col'>
+        <div className='flex-1 flex items-center justify-center'>
+          <div className='relative size-36'>
+            <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[320px] z-0'>
+              <VoiceVisualizer
+                audioData={recorder.audioData}
+                isActive={currentChatState === ChatState.userSpeaking}
+                circleHideOne={currentChatState === ChatState.avatarSpeaking || jobsDone.tts}
+                circleHideTwo={currentChatState === ChatState.avatarSpeaking || jobsDone.chat}
+                circleHideThree={currentChatState === ChatState.avatarSpeaking || jobsDone.stt}
+                circleOneColor={'#dc2647'}
+                circleTwoColor={'#2fe98a'}
+                circleThreeColor={'#59a7e3'}
+              />
+            </div>
+            <AvatarVoiceVisualizer audioData={avatarAudioData} avatar={avatar} isPlaying={isPlaying} className='relative shrink-0 z-10' />
           </div>
-          <AvatarVoiceVisualizer
-            avatar={avatar}
-            isPlaying={currentChatState === ChatState.avatarSpeaking}
-            audioData={audioData}
-            className='relative shrink-0 z-10'
-          />
         </div>
-      </div>
-      <div className='p-5 flex items-center justify-center gap-5'>
-        <Button.Root type='button' variant='danger' className='px-10' onClick={() => navigate(`/chats/${chat.id}`, { replace: true })}>
-          Stop
-        </Button.Root>
+        <div className='p-5 flex items-center justify-center gap-5'>
+          <Button.Root type='button' variant='danger' className='px-10' onClick={() => setTalkMode(false)}>
+            Stop
+          </Button.Root>
+        </div>
       </div>
     </div>
   );
-}
+};
 
-export default TalkMode
+export default TalkMode;

@@ -10,10 +10,14 @@ import { apiUrl, API_ENDPOINTS } from '~/constants';
 import { useEffect } from 'react';
 import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
+import { useAudioPlayerContext } from 'react-use-audio-player';
+import { useUnmount } from 'usehooks-ts';
+import { useAudioUnlock } from '~/hooks/useAudioUnlock';
+import MessagesMode from '~/components/chat/MessagesMode';
+import TalkMode from '~/components/chat/TalkMode';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -68,167 +72,42 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages, avatar } = loaderData;
-  const revalidator = useRevalidator();
-  const { playAudio, stopAudio } = useAudioPlayer();
-  const navigate = useNavigate();
-  const alert = useAlert();
+  const { load, stop, play, duration } = useAudioPlayerContext();
 
-  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState } = useChatStore(
+  const { talkMode, silentMode, setCurrentJob, initChatStore, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
-      chatId: state.chatId,
+      talkMode: state.talkMode,
       silentMode: state.silentMode,
-      initChatStore: state.initChatStore,
       setCurrentJob: state.setCurrentJob,
+      initChatStore: state.initChatStore,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
     }))
   );
 
   useEffect(() => {
-    if (chat.id !== chatId) {
-      initChatStore(chat.id);
-    }
-  }, [chat.id, chatId, initChatStore]);
+    initChatStore();
+    stop();
+  }, [chat.id]);
 
+  useUnmount(() => {
+    stop();
+  });
 
   useChatEvents({
     chat,
     onProcessEvent: (event) => {
-      if (event.jobStatus === 'failed') handleJobError(event);
-
-      // if message is received, revalidate the page
-      if (event.resourceName === 'Message') {
-        revalidator.revalidate();
-        return;
-      }
-
       // checking if a job exist in a chat jobs enum
       const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
       if (isValidJob(event.resourceName)) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    onActionEvent: (event) => {
-      if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
-    },
   });
-
-  // if silent mode is enabled, stop audio if the avatar is speaking
-  useEffect(() => {
-    if (silentMode && currentChatState === ChatState.avatarSpeaking) {
-      stopAudio();
-      setCurrentChatState(ChatState.Idle);
-    }
-  }, [silentMode]);
-
-  const handlePlayAudioMessage = (event: AudioEvent) => {
-    if (!silentMode && event.type === 'audio' && event.action === 'play') {
-      setCurrentChatState(ChatState.avatarSpeaking);
-      playAudio(`${apiUrl}/messages/${event.messageId}/audio`, () => setCurrentChatState(ChatState.Idle));
-    }
-  };
-
-  const handleJobError = async (event: ProcessEvent) => {
-    const cfg: {
-      icon: string;
-      title: string;
-      body: string | React.ReactNode;
-      endpoint: string | null;
-      actionButton?: { label: string; action: () => void };
-    } = {
-      icon: '❗️',
-      title: 'Unknown job error',
-      body: 'Something went wrong…',
-      endpoint: null,
-    };
-
-    switch (event.resourceName) {
-      case ChatJob.ChatCompletionJob:
-        Object.assign(cfg, {
-          icon: '🧩🚫',
-          title: 'Chat Completion Job Error',
-          body: 'Something went wrong during ChatCompletionJob.',
-          endpoint: API_ENDPOINTS.chatCompletionJob(event.resourceId),
-        });
-        break;
-
-      case ChatJob.TtsJob:
-        Object.assign(cfg, {
-          icon: '👄🚫',
-          title: 'TTS Job Error',
-          body: 'Text-to-speech task aborted. Please try again later.',
-          endpoint: API_ENDPOINTS.ttsJob(event.resourceId),
-        });
-        break;
-
-      case ChatJob.SttJob:
-        Object.assign(cfg, {
-          icon: '👂🚫',
-          title: 'STT Job Error',
-          body: 'Speech-to-text task aborted. Try changing the provider.',
-          endpoint: API_ENDPOINTS.sttJob(event.resourceId),
-          actionButton: {
-            label: 'Change provider',
-            action: () => navigate(`/chats/${chat.id}/edit`),
-          },
-        });
-        break;
-
-      case ChatJob.EmbeddingJob:
-        Object.assign(cfg, {
-          icon: '🔢🚫',
-          title: 'Embedding Job Error',
-          body: <p className='bg-neutral-05 rounded-xl p-4'>Something went wrong during Embedding Job.</p>,
-          endpoint: API_ENDPOINTS.embeddingJob(event.resourceId),
-        });
-        break;
-
-      case ChatJob.PaymentJob:
-        Object.assign(cfg, {
-          icon: '💵🚫',
-          title: 'Payment Job Error',
-          body: 'Failed to process the transaction, please check your balance.',
-          // endpoint: API_ENDPOINTS.paymentJob(event.resourceId),
-        });
-        break;
-
-      default:
-        console.warn('handleJobError: unhandled resourceName:', event.resourceName);
-        return;
-    }
-
-    // getting job error details
-    if (cfg.endpoint) {
-      try {
-        const res = await fetchWithAuth(cfg.endpoint);
-        if (res.ok) {
-          const job = await res.json();
-          cfg.body = job.error || cfg.body;
-        }
-      } catch (e) {
-        console.error('Failed to fetch job details', e);
-      }
-    }
-
-    alert({
-      icon: cfg.icon,
-      title: cfg.title,
-      body: cfg.body,
-      cancelButton: 'Close',
-      actionButton: cfg.actionButton,
-    });
-  };
 
   return (
     <>
-      <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
-        {/* chat header */}
-        <ChatTopBar chat={chat} avatar={avatar} />
-        {/* chat messages scroll */}
-        <ChatBody messages={messages} />
-        {/* chat input field  */}
-        <ChatBottomBar chat={chat} />
-      </div>
+      {talkMode ? <TalkMode chat={chat} avatar={avatar} /> : <MessagesMode chat={chat} avatar={avatar} messages={messages} />}
       <Outlet />
     </>
   );
