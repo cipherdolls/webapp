@@ -39,9 +39,10 @@ type ViewMoreProps = {
   visible?: boolean;
   withIcon?: boolean;
   iconClassName?: string;
+  menuName?: string;
 };
 
-export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible, withIcon, iconClassName }: ViewMoreProps) => {
+export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible, withIcon, iconClassName, menuName }: ViewMoreProps) => {
   const fetcher = useFetcher();
 
   const handleFormSubmit = (item: Extract<PopoverActionItem, { type: 'form' }>) => {
@@ -111,6 +112,7 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
     <Popover.Root>
       <Popover.Trigger className={cn('group navigation-exclude', className)}>
         <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
+        {menuName && <span className='text-label font-semibold'>{menuName}</span>}
       </Popover.Trigger>
       <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude'>
         {popoverItems.filter((item) => item.visible !== false).map(renderPopoverItem)}
