@@ -86,7 +86,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const handleClose = () => {
     navigate(`/community/scenarios`);
   };
-  
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -181,10 +181,10 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
       <Modal.Content className='max-h-[calc(100vh-104px)] overflow-y-auto flex flex-col scrollbar-medium'>
         <Modal.Title>Create new scenario</Modal.Title>
         <Modal.Description className='sr-only'>Create new scenari</Modal.Description>
-        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-4 md:gap-6'>
             <ErrorsBox errors={errors} />
-            
+
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -194,11 +194,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                   <input ref={fileInputRef} className='hidden' type='file' name='picture' accept='image/*' onChange={handleImageChange} />
                   {selectedImage !== null ? (
                     <div className='size-full'>
-                      <img
-                        src={selectedImage}
-                        alt="Scenario image"
-                        className='size-full object-cover rounded-lg'
-                      />
+                      <img src={selectedImage} alt='Scenario image' className='size-full object-cover rounded-lg' />
                     </div>
                   ) : (
                     <div className='flex items-center justify-center size-full'>

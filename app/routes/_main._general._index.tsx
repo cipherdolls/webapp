@@ -44,6 +44,10 @@ function LeftSkeleton({ count = 2 }: { count?: number }) {
   );
 }
 
+export function meta({}: Route.MetaArgs) {
+  return [{ title: 'Dashboard' }];
+}
+
 export async function clientLoader() {
   const [avatarsRes, dollsRes, chatsRes, scenariosRes] = await Promise.all([
     fetchWithAuth('avatars'),

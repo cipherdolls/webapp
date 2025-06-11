@@ -27,7 +27,7 @@ export const DashboardBanner: FC<BannerProps> = ({ variant, username, descriptio
 
   return (
     <div className='flex flex-col sm:gap-4 gap-2 sm:mt-0 mt-3'>
-      <h1 className='sm:text-heading-h1 text-heading-h2 text-base-black'>
+      <h1 className='sm:text-heading-h1 text-heading-h2 text-base-black break-all'>
         {config.title}
         {isDefaultUsername && (
           <span className='text-xs block text-neutral-01 mt-1'>

@@ -28,16 +28,16 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
+      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
           <Link to={`/services/stt`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
-              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
+              <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
                 {sttProvider.name}
               </h3>
-              <span className='text-neutral-01 text-body-lg'>•</span>
-              <span className='text-neutral-01 text-body-lg'>STT</span>
+              <span className='text-body-md text-neutral-01 word sm:text-body-lg'>•</span>
+              <span className='text-body-md text-neutral-01 sm:text-body-lg'>STT</span>
             </div>
           </Link>
           {me.role === 'ADMIN' && (
@@ -87,19 +87,29 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
           <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl'>
-              <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-end md:justify-between md:flex-row flex-col'>
-                <div className='flex items-center gap-5'>
-                  <div className='size-[72px]'>
-                    <img
-                      src={getPicture(sttProvider, 'stt-providers', false)}
-                      srcSet={getPicture(sttProvider, 'stt-providers', true)}
-                      alt={sttProvider.name}
-                      className='size-full object-cover rounded-lg'
-                    />
+              <div className='flex items-start flex-col gap-5 justify-center sm:gap-5 md:gap-10 md:items-end md:justify-between md:flex-row'>
+                <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5'>
+                  <div className='flex items-center gap-3 sm:gap-5'>
+                    <div className='size-6 sm:size-[72px]'>
+                      <img
+                        src={getPicture(sttProvider, 'stt-providers', false)}
+                        srcSet={getPicture(sttProvider, 'stt-providers', true)}
+                        alt={sttProvider.name}
+                        className='size-full object-cover rounded-lg'
+                      />
+                    </div>
+
+                    <h4 className='text-body-md font-semibold text-base-black sm:text-heading-h4 sm:hidden'>{sttProvider.name}</h4>
                   </div>
                   <div className='flex flex-col gap-2'>
-                    <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black'>{sttProvider.name}</h4>
+                    <h4 className='hidden text-body-sm font-semibold sm:text-heading-h4 text-base-black sm:block'>{sttProvider.name}</h4>
                     <div className='flex items-center gap-1'>
+                      {sttProvider.recommended && (
+                        <div className='flex items-center gap-1'>
+                          <Icons.checkCircle className='size-4 text-base-black/[0.56]' />
+                          <span className='text-neutral-01 text-body-sm'>Current in use</span>
+                        </div>
+                      )}
                       {sttProvider.recommended && (
                         <div className='flex items-center gap-1'>
                           <Icons.thumb className='size-4' />
@@ -110,13 +120,16 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                     <p className='text-body-sm text-base-black'>A fast service, great for simple transcriptions</p>
                   </div>
                 </div>
-                <div className='flex flex-1 justify-end items-end h-full'>
-                  <div className='flex flex-col gap-2'>
-                    <p className='md:text-right text-body-sm text-neutral-01 text-center'></p>
-                    <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+
+                <div className='border-neutral-04 border w-full md:hidden' />
+
+                <div className='flex flex-1 justify-end w-full h-full md:items-end'>
+                  <div className='flex flex-col flex-1 gap-2'>
+                    {/*UNUSED - <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'></p>*/}
+                    <p className='flex gap-1 justify-between text-body-sm text-nowrap text-neutral-01 md:justify-end md:text-right'>
                       Created at: <span className='text-base-black font-semibold'>{createdDate}</span>
                     </p>
-                    <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                    <p className='flex gap-1 justify-between text-body-sm text-nowrap text-neutral-01 md:justify-end md:text-right'>
                       Updated at: <span className='text-base-black font-semibold'>{updatedDate}</span>
                     </p>
                   </div>
@@ -131,7 +144,6 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
                   <span className='text-body-sm font-semibold'>${sttProvider.dollarPerSecond * 60}</span>
                 </div>
               </div>
-              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-3'>Prices are per million token</span>
             </div>
           </div>
         </div>

@@ -209,7 +209,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               )}
             </label>
             <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
-              <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)} />
+              <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.avatarAudio(avatar.id)} />
             </div>
           </div>
           {avatar.gender && (
