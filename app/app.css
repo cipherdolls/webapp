@@ -231,3 +231,7 @@ input[type='number'] {
 .female-gradient {
   background: radial-gradient(200% 1695% at -100% 50%, #ffdad2 0%, #e4c8e5 50%, #ffdad2 100%);
 }
+
+.top-shadow {
+  box-shadow: 0px -4px 24px 0px rgba(0, 0, 0, 0.04);
+}
