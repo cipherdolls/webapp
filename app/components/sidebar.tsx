@@ -80,22 +80,18 @@ const Sidebar = ({ className }: { className?: string }) => {
               ];
 
               return (
-                <div
+                <ViewMore
                   key={index}
+                  popoverItems={menuItems}
                   className={cn(
                     'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
                     'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
                     'sm:hidden flex'
                   )}
-                >
-                  <ViewMore
-                    popoverItems={menuItems}
-                    className='flex flex-col items-center gap-1'
-                    withIcon={true}
-                    iconClassName='text-pink-01'
-                  />
-                  <span className='text-label font-semibold'>{item.name}</span>
-                </div>
+                  withIcon={true}
+                  iconClassName='text-pink-01'
+                  menuName={item.name}
+                />
               );
             }
 
