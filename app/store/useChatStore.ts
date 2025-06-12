@@ -7,25 +7,20 @@ import { ChatState } from '~/components/chat/types/chatState';
 interface ChatStore {
   silentMode: boolean;
   hasMicAccess: boolean;
-
-  chatId: string | null;
   currentChatState: ChatStateType;
   currentJob: ChatJobType | null;
 
+  talkMode: boolean;
 
-  liveTalkMode: boolean;
-  
 
-  setChatId: (id: string) => void;
   setCurrentChatState: (state: ChatStateType) => void;
   setCurrentJob: (job: ChatJobType | null) => void;
   toggleSilentMode: () => void;
   requestMicAccess: () => Promise<void>; 
   setMicAccess: (hasAccess: boolean) => void;
+  setTalkMode: (talkMode: boolean) => void;
 
-  setLiveTalkMode: (mode: boolean) => void;
-
-  initChatStore: (chatId: string) => void;
+  initChatStore: () => void;
   resetChatStore: () => void;
 }
 
@@ -34,20 +29,20 @@ export const useChatStore = create<ChatStore>()(
     immer((set) => ({
       silentMode: false,
       hasMicAccess: false,
-      liveTalkMode: false,
-      
-      chatId: null,
+      talkMode: false,
       currentChatState: ChatState.Idle,
       currentJob: null,
       
 
-      setChatId: (id) => set({ chatId: id }),
       setCurrentChatState: (state) => set({ currentChatState: state }),
       setCurrentJob: (job) => set({ currentJob: job }),
       toggleSilentMode: () =>
         set((state) => {
           state.silentMode = !state.silentMode;
         }),
+        
+
+      setTalkMode: (talkMode) => set({ talkMode }),
 
       requestMicAccess: async () => {
         try {
@@ -62,17 +57,16 @@ export const useChatStore = create<ChatStore>()(
       },
       setMicAccess: (hasAccess) => set({ hasMicAccess: hasAccess }),
 
-      setLiveTalkMode: (mode) => set({ liveTalkMode: mode }),
+   
 
-      initChatStore: (chatId: string) =>
-        set({ chatId, currentChatState: ChatState.Idle, currentJob: null, liveTalkMode: false }),
+      initChatStore: () =>
+        set({ currentChatState: ChatState.Idle, currentJob: null, talkMode: false }),
 
       resetChatStore: () =>
         set({
-          chatId: null,
           currentChatState: ChatState.Idle,
           currentJob: null,
-          liveTalkMode: false,
+          talkMode: false,
         }),
     })),
     {
