@@ -149,7 +149,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 type: 'link',
                 text: 'Chat',
                 href: avatar.chats.length > 0 ? `/chats/${avatar.chats[0]?.id}` : '/chats',
-                // visible prop verilmezse her zaman görünür (default true)
               },
               {
                 type: 'form',
