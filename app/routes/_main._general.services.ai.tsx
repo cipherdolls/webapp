@@ -168,6 +168,59 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     },
   ];
 
+  const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
+    {
+      id: 'providerModelName',
+      label: 'Reasoning model',
+      render: (data) => (
+        <span className='font-semibold text-body-md flex items-center gap-2'>
+          {formatModelName(data.providerModelName)}
+          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
+        </span>
+      ),
+      align: 'left',
+      className: 'min-w-[220px] max-w-[280px]',
+    },
+    {
+      id: 'aiProviderId',
+      label: '',
+      render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
+      align: 'left',
+    },
+    {
+      id: 'dollarPerInputToken',
+      label: 'Input',
+      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerInputToken * 1000000)}</span>,
+      align: 'right',
+      width: '104px',
+      tooltipText: 'The cost of processing one million tokens that you send to the model',
+    },
+    {
+      id: 'dollarPerOutputToken',
+      label: 'Output',
+      render: (data) => <span className='text-sm'>${scientificNumConvert(data.dollarPerOutputToken * 1000000)}</span>,
+      align: 'right',
+      width: '104px',
+      tooltipText: 'Cost 1 unit of the token you received at the same rate',
+    },
+    {
+      id: 'id',
+      label: '',
+      render: (data) => (
+        <ViewButton
+          popoverItems={[
+            { text: 'Edit', href: `/services/ai/reasoning-models/${data.id}/edit` },
+            { text: 'Delete', href: `/services/ai/reasoning-models/${data.id}/delete`, isDelete: true },
+          ]}
+          className='flex items-center justify-center'
+          isDataCard={true}
+        />
+      ),
+      width: '44px',
+      align: 'right',
+    },
+  ];
+
   return (
     <>
       <div className='flex flex-col gap-10 pb-5'>
@@ -185,6 +238,10 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                         {
                           text: 'Add Embedding Model',
                           href: `/services/ai/embedding-models/new?id=${aiProvider.id}&name=${aiProvider.name}`,
+                        },
+                        {
+                          text: 'Add Reasoning Model',
+                          href: `/services/ai/reasoning-models/new?id=${aiProvider.id}&name=${aiProvider.name}`,
                         },
                         {
                           text: 'Delete',
@@ -329,13 +386,73 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                     </div>
                   </DataCard.Wrapper>
                 )}
-                {(aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0) && (
+
+                {/* REASONING MODELS WRAPPER */}
+                {aiProvider.reasoningModels && aiProvider.reasoningModels.length > 0 && (
+                  <DataCard.Wrapper className='mt-3'>
+                    {/* DESKTOP TABLE */}
+                    <div className='md:block hidden'>
+                      <Table
+                        columns={reasoningModelColumns}
+                        data={aiProvider.reasoningModels}
+                        getRowUrl={(reasoningModel) => `/reasoning-models/${reasoningModel.id}`}
+                      />
+                    </div>
+
+                    {/* MOBILE CARD */}
+                    <div className='block md:hidden'>
+                      {aiProvider.reasoningModels.map((reasoningModel, index) => {
+                        return (
+                          <Fragment key={reasoningModel.id}>
+                            <DataCard.Item collapsible href={`/reasoning-models/${reasoningModel.id}`}>
+                              <DataCard.ItemLabel>
+                                <span className='flex items-center gap-2'>
+                                  {reasoningModel.providerModelName}
+                                  <RecommendedBadge recommended={reasoningModel.recommended} tooltipText='Recommended' />
+                                </span>
+                              </DataCard.ItemLabel>
+                              <DataCard.ItemCollapsibleContent>
+                                <DataCard.ItemDataGrid
+                                  data={[
+                                    {
+                                      label: 'Output',
+                                      value: <>{scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
+                                    },
+                                    {
+                                      label: 'Average Time Taken',
+                                      value: '1153 ms',
+                                    },
+                                  ]}
+                                  variant='secondary'
+                                />
+                              </DataCard.ItemCollapsibleContent>
+                              <DataCard.ItemDataGrid
+                                data={[
+                                  {
+                                    label: '$/Input',
+                                    value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
+                                  },
+                                  {
+                                    label: '$/Output',
+                                    value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken)}</>,
+                                  },
+                                ]}
+                              />
+                            </DataCard.Item>
+                            {aiProvider.reasoningModels.length - 1 !== index && <DataCard.Divider />}
+                          </Fragment>
+                        );
+                      })}
+                    </div>
+                  </DataCard.Wrapper>
+                )}
+                {(aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0 || (aiProvider.reasoningModels && aiProvider.reasoningModels.length > 0)) && (
                   <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>
                     Prices are per million token
                   </span>
                 )}
                 {/* Show message if no models */}
-                {aiProvider.chatModels.length === 0 && aiProvider.embeddingModels.length === 0 && (
+                {aiProvider.chatModels.length === 0 && aiProvider.embeddingModels.length === 0 && (!aiProvider.reasoningModels || aiProvider.reasoningModels.length === 0) && (
                   <DataCard.Wrapper>
                     <DataCard.Text>No models found</DataCard.Text>
                   </DataCard.Wrapper>
