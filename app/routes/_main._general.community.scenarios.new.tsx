@@ -3,8 +3,7 @@ import { redirect, useFetcher, useNavigate, useParams } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.community.scenarios.new';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { Fragment, useRef, useState } from 'react';
@@ -17,7 +16,6 @@ import { formatModelName } from '~/utils/formatModelName';
 import * as Modal from '~/components/ui/new-modal';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import { cn } from '~/utils/cn';
-import { getPicture } from '~/utils/getPicture';
 
 interface Option {
   label: string;
@@ -78,6 +76,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const { avatarId } = useParams();
 
@@ -178,14 +177,30 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
         if (!open) handleClose();
       }}
     >
-      <Modal.Content className='max-h-[calc(100vh-104px)] overflow-y-auto flex flex-col scrollbar-medium'>
-        <Modal.Title>Create new scenario</Modal.Title>
+      <Modal.Content
+        className={cn(
+          'overflow-y-auto flex flex-col scrollbar-medium',
+          isExpanded ? 'max-w-none w-[90vw] h-screen' : 'max-h-[calc(100vh-104px)]'
+        )}
+      >
+        <div className='flex items-center justify-between'>
+          <Modal.Title>Create new scenario</Modal.Title>
+          <button
+            type='button'
+            onClick={() => setIsExpanded(!isExpanded)}
+            className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+            title={isExpanded ? 'Collapse modal' : 'Expand modal'}
+          >
+            <Icons.expand />
+          </button>
+        </div>
         <Modal.Description className='sr-only'>Create new scenari</Modal.Description>
-        <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
-          <Modal.Body className='flex flex-col gap-4 md:gap-6'>
+        <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
+          <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-col' : 'flex-col')}>
             <ErrorsBox errors={errors} />
 
-            <div className='flex flex-col items-center justify-center mb-10'>
+            {/* Image section - full width when expanded */}
+            <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-6' : 'mb-10')}>
               <div className='relative'>
                 <label
                   className='size-40 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'
@@ -222,219 +237,375 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
 
-            <Input.Root>
-              <Input.Label htmlFor='name'>Name</Input.Label>
-              <Input.Input id='name' name='name' type='text' placeholder='Movie Night' />
-              <p className='text-xs text-gray-500'>Enter the name for the new scenario.</p>
-            </Input.Root>
+            {/* Form fields section */}
+            <div className={cn('flex gap-6', isExpanded ? 'flex-row' : 'flex-col')}>
+              {/* Left column: Name, System Message, Chat Model, Embedding Model */}
+              <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1' : 'w-full')}>
+                <Input.Root>
+                  <Input.Label htmlFor='name'>Name</Input.Label>
+                  <Input.Input id='name' name='name' type='text' placeholder='Movie Night' />
+                  <p className='text-xs text-gray-500'>Enter the name for the new scenario.</p>
+                </Input.Root>
 
-            <Input.Root>
-              <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
-              <Textarea.Textarea id='systemMessage' name='systemMessage' placeholder='System Message' rows={5} />
-              <p className='text-xs text-gray-500'>Provide a system message for this new scenario.</p>
-            </Input.Root>
+                <Input.Root>
+                  <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
+                  <Textarea.Textarea id='systemMessage' name='systemMessage' placeholder='System Message' rows={5} />
+                  <p className='text-xs text-gray-500'>Provide a system message for this new scenario.</p>
+                </Input.Root>
 
-            <Input.Root>
-              <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
-              <Select.Root
-                name='chatModelId'
-                defaultValue={
-                  getOptions(true)
-                    .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
-                    .filter((value) => value !== '')[0]
-                }
-              >
-                <Select.Trigger
-                  id='chatModelId'
-                  className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                >
-                  <Select.Value placeholder='Select a chat model' />
-                </Select.Trigger>
-                <Select.Content className='max-h-[250px] overflow-y-auto '>
-                  {getOptions(true).map((group) => (
-                    <Fragment key={group.groupName}>
-                      <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                      {group.options.map((option: any) => (
-                        <Select.Item className='' key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Item>
+                <Input.Root>
+                  <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
+                  <Select.Root
+                    name='chatModelId'
+                    defaultValue={
+                      getOptions(true)
+                        .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
+                        .filter((value) => value !== '')[0]
+                    }
+                  >
+                    <Select.Trigger
+                      id='chatModelId'
+                      className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                    >
+                      <Select.Value placeholder='Select a chat model' />
+                    </Select.Trigger>
+                    <Select.Content className='max-h-[250px] overflow-y-auto '>
+                      {getOptions(true).map((group) => (
+                        <Fragment key={group.groupName}>
+                          <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                          {group.options.map((option: any) => (
+                            <Select.Item className='' key={option.value} value={option.value}>
+                              {option.label}
+                            </Select.Item>
+                          ))}
+                        </Fragment>
                       ))}
-                    </Fragment>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-              <p className='text-xs text-gray-500'>Select the AI chat model for this new scenario.</p>
-            </Input.Root>
+                    </Select.Content>
+                  </Select.Root>
+                  <p className='text-xs text-gray-500'>Select the AI chat model for this new scenario.</p>
+                </Input.Root>
+              </div>
 
-            <Input.Root>
-              <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-              <Select.Root
-                name='embeddingModelId'
-                defaultValue={
-                  getOptions(false)
-                    .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
-                    .filter((value) => value !== '')[0]
-                }
-              >
-                <Select.Trigger
-                  id='embeddingModelId'
-                  className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                >
-                  <Select.Value placeholder='Select an embedding model' />
-                </Select.Trigger>
-                <Select.Content className='max-h-[250px] overflow-y-auto'>
-                  {getOptions(false).map((group) => (
-                    <Fragment key={group.groupName}>
-                      <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                      {group.options.map((option: any) => (
-                        <Select.Item key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Item>
-                      ))}
-                    </Fragment>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-              <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
-            </Input.Root>
+              {/* Right column: Embedding Model, Reasoning Model and sliders (only shown when expanded) */}
+              {isExpanded && (
+                <div className='flex-1 flex flex-col gap-4 md:gap-6'>
+                  <Input.Root>
+                    <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
+                    <Select.Root
+                      name='embeddingModelId'
+                      defaultValue={
+                        getOptions(false)
+                          .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
+                          .filter((value) => value !== '')[0]
+                      }
+                    >
+                      <Select.Trigger
+                        id='embeddingModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select an embedding model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        {getOptions(false).map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
+                  </Input.Root>
 
-            <Input.Root>
-              <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-              <Select.Root
-                name='reasoningModelId'
-                defaultValue={
-                  getReasoningModelOptions()
-                    .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
-                    .filter((value) => value !== '')[0]
-                }
-              >
-                <Select.Trigger
-                  id='reasoningModelId'
-                  className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                >
-                  <Select.Value placeholder='Select a reasoning model' />
-                </Select.Trigger>
-                <Select.Content className='max-h-[250px] overflow-y-auto'>
-                  {getReasoningModelOptions().map((group) => (
-                    <Fragment key={group.groupName}>
-                      <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                      {group.options.map((option: any) => (
-                        <Select.Item key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Item>
-                      ))}
-                    </Fragment>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-              <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
-            </Input.Root>
+                  <Input.Root>
+                    <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
+                    <Select.Root
+                      name='reasoningModelId'
+                      defaultValue={
+                        getReasoningModelOptions()
+                          .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
+                          .filter((value) => value !== '')[0]
+                      }
+                    >
+                      <Select.Trigger
+                        id='reasoningModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select a reasoning model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        {getReasoningModelOptions().map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
+                  </Input.Root>
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6'>
-              <Input.Root>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-1'>
-                    <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
-                      Temperature
-                    </Input.Label>
-                    <InformationBadge
-                      className='!text-neutral-01 size-4'
-                      tooltipText="Controls randomness in the model's output."
-                      side={'top'}
-                    />
+                  {/* Sliders for right column */}
+                  <div className={cn('grid grid-cols-1 gap-y-6')}>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
+                            Temperature
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText="Controls randomness in the model's output."
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{temperature}</span>
+                      </div>
+                      <Slider.Root
+                        id='temperature'
+                        name='temperature'
+                        defaultValue={[temperature]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setTemperature(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
+                            TopP
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText='Controls content diversity by selecting from the top probability mass.'
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{topP}</span>
+                      </div>
+                      <Slider.Root
+                        id='topP'
+                        name='topP'
+                        defaultValue={[topP]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setTopP(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
+                            Frequency Penalty
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText='Reduces repetition by penalizing similar phrases.'
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{frequencyPenalty}</span>
+                      </div>
+                      <Slider.Root
+                        id='frequencyPenalty'
+                        name='frequencyPenalty'
+                        defaultValue={[frequencyPenalty]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setFrequencyPenalty(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
+                            Presence Penalty
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText='Encourages creativity by penalizing new concepts.'
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{presencePenalty}</span>
+                      </div>
+                      <Slider.Root
+                        id='presencePenalty'
+                        name='presencePenalty'
+                        defaultValue={[presencePenalty]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setPresencePenalty(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
                   </div>
-                  <span className='text-base-black text-body-sm font-semibold'>{temperature}</span>
                 </div>
-                <Slider.Root
-                  id='temperature'
-                  name='temperature'
-                  defaultValue={[temperature]}
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  onValueChange={(value) => setTemperature(value[0])}
-                >
-                  <Slider.Thumb />
-                </Slider.Root>
-              </Input.Root>
-              <Input.Root>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-1'>
-                    <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
-                      TopP
-                    </Input.Label>
-                    <InformationBadge
-                      className='!text-neutral-01 size-4'
-                      tooltipText='Controls content diversity by selecting from the top probability mass.'
-                      side={'top'}
-                    />
+              )}
+
+              {/* Non-expanded case: show all fields in original layout */}
+              {!isExpanded && (
+                <>
+                  <Input.Root>
+                    <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
+                    <Select.Root
+                      name='reasoningModelId'
+                      defaultValue={
+                        getReasoningModelOptions()
+                          .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
+                          .filter((value) => value !== '')[0]
+                      }
+                    >
+                      <Select.Trigger
+                        id='reasoningModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select a reasoning model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        {getReasoningModelOptions().map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
+                  </Input.Root>
+
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6'>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
+                            Temperature
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText="Controls randomness in the model's output."
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{temperature}</span>
+                      </div>
+                      <Slider.Root
+                        id='temperature'
+                        name='temperature'
+                        defaultValue={[temperature]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setTemperature(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
+                            TopP
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText='Controls content diversity by selecting from the top probability mass.'
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{topP}</span>
+                      </div>
+                      <Slider.Root
+                        id='topP'
+                        name='topP'
+                        defaultValue={[topP]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setTopP(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
+                            Frequency Penalty
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText='Reduces repetition by penalizing similar phrases.'
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{frequencyPenalty}</span>
+                      </div>
+                      <Slider.Root
+                        id='frequencyPenalty'
+                        name='frequencyPenalty'
+                        defaultValue={[frequencyPenalty]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setFrequencyPenalty(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
+                    <Input.Root>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1'>
+                          <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
+                            Presence Penalty
+                          </Input.Label>
+                          <InformationBadge
+                            className='!text-neutral-01 size-4'
+                            tooltipText='Encourages creativity by penalizing new concepts.'
+                            side={'top'}
+                          />
+                        </div>
+                        <span className='text-base-black text-body-sm font-semibold'>{presencePenalty}</span>
+                      </div>
+                      <Slider.Root
+                        id='presencePenalty'
+                        name='presencePenalty'
+                        defaultValue={[presencePenalty]}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        onValueChange={(value) => setPresencePenalty(value[0])}
+                      >
+                        <Slider.Thumb />
+                      </Slider.Root>
+                    </Input.Root>
                   </div>
-                  <span className='text-base-black text-body-sm font-semibold'>{topP}</span>
-                </div>
-                <Slider.Root
-                  id='topP'
-                  name='topP'
-                  defaultValue={[topP]}
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  onValueChange={(value) => setTopP(value[0])}
-                >
-                  <Slider.Thumb />
-                </Slider.Root>
-              </Input.Root>
-              <Input.Root>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-1'>
-                    <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
-                      Frequency Penalty
-                    </Input.Label>
-                    <InformationBadge
-                      className='!text-neutral-01 size-4'
-                      tooltipText='Reduces repetition by penalizing similar phrases.'
-                      side={'top'}
-                    />
-                  </div>
-                  <span className='text-base-black text-body-sm font-semibold'>{frequencyPenalty}</span>
-                </div>
-                <Slider.Root
-                  id='frequencyPenalty'
-                  name='frequencyPenalty'
-                  defaultValue={[frequencyPenalty]}
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  onValueChange={(value) => setFrequencyPenalty(value[0])}
-                >
-                  <Slider.Thumb />
-                </Slider.Root>
-              </Input.Root>
-              <Input.Root>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-1'>
-                    <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
-                      Presence Penalty
-                    </Input.Label>
-                    <InformationBadge
-                      className='!text-neutral-01 size-4'
-                      tooltipText='Encourages creativity by penalizing new concepts.'
-                      side={'top'}
-                    />
-                  </div>
-                  <span className='text-base-black text-body-sm font-semibold'>{presencePenalty}</span>
-                </div>
-                <Slider.Root
-                  id='presencePenalty'
-                  name='presencePenalty'
-                  defaultValue={[presencePenalty]}
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  onValueChange={(value) => setPresencePenalty(value[0])}
-                >
-                  <Slider.Thumb />
-                </Slider.Root>
-              </Input.Root>
+                </>
+              )}
             </div>
           </Modal.Body>
           <Modal.Footer className='pb-5'>
