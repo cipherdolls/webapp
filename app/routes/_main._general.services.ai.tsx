@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.services.ai';
-import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
+import Table from '~/components/Table';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { DataCard } from '~/components/DataCard';
 import { Fragment } from 'react/jsx-runtime';
@@ -13,6 +13,8 @@ import { getPicture } from '~/utils/getPicture';
 import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import { formatModelName } from '~/utils/formatModelName';
+import Tooltip from '~/components/ui/tooltip';
+import { Icons } from '~/components/ui/icons';
 
 function AiProviderSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -216,119 +218,142 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                 </DataCard.Label>
 
                 {/* CHAT MODELS WRAPPER */}
-                {aiProvider.chatModels.length > 0 && (
-                  <DataCard.Wrapper>
-                    {/* DESKTOP TABLE */}
-                    <div className='md:block hidden'>
-                      <Table
-                        columns={chatModelColumns}
-                        data={aiProvider.chatModels}
-                        getRowUrl={(chatModel) => `/chat-models/${chatModel.id}`}
-                      />
-                    </div>
+                <div className='bg-gradient-1 rounded-xl md:bg-none'>
+                  {aiProvider.chatModels.length > 0 && (
+                    <>
+                      <div className='flex items-center justify-between p-3 md:hidden'>
+                        <span className='text-xs text-neutral-01 font-semibold'>Chat model</span>
+                        <InformationBadge
+                          tooltipText='null'
+                          side={{
+                            default: 'top',
+                            lg: 'right',
+                          }}
+                        />
+                      </div>
 
-                    {/* MOBILE CARD */}
-                    <div className='block md:hidden'>
-                      {aiProvider.chatModels.map((chatModel, index) => {
-                        return (
-                          <Fragment key={chatModel.id}>
-                            <DataCard.Item collapsible href={`/chat-models/${chatModel.id}`}>
-                              <DataCard.ItemLabel>
-                                <span className='flex items-center gap-2'>
-                                  {chatModel.providerModelName}
-                                  <RecommendedBadge recommended={chatModel.recommended} tooltipText='Recommended' />
-                                </span>
-                              </DataCard.ItemLabel>
-                              <DataCard.ItemCollapsibleContent>
-                                <DataCard.ItemDataGrid
-                                  data={[
-                                    {
-                                      label: 'Output',
-                                      value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
-                                    },
-                                    {
-                                      label: 'Average Time Taken',
-                                      value: '1153 ms',
-                                    },
-                                  ]}
-                                  variant='secondary'
-                                />
-                              </DataCard.ItemCollapsibleContent>
-                              <DataCard.ItemDataGrid
-                                data={[
-                                  {
-                                    label: '$/Input',
-                                    value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
-                                  },
-                                  {
-                                    label: '$/Output',
-                                    value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
-                                  },
-                                ]}
-                              />
-                            </DataCard.Item>
-                            {aiProvider.chatModels.length - 1 !== index && <DataCard.Divider />}
-                          </Fragment>
-                        );
-                      })}
-                    </div>
-                  </DataCard.Wrapper>
-                )}
+                      <DataCard.Wrapper>
+                        {/* DESKTOP TABLE */}
+                        <div className='md:block hidden'>
+                          <Table
+                            columns={chatModelColumns}
+                            data={aiProvider.chatModels}
+                            getRowUrl={(chatModel) => `/chat-models/${chatModel.id}`}
+                          />
+                        </div>
 
-                {/* EMBEDDING MODELS WRAPPER */}
-                {aiProvider.embeddingModels.length > 0 && (
-                  <DataCard.Wrapper className='mt-3'>
-                    {/* DESKTOP TABLE */}
-                    <div className='md:block hidden'>
-                      <Table
-                        columns={embeddingModelColumns}
-                        data={aiProvider.embeddingModels}
-                        getRowUrl={(embeddingModel) => `/embedding-models/${embeddingModel.id}`}
-                      />
-                    </div>
-                    {/* MOBILE CARD */}
-                    <div className='block md:hidden'>
-                      {aiProvider.embeddingModels.map((embeddingModel, index) => {
-                        return (
-                          <Fragment key={embeddingModel.id}>
-                            <DataCard.Item collapsible>
-                              <DataCard.ItemLabel>
-                                <span className='flex items-center gap-2'>
-                                  {formatModelName(embeddingModel.providerModelName)}
-                                  <RecommendedBadge recommended={embeddingModel.recommended} tooltipText='Recommended' />
-                                </span>
-                              </DataCard.ItemLabel>
-                              <DataCard.ItemCollapsibleContent>
-                                <DataCard.ItemDataGrid
-                                  data={[
-                                    {
-                                      label: 'Output',
-                                      value: <>{scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
-                                    },
-                                  ]}
-                                  variant='secondary'
-                                />
-                              </DataCard.ItemCollapsibleContent>
-                              <DataCard.ItemDataGrid
-                                data={[
-                                  {
-                                    label: '$/Input',
-                                    value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
-                                  },
-                                  {
-                                    label: '$/Output',
-                                    value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
-                                  },
-                                ]}
-                              />
-                            </DataCard.Item>
-                            {aiProvider.embeddingModels.length - 1 !== index && <DataCard.Divider />}
-                          </Fragment>
-                        );
-                      })}
-                    </div>
-                  </DataCard.Wrapper>
-                )}
+                        {/* MOBILE CARD */}
+                        <div className='block md:hidden'>
+                          {aiProvider.chatModels.map((chatModel, index) => {
+                            return (
+                              <Fragment key={chatModel.id}>
+                                <DataCard.Item collapsible href={`/chat-models/${chatModel.id}`}>
+                                  <DataCard.ItemLabel>
+                                    <span className='flex items-center gap-2'>
+                                      {chatModel.providerModelName}
+                                      <RecommendedBadge recommended={chatModel.recommended} tooltipText='Recommended' />
+                                    </span>
+                                  </DataCard.ItemLabel>
+                                  <DataCard.ItemCollapsibleContent>
+                                    <DataCard.ItemDataGrid
+                                      data={[
+                                        {
+                                          label: 'Output',
+                                          value: <>{scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                        },
+                                        {
+                                          label: 'Average Time Taken',
+                                          value: '1153 ms',
+                                        },
+                                      ]}
+                                      variant='secondary'
+                                    />
+                                  </DataCard.ItemCollapsibleContent>
+                                  <DataCard.ItemDataGrid
+                                    data={[
+                                      {
+                                        label: '$/Input',
+                                        value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                      },
+                                      {
+                                        label: '$/Output',
+                                        value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
+                                      },
+                                    ]}
+                                  />
+                                </DataCard.Item>
+                                {aiProvider.chatModels.length - 1 !== index && <DataCard.Divider />}
+                              </Fragment>
+                            );
+                          })}
+                        </div>
+                      </DataCard.Wrapper>
+                    </>
+                  )}
+
+                  {/* EMBEDDING MODELS WRAPPER */}
+                  {aiProvider.embeddingModels.length > 0 && (
+                    <>
+                      <div className='flex items-center justify-between px-3 pt-3 md:hidden'>
+                        <span className='text-xs text-neutral-01 font-semibold'>Embedding model</span>
+                        <Tooltip side='top' trigger={<Icons.info className='text-neutral-02 inline-block size-4' />} content={'null'} />
+                      </div>
+
+                      <DataCard.Wrapper className='mt-3'>
+                        {/* DESKTOP TABLE */}
+                        <div className='md:block hidden'>
+                          <Table
+                            columns={embeddingModelColumns}
+                            data={aiProvider.embeddingModels}
+                            getRowUrl={(embeddingModel) => `/embedding-models/${embeddingModel.id}`}
+                          />
+                        </div>
+                        {/* MOBILE CARD */}
+                        <div className='block md:hidden'>
+                          {aiProvider.embeddingModels.map((embeddingModel, index) => {
+                            return (
+                              <Fragment key={embeddingModel.id}>
+                                <DataCard.Item collapsible>
+                                  <DataCard.ItemLabel>
+                                    <span className='flex items-center gap-2'>
+                                      {formatModelName(embeddingModel.providerModelName)}
+                                      <RecommendedBadge recommended={embeddingModel.recommended} tooltipText='Recommended' />
+                                    </span>
+                                  </DataCard.ItemLabel>
+                                  <DataCard.ItemCollapsibleContent>
+                                    <DataCard.ItemDataGrid
+                                      data={[
+                                        {
+                                          label: 'Output',
+                                          value: <>{scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                        },
+                                      ]}
+                                      variant='secondary'
+                                    />
+                                  </DataCard.ItemCollapsibleContent>
+                                  <DataCard.ItemDataGrid
+                                    data={[
+                                      {
+                                        label: '$/Input',
+                                        value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                      },
+                                      {
+                                        label: '$/Output',
+                                        value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
+                                      },
+                                    ]}
+                                  />
+                                </DataCard.Item>
+                                {aiProvider.embeddingModels.length - 1 !== index && <DataCard.Divider />}
+                              </Fragment>
+                            );
+                          })}
+                        </div>
+                      </DataCard.Wrapper>
+                    </>
+                  )}
+                </div>
+
                 {(aiProvider.chatModels.length > 0 || aiProvider.embeddingModels.length > 0) && (
                   <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-2'>
                     Prices are per million token
