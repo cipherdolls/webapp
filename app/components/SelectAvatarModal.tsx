@@ -97,7 +97,7 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
                 <p>You don't have any avatars yet.</p>
                 <Button.Root className='mt-4 px-6' asChild>
                   <Dialog.Close asChild>
-                    <a href='/avatars/new'>Create an Avatar</a>
+                    <a href='/community/avatars/new'>Create an Avatar</a>
                   </Dialog.Close>
                 </Button.Root>
               </div>

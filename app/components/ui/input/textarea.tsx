@@ -66,8 +66,9 @@ const TextareaElement = React.forwardRef<
   HTMLTextAreaElement,
   React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     asChild?: boolean;
+    isExpanded?: boolean;
   }
->(({ className, asChild, value, defaultValue, ...rest }, forwardedRef) => {
+>(({ className, asChild, value, isExpanded, defaultValue, ...rest }, forwardedRef) => {
   const Component = asChild ? Slot : 'textarea';
   const { textarea } = textareaVariants();
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -84,7 +85,7 @@ const TextareaElement = React.forwardRef<
 
   const resizeTextarea = React.useCallback(() => {
     const node = textareaRef.current;
-    if (!node) return;
+    if (!node || isExpanded) return;
 
     // Reset height to auto to get the correct scrollHeight
     node.style.height = 'auto';
