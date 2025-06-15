@@ -64,6 +64,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   }
 
   const aiProviders: AiProvider[] = loaderData;
+
   const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     {
       id: 'providerModelName',
@@ -284,7 +285,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                       <div className='flex items-center justify-between p-3 md:hidden'>
                         <span className='text-xs text-neutral-01 font-semibold'>Chat model</span>
                         <InformationBadge
-                          tooltipText='null'
+                          tooltipText='Chat model'
                           side={{
                             default: 'top',
                             lg: 'right',
@@ -356,7 +357,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                     <>
                       <div className='flex items-center justify-between px-3 pt-3 md:hidden'>
                         <span className='text-xs text-neutral-01 font-semibold'>Embedding model</span>
-                        <Tooltip side='top' trigger={<Icons.info className='text-neutral-02 inline-block size-4' />} content={'null'} />
+                        <Tooltip
+                          side='top'
+                          trigger={<Icons.info className='text-neutral-02 inline-block size-4' />}
+                          content={'Embedding model'}
+                        />
                       </div>
 
                       <DataCard.Wrapper className='mt-3'>
@@ -415,62 +420,73 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
 
                   {/* REASONING MODELS WRAPPER */}
                   {aiProvider.reasoningModels && aiProvider.reasoningModels.length > 0 && (
-                    <DataCard.Wrapper className='mt-3'>
-                      {/* DESKTOP TABLE */}
-                      <div className='md:block hidden'>
-                        <Table
-                          columns={reasoningModelColumns}
-                          data={aiProvider.reasoningModels}
-                          getRowUrl={(reasoningModel) => `/reasoning-models/${reasoningModel.id}`}
+                    <>
+                      <div className='flex items-center justify-between px-3 pt-3 md:hidden'>
+                        <span className='text-xs text-neutral-01 font-semibold'>Reasoning model</span>
+                        <Tooltip
+                          side='top'
+                          trigger={<Icons.info className='text-neutral-02 inline-block size-4' />}
+                          content={'Reasoning model'}
                         />
                       </div>
 
-                      {/* MOBILE CARD */}
-                      <div className='block md:hidden'>
-                        {aiProvider.reasoningModels.map((reasoningModel, index) => {
-                          return (
-                            <Fragment key={reasoningModel.id}>
-                              <DataCard.Item collapsible href={`/reasoning-models/${reasoningModel.id}`}>
-                                <DataCard.ItemLabel>
-                                  <span className='flex items-center gap-2'>
-                                    {reasoningModel.providerModelName}
-                                    <RecommendedBadge recommended={reasoningModel.recommended} tooltipText='Recommended' />
-                                  </span>
-                                </DataCard.ItemLabel>
-                                <DataCard.ItemCollapsibleContent>
+                      <DataCard.Wrapper className='mt-3'>
+                        {/* DESKTOP TABLE */}
+                        <div className='md:block hidden'>
+                          <Table
+                            columns={reasoningModelColumns}
+                            data={aiProvider.reasoningModels}
+                            getRowUrl={(reasoningModel) => `/reasoning-models/${reasoningModel.id}`}
+                          />
+                        </div>
+
+                        {/* MOBILE CARD */}
+                        <div className='block md:hidden'>
+                          {aiProvider.reasoningModels.map((reasoningModel, index) => {
+                            return (
+                              <Fragment key={reasoningModel.id}>
+                                <DataCard.Item collapsible href={`/reasoning-models/${reasoningModel.id}`}>
+                                  <DataCard.ItemLabel>
+                                    <span className='flex items-center gap-2'>
+                                      {reasoningModel.providerModelName}
+                                      <RecommendedBadge recommended={reasoningModel.recommended} tooltipText='Recommended' />
+                                    </span>
+                                  </DataCard.ItemLabel>
+                                  <DataCard.ItemCollapsibleContent>
+                                    <DataCard.ItemDataGrid
+                                      data={[
+                                        {
+                                          label: 'Output',
+                                          value: <>{scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
+                                        },
+                                        {
+                                          label: 'Average Time Taken',
+                                          value: '1153 ms',
+                                        },
+                                      ]}
+                                      variant='secondary'
+                                    />
+                                  </DataCard.ItemCollapsibleContent>
                                   <DataCard.ItemDataGrid
                                     data={[
                                       {
-                                        label: 'Output',
-                                        value: <>{scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
+                                        label: '$/Input',
+                                        value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
                                       },
                                       {
-                                        label: 'Average Time Taken',
-                                        value: '1153 ms',
+                                        label: '$/Output',
+                                        value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken)}</>,
                                       },
                                     ]}
-                                    variant='secondary'
                                   />
-                                </DataCard.ItemCollapsibleContent>
-                                <DataCard.ItemDataGrid
-                                  data={[
-                                    {
-                                      label: '$/Input',
-                                      value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
-                                    },
-                                    {
-                                      label: '$/Output',
-                                      value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken)}</>,
-                                    },
-                                  ]}
-                                />
-                              </DataCard.Item>
-                              {aiProvider.reasoningModels.length - 1 !== index && <DataCard.Divider />}
-                            </Fragment>
-                          );
-                        })}
-                      </div>
-                    </DataCard.Wrapper>
+                                </DataCard.Item>
+                                {aiProvider.reasoningModels.length - 1 !== index && <DataCard.Divider />}
+                              </Fragment>
+                            );
+                          })}
+                        </div>
+                      </DataCard.Wrapper>
+                    </>
                   )}
                 </div>
 
