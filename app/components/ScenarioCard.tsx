@@ -1,8 +1,9 @@
-import React from 'react';
 import type { Avatar, Scenario } from '~/types';
 import { Link } from 'react-router';
 import { cn } from '~/utils/cn';
 import SelectAvatarModal from './SelectAvatarModal';
+import { getPicture } from '~/utils/getPicture';
+import { InformationBadge } from './ui/InformationBadge';
 
 interface ScenarioCardProps {
   scenario: Scenario;
@@ -21,106 +22,66 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
   };
 
   const cardClassName = `${
-    !showAll && index >= (totalScenarios > 6 ? 6 : 4)
+    !showAll && index >= (totalScenarios > 9 ? 9 : 6)
       ? 'hidden'
-      : totalScenarios > 6 && !showAll && index >= 4
+      : totalScenarios > 9 && !showAll && index >= 6
+        ? index === 8
+          ? 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl hidden sm:block'
+          : 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl'
+        : 'transition-all duration-500 ease-out'
+  }`;
+
+  const myCardClassName = `${
+    !showAll && index >= (totalScenarios > 6 ? 6 : 3)
+      ? 'hidden'
+      : totalScenarios > 6 && !showAll && index >= 3
         ? index === 5
           ? 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl hidden sm:block'
           : 'h-6 overflow-hidden relative transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-transparent rounded-t-xl'
         : 'transition-all duration-500 ease-out'
   }`;
 
-  const contentClassName = cn(
-    'p-5 flex flex-col gap-3 transition-colors duration-200 ease-in-out',
-    totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent' : 'bg-white'
-  );
-
-  const publicContentClassName = cn(
-    'flex sm:gap-2 gap-5  justify-between transition-colors duration-200 ease-in-out',
-    totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent px-5 py-8' : 'bg-white p-5'
-  );
-
-  if (isPublic) {
-    return (
-      <div className={cardClassName} key={index}>
-        <div
-          className={cn(
-            'flex flex-col rounded-xl overflow-hidden',
-            totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent' : 'bg-gradient-1 '
-          )}
-        >
-          <div className={publicContentClassName}>
-            <Link to={`/scenarios/${scenario.id}`} className='flex flex-col gap-3 flex-1'>
-              <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
-              <div className='flex items-center gap-2'>
-                <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
-                {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
-              </div>
-              <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
-            </Link>
-            {avatars && <SelectAvatarModal avatars={avatars} scenario={scenario} />}
-          </div>
-          <Link to={`/scenarios/${scenario.id}`} className='grid lg:grid-cols-2 sm:grid-cols-1 grid-cols-2 gap-y-2 gap-x-5 p-5'>
-            <div className='flex items-center gap-3'>
-              <p className='w-[120px] text-body-sm text-neutral-01 shrink-0'>Frequency Penalty</p>
-              <span className='text-body-sm text-base-black'>{scenario.frequencyPenalty}</span>
-            </div>
-            <div className='flex items-center gap-3 lg:justify-end sm:justify-start justify-end'>
-              <p className='w-[120px] text-body-sm text-neutral-01 shrink-0'>Presence Penalty</p>
-              <span className='text-body-sm text-base-black min-w-5'>{scenario.presencePenalty}</span>
-            </div>
-            <div className='flex items-center gap-3'>
-              <p className='w-[120px] text-body-sm text-neutral-01'>Temperature</p>
-              <span className='text-body-sm text-base-black'>{scenario.temperature}</span>
-            </div>
-            <div className='flex items-center gap-3 lg:justify-end sm:justify-start justify-end'>
-              <p className='w-[120px] text-body-sm text-neutral-01'>TopP</p>
-              <span className='text-body-sm text-base-black min-w-5'>{scenario.topP}</span>
-            </div>
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const publicHidden = totalScenarios > 9 && !showAll && index >= 6;
+  const myHidden = totalScenarios > 6 && !showAll && index >= 3;
 
   return (
-    <div className={cardClassName} key={index}>
-      <Link
-        to={`/scenarios/${scenario.id}`}
-        className={cn(
-          'flex flex-col rounded-xl overflow-hidden',
-          totalScenarios > 6 && !showAll && index >= 4 ? 'bg-transparent' : 'bg-gradient-1 '
-        )}
-      >
-        <div className={contentClassName}>
+    <div className={cn('flex flex-col rounded-xl overflow-hidden relative', isPublic ? cardClassName : myCardClassName)}>
+      <div className={cn('relative h-[152px] w-full', (isPublic ? publicHidden : myHidden) ? 'hidden' : '')}>
+        <img
+          src={getPicture(scenario, 'avatars', false)}
+          srcSet={getPicture(scenario, 'avatars', true)}
+          alt={`${scenario.name} picture`}
+          className='object-cover h-[152px] w-full'
+        />
+        <div className='absolute bottom-2.5 right-2.5'>{avatars && <SelectAvatarModal avatars={avatars} scenario={scenario} />}</div>
+      </div>
+      <div className={cn(' flex-col gap-2 flex-1 p-5 bg-gradient-1', (isPublic ? publicHidden : myHidden) ? 'hidden' : 'flex')}>
+        <div className='flex items-center gap-2'>
           <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
-          <div className='flex items-center gap-2'>
-            <p className='text-body-sm text-neutral-02'>{scenario.chatModel.providerModelName}</p>
-            {isNewScenario() && <span className='text-specials-success text-body-sm'>New</span>}
-          </div>
-          <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
+          <InformationBadge
+            className='size-4 text-neutral-02'
+            popoverClassName='!w-full'
+            tooltipText={
+              <div className='flex flex-col gap-1 text-body-sm text-base-black'>
+                <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
+                <span>Presence Penalty: {scenario.presencePenalty}</span>
+                <span>Temperature: {scenario.temperature}</span>
+                <span>Top P: {scenario.topP}</span>
+              </div>
+            }
+          />
         </div>
-        <div className='grid lg:grid-cols-2 sm:grid-cols-1 grid-cols-2 gap-y-2 gap-x-5 p-5'>
-          <div className='flex items-center gap-3'>
-            <p className='w-[120px] text-body-sm text-neutral-01 shrink-0'>Frequency Penalty</p>
-            <span className='text-body-sm text-base-black'>{scenario.frequencyPenalty}</span>
-          </div>
-          <div className='flex items-center gap-3 lg:justify-end sm:justify-start justify-end'>
-            <p className='w-[120px] text-body-sm text-neutral-01 shrink-0'>Presence Penalty</p>
-            <span className='text-body-sm text-base-black min-w-5'>{scenario.presencePenalty}</span>
-          </div>
-          <div className='flex items-center gap-3'>
-            <p className='w-[120px] text-body-sm text-neutral-01'>Temperature</p>
-            <span className='text-body-sm text-base-black'>{scenario.temperature}</span>
-          </div>
-          <div className='flex items-center gap-3 lg:justify-end sm:justify-start justify-end'>
-            <p className='w-[120px] text-body-sm text-neutral-01'>TopP</p>
-            <span className='text-body-sm text-base-black min-w-5'>{scenario.topP}</span>
-          </div>
-        </div>
-      </Link>
-      {totalScenarios > 6 && !showAll && index >= 4 && (
-        <div className='absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/20 via-black/5 to-transparent pointer-events-none transition-opacity duration-200 ease-in-out'></div>
+        <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
+      </div>
+      {isNewScenario() && (
+        <span
+          className={cn(
+            'text-specials-success text-body-sm shrink-0 whitespace-nowrap absolute top-2.5 right-2.5 bg-gradient-1 p-1.5 rounded-full hover:bg-white transition-colors cursor-pointer',
+            (isPublic ? publicHidden : myHidden) ? 'hidden' : ''
+          )}
+        >
+          New
+        </span>
       )}
     </div>
   );

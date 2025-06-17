@@ -64,8 +64,6 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
   const myScenarios = scenarios.filter((scenario) => scenario.userId === me.id);
 
-  // const publicScenarios = scenarios.filter((scenario) => scenario.pub === me.id);
-
   const myAvatars = avatars.filter((avatar) => avatar.userId === me.id);
 
   return (
