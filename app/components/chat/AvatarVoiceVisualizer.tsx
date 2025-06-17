@@ -5,6 +5,7 @@ import { cn } from '~/utils/cn';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
+
 interface AvatarVoiceVisualizerProps {
   audioData: Uint8Array | null;
   isPlaying: boolean;

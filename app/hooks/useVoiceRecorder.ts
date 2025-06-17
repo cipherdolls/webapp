@@ -29,7 +29,7 @@ export default function useVoiceRecorder({ onRecordingComplete, listening = true
     onFrameProcessed: (_, frame) => {
       const u8 = new Uint8Array(frame.length);
       for (let i = 0; i < frame.length; i++) {
-        u8[i] = Math.min(255, Math.abs(frame[i]) * 512);
+        u8[i] = Math.min(255, Math.abs(frame[i]) * 1024);
       }
       setAudioData(u8); 
     },
