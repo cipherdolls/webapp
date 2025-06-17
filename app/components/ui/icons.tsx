@@ -549,7 +549,6 @@ export const Icons = {
       <path d='M17 15a3.5 3.5 0 0 0-.025-4.975' />
     </svg>
   ),
-
   expand: () => (
     <svg
       xmlns='http://www.w3.org/2000/svg'

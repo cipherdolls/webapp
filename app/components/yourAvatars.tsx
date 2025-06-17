@@ -36,7 +36,7 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                   </span>
                 </div>
               </Link>
-              <Link to={'/avatars/new'} className='group '>
+              <Link to={'/community/avatars/new'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -109,7 +109,7 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
               <Link
-                to='/avatars/new'
+                to='/community/avatars/new'
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new avatar
