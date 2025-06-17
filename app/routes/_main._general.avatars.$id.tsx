@@ -135,7 +135,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
               </>
             )}
           </div>
-          {/* TODO: How is this gonna work? */}
           <div className='md:hidden flex text-base-black'>
             <ViewMore
               userId={avatar.userId}
@@ -143,14 +142,13 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 {
                   type: 'link',
                   text: 'Edit',
-                  href: `/community/avatars/${avatar.id}/edit`,
+                  href: `/avatars/${avatar.id}/edit`,
                   visible: me.id === avatar.userId,
                 },
                 {
                   type: 'link',
                   text: 'Chat',
                   href: avatar.chats.length > 0 ? `/chats/${avatar.chats[0]?.id}` : '/chats',
-                  // visible prop verilmezse her zaman görünür (default true)
                 },
                 {
                   type: 'form',

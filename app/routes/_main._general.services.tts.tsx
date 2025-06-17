@@ -1,14 +1,9 @@
-import { Link, Outlet, redirect } from 'react-router';
+import { Outlet } from 'react-router';
 import type { TtsProvider, TtsVoice } from '~/types';
 import type { Route } from './+types/_main._general.services.tts';
-
-interface EnhancedTtsVoice extends TtsVoice {
-  providerName: string;
-  providerId: string;
-}
 import { DataCard } from '~/components/DataCard';
-import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
+import Table from '~/components/Table';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -17,6 +12,11 @@ import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useEffect, useState } from 'react';
+
+interface EnhancedTtsVoice extends TtsVoice {
+  providerName: string;
+  providerId: string;
+}
 
 function TTSSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -118,10 +118,10 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
           return (
             <DataCard.Root key={ttsProvider.id}>
               <DataCard.Label
-                className='text-2xl font-semibold flex items-center gap-2'
+                className='text-2xl font-semibold flex gap-2 sm:items-center'
                 extra={
                   <div className='flex items-center gap-6'>
-                    <div className='flex items-center gap-2 text-body-sm'>
+                    <div className='hidden items-center gap-2 text-body-sm sm:flex'>
                       <span className='text-base-black font-normal'>$/Character</span>
                       <span className='text-neutral-01 font-normal'>-</span>
                       <span className='font-semibold text-base-black'>$0</span>
@@ -149,15 +149,22 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                     className='size-full object-cover rounded-lg'
                   />
                 </div>
-                <div className='flex items-center gap-1'>
-                  {ttsProvider.name}
-                  <InformationBadge
-                    tooltipText='Real-time AI voice synthesis for apps and assistants'
-                    side={{
-                      default: 'top',
-                      lg: 'right',
-                    }}
-                  />
+                <div className='flex flex-col gap-2'>
+                  <div className='flex items-center gap-1'>
+                    {ttsProvider.name}
+                    <InformationBadge
+                      tooltipText='Real-time AI voice synthesis for apps and assistants'
+                      side={{
+                        default: 'top',
+                        lg: 'right',
+                      }}
+                    />
+                  </div>
+
+                  <div className='flex items-center gap-2 text-body-sm sm:hidden'>
+                    <span className='text-neutral-01 font-normal'>$/Character</span>
+                    <span className='font-semibold text-base-black'>$0</span>
+                  </div>
                 </div>
               </DataCard.Label>
               <DataCard.Wrapper>
