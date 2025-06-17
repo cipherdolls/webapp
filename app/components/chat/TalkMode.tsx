@@ -36,7 +36,9 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
       setCurrentJob: state.setCurrentJob,
     }))
   );
+  
   const recorder = useVoiceRecorder({
+    listening: currentChatState === ChatState.userSpeaking,
     onRecordingComplete: async (blob: Blob) => {
       if (blob && chat.id) {
         const file = new File([blob], 'audio.webm', { type: 'audio/webm' });
@@ -53,7 +55,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     },
   });
 
-  const { load, stop, player, isPlaying } = useAudioPlayerContext();
+  const { load, stop, isPlaying } = useAudioPlayerContext();
   const avatarAudioData = useAudioData();
 
   useChatEvents({
@@ -110,15 +112,10 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     setCurrentChatState(ChatState.userSpeaking);
   }, []);
 
-  useEffect(() => {
-    if (currentChatState === ChatState.userSpeaking) {
-      recorder.start();
-    }
-  }, [currentChatState]);
 
   // cleanup
   useUnmount(() => {
-    recorder.cancel();
+    recorder.stop();
     stop();
     setCurrentChatState(ChatState.Idle);
   });

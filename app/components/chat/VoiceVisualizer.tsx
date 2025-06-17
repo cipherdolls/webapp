@@ -1,165 +1,146 @@
 import React, { useRef, useEffect } from 'react';
-import { mapRange } from '~/utils/audio.utils';
 
+/* utility for mapping ranges */
+const mapRange = (n: number, a: number, b: number, c: number, d: number) =>
+  ((n - a) * (d - c)) / (b - a) + c;
 
-interface VoiceVisualizerProps {
+/* ────────────────────────────────────────────────────────── */
+interface Props {
   audioData: Uint8Array | null;
-  isActive: boolean;
-  circleHideOne?: boolean;
-  circleHideTwo?: boolean;
+  isActive:  boolean;
+  circleHideOne?:   boolean;
+  circleHideTwo?:   boolean;
   circleHideThree?: boolean;
-  circleOneColor?: string;
-  circleTwoColor?: string;
+  circleOneColor?:   string;
+  circleTwoColor?:   string;
   circleThreeColor?: string;
 }
 
-const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({ 
-  audioData, 
+const VoiceVisualizer: React.FC<Props> = ({
+  audioData,
   isActive,
   circleHideOne = false,
   circleHideTwo = false,
   circleHideThree = false,
-  circleOneColor = '#000',
-  circleTwoColor = '#000',
-  circleThreeColor = '#000'
+  circleOneColor   = '#000',
+  circleTwoColor   = '#000',
+  circleThreeColor = '#000',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameRef = useRef<number | undefined>(undefined);
-  const animationStateRef = useRef({
-    circleScales: [1, 1, 1]
-  });
-  
+  const raf = useRef<number | undefined>(undefined);
+  const smoothed = useRef<number[]>([0, 0, 0]);      // smoothed amplitudes
+  const scales   = useRef<number[]>([1, 1, 1]);      // circle scale
+
+  /* ------------- set up canvas once ----------- */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
-    const dpr = window.devicePixelRatio || 1;
-    const size = 320;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    ctx.scale(dpr, dpr);
-    
+
+    const SIZE = 320;
+    const DPR  = window.devicePixelRatio || 1;
+    canvas.width  = SIZE * DPR;
+    canvas.height = SIZE * DPR;
+    ctx.scale(DPR, DPR);
+
     const colors = [circleOneColor, circleTwoColor, circleThreeColor];
     const radiusRatios = [1, 0.92, 0.84];
-    const baseRadius = size * 0.35;
-    
-    const drawWaveCircle = (
-      centerX: number,
-      centerY: number,
-      radius: number,
-      amplitude: number,
-      frequency: number,
-      phase: number,
-      color: string,
-      circleScale: number
+    const baseRadius   = SIZE * 0.35;
+    let phase = 0;
+
+    /* ---- draw one "wavy" circle ------------------- */
+    const drawCircle = (
+      cx: number, cy: number, radius: number,
+      amp: number, freq: number, ph: number,
+      color: string, scale: number
     ) => {
-      if (circleScale < 0.01) return;
-      
+      if (scale < 0.01) return;                      // hidden
       ctx.beginPath();
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.globalAlpha = circleScale;
-      
-      for (let angle = 0; angle <= Math.PI * 2; angle += 0.01) {
-        const waveOffset = isActive ? 
-          amplitude * Math.sin(frequency * angle + phase) +
-          amplitude * 0.5 * Math.sin(frequency * 2 * angle + phase * 1.5) : 0;
-        
-        const r = (radius + waveOffset) * circleScale;
-        const x = centerX + r * Math.cos(angle);
-        const y = centerY + r * Math.sin(angle);
-        
-        if (angle === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
+      ctx.lineWidth   = 2;
+      ctx.globalAlpha = 1;                           // constant opacity
+      for (let a = 0; a <= Math.PI * 2; a += 0.01) {
+        const offset = isActive
+          ? amp * Math.sin(freq * a + ph) +
+            amp * 0.5 * Math.sin(freq * 2 * a + ph * 1.5)
+          : 0;
+        const r = (radius + offset) * scale;
+        const x = cx + r * Math.cos(a);
+        const y = cy + r * Math.sin(a);
+        if (a === 0) ctx.moveTo(x, y);
+        else         ctx.lineTo(x, y);
       }
-      
       ctx.closePath();
       ctx.stroke();
-      ctx.globalAlpha = 1;
     };
-    
-    let phase = 0;
+
+    /* ---------------- main animation ------------------- */
     const animate = () => {
-      const { circleScales } = animationStateRef.current;
-      
-      // Update circle scales with smooth animation
-      const targetScales = [
-        circleHideOne ? 0 : 1,
-        circleHideTwo ? 0 : 1,
-        circleHideThree ? 0 : 1
+      /* 1. smooth amplitudes -------------------------------- */
+      const RAW = [
+        audioData?.[0] ?? 0,
+        audioData?.[2] ?? audioData?.[1] ?? 0,
+        audioData?.[4] ?? audioData?.[3] ?? 0,
       ];
-      
-      const circleEasingFactor = 0.04;
-      targetScales.forEach((target, i) => {
-        const diff = target - circleScales[i];
+      RAW.forEach((val, i) => {
+        smoothed.current[i] =
+          smoothed.current[i] * 0.85 + val * 0.15;   // IIR filter
+      });
+
+      /* 2. scale animation (appear/disappear) -------------------- */
+      const targets = [
+        circleHideOne   ? 0 : 1,
+        circleHideTwo   ? 0 : 1,
+        circleHideThree ? 0 : 1,
+      ];
+      targets.forEach((t, i) => {
+        const diff = t - scales.current[i];
         if (Math.abs(diff) > 0.001) {
-          circleScales[i] += diff * circleEasingFactor;
+          scales.current[i] += diff * 0.04;          // easing
         }
       });
-      
+
+      /* 3. draw -------------------------------------------- */
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      const centerX = size / 2;
-      const centerY = size / 2;
-      
+      const cx = SIZE / 2, cy = SIZE / 2;
+
       radiusRatios.forEach((ratio, i) => {
         const radius = baseRadius * ratio;
-        let amplitude = 0;
-        let frequency = 4 + i * 2;
-        
-        // Only calculate amplitude if isActive is true AND we have audioData
-        if (isActive && audioData) {
-          const segment = audioData.slice(
-            Math.floor((i * audioData.length) / 3),
-            Math.floor(((i + 1) * audioData.length) / 3)
-          );
-          const avg = Array.from(segment).reduce((sum, val) => sum + val, 0) / segment.length;
-          amplitude = mapRange(avg, 0, 255, 0, radius * 0.2);
-        }
-        
-        drawWaveCircle(
-          centerX,
-          centerY,
-          radius,
-          amplitude,
-          frequency,
-          phase + i * Math.PI / 3,
+        const amp = mapRange(
+          smoothed.current[i], 0, 255, 0, radius * 0.2
+        );
+        const freq = 4 + i * 2;
+        drawCircle(
+          cx, cy, radius,
+          amp, freq, phase + i * Math.PI / 3,
           colors[i],
-          circleScales[i]
+          scales.current[i]
         );
       });
-      
-      // Only update phase if isActive is true
-      if (isActive) {
-        phase += 0.03;
-      }
-      
-      animationFrameRef.current = requestAnimationFrame(animate);
+
+      /* 4. phase shift to make the wave move ---------------------- */
+      phase += isActive ? 0.03 : 0.015;
+
+      raf.current = requestAnimationFrame(animate);
     };
-    
+
     animate();
-    
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      if (raf.current) cancelAnimationFrame(raf.current);
     };
-  }, [audioData, isActive, circleHideOne, circleHideTwo, circleHideThree]);
-  
+  }, [
+    audioData, isActive,
+    circleHideOne, circleHideTwo, circleHideThree,
+    circleOneColor, circleTwoColor, circleThreeColor,
+  ]);
+
+  /* ------------- render canvas ----------------------------- */
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        opacity: 1,
-        transition: 'opacity 0.3s ease-in-out'
-      }}
       className="size-full"
+      style={{ transition: 'opacity .3s' }}
     />
   );
 };

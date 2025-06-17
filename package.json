@@ -20,6 +20,7 @@
     "@react-router/fs-routes": "^7.2.0",
     "@react-router/node": "^7.2.0",
     "@react-router/serve": "^7.2.0",
+    "@ricky0123/vad-react": "^0.0.30",
     "add": "^2.0.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
