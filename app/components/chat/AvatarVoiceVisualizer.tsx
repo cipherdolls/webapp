@@ -1,52 +1,79 @@
+import { useRef, useEffect, useCallback } from 'react';
 import AvatarPicture from '../AvatarPicture';
 import { PICTURE_SIZE } from '~/constants';
 import type { Avatar } from '~/types';
 import { cn } from '~/utils/cn';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import useAnimationFrame from '~/hooks/useAnimationFrame';
+import useAudioData from '~/hooks/useAudioData';
 
 
 interface AvatarVoiceVisualizerProps {
-  audioData: Uint8Array | null;
   isPlaying: boolean;
   avatar: Avatar;
   className?: string;
 }
 
-const AvatarVoiceVisualizer = ({ audioData, isPlaying, avatar, className }: AvatarVoiceVisualizerProps) => {
-  const [scale, setScale] = useState(1);
-  const [avgFrequency, setAvgFrequency] = useState(0);
+const SMOOTHING_FACTOR = 0.15;
+const SCALE_INTENSITY = 0.3;
 
+const AvatarVoiceVisualizer = ({ 
+  isPlaying, 
+  avatar, 
+  className 
+}: AvatarVoiceVisualizerProps) => {
+  const audioData = useAudioData();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scaleRef = useRef(1);
+  
+  const updateVisualization = useCallback(() => {
+    if (!containerRef.current) return;
+    
+    let targetScale = 1;
+    
+    if (audioData.current && audioData.current.length > 0) {
+      const data = audioData.current;
+      const sampleCount = Math.floor(data.length / 2);
+      
+      let sum = 0;
+      for (let i = 0; i < sampleCount; i++) {
+        sum += data[i];
+      }
+      
+      const average = sum / sampleCount;
+      targetScale = 1 + (average / 255) * SCALE_INTENSITY;
+    }
+
+    // Apply smoothing
+    scaleRef.current = scaleRef.current + 
+      (targetScale - scaleRef.current) * SMOOTHING_FACTOR;
+    
+    containerRef.current.style.transform = `scale(${scaleRef.current})`;
+  }, []);
+
+  useAnimationFrame(updateVisualization, isPlaying);
+
+  // Reset on play state change
   useEffect(() => {
-    if (!audioData || !isPlaying) {
-      // Reset to default state when not playing
-      setScale(1);
-      return;
+    if (!isPlaying && containerRef.current) {
+      scaleRef.current = 1;
+      containerRef.current.style.transform = 'scale(1)';
     }
-
-    let sum = 0;
-    const lowerHalf = audioData.slice(0, audioData.length / 2);
-    for (let i = 0; i < lowerHalf.length; i++) {
-      sum += lowerHalf[i];
-    }
-    const avg = sum / lowerHalf.length;
-    setAvgFrequency(avg);
-
-    // Set scale based on average frequency (with limits)
-    const newScale = 1 + (avg / 255) * 0.4; // Reduced scale range from 1 to 1.3
-    setScale(newScale);
-   
-  }, [audioData, isPlaying]);
+  }, [isPlaying]);
 
   return (
     <div
-      className={cn(className, 'relative flex items-center justify-center transition-all duration-100')}
-      style={{
-        transform: `scale(${scale})`,
-        // animation: isPlaying ? `pulse ${0.5 + (1 - avgFrequency / 255) * 1.5}s infinite alternate ease-in-out` : 'none',
-      }}
+      ref={containerRef}
+      className={cn(
+        className, 
+        'relative flex items-center justify-center',
+        'transition-transform duration-75 ease-linear'
+      )}
     >
-      <AvatarPicture avatar={avatar} sizeType={PICTURE_SIZE.semiMedium} className="size-full" />
+      <AvatarPicture 
+        avatar={avatar} 
+        sizeType={PICTURE_SIZE.semiMedium} 
+        className="size-full" 
+      />
     </div>
   );
 };

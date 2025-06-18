@@ -102,10 +102,10 @@ const VoiceVisualizer: React.FC<VoiceVisualizerProps> = ({
           waveOffset = amplitude * Math.sin(frequency * angle + phase) + amplitude * 0.4 * Math.sin(frequency * 2 * angle + phase * 1.5);
         }
 
-        // Динамічна товщина лінії залежно від waveOffset та позиції
+        // Dynamic line width based on waveOffset and position
         const totalOffset = Math.abs(waveOffset + baseMovement);
-        const normalizedOffset = Math.min(totalOffset / (radius * 0.1), 1); // Нормалізуємо до 0-1
-        const dynamicLineWidth = 1.5 + normalizedOffset * 2 + 0.5 * Math.sin(angle * 3 + phase); // Від 1.5 до 4.5
+        const normalizedOffset = Math.min(totalOffset / (radius * 0.1), 1); // Normalize to 0-1
+        const dynamicLineWidth = 1.5 + normalizedOffset * 2 + 0.5 * Math.sin(angle * 3 + phase); // From 1.5 to 4.5
         ctx.lineWidth = Math.max(1, dynamicLineWidth);
 
         const r = (radius + waveOffset + baseMovement) * circleScale;

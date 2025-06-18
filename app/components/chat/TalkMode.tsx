@@ -13,7 +13,6 @@ import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
-import useAudioData from '~/hooks/useAudioData';
 
 interface TalkModeProps {
   chat: Chat;
@@ -56,7 +55,6 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   });
 
   const { load, stop, isPlaying } = useAudioPlayerContext();
-  const avatarAudioData = useAudioData();
   
 
   useChatEvents({
@@ -139,7 +137,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
                 isProcessing={currentChatState !== ChatState.userSpeaking}
               />
             </div>
-            <AvatarVoiceVisualizer audioData={avatarAudioData} avatar={avatar} isPlaying={isPlaying} className='relative shrink-0 z-10' />
+            <AvatarVoiceVisualizer avatar={avatar} isPlaying={isPlaying} className='relative shrink-0 z-10' />
           </div>
         </div>
         <div className='p-5 flex items-center justify-center gap-5'>
