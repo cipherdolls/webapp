@@ -74,7 +74,13 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
 
   return (
     <Dialog.Root open={isDialogOpen} onOpenChange={handleOpenChange}>
-      <Dialog.Trigger asChild>{triggerContent || <Button.Root className='h-10 px-4'>Add</Button.Root>}</Dialog.Trigger>
+      <Dialog.Trigger asChild>
+        {triggerContent || (
+          <Button.Root size='sm' className='px-2.5 h-8'>
+            Chat
+          </Button.Root>
+        )}
+      </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className='bg-neutral-02 bg-opacity-50 fixed inset-0 z-[1000000]' />
 
