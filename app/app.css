@@ -107,6 +107,8 @@
   }
 
   --animate-eye: eye 0.5s ease-in-out infinite;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
 
   @keyframes eye {
     0% {
@@ -117,6 +119,24 @@
     }
     100% {
       background-position: 0% 50%;
+    }
+  }
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
     }
   }
 }
