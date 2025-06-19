@@ -223,7 +223,6 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       align: 'right',
     },
   ];
-
   return (
     <>
       <div className='flex flex-col gap-10 pb-5'>
