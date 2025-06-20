@@ -29,16 +29,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const [scenariosRes, avatarsRes] = await Promise.all([fetchWithAuth('scenarios'), fetchWithAuth('avatars')]);
+  const [scenariosRes, avatarsRes, publishedRes] = await Promise.all([
+    fetchWithAuth('scenarios'),
+    fetchWithAuth('avatars'),
+    fetchWithAuth('avatars?published=true'),
+  ]);
 
   const scenarios = await scenariosRes.json();
   const avatars = await avatarsRes.json();
+  const publishedAvatars = await publishedRes.json();
 
-  return { scenarios, avatars };
+  return { scenarios, avatars, publishedAvatars };
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const { scenarios, avatars }: { scenarios: Scenario[]; avatars: Avatar[] } = loaderData;
+  const { scenarios, avatars, publishedAvatars }: { scenarios: Scenario[]; avatars: Avatar[]; publishedAvatars: Avatar[] } = loaderData;
+  const allAvatars = [...publishedAvatars, ...avatars];
   const me = useRouteLoaderData('routes/_main') as User;
 
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
@@ -64,12 +70,10 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
   const myScenarios = scenarios.filter((scenario) => scenario.userId === me.id);
 
-  const myAvatars = avatars.filter((avatar) => avatar.userId === me.id);
-
   return (
     <>
       <MyScenarios scenarios={myScenarios} />
-      <PublicScenarios scenarios={scenarios} avatars={myAvatars} />
+      <PublicScenarios scenarios={scenarios} avatars={allAvatars} />
       <Outlet />
     </>
   );
