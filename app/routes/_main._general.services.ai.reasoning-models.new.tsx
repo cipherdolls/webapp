@@ -1,40 +1,28 @@
-import { redirect, useNavigate, useFetcher } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { EmbeddingModel } from '~/types';
-import type { Route } from './+types/_main._general.embedding-models.$id.edit';
+import { redirect, useFetcher, useNavigate, useSearchParams } from 'react-router';
+import type { ChatModel } from '~/types';
+import type { Route } from './+types/_main._general.services.ai.reasoning-models.new';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
-import { formatModelName } from '~/utils/formatModelName';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Edit Embedding Model' }];
+  return [{ title: 'New Reasoning Model' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const embeddingModelId = params.id;
-  const res = await fetchWithAuth(`embedding-models/${embeddingModelId}`);
-  return await res.json();
-}
-
-export async function clientAction({ request, params }: Route.ClientActionArgs) {
+export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
     const formData = await request.formData();
     const jsonData: Record<string, any> = {};
     formData.forEach((value, key) => {
-      if (key === 'recommended') {
-        jsonData[key] = value === 'on';
-      } else {
-        jsonData[key] = value;
-      }
+      jsonData[key] = value;
     });
 
-    const res = await fetchWithAuth(`embedding-models/${params.id}`, {
-      method: 'PATCH',
+    const res = await fetchWithAuth('reasoning-models', {
+      method: request.method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(jsonData),
     });
@@ -45,23 +33,25 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
         errors: responseData.message || 'Request failed',
       };
     }
-
-    const embeddingModel: EmbeddingModel = await res.json();
-    return redirect(`/embedding-models/${embeddingModel.id}`);
+    const reasoningModel: ChatModel = await res.json();
+    return redirect(`/reasoning-models/${reasoningModel.id}`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps) {
-  const embeddingModel: EmbeddingModel = loaderData;
+export default function NewReasoningModel() {
+  const [searchParams] = useSearchParams();
+  const aiProviderId = searchParams.get('id') || '';
+  const name = searchParams.get('name') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
+
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
-    navigate(`/embedding-models/${embeddingModel.id}`);
+    navigate(`/services/ai`, { replace: true });
   };
 
   return (
@@ -72,27 +62,18 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
       }}
     >
       <Modal.Content>
-        <Modal.Title>Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}</Modal.Title>
-        <Modal.Description className='sr-only'>
-          Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}
-        </Modal.Description>
-        <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
+        <Modal.Title>Add Reasoning Model for {name}</Modal.Title>
+        <Modal.Description className='sr-only'>Add Reasoning Model for {name}</Modal.Description>
+        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
-            <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
-            <input type='hidden' name='aiProviderId' value={embeddingModel.aiProviderId} />
+            <input type='hidden' name='aiProviderId' value={aiProviderId} />
 
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
                 Model Name
               </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                defaultValue={formatModelName(embeddingModel.providerModelName)}
-              />
+              <Input.Input className='text-base-black  py-3.5 px-3' id='name' name='name' type='text' placeholder='GPT o1' />
             </Input.Root>
 
             <Input.Root>
@@ -100,11 +81,11 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
                 Provider Model Name
               </Input.Label>
               <Input.Input
-                className='text-base-black py-3.5 px-3'
+                className='text-base-black  py-3.5 px-3'
                 id='providerModelName'
                 name='providerModelName'
                 type='text'
-                defaultValue={embeddingModel.providerModelName}
+                placeholder='gpt-4o-reasoning'
               />
             </Input.Root>
 
@@ -114,13 +95,11 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
                   $ per Input Token
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black py-3.5 px-3'
+                  className='text-base-black  py-3.5 px-3'
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
-                  type='number'
-                  step='any'
-                  min='0'
-                  defaultValue={scientificNumConvert(embeddingModel.dollarPerInputToken)}
+                  type='text'
+                  placeholder='0.0001'
                 />
               </Input.Root>
 
@@ -129,31 +108,19 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
                   $ per Output Token
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black py-3.5 px-3'
+                  className='text-base-black  py-3.5 px-3'
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
-                  type='number'
-                  step='any'
-                  min='0'
-                  defaultValue={scientificNumConvert(embeddingModel.dollarPerOutputToken)}
+                  type='text'
+                  placeholder='0.0001'
                 />
               </Input.Root>
             </div>
-
-            <Input.Root>
-              <Input.Label id='info' htmlFor='info'>
-                Model description
-              </Input.Label>
-              <Input.Input className='text-base-black py-3.5 px-3' type='text' name='info' id='info' defaultValue={embeddingModel.info} />
-              <span className='text-neutral-01 text-body-sm'>Maximum of 55 characters</span>
-            </Input.Root>
-
             <div className='flex items-center gap-2'>
               <Checkbox.Root
                 className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
                 id='recommended'
                 name='recommended'
-                defaultChecked={embeddingModel.recommended}
               >
                 <Checkbox.Indicator>
                   <Icons.check className='text-white size-4.5' />
