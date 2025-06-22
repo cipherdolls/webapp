@@ -37,12 +37,17 @@ const PrivacyPolicyModal = () => {
             <div className='flex flex-col gap-2'>
               <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center'>Privacy Policy</Dialog.Title>
               <Dialog.Description className='sm:text-center sm:text-body-lg text-body-md text-base-black'>
-                At Cipherdolls, we understand the importance of privacy and security. That's why we operate anonymously, without collecting
-                any personal data about you. You don't need to provide an email address or credit card information to use our services.
+                At Cipherdolls, we take privacy seriously. We do not collect, store, or share any personal data. No emails, no names, no
+                tracking.
                 <br /> <br />
-                This is also why we use Ethereum on Optimism to pay for messages, ensuring that all transactions are secure and private.
-                There are no monthly subscriptions or hidden fees. You only pay for the messages you send and receive, so if you don't use
-                cipherdolls, you don't need to pay a thing.
+                All interactions with Cipherdolls are anonymous. Payments are processed using Ethereum on Optimism, ensuring secure and
+                private transactions.
+                <br /> <br />
+                Since we don’t store any user data, there's nothing to leak, sell, or lose.
+                <br /> <br />
+                <span className='flex gap-1 items-center'>
+                  🔒<small className='text-body-sm font-semibold underline'>Your privacy is not a feature — it’s the foundation.</small>
+                </span>
               </Dialog.Description>
             </div>
             <Dialog.Close asChild className='sm:hidden block sm:mt-0 mt-4.5'>

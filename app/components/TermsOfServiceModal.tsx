@@ -37,12 +37,16 @@ const TermsOfServiceModal = () => {
             <div className='flex flex-col gap-2'>
               <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center'>Terms of Service</Dialog.Title>
               <Dialog.Description className='sm:text-center sm:text-body-lg text-body-md text-base-black'>
-                At Cipherdolls, we understand the importance of privacy and security. That's why we operate anonymously, without collecting
-                any personal data about you. You don't need to provide an email address or credit card information to use our services.
+                At Cipherdolls, your privacy and security come first. We operate anonymously and do not collect any personal data. No email
+                address, no credit card — just full access to our services without identification.
                 <br /> <br />
-                This is also why we use Ethereum on Optimism to pay for messages, ensuring that all transactions are secure and private.
-                There are no monthly subscriptions or hidden fees. You only pay for the messages you send and receive, so if you don't use
-                cipherdolls, you don't need to pay a thing.
+                Payments are made using Ethereum on the Optimism network, providing secure and private transactions. There are no
+                subscriptions, no hidden fees. You only pay for the messages you send and receive. If you don’t use Cipherdolls, you don’t
+                pay.
+                <br /> <br />
+                <span className='flex gap-1 items-center'>
+                  ⚠️<small className='text-body-sm font-semibold underline'>By using Cipherdolls, you agree to these terms.</small>
+                </span>
               </Dialog.Description>
             </div>
             <Dialog.Close asChild className='sm:hidden block sm:mt-0 mt-4.5'>
