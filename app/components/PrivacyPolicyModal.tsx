@@ -26,7 +26,7 @@ const PrivacyPolicyModal = () => {
         [mask-composite:exclude]'
             style={{
               maskImage:
-                "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='448' viewBox='0 0 480 448' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='448' rx='12' fill='black'/%3E%3C/svg%3E\")",
+                "linear-gradient(to bottom, black 0%, black 100%), url(\"data:image/svg+xml,%3Csvg width='480' height='424' viewBox='0 0 480 424' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='480' height='424' rx='12' fill='black'/%3E%3C/svg%3E\")",
             }}
           />
         </Dialog.Overlay>
