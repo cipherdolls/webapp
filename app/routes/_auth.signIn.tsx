@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { useLocalStorage } from 'usehooks-ts';
 import { useEffect, useState } from 'react';
-import SignInWithMetamask from '~/components/buttons/signInWithMetamask';
 import HowItWorksModal from '~/components/howItWorksModal';
 import SignInPatterns from '~/components/ui/signInPatterns';
 import type { Route } from './+types/_auth.signIn';
@@ -13,6 +12,8 @@ import Groq from '../assets/logos/groq.png';
 import Openrouter from '../assets/logos/openrouter.png';
 import Assembly from '../assets/logos/assembly.png';
 import * as Button from '~/components/ui/button/button';
+import TermsOfServiceModal from '~/components/TermsOfServiceModal';
+import PrivacyPolicy from '~/components/PrivacyPolicyModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Sign In' }];
@@ -150,21 +151,22 @@ export default function SignInRoute() {
 
   return (
     <>
-      <div className='flex flex-col justify-between py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-50'>
+      <div className='flex flex-col justify-between py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
         <div className='flex justify-center relative z-10'>
           <div className='flex flex-col sm:gap-8 gap-5 items-center justify-center'>
             <img src='/logo.svg' alt='Cipherdolls' className='sm:w-[234px] sm:h-8 w-[146px] h-5' width={234} height={32} />
-            <div className='flex md:flex-row flex-col'>
-              <div className='lg:max-w-[656px] max-w-[600px] w-full flex flex-col p-2 bg-white rounded-xl'>
+            <div className='mx-2 flex flex-col md:mx-auto md:flex-row'>
+              <div className='order-2 rounded-b-xl w-full flex flex-col p-2 bg-white md:rounded-xl md:max-w-[600px] lg:max-w-[656px]'>
                 <iframe
-                  className='lg:h-[360px] md:h-[220px] h-[150px] w-full rounded-xl'
+                  className='w-full rounded-xl aspect-video min-h-[180px] max-h-[360px]'
                   src='https://www.youtube.com/embed/cb8CiwBFe30?si=P5FBgiPZPjj3oFYy'
                   title='YouTube video player'
                   allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
                   allowFullScreen
-                ></iframe>
-                <div className='lg:py-10 lg:px-8 md:px-6 md:py-8 px-4 py-6 flex flex-col gap-8'>
-                  <p className='text-body-lg text-black'>
+                />
+
+                <div className='px-4 py-6 flex flex-col gap-8 lg:py-10 lg:px-8 md:px-6 md:py-8'>
+                  <p className='text-black text-body-md md:text-body-lg'>
                     A connected crypto wallet in your browser is required to log in (new or empty wallets are fine)
                   </p>
                   <div className='flex flex-col gap-4'>
@@ -172,7 +174,7 @@ export default function SignInRoute() {
                       <div className='p-5 bg-neutral-05 rounded-xl flex flex-col gap-4'>
                         <div className='flex gap-4'>
                           <span className='text-heading-h2'>⛔</span>
-                          <p className='text-body-md text-neutral-01'>
+                          <p className='text-body-sm md:text-body-md text-neutral-01'>
                             Your browser isn't supported. Use a Web3 browser (e.g.,{' '}
                             <a
                               href='https://brave.com/download/'
@@ -214,32 +216,45 @@ export default function SignInRoute() {
                         </Button.Root>
                       </fetcher.Form>
                     )}
-                    <HowItWorksModal />
+
+                    <div className='flex flex-wrap justify-center gap-6'>
+                      <HowItWorksModal />
+                      <TermsOfServiceModal />
+                      <PrivacyPolicy />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className='mt-4 flex md:flex-col justify-center md:justify-start gap-2 -ml-2'>
-                <div className='bg-gradient-1 rounded-xl md:rounded-r-none w-[136px] h-32 flex flex-col gap-2 items-center justify-center py-4 px-5'>
-                  <h3 className='text-heading-h3'>🎉</h3>
-                  <h3 className='text-heading-h3 font-semibold text-base-black'>Free</h3>
+
+              <div className='mt-4 order-first flex justify-center items-end gap-1 md:gap-2 md:order-last md:flex-col md:justify-start'>
+                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:h-32 md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
+                  <div className='flex items-center gap-2 md:flex-col'>
+                    <h3 className='text-lg md:text-heading-h3'>🎉</h3>
+                    <h3 className='text-lg font-semibold text-base-black md:text-heading-h3'>Free</h3>
+                  </div>
+
                   <span className='text-body-sm text-center text-neutral-01'>Registration and usage</span>
                 </div>
-                <div className='bg-gradient-1 rounded-xl md:rounded-r-none w-[136px] h-32 flex flex-col gap-2 items-center justify-center py-4 px-5'>
-                  <h3 className='text-heading-h3'>💶</h3>
-                  <h3 className='text-heading-h3 font-semibold text-base-black'>Get €3</h3>
+                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:h-32 md:rounded-r-xl md:w-[136px]'>
+                  <div className='flex items-center gap-2 md:flex-col'>
+                    <h3 className='text-lg md:text-heading-h3'>💶</h3>
+                    <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>Get €3</h3>
+                  </div>
+
                   <span className='text-body-sm text-center text-neutral-01'>For monthly usage</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
         <div className='relative z-10'>
-          <div className='flex lg:gap-20 w-full lg:max-w-max mx-auto md:justify-between justify-center lg:px-0 px-8 items-center md:flex-nowrap flex-wrap gap-6'>
-            <img src={Mixedbread} alt='Mixedbread' className='object-cover' />
-            <img src={Openrouter} alt='Openrouter' className='object-cover' />
-            <img src={Groq} alt='Groq' className='object-cover' />
-            <img src={Elevenlabs} alt='Elevenlabs' className='object-cover' />
-            <img src={Assembly} alt='Assembly' className='object-cover' />
+          <div className='flex justify-start gap-6 px-5 items-center mx-auto max-w-3xl md:max-w-max overflow-y-auto pb-2.5 md:justify-between lg:gap-20 lg:px-0'>
+            <img src={Mixedbread} alt='Mixedbread' draggable={'false'} className='object-cover select-none' />
+            <img src={Openrouter} alt='Openrouter' draggable={'false'} className='object-cover select-none' />
+            <img src={Groq} alt='Groq' draggable={'false'} className='object-cover select-none' />
+            <img src={Elevenlabs} alt='Elevenlabs' draggable={'false'} className='object-cover select-none' />
+            <img src={Assembly} alt='Assembly' draggable={'false'} className='object-cover select-none' />
           </div>
         </div>
       </div>
