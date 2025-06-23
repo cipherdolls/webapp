@@ -65,7 +65,7 @@ export default function Account({}: Route.ComponentProps) {
                   className='hover:opacity-80 transition-opacity'
                 >
                   <h2 className='text-heading-h2 sm:text-heading-h1 font-semibold break-all'>
-                    {Number(formatEther(weiBalance)) === 0 ? '0.00' : String(Number(formatEther(weiBalance)).toFixed(5))}{' '}
+                    {!weiBalance || Number(formatEther(weiBalance)) === 0 ? '0.00' : String(Number(formatEther(weiBalance)).toFixed(5))}{' '}
                     <span className='text-neutral-01'>ETH</span>
                   </h2>
                 </a>
@@ -77,7 +77,7 @@ export default function Account({}: Route.ComponentProps) {
             className='px-2 py-1 text-xs max-w-48'
           />
 
-          {Number(formatEther(weiBalance)) === 0 && Number(formatEther(freeWeiBalance)) > 0 && (
+          {(!weiBalance || Number(formatEther(weiBalance)) === 0) && freeWeiBalance && Number(formatEther(freeWeiBalance)) > 0 && (
             <Tooltip
               trigger={
                 <div className='flex items-center sm:gap-6 gap-4 '>
@@ -88,7 +88,7 @@ export default function Account({}: Route.ComponentProps) {
                     </div>
                   </button>
                   <h2 className='text-heading-h2 sm:text-heading-h1 font-semibold break-all'>
-                    {Number(formatEther(freeWeiBalance)) === 0 ? '0.00' : String(Number(formatEther(freeWeiBalance)).toFixed(5))}{' '}
+                    {!freeWeiBalance || Number(formatEther(freeWeiBalance)) === 0 ? '0.00' : String(Number(formatEther(freeWeiBalance)).toFixed(5))}{' '}
                     <span className='text-neutral-01'>ETH</span>
                   </h2>
                 </div>
