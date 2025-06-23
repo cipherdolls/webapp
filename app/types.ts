@@ -48,6 +48,7 @@ export interface ChatModel {
     minUsdCost: number;
     maxUsdCost: number;
   };
+  error?: string;
 }
 
 export interface EmbeddingModel {
@@ -61,6 +62,7 @@ export interface EmbeddingModel {
   createdAt: Date;
   updatedAt: Date;
   info?: string;
+  error?: string;
 }
 
 export interface SttProvider {

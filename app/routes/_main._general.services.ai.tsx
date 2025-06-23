@@ -71,6 +71,14 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       label: 'Chat model',
       render: (data) => (
         <span className='font-semibold text-body-md flex items-center gap-2'>
+          {data.error && (
+            <Tooltip
+              side={'top'}
+              trigger={<Icons.warning className='size-4 text-specials-danger' />}
+              content={data.error}
+              popoverClassName='max-w-[350px]'
+            />
+          )}
           {formatModelName(data.providerModelName)}
           <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         </span>
@@ -124,6 +132,14 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       label: 'Embedding model',
       render: (data) => (
         <span className='font-semibold text-body-md flex items-center gap-2'>
+          {data.error && (
+            <Tooltip
+              side={'top'}
+              trigger={<Icons.warning className='size-4 text-specials-danger' />}
+              content={data.error}
+              className='max-w-[350px]'
+            />
+          )}
           {formatModelName(data.providerModelName)}
           <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         </span>
@@ -177,6 +193,14 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       label: 'Reasoning model',
       render: (data) => (
         <span className='font-semibold text-body-md flex items-center gap-2'>
+          {data.error && (
+            <Tooltip
+              side={'top'}
+              trigger={<Icons.warning className='size-4 text-specials-danger' />}
+              content={data.error}
+              className='max-w-[350px]'
+            />
+          )}
           {formatModelName(data.providerModelName)}
           <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         </span>
@@ -223,6 +247,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       align: 'right',
     },
   ];
+  console.log(aiProviders);
   return (
     <>
       <div className='flex flex-col gap-10 pb-5'>
