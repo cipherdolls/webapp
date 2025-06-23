@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useFetcher, useNavigate } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
@@ -7,23 +7,22 @@ import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
 import { ChatState, type ChatJobType, type ChatStateType } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
+import { useAudioUnlock } from '~/hooks/useAudioUnlock';
 
 interface ChatBottomBarProps {
   chat: Chat;
 }
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
-  const { currentChatState, liveTalkMode, setLiveTalkMode, hasMicAccess } = useChatStore(useShallow(state=> (
+  const navigate = useNavigate();
+  const { currentChatState, hasMicAccess, setTalkMode } = useChatStore(useShallow(state=> (
     {
       currentChatState: state.currentChatState,
-      liveTalkMode: state.liveTalkMode,
-      setLiveTalkMode: state.setLiveTalkMode,
       hasMicAccess: state.hasMicAccess,
-      requestMicAccess: state.requestMicAccess,
+      setTalkMode: state.setTalkMode,
     }
   )));
   
@@ -31,7 +30,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
-  const { unlockAudio } = useAudioPlayer();
+  const { isUnlocked, isUnlocking, unlockAudio } = useAudioUnlock();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,7 +54,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
       });
       return;
     }
-    setLiveTalkMode(!liveTalkMode);
+    setTalkMode(true);
   };
 
   return (

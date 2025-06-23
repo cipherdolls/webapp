@@ -7,6 +7,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Embedding Model' }];
@@ -27,7 +28,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
     const embeddingModel: EmbeddingModel = await res.json();
     return redirect(`/embedding-models/${embeddingModel.id}`);
@@ -44,6 +48,8 @@ export default function NewEmbeddingModel() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
+  const errors = fetcher.data?.errors;
+
   const handleClose = () => {
     navigate(`/services/ai`, { replace: true });
   };
@@ -58,8 +64,9 @@ export default function NewEmbeddingModel() {
       <Modal.Content>
         <Modal.Title>Add Embedding Model for {name}</Modal.Title>
         <Modal.Description className='sr-only'>Add Embedding Model for {name}</Modal.Description>
-        <fetcher.Form method='POST' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
 
             <Input.Root>

@@ -1,18 +1,18 @@
-import { redirect, useNavigate, useParams, useFetcher } from 'react-router';
+import { redirect, useNavigate, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.embedding-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import * as Modal from '~/components/ui/new-modal';
 import { formatModelName } from '~/utils/formatModelName';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Embedding Models' }];
+  return [{ title: 'Edit Embedding Model' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -40,7 +40,10 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const embeddingModel: EmbeddingModel = await res.json();
@@ -51,38 +54,40 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   }
 }
 
-export default function embeddingModelShow({ loaderData }: Route.ComponentProps) {
+export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps) {
   const embeddingModel: EmbeddingModel = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/embedding-models/${embeddingModel.id}`);
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}</Drawer.Title>
-        <Dialog.Description className='hidden'>
+      <Modal.Content>
+        <Modal.Title>Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}</Modal.Title>
+        <Modal.Description className='sr-only'>
           Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}
-        </Dialog.Description>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
+        </Modal.Description>
+        <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
             <input type='hidden' name='aiProviderId' value={embeddingModel.aiProviderId} />
 
             <Input.Root>
               <Input.Label id='name' htmlFor='name'>
-                Name
+                Model Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
@@ -95,7 +100,7 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
                 Provider Model Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='providerModelName'
                 name='providerModelName'
                 type='text'
@@ -103,75 +108,74 @@ export default function embeddingModelShow({ loaderData }: Route.ComponentProps)
               />
             </Input.Root>
 
-            <Input.Root>
-              <Input.Label id='dollarPerInputToken' htmlFor='dollarPerInputToken'>
-                Dollar Per Input Token
-              </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='dollarPerInputToken'
-                name='dollarPerInputToken'
-                type='number'
-                step='any'
-                min='0'
-                defaultValue={scientificNumConvert(embeddingModel.dollarPerInputToken)}
-              />
-            </Input.Root>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+              <Input.Root>
+                <Input.Label id='dollarPerInputToken' htmlFor='dollarPerInputToken'>
+                  $ per Input Token
+                </Input.Label>
+                <Input.Input
+                  className='text-base-black py-3.5 px-3'
+                  id='dollarPerInputToken'
+                  name='dollarPerInputToken'
+                  type='number'
+                  step='any'
+                  min='0'
+                  defaultValue={scientificNumConvert(embeddingModel.dollarPerInputToken)}
+                />
+              </Input.Root>
 
-            <Input.Root>
-              <Input.Label id='dollarPerOutputToken' htmlFor='dollarPerOutputToken'>
-                Dollar Per Output Token
-              </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='dollarPerOutputToken'
-                name='dollarPerOutputToken'
-                type='number'
-                step='any'
-                min='0'
-                defaultValue={scientificNumConvert(embeddingModel.dollarPerOutputToken)}
-              />
-            </Input.Root>
-
-            <div className='flex flex-col gap-2'>
-              <span className='text-sm font-medium text-base-black'>Options</span>
-              <div className='flex items-center gap-2'>
-                <Checkbox.Root
-                  className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
-                  id='recommended'
-                  name='recommended'
-                  defaultChecked={embeddingModel.recommended}
-                >
-                  <Checkbox.Indicator>
-                    <Icons.check className='text-white size-4.5' />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
-                  Recommended
-                </label>
-              </div>
+              <Input.Root>
+                <Input.Label id='dollarPerOutputToken' htmlFor='dollarPerOutputToken'>
+                  $ per Output Token
+                </Input.Label>
+                <Input.Input
+                  className='text-base-black py-3.5 px-3'
+                  id='dollarPerOutputToken'
+                  name='dollarPerOutputToken'
+                  type='number'
+                  step='any'
+                  min='0'
+                  defaultValue={scientificNumConvert(embeddingModel.dollarPerOutputToken)}
+                />
+              </Input.Root>
             </div>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+
+            <Input.Root>
+              <Input.Label id='info' htmlFor='info'>
+                Model description
+              </Input.Label>
+              <Input.Input className='text-base-black py-3.5 px-3' type='text' name='info' id='info' defaultValue={embeddingModel.info} />
+              <span className='text-neutral-01 text-body-sm'>Maximum of 55 characters</span>
+            </Input.Root>
+
+            <div className='flex items-center gap-2'>
+              <Checkbox.Root
+                className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
+                id='recommended'
+                name='recommended'
+                defaultChecked={embeddingModel.recommended}
+              >
+                <Checkbox.Indicator>
+                  <Icons.check className='text-white size-4.5' />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              <label className='text-body-sm font-semibold text-neutral-01' htmlFor='recommended'>
+                Recommended
+              </label>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

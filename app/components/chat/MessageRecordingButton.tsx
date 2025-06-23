@@ -6,9 +6,10 @@ import AnimationRecording from '~/components/ui/AnimationRecording';
 import { cn } from '~/utils/cn';
 import { useFetcher } from 'react-router';
 import type { Chat } from '~/types';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
+import { useShallow } from 'zustand/react/shallow';
+import { useAudioPlayerContext } from 'react-use-audio-player';
 
 interface MessageRecordingButtonProps {
   chat: Chat;
@@ -18,11 +19,17 @@ interface MessageRecordingButtonProps {
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   chat
 }) => {
-  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore();
+  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(useShallow(state => ({
+    currentChatState: state.currentChatState,
+    setCurrentChatState: state.setCurrentChatState,
+    hasMicAccess: state.hasMicAccess,
+    requestMicAccess: state.requestMicAccess,
+  })));
+  
   const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null); 
   const fetcher = useFetcher();
-  const { stopAudio, unlockAudio } = useAudioPlayer();
+  const { stop } = useAudioPlayerContext();
   const alert = useAlert();
 
 
@@ -37,7 +44,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
 
   const startRecording = async () => {
     try {
-      unlockAudio();
+      // unlockAudio();
       if (!hasMicAccess) {
         requestMicAccess();
         alert({
@@ -49,7 +56,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
       };  
 
       setCurrentChatState(ChatState.userSpeaking);
-      stopAudio();
+      stop();
 
       streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
       recorder.current = new MediaRecorder(streamRef.current);

@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface UseVoiceRecorderOptions {
   onRecordingComplete: (blob: Blob) => void;
@@ -14,6 +14,7 @@ export default function useVoiceRecorder({
   requiredSilenceDuration = 2000,
   enableSilenceDetection = true,
 }: UseVoiceRecorderOptions) {
+  const [audioData, setAudioData] = useState<Uint8Array | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -52,10 +53,20 @@ export default function useVoiceRecorder({
     dataRef.current = new Uint8Array(an.fftSize);
     src.connect(an);
 
+
+    const dataArray = new Uint8Array(an.frequencyBinCount);
+
     const tick = () => {
       const arr = dataRef.current!;
       an.getByteTimeDomainData(arr);
       const peak = arr.reduce((m, x) => Math.max(m, Math.abs(x - 127)), 0) / 128;
+
+      
+
+      if (analyserRef.current) {
+        analyserRef.current.getByteFrequencyData(dataArray);
+        setAudioData(new Uint8Array(dataArray));
+      }
 
       if (peak > silenceThreshold) {
         if (!speechStartedRef.current) speechStartedRef.current = true;
@@ -63,7 +74,7 @@ export default function useVoiceRecorder({
       } else if (speechStartedRef.current) {
         if (silenceStartRef.current === null) silenceStartRef.current = performance.now();
         else if (performance.now() - silenceStartRef.current >= requiredSilenceDuration) {
-          stopRecording();
+          stop();
           return;
         }
       }
@@ -90,8 +101,7 @@ export default function useVoiceRecorder({
   };
 
   /* ------------------------------------------------ recording */
-  const startRecording = async () => {
-    console.log(recorderRef.current?.state);
+  const start = async () => {
     const stream = await getStream();
     if (enableSilenceDetection) {
       startMeter(stream);
@@ -109,7 +119,7 @@ export default function useVoiceRecorder({
     rec.start();
   };
 
-  const stopRecording = () => {
+  const stop = () => {
     recorderRef.current?.stop();
   };
 
@@ -123,19 +133,19 @@ export default function useVoiceRecorder({
     streamRef.current = null;
   };
 
-  const cancelRecording = () => {
+  const cancel = () => {
     if (recorderRef.current && dataHandlerRef.current) {
       recorderRef.current.removeEventListener('dataavailable', dataHandlerRef.current);
     }
-    stopRecording();
+    stop();
   };
 
   useEffect(() => {
     return () => {
-      cancelRecording();
+      cancel();
       cleanUp();
     };
   }, []);
 
-  return { startRecording, stopRecording, cancelRecording };
+  return { audioData, start, stop, cancel };
 }

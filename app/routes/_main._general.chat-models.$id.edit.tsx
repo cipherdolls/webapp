@@ -40,7 +40,10 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const chatModel: ChatModel = await res.json();
@@ -55,7 +58,7 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
   const chatModel: ChatModel = loaderData;
   const navigate = useNavigate();
   const fetcher = useFetcher();
-  const errors = fetcher.data?.message;
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/chat-models/${chatModel.id}`);
@@ -71,11 +74,9 @@ export default function ChatModelEdit({ loaderData }: Route.ComponentProps) {
       <Modal.Content>
         <Modal.Title>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Title>
         <Modal.Description className='sr-only'>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Description>
-        <div className='mt-2'>
-          <ErrorsBox errors={errors} />
-        </div>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='chatModelId' value={chatModel.id} />
             <input type='hidden' name='aiProviderId' value={chatModel.aiProviderId} />
 

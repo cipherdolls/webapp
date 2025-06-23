@@ -7,6 +7,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Button from '~/components/ui/button/button';
 import { useEffect, useState } from 'react';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 const YourInfo = ({ me, fetcher }: { me: User; fetcher: FetcherWithComponents<any> }) => {
   const hasUserInfo = me.character;
@@ -17,7 +18,7 @@ const YourInfo = ({ me, fetcher }: { me: User; fetcher: FetcherWithComponents<an
   };
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
+    if (fetcher.state === 'idle' && fetcher.data && !fetcher.data?.message) {
       setIsEditing(false);
     }
   }, [fetcher.state, fetcher.data]);
@@ -37,6 +38,7 @@ const YourInfo = ({ me, fetcher }: { me: User; fetcher: FetcherWithComponents<an
         <Card.Content className={cn(hasUserInfo && !isEditing && 'border-t-0')}>
           {isEditing ? (
             <div className='flex flex-col shadow-regular rounded-xl sm:p-5 p-3 divide-y divide-neutral-04'>
+              {fetcher.data?.message && <ErrorsBox errors={fetcher.data.message} className='mb-4' />}
               <div className='flex flex-col sm:gap-5 gap-4 sm:py-0 py-3'>
                 <Input.Root>
                   <Input.Label id='name' htmlFor='name'>
@@ -96,9 +98,9 @@ const YourInfo = ({ me, fetcher }: { me: User; fetcher: FetcherWithComponents<an
             <div className='flex flex-col bg-base-white shadow-regular rounded-xl sm:p-5 p-3 divide-y divide-neutral-04 max-h-[350px] sm:max-h-[500px] overflow-y-auto scrollbar-medium'>
               <div className='flex flex-col gap-4'>
                 <div className='flex items-center justify-between'>
-                  {me.name && <h4 className='text-heading-h4 font-semibold text-base-black'>{me.name}</h4>}
+                  {me.name && <h4 className='text-heading-h4 font-semibold text-base-black break-all'>{me.name}</h4>}
                 </div>
-                {me.character && <p className='text-body-md text-base-black'>{me.character}</p>}
+                {me.character && <p className='text-body-md text-base-black break-all'>{me.character}</p>}
               </div>
             </div>
           )}

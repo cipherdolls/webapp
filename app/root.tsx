@@ -4,16 +4,18 @@ import type { Route } from './+types/root';
 import './app.css';
 import { CustomToaster } from './components/ui/toast';
 
+
 export const links: Route.LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
+    rel: 'preload',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+    as: 'style',
     crossOrigin: 'anonymous',
   },
   {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+    crossOrigin: 'anonymous',
   },
 ];
 
@@ -58,14 +60,15 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className='pt-16 p-4 container mx-auto'>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className='w-full p-4 overflow-x-auto'>
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+   
+      <main className='pt-16 p-4 container mx-auto'>
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre className='w-full p-4 overflow-x-auto'>
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
   );
 }

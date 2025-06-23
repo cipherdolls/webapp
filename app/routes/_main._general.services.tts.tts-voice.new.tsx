@@ -64,7 +64,7 @@ export default function NewTtsVoice() {
       <Modal.Content>
         <Modal.Title>{ttsProviderId ? `Add TTS Voice for ${providerName}` : 'Add New TTS Voice'}</Modal.Title>
         <Modal.Description className='sr-only'>Create a new TTS voice</Modal.Description>
-        <fetcher.Form method='POST' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='ttsProviderId' value={ttsProviderId} />

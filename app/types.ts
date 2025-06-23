@@ -24,6 +24,7 @@ export interface AiProvider {
   apiKey: string;
   chatModels: ChatModel[];
   embeddingModels: EmbeddingModel[];
+  reasoningModels: ChatModel[];
 }
 
 export interface ChatModel {

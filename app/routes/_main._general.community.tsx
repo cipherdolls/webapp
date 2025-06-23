@@ -17,7 +17,7 @@ const communityNavItems = [
     link: 'Avatars',
     new: {
       text: 'Add New Avatar',
-      href: '/avatars/new',
+      href: '/community/avatars/new',
     },
   },
   {

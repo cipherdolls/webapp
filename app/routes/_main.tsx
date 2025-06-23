@@ -1,16 +1,16 @@
-import { Outlet, redirect, useNavigate } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import mqtt from 'mqtt';
 import Sidebar from '~/components/sidebar';
 import type { Route } from './+types/_main';
 import type { ProcessEvent, User } from '~/types';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Buffer } from 'buffer';
-import { AudioPlayerProvider } from '~/providers/AudioPlayerContext';
-import { cn } from '~/utils/cn';
+import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { showToast } from '~/components/ui/toast';
 import { wsURL } from '~/constants';
+import { MqttProvider } from '~/providers/MqttContext';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -52,10 +52,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         let emoji = '⏳';
         let duration = 5000;
         let actionLink;
+        let description = 'Process has begun...';
 
         if (jobStatus === 'completed') {
           emoji = '✅';
           duration = 5000;
+          description = 'Process finished successfully.';
         } else if (jobStatus === 'failed') {
           emoji = '❌';
           duration = 8000;
@@ -75,11 +77,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
         const formattedResourceName = resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
         const formattedJobName = jobName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        const formattedJobStatus = `${jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)} (ID: ${resourceId})`;
 
         showToast({
           emoji,
           title: `${formattedResourceName} ${formattedJobName}`,
-          description: `${jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)} (ID: ${resourceId})`,
+          description: `${description ? description : formattedJobStatus}`,
           actionLink,
           actionText: actionLink ? 'View' : undefined,
           duration,
@@ -88,7 +91,9 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
       mqttClient.on('message', handleMessage);
       mqttClient.on('connect', () => {
-        mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), { qos: 1 });
+          mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), {
+          qos: 1,
+        });
       });
 
       return () => {
@@ -163,13 +168,54 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   }, [provider]);
 
   return (
-    <AudioPlayerProvider>
+    <MainLayoutProviders>
       <div className='flex sm:flex-row flex-col-reverse size-full'>
         <Sidebar />
         <Outlet />
       </div>
-    </AudioPlayerProvider>
+    </MainLayoutProviders>
   );
 };
 
 export default MainLayout;
+
+
+// PROVIDERS WRAPPER
+
+export const MainLayoutProviders = ({ children }: { children: React.ReactNode }) => {
+  const localStorageToken = localStorage.getItem('token');
+  const mqttConfig = useMemo(() => {
+    const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
+
+    return {
+      brokerUrl: wsURL,
+      options: {
+        clientId,
+        username: 'frontend',
+        password: localStorageToken?.replaceAll('"', ''),
+        keepAlive: 60,
+        reconnectPeriod: 1000,
+        connectTimeout: 30000,
+        clean: true,
+        will: {
+          topic: 'connections',
+          payload: Buffer.from(
+            JSON.stringify({
+              clientId,
+              deviceType: 'browser',
+              status: 'disconnected',
+            })
+          ),
+          qos: 1 as const,
+          retain: false,
+        },
+      },
+    };
+  }, [localStorageToken]);
+
+  return (
+    <MqttProvider config={mqttConfig}>
+      <AudioPlayerProvider>{children}</AudioPlayerProvider>
+    </MqttProvider>
+  );
+};

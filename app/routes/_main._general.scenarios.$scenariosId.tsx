@@ -3,17 +3,19 @@ import type { Route } from './+types/_main._general.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { Link, Outlet, useFetcher, useRouteLoaderData } from 'react-router';
-
+import ReactMarkdown from 'react-markdown';
 import { getPicture } from '~/utils/getPicture';
 import type { Scenario, User } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
 import ScenarioDestroy from './scenarios.$scenariosId.destroy';
-import { formatDate } from '~/utils/date.utils';
 import { formatModelName } from '~/utils/formatModelName';
 import DetailCard from '~/components/ui/detail/detail-card';
 import DetailRow from '~/components/ui/detail/detail-row';
 import { formatNumberWithCommas } from '~/utils/formatNumberWithCommas';
 import { ViewMore } from '~/view-more';
+import * as Accordion from '@radix-ui/react-accordion';
+import { scientificNumConvert } from '~/utils/scientificNumConvert';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -35,7 +37,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
+      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
           <Link to={`/community/scenarios`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
@@ -119,111 +121,105 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-
-        <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
-          <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl '>
-            <div className='flex sm:gap-5 md:gap-10 gap-5 sm:justify-center sm:items-center md:items-end md:justify-between md:flex-row flex-col'>
-              <div className='flex sm:items-center gap-5 s'>
-                <div className='size-24 shrink-0'>
-                  <img
-                    src={getPicture(scenario, 'scenarios', false)}
-                    srcSet={getPicture(scenario, 'scenarios', true)}
-                    alt={scenario.name}
-                    className='size-full object-cover rounded-lg'
-                  />
-                </div>
-                <div className='flex flex-col gap-2'>
-                  <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black break-all line-clamp-2'>{scenario.name}</h4>
-
-                  <div className='flex flex-col gap-2'>
-                    <div className='flex items-center gap-1'>
-                      <div className='flex items-center gap-1'>
-                        {scenario.embeddingModel.recommended ? (
-                          <Icons.checkCircle className='size-4' />
-                        ) : (
-                          <Icons.warning className='size-4 text-specials-danger' />
-                        )}
-                        <span className='text-neutral-01 text-body-sm'>Embedding model •</span>
-                      </div>
-                      <div className='flex items-center gap-1'>
-                        {scenario.chatModel.recommended ? (
-                          <Icons.checkCircle className='size-4' />
-                        ) : (
-                          <Icons.warning className='size-4 text-specials-danger' />
-                        )}
-                        <span className='text-neutral-01 text-body-sm'>Chat model</span>
-                      </div>
-                    </div>
-                    <div className='flex items-center gap-1'>
-                      <span className='text-body-sm text-neutral-01'>Chat Model</span>
-                      <span className='text-body-sm font-semibold text-base-black'>
-                        {formatModelName(scenario.chatModel.providerModelName)}
-                      </span>
-                    </div>
-                    <div className='flex items-center gap-1'>
-                      <span className='text-body-sm text-neutral-01'>Embedding Model</span>
-                      <span className='text-body-sm font-semibold text-base-black'>
-                        {formatModelName(scenario.embeddingModel.providerModelName)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='flex flex-1 sm:justify-end sm:items-end h-full'>
-                <div className='flex flex-col gap-2'>
-                  <p className='text-body-sm text-neutral-01 md:text-right text-center'>
-                    Created at: <span className='text-base-black font-semibold'>{createdDate}</span>
-                  </p>
-                  <p className='text-body-sm text-neutral-01 md:text-right text-center shrink-0'>
-                    Updated at: <span className='text-base-black font-semibold '>{updatedDate}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-5 sm:flex-1 sm:divide-x divide-neutral-04 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
+          <div className='sm:pr-4 flex size-full flex-col gap-4'>
+            <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage} isScenario={true}>
+              <ReactMarkdown>{scenario.systemMessage}</ReactMarkdown>
+            </DetailCard>
           </div>
-
-          <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
-            <div className='flex flex-col gap-4'>
-              <DetailCard title='Chat Model Details'>
-                <div className='flex flex-col divide-y divide-neutral-04'>
-                  <div className='flex flex-col gap-4 pb-[18px]'>
-                    <DetailRow title='Name' value={formatModelName(scenario.chatModel.providerModelName)} />
-                    <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel.contextWindow)} token`} />
-                    <DetailRow title='Censored' value={scenario.chatModel.censored ? 'Yes' : 'No'} />
-                  </div>
-                  <div className='flex flex-col gap-4 pt-[18px]'>
-                    <DetailRow title='Temperature' value={scenario.temperature} />
-                    <DetailRow title='TopP' value={scenario.topP} />
-                    <DetailRow title='Frequency Penalty' value={scenario.frequencyPenalty} />
-                    <DetailRow title='Presence Penalty' value={scenario.presencePenalty} />
-                  </div>
-                </div>
-              </DetailCard>
-
-              <DetailCard title='Embedding Model Details'>
-                <div className='flex flex-col gap-4'>
-                  <DetailRow title='Name' value={formatModelName(scenario.embeddingModel.providerModelName)} />
-                </div>
-              </DetailCard>
-            </div>
-            <div className='flex flex-col gap-4'>
-              <DetailCard title='Reasoning Model'>
-                {scenario.reasoningModel ? (
-                  <div className='flex flex-col gap-4'>
-                    <DetailRow title='Name' value={formatModelName(scenario.reasoningModel.providerModelName)} />
-                    <DetailRow title='AI Provider ID' value={scenario.reasoningModel.aiProviderId} />
-                    <DetailRow title='Input Token Cost' value={`$${scenario.reasoningModel.dollarPerInputToken}`} />
-                    <DetailRow title='Output Token Cost' value={`$${scenario.reasoningModel.dollarPerOutputToken}`} />
-                    <DetailRow title='Recommended' value={scenario.reasoningModel.recommended ? 'Yes' : 'No'} />
+          <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
+            <div className='relative'>
+              <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
+                {scenario.picture ? (
+                  <div className='size-full'>
+                    <img
+                      src={getPicture(scenario, 'avatars', false)}
+                      srcSet={getPicture(scenario, 'avatars', true)}
+                      alt={scenario.name}
+                      className='size-full object-cover rounded-lg'
+                    />
                   </div>
                 ) : (
-                  <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
+                  <div className='flex items-center justify-center size-full'>
+                    <Icons.fileUploadIcon />
+                  </div>
                 )}
-              </DetailCard>
-              <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage}>
-                <p className='break-all'>{scenario.systemMessage}</p>
-              </DetailCard>
+              </label>
             </div>
+            <DetailCard isScenario title='Chat Model Details' className='pb-3'>
+              <div className='flex flex-col'>
+                <div className='flex flex-col gap-4 pb-[18px]'>
+                  <DetailRow title='Name' value={formatModelName(scenario.chatModel.providerModelName)} />
+                  <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel.contextWindow)} token`} />
+                  <DetailRow title='Censored' value={scenario.chatModel.censored ? 'Yes' : 'No'} />
+                  <DetailRow title='Recommended' value={scenario.chatModel.recommended ? 'Yes' : 'No'} />
+                  <DetailRow
+                    title='Input Token Cost'
+                    value={`$${scientificNumConvert(scenario.chatModel.dollarPerInputToken * 1000000)}`}
+                  />
+                  <DetailRow
+                    title='Output Token Cost'
+                    value={`$${scientificNumConvert(scenario.chatModel.dollarPerOutputToken * 1000000)}`}
+                  />
+                </div>
+                <Accordion.Root type='single' collapsible className='w-full'>
+                  <Accordion.Item value='parameters'>
+                    <Accordion.Trigger className='flex items-center justify-center w-full py-2 text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
+                      <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
+                      <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
+                      <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
+                    </Accordion.Trigger>
+                    <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
+                      <div className='flex flex-col gap-4 pt-[18px]'>
+                        <DetailRow title='Temperature' value={scenario.temperature} />
+                        <DetailRow title='TopP' value={scenario.topP} />
+                        <DetailRow title='Frequency Penalty' value={scenario.frequencyPenalty} />
+                        <DetailRow title='Presence Penalty' value={scenario.presencePenalty} />
+                      </div>
+                    </Accordion.Content>
+                  </Accordion.Item>
+                </Accordion.Root>
+              </div>
+            </DetailCard>
+            <DetailCard isScenario title='Embedding Model Details'>
+              <div className='flex flex-col gap-4'>
+                <DetailRow title='Name' value={formatModelName(scenario.embeddingModel.providerModelName)} />
+                <DetailRow title='Recommended' value={scenario.embeddingModel.recommended ? 'Yes' : 'No'} />
+                <DetailRow
+                  title='Input Token Cost'
+                  value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerInputToken * 1000000)}`}
+                />
+                <DetailRow
+                  title='Output Token Cost'
+                  value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerOutputToken * 1000000)}`}
+                />
+              </div>
+            </DetailCard>
+            <DetailCard isScenario title='Reasoning Model'>
+              {scenario.reasoningModel ? (
+                <div className='flex flex-col gap-4'>
+                  <DetailRow title='Name' value={formatModelName(scenario.reasoningModel.providerModelName)} />
+                  <DetailRow title='AI Provider ID' value={scenario.reasoningModel.aiProviderId} />
+                  <DetailRow
+                    title='Input Token Cost'
+                    value={`$${scientificNumConvert(scenario.reasoningModel.dollarPerInputToken * 1000000)}`}
+                  />
+                  <DetailRow
+                    title='Output Token Cost'
+                    value={`$${scientificNumConvert(scenario.reasoningModel.dollarPerOutputToken * 1000000)}`}
+                  />
+                  <DetailRow title='Recommended' value={scenario.reasoningModel.recommended ? 'Yes' : 'No'} />
+                </div>
+              ) : (
+                <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
+              )}
+            </DetailCard>
+            <DetailCard isScenario>
+              <div className='flex flex-col gap-4'>
+                <DetailRow title='Created at: ' value={createdDate} />
+                <DetailRow title='Updated at:' value={updatedDate} />
+              </div>
+            </DetailCard>
           </div>
         </div>
       </div>

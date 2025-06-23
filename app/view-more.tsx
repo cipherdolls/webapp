@@ -9,6 +9,7 @@ type PopoverActionItem = {
   text: string;
   isDelete?: boolean;
   visible?: boolean;
+  icon?: React.ComponentType<any>;
 } & (
   | {
       type: 'link';
@@ -36,9 +37,12 @@ type ViewMoreProps = {
   className?: string;
   isDataCard?: boolean;
   visible?: boolean;
+  withIcon?: boolean;
+  iconClassName?: string;
+  menuName?: string;
 };
 
-export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible }: ViewMoreProps) => {
+export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible, withIcon, iconClassName, menuName }: ViewMoreProps) => {
   const fetcher = useFetcher();
 
   const handleFormSubmit = (item: Extract<PopoverActionItem, { type: 'form' }>) => {
@@ -63,27 +67,36 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible 
   const renderPopoverItem = (item: PopoverActionItem, index: number) => {
     const baseClassName = `cursor-pointer w-full py-3.5 px-3 navigation-exclude text-left ${
       item.isDelete ? 'hover:bg-specials-danger/10 text-specials-danger' : 'hover:bg-neutral-05 text-base-black'
-    } bg-white transition-colors text-body-md font-semibold rounded-[10px]`;
+    } bg-white transition-colors text-body-md font-semibold rounded-[10px] ${withIcon ? 'flex items-center gap-2' : ''}`;
+
+    const renderContent = (text: string) => (
+      <>
+        {withIcon && item.icon && <item.icon className={cn('w-6 h-6', iconClassName)} />}
+        {text}
+      </>
+    );
 
     switch (item.type) {
       case 'link':
         return (
-          <Link key={index} to={item.href} className={baseClassName}>
-            {item.text}
-          </Link>
+          <Popover.Close key={index} asChild unstyled>
+            <Link to={item.href} className={baseClassName}>
+              {renderContent(item.text)}
+            </Link>
+          </Popover.Close>
         );
 
       case 'onClick':
         return (
           <button key={index} onClick={item.onClick} className={baseClassName} type='button'>
-            {item.text}
+            {renderContent(item.text)}
           </button>
         );
 
       case 'form':
         return (
           <button key={index} onClick={() => handleFormSubmit(item)} className={baseClassName} type='button'>
-            {item.text}
+            {renderContent(item.text)}
           </button>
         );
 
@@ -99,6 +112,7 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible 
     <Popover.Root>
       <Popover.Trigger className={cn('group navigation-exclude', className)}>
         <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
+        {menuName && <span className='text-label font-semibold'>{menuName}</span>}
       </Popover.Trigger>
       <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude'>
         {popoverItems.filter((item) => item.visible !== false).map(renderPopoverItem)}

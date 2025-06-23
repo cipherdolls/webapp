@@ -3,6 +3,7 @@ import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
 import type { User } from '~/types';
+import { ViewMore } from '~/view-more';
 
 const PREFERENCE_RELATED_PATHS = [
   '/preferences',
@@ -35,16 +36,25 @@ const SidebarItems = [
     name: 'Services',
     href: '/services',
     icon: Icons.services,
+    hideOnMobile: true,
   },
   {
     name: 'Hardware',
     href: '/hardware',
     icon: Icons.gear,
+    hideOnMobile: true,
   },
   {
     name: 'Account',
     href: '/account',
     icon: Icons.account,
+    hideOnMobile: true,
+  },
+  {
+    name: 'Menu',
+    href: '#',
+    icon: Icons.more,
+    showOnMobileOnly: true,
   },
 ];
 
@@ -58,10 +68,33 @@ const Sidebar = ({ className }: { className?: string }) => {
         <Link to='/' className='py-3.5 sm:block hidden'>
           <Icons.iconLogo className={cn(isAdmin ? 'text-specials-danger' : 'text-base-black')} />
         </Link>
-        <div className='flex sm:flex-col flex-row sm:gap-3 w-full sm:justify-start justify-around sm:py-0 py-3 '>
+        <div className='flex sm:flex-col flex-row sm:gap-3 w-full sm:justify-start justify-around sm:py-0 py-1'>
           {SidebarItems.map((item, index) => {
             const NavIcon = item.icon;
-            // TODO: Add active styling for icons
+
+            if (item.name === 'Menu') {
+              const menuItems = [
+                { type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services },
+                { type: 'link' as const, text: 'Hardware', href: '/hardware', icon: Icons.gear },
+                { type: 'link' as const, text: 'Account', href: '/account', icon: Icons.account },
+              ];
+
+              return (
+                <ViewMore
+                  key={index}
+                  popoverItems={menuItems}
+                  className={cn(
+                    'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
+                    'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
+                    'sm:hidden flex'
+                  )}
+                  withIcon={true}
+                  iconClassName='text-pink-01'
+                  menuName={item.name}
+                />
+              );
+            }
+
             return (
               <NavLink
                 to={item.href}
@@ -71,8 +104,12 @@ const Sidebar = ({ className }: { className?: string }) => {
                     isActive = PREFERENCE_RELATED_PATHS.some((path) => location.pathname.includes(path));
                   }
                   return cn(
-                    'sm:py-3 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
-                    isActive ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black' : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01'
+                    'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
+                    isActive
+                      ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black'
+                      : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
+                    item.hideOnMobile && 'sm:flex hidden',
+                    item.showOnMobileOnly && 'sm:hidden flex'
                   );
                 }}
               >

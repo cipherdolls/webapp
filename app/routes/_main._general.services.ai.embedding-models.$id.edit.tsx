@@ -9,6 +9,7 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import * as Modal from '~/components/ui/new-modal';
 import { formatModelName } from '~/utils/formatModelName';
+import ErrorsBox from '~/components/ui/input/errorsBox';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Embedding Model' }];
@@ -39,7 +40,10 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     });
 
     if (!res.ok) {
-      return await res.json();
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
     }
 
     const embeddingModel: EmbeddingModel = await res.json();
@@ -54,6 +58,8 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
   const embeddingModel: EmbeddingModel = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
+
+  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/services/ai`);
@@ -71,8 +77,9 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
         <Modal.Description className='sr-only'>
           Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}
         </Modal.Description>
-        <fetcher.Form method='PATCH' className='size-full flex flex-col mt-[18px]'>
+        <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
+            <ErrorsBox errors={errors} />
             <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />
             <input type='hidden' name='aiProviderId' value={embeddingModel.aiProviderId} />
 

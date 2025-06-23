@@ -1,23 +1,19 @@
-import { Outlet, useNavigate, useRevalidator } from 'react-router';
-import type { AudioEvent, Avatar, Chat, Message, ProcessEvent } from '~/types';
+import { Outlet, useRevalidator, useNavigate } from 'react-router';
+import type { Avatar, Chat, Message, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import ChatTopBar from '~/components/chat/ChatTopBar';
-import ChatBottomBar from '~/components/chat/ChatBottomBar';
-import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl, API_ENDPOINTS, PICTURE_SIZE } from '~/constants';
-import { use, useEffect } from 'react';
-import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
-import { ChatJob, ChatState } from '~/components/chat/types/chatState';
-import { useState } from 'react';
-import { useAudioPlayer } from '~/providers/AudioPlayerContext';
-import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
+import { API_ENDPOINTS } from '~/constants';
+import { useEffect } from 'react';
+import type { ChatJobType } from '~/components/chat/types/chatState';
+import { ChatJob } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
-import { Icons } from '~/components/ui/icons';
-import AvatarPicture from '~/components/AvatarPicture';
-import LiveTalk from '~/components/chat/LiveTalk';
+import { useAudioPlayerContext } from 'react-use-audio-player';
+import { useUnmount } from 'usehooks-ts';
+import MessagesMode from '~/components/chat/MessagesMode';
+import TalkMode from '~/components/chat/TalkMode';
+import { useAlert } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -38,6 +34,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     throw new Error('Failed to fetch avatar');
   }
   const avatar: Avatar = await avatarRes.json();
+
 
   return { chat, messages, avatar };
 }
@@ -73,65 +70,45 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const { chat, messages, avatar } = loaderData;
   const revalidator = useRevalidator();
-  const { playAudio, stopAudio } = useAudioPlayer();
   const navigate = useNavigate();
+  const { load, stop, play, duration } = useAudioPlayerContext();
   const alert = useAlert();
 
-  const { chatId, silentMode, initChatStore, setCurrentJob, currentChatState, setCurrentChatState, liveTalkMode } = useChatStore(
+  const { talkMode, silentMode, setCurrentJob, initChatStore, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
-      chatId: state.chatId,
+      talkMode: state.talkMode,
       silentMode: state.silentMode,
-      initChatStore: state.initChatStore,
       setCurrentJob: state.setCurrentJob,
+      initChatStore: state.initChatStore,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
-      liveTalkMode: state.liveTalkMode,
     }))
   );
 
   useEffect(() => {
-    if (chat.id !== chatId) {
-      initChatStore(chat.id);
-    }
-  }, [chat.id, chatId, initChatStore]);
+    initChatStore();
+    stop();
+  }, [chat.id]);
+
+  useUnmount(() => {
+    stop();
+  });
 
   useChatEvents({
-    chat,
+    chatId: chat.id,
     onProcessEvent: (event) => {
-      console.log('event', event);
-      if (event.jobStatus === 'failed') handleJobError(event);
-
-      // if message is received, revalidate the page
+      if (event.jobStatus === 'failed') handleJobError(event as ProcessEvent);
       if (event.resourceName === 'Message') {
         revalidator.revalidate();
         return;
       }
 
-      // checking if a job exist in a chat jobs enum
       const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
       if (isValidJob(event.resourceName)) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    onActionEvent: (event) => {
-      if (event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event);
-    },
   });
-
-  // if silent mode is enabled, stop audio if the avatar is speaking
-  useEffect(() => {
-    if (silentMode && currentChatState === ChatState.avatarSpeaking) {
-      stopAudio();
-      setCurrentChatState(ChatState.Idle);
-    }
-  }, [silentMode]);
-
-  const handlePlayAudioMessage = (event: AudioEvent) => {
-    if (!silentMode && event.type === 'audio' && event.action === 'play') {
-      setCurrentChatState(ChatState.avatarSpeaking);
-      playAudio(`${apiUrl}/messages/${event.messageId}/audio`, () => setCurrentChatState(ChatState.Idle));
-    }
-  };
 
   const handleJobError = async (event: ProcessEvent) => {
     const cfg: {
@@ -226,24 +203,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
-        {/* chat header */}
-        {liveTalkMode ? (
-          <LiveTalk avatar={avatar} />
-        ) : (
-          <>
-            {/* chat header */}
-            <ChatTopBar chat={chat} avatar={avatar} />
-
-            {/* chat messages scroll */}
-            <ChatBody messages={messages} />
-              {/* chat input field  */}
-            <ChatBottomBar chat={chat} />
-          </>
-        )}
-
-        
-      </div>
+      {talkMode ? <TalkMode chat={chat} avatar={avatar} /> : <MessagesMode chat={chat} avatar={avatar} messages={messages} />}
       <Outlet />
     </>
   );
