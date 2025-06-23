@@ -73,25 +73,14 @@ export default function ReasoningModelEdit({ loaderData }: Route.ComponentProps)
     >
       <Modal.Content>
         <Modal.Title>Edit Reasoning Model for {formatModelName(reasoningModel.providerModelName)}</Modal.Title>
-        <Modal.Description className='sr-only'>Edit Reasoning Model for {formatModelName(reasoningModel.providerModelName)}</Modal.Description>
+        <Modal.Description className='sr-only'>
+          Edit Reasoning Model for {formatModelName(reasoningModel.providerModelName)}
+        </Modal.Description>
         <fetcher.Form method='PATCH' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='reasoningModelId' value={reasoningModel.id} />
             <input type='hidden' name='aiProviderId' value={reasoningModel.aiProviderId} />
-
-            <Input.Root>
-              <Input.Label id='name' htmlFor='name'>
-                Model Name
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                defaultValue={formatModelName(reasoningModel.providerModelName)}
-              />
-            </Input.Root>
 
             <Input.Root>
               <Input.Label id='providerModelName' htmlFor='providerModelName'>

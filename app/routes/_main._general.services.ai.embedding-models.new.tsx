@@ -70,13 +70,6 @@ export default function NewEmbeddingModel() {
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
 
             <Input.Root>
-              <Input.Label id='name' htmlFor='name'>
-                Model Name
-              </Input.Label>
-              <Input.Input className='text-base-black py-3.5 px-3' id='name' name='name' type='text' placeholder='text-embedding-3-large' />
-            </Input.Root>
-
-            <Input.Root>
               <Input.Label id='providerModelName' htmlFor='providerModelName'>
                 Provider Model Name
               </Input.Label>
