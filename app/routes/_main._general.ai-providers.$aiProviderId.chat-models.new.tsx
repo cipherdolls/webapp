@@ -19,10 +19,10 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     formData.forEach((value, key) => {
       jsonData[key] = value;
     });
-    
+
     // Use the aiProviderId from params instead of from the form
     jsonData.aiProviderId = params.aiProviderId;
-    
+
     const res = await fetchWithAuth('chat-models', {
       method: request.method,
       headers: { 'Content-Type': 'application/json' },
@@ -61,19 +61,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
         <fetcher.Form method='POST' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
-
-            <Input.Root>
-              <Input.Label id='name' htmlFor='name'>
-                Model Name
-              </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                placeholder='GPT 4'
-              />
-            </Input.Root>
 
             <Input.Root>
               <Input.Label id='providerModelName' htmlFor='providerModelName'>

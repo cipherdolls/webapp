@@ -84,19 +84,6 @@ export default function EmbeddingModelEdit({ loaderData }: Route.ComponentProps)
             <input type='hidden' name='aiProviderId' value={embeddingModel.aiProviderId} />
 
             <Input.Root>
-              <Input.Label id='name' htmlFor='name'>
-                Model Name
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                defaultValue={formatModelName(embeddingModel.providerModelName)}
-              />
-            </Input.Root>
-
-            <Input.Root>
               <Input.Label id='providerModelName' htmlFor='providerModelName'>
                 Provider Model Name
               </Input.Label>

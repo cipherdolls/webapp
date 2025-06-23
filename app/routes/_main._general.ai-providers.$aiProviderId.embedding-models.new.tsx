@@ -61,19 +61,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             <input type='hidden' name='aiProviderId' value={aiProvider.id} />
 
             <Input.Root>
-              <Input.Label id='name' htmlFor='name'>
-                Embedding Model Name
-              </Input.Label>
-              <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
-                id='name'
-                name='name'
-                type='text'
-                placeholder='GPT 4'
-              />
-            </Input.Root>
-
-            <Input.Root>
               <Input.Label id='providerModelName' htmlFor='providerModelName'>
                 Provider Model Name
               </Input.Label>
