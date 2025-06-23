@@ -47,32 +47,37 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
   return (
     <div className={cn('flex flex-col rounded-xl overflow-hidden relative', isPublic ? cardClassName : myCardClassName)}>
       <div className={cn('relative h-[152px] w-full', (isPublic ? publicHidden : myHidden) ? 'hidden' : '')}>
-        <img
-          src={getPicture(scenario, 'avatars', false)}
-          srcSet={getPicture(scenario, 'avatars', true)}
-          alt={`${scenario.name} picture`}
-          className='object-cover h-[152px] w-full'
-        />
+        <Link to={`/scenarios/${scenario.id}`}>
+          <img
+            src={getPicture(scenario, 'avatars', false)}
+            srcSet={getPicture(scenario, 'avatars', true)}
+            alt={`${scenario.name} picture`}
+            className='object-cover h-[152px] w-full'
+          />
+        </Link>
         <div className='absolute bottom-2.5 right-2.5'>{avatars && <SelectAvatarModal avatars={avatars} scenario={scenario} />}</div>
       </div>
-      <div className={cn(' flex-col gap-2 flex-1 p-5 bg-gradient-1', (isPublic ? publicHidden : myHidden) ? 'hidden' : 'flex')}>
-        <div className='flex items-center gap-2'>
-          <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
-          <InformationBadge
-            className='size-4 text-neutral-02'
-            popoverClassName='!w-full'
-            tooltipText={
-              <div className='flex flex-col gap-1 text-body-sm text-base-black'>
-                <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
-                <span>Presence Penalty: {scenario.presencePenalty}</span>
-                <span>Temperature: {scenario.temperature}</span>
-                <span>Top P: {scenario.topP}</span>
-              </div>
-            }
-          />
+      <Link to={`/scenarios/${scenario.id}`}>
+        <div className={cn(' flex-col gap-2 flex-1 p-5 bg-gradient-1', (isPublic ? publicHidden : myHidden) ? 'hidden' : 'flex')}>
+          <div className='flex items-center gap-2'>
+            <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>
+            <InformationBadge
+              className='size-4 text-neutral-02'
+              popoverClassName='!w-full'
+              tooltipText={
+                <div className='flex flex-col gap-1 text-body-sm text-base-black'>
+                  <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
+                  <span>Presence Penalty: {scenario.presencePenalty}</span>
+                  <span>Temperature: {scenario.temperature}</span>
+                  <span>Top P: {scenario.topP}</span>
+                </div>
+              }
+            />
+          </div>
+          <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
         </div>
-        <p className='text-base-black text-body-sm line-clamp-2 min-h-8 break-all'>{scenario.systemMessage}</p>
-      </div>
+      </Link>
+
       {isNewScenario() && (
         <span
           className={cn(
