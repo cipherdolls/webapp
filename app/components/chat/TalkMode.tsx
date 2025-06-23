@@ -13,6 +13,7 @@ import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
+import useAudioData from '~/hooks/useAudioData';
 
 interface TalkModeProps {
   chat: Chat;
@@ -35,9 +36,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
       setCurrentJob: state.setCurrentJob,
     }))
   );
-  
   const recorder = useVoiceRecorder({
-    listening: currentChatState === ChatState.userSpeaking,
     onRecordingComplete: async (blob: Blob) => {
       if (blob && chat.id) {
         const file = new File([blob], 'audio.webm', { type: 'audio/webm' });
@@ -54,8 +53,8 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     },
   });
 
-  const { load, stop, isPlaying } = useAudioPlayerContext();
-  
+  const { load, stop, player, isPlaying } = useAudioPlayerContext();
+  const avatarAudioData = useAudioData();
 
   useChatEvents({
     chatId: chat.id,
@@ -111,10 +110,15 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     setCurrentChatState(ChatState.userSpeaking);
   }, []);
 
+  useEffect(() => {
+    if (currentChatState === ChatState.userSpeaking) {
+      recorder.start();
+    }
+  }, [currentChatState]);
 
   // cleanup
   useUnmount(() => {
-    recorder.stop();
+    recorder.cancel();
     stop();
     setCurrentChatState(ChatState.Idle);
   });
@@ -126,7 +130,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
           <div className='relative size-36'>
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[320px] z-0'>
               <VoiceVisualizer
-                audioData={currentChatState === ChatState.userSpeaking ? recorder.audioData : null}
+                audioData={recorder.audioData}
                 isActive={currentChatState === ChatState.userSpeaking}
                 circleHideOne={currentChatState === ChatState.avatarSpeaking || jobsDone.tts}
                 circleHideTwo={currentChatState === ChatState.avatarSpeaking || jobsDone.chat}
@@ -134,10 +138,9 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
                 circleOneColor={'#dc2647'}
                 circleTwoColor={'#2fe98a'}
                 circleThreeColor={'#59a7e3'}
-                isProcessing={currentChatState !== ChatState.userSpeaking}
               />
             </div>
-            <AvatarVoiceVisualizer avatar={avatar} isPlaying={isPlaying} className='relative shrink-0 z-10' />
+            <AvatarVoiceVisualizer audioData={avatarAudioData} avatar={avatar} isPlaying={isPlaying} className='relative shrink-0 z-10' />
           </div>
         </div>
         <div className='p-5 flex items-center justify-center gap-5'>

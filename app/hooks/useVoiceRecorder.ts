@@ -1,58 +1,151 @@
-import { useState, useEffect } from 'react';
-import { useMicVAD, utils } from '@ricky0123/vad-react';
+
+import { useEffect, useRef, useState } from 'react';
 
 export interface UseVoiceRecorderOptions {
   onRecordingComplete: (blob: Blob) => void;
-  listening?: boolean;
-  vadHoldMs?: number;
+  silenceThreshold?: number;
+  requiredSilenceDuration?: number;
+  enableSilenceDetection?: boolean;
 }
 
-export default function useVoiceRecorder({ onRecordingComplete, listening = true, vadHoldMs = 1800 }: UseVoiceRecorderOptions) {
+export default function useVoiceRecorder({
+  onRecordingComplete,
+  silenceThreshold = 0.03,
+  requiredSilenceDuration = 2000,
+  enableSilenceDetection = true,
+}: UseVoiceRecorderOptions) {
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
-  const handleSpeechEnd = (audio: Float32Array) => {
-    if (!listening) return;
+  const dataHandlerRef = useRef<((e: BlobEvent) => void) | null>(null);
 
-    const wavBuffer = utils.encodeWAV(audio);
-    const audioBlob = new Blob([wavBuffer], { type: 'audio/wav' });
-    onRecordingComplete(audioBlob);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const srcRef = useRef<MediaStreamAudioSourceNode | null>(null);
+
+  const speechStartedRef = useRef<boolean>(false);
+  const silenceStartRef = useRef<number | null>(null);
+
+  /* ------------------------------------------------ get stream */
+  const getStream = async () => {
+    if (streamRef.current && streamRef.current.active) return streamRef.current;
+    streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+    
+    return streamRef.current;
   };
 
-  const vad = useMicVAD({
-    startOnLoad: false,
-    redemptionFrames: Math.round(vadHoldMs / 96),
-    minSpeechFrames: 4,
-    positiveSpeechThreshold: 0.7,
-    negativeSpeechThreshold: 0.25,
-    preSpeechPadFrames: 5,
-    onSpeechEnd: handleSpeechEnd,
-    onFrameProcessed: (_, frame) => {
-      const u8 = new Uint8Array(frame.length);
-      for (let i = 0; i < frame.length; i++) {
-        u8[i] = Math.min(255, Math.abs(frame[i]) * 1024);
-      }
-      setAudioData(u8); 
-    },
-  });
+  /* ------------------------------------------------ meter */
+  const startMeter = (stream: MediaStream) => {
+    const AC = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx = new AC();
+    ctxRef.current = ctx;
 
-  useEffect(() => {
-    if (!vad) return;
-    if (listening) {
-      vad.start();
-    } else {
-      vad.pause();
+    const src = ctx.createMediaStreamSource(stream);
+    const an = ctx.createAnalyser();
+    an.fftSize = 512;
+    an.smoothingTimeConstant = 0.8;
+
+    srcRef.current = src;
+    analyserRef.current = an;
+    dataRef.current = new Uint8Array(an.fftSize);
+    src.connect(an);
+
+
+    const dataArray = new Uint8Array(an.frequencyBinCount);
+
+    const tick = () => {
+      const arr = dataRef.current!;
+      an.getByteTimeDomainData(arr);
+      const peak = arr.reduce((m, x) => Math.max(m, Math.abs(x - 127)), 0) / 128;
+
+      
+
+      if (analyserRef.current) {
+        analyserRef.current.getByteFrequencyData(dataArray);
+        setAudioData(new Uint8Array(dataArray));
+      }
+
+      if (peak > silenceThreshold) {
+        if (!speechStartedRef.current) speechStartedRef.current = true;
+        silenceStartRef.current = null;
+      } else if (speechStartedRef.current) {
+        if (silenceStartRef.current === null) silenceStartRef.current = performance.now();
+        else if (performance.now() - silenceStartRef.current >= requiredSilenceDuration) {
+          stop();
+          return;
+        }
+      }
+
+      rafIdRef.current = requestAnimationFrame(tick);
+    };
+    tick();
+  };
+
+  const stopMeter = () => {
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = null;
+
+    analyserRef.current?.disconnect();
+    srcRef.current?.disconnect();
+    ctxRef.current?.close();
+
+    analyserRef.current = null;
+    srcRef.current = null;
+    ctxRef.current = null;
+
+    speechStartedRef.current = false;
+    silenceStartRef.current = null;
+  };
+
+  /* ------------------------------------------------ recording */
+  const start = async () => {
+    const stream = await getStream();
+    if (enableSilenceDetection) {
+      startMeter(stream);
     }
-  }, [listening, vad]);
+
+    const rec = new MediaRecorder(stream);
+    recorderRef.current = rec;
+
+    
+
+    const onData = (e: BlobEvent) => onRecordingComplete(e.data);
+    dataHandlerRef.current = onData;
+    rec.addEventListener('dataavailable', onData, { once: true });
+    rec.addEventListener('stop', cleanUp, { once: true });
+    rec.start();
+  };
+
+  const stop = () => {
+    recorderRef.current?.stop();
+  };
+
+  const cleanUp = () => {
+    if (enableSilenceDetection) {
+      stopMeter();
+    }
+    recorderRef.current = null;
+    
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  };
+
+  const cancel = () => {
+    if (recorderRef.current && dataHandlerRef.current) {
+      recorderRef.current.removeEventListener('dataavailable', dataHandlerRef.current);
+    }
+    stop();
+  };
 
   useEffect(() => {
     return () => {
-      vad.pause();
+      cancel();
+      cleanUp();
     };
   }, []);
 
-  const stop = () => {
-    vad.pause();
-  };
-
-  return { audioData, stop };
+  return { audioData, start, stop, cancel };
 }
