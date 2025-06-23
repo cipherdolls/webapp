@@ -165,8 +165,8 @@ export default function SignInRoute() {
                   allowFullScreen
                 />
 
-                <div className='lg:py-10 lg:px-8 md:px-6 md:py-8 px-4 py-6 flex flex-col gap-8'>
-                  <p className='text-body-md md:text-body-lg text-black'>
+                <div className='px-4 py-6 flex flex-col gap-8 lg:py-10 lg:px-8 md:px-6 md:py-8'>
+                  <p className='text-black text-body-md md:text-body-lg'>
                     A connected crypto wallet in your browser is required to log in (new or empty wallets are fine)
                   </p>
                   <div className='flex flex-col gap-4'>
@@ -227,15 +227,15 @@ export default function SignInRoute() {
               </div>
 
               <div className='mt-4 order-first flex justify-center items-end gap-1 md:gap-2 md:order-last md:flex-col md:justify-start'>
-                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 md:h-32 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
+                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:h-32 md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>🎉</h3>
-                    <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>Free</h3>
+                    <h3 className='text-lg font-semibold text-base-black md:text-heading-h3'>Free</h3>
                   </div>
 
                   <span className='text-body-sm text-center text-neutral-01'>Registration and usage</span>
                 </div>
-                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 md:h-32 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
+                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:h-32 md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>💶</h3>
                     <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>Get €3</h3>
