@@ -200,6 +200,10 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
         </div>
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
+          <input type="hidden" name="temperature" value={temperature} />
+          <input type="hidden" name="topP" value={topP} />
+          <input type="hidden" name="frequencyPenalty" value={frequencyPenalty} />
+          <input type="hidden" name="presencePenalty" value={presencePenalty} />
           <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='scenarioId' value={scenario.id} />
@@ -291,7 +295,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     </div>
                     <Slider.Root
                       id='temperature'
-                      name='temperature'
                       defaultValue={[temperature]}
                       min={0}
                       max={1}
@@ -317,7 +320,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     </div>
                     <Slider.Root
                       id='topP'
-                      name='topP'
                       defaultValue={[topP]}
                       min={0}
                       max={1}
@@ -343,7 +345,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     </div>
                     <Slider.Root
                       id='frequencyPenalty'
-                      name='frequencyPenalty'
                       defaultValue={[frequencyPenalty]}
                       min={0}
                       max={1}
@@ -369,7 +370,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     </div>
                     <Slider.Root
                       id='presencePenalty'
-                      name='presencePenalty'
                       defaultValue={[presencePenalty]}
                       min={0}
                       max={1}
@@ -501,7 +501,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   </div>
                   <Slider.Root
                     id='temperature'
-                    name='temperature'
                     defaultValue={[temperature]}
                     min={0}
                     max={1}
@@ -527,7 +526,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   </div>
                   <Slider.Root
                     id='topP'
-                    name='topP'
                     defaultValue={[topP]}
                     min={0}
                     max={1}
@@ -553,7 +551,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   </div>
                   <Slider.Root
                     id='frequencyPenalty'
-                    name='frequencyPenalty'
                     defaultValue={[frequencyPenalty]}
                     min={0}
                     max={1}
@@ -579,7 +576,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   </div>
                   <Slider.Root
                     id='presencePenalty'
-                    name='presencePenalty'
                     defaultValue={[presencePenalty]}
                     min={0}
                     max={1}
