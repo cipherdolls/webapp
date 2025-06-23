@@ -47,6 +47,7 @@ export default function NewChatModel() {
   const name = searchParams.get('name') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const errors = fetcher.data?.message;
 
   const errors = fetcher.data?.errors;
 
