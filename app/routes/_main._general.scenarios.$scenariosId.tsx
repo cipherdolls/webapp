@@ -5,7 +5,7 @@ import { Icons } from '~/components/ui/icons';
 import { Link, Outlet, useFetcher, useRouteLoaderData } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import { getPicture } from '~/utils/getPicture';
-import type { Scenario, User } from '~/types';
+import type { Avatar, Scenario, User } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
 import ScenarioDestroy from './scenarios.$scenariosId.destroy';
 import { formatModelName } from '~/utils/formatModelName';
@@ -16,6 +16,7 @@ import { ViewMore } from '~/view-more';
 import * as Accordion from '@radix-ui/react-accordion';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
+import SelectAvatarModal from '~/components/SelectAvatarModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -23,17 +24,38 @@ export function meta({}: Route.MetaArgs) {
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const scenarioId = params.scenariosId;
-  const res = await fetchWithAuth(`scenarios/${scenarioId}`);
-  return await res.json();
+
+  const [scenarioIdRes, avatarsRes, publishedAvatarsRes] = await Promise.all([
+    fetchWithAuth(`scenarios/${scenarioId}`),
+    fetchWithAuth('avatars'),
+    fetchWithAuth('avatars?published=true'),
+  ]);
+
+  const scenario = await scenarioIdRes.json();
+  const avatars = await avatarsRes.json();
+  const publishedAvatars = await publishedAvatarsRes.json();
+
+  return { scenario, avatars, publishedAvatars };
 }
 
 export default function ScenariosId({ loaderData }: Route.ComponentProps) {
-  const scenario = loaderData as Scenario;
+  const {
+    scenario,
+    avatars,
+    publishedAvatars,
+  }: {
+    scenario: Scenario;
+    avatars: Avatar[];
+    publishedAvatars: Avatar[];
+  } = loaderData;
+
   const fetcher = useFetcher();
   const me = useRouteLoaderData('routes/_main') as User;
 
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
+
+  const allAvatars = [...avatars, ...publishedAvatars];
 
   return (
     <>
@@ -49,7 +71,20 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               <span className='text-neutral-01 text-body-lg shrink-0'>Scenarios</span>
             </div>
           </Link>
+
           <div className='md:flex hidden items-center gap-3'>
+            {avatars.length > 0 && (
+              <SelectAvatarModal
+                avatars={allAvatars}
+                scenario={scenario}
+                triggerContent={
+                  <Button.Root variant='primary' className='px-6'>
+                    Add to Chat
+                  </Button.Root>
+                }
+              />
+            )}
+
             <fetcher.Form method='POST' action='/community/scenarios/new'>
               <input hidden readOnly name='name' defaultValue={`${scenario.name} copy`} />
               <input hidden readOnly name='systemMessage' defaultValue={scenario.systemMessage} />
