@@ -1,3 +1,4 @@
+import { formatEther } from 'ethers';
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { formatModelName } from '~/utils/formatModelName';
@@ -44,6 +45,34 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
             {
               label: 'Time Taken',
               value: `${chatCompletionJob.timeTakenMs} ms`,
+            },
+          ]}
+        />
+        <DataCard.Divider />
+        <DataCard.ItemLabel className='pb-4'>Payment Job</DataCard.ItemLabel>
+        <DataCard.ItemDataGrid
+          variant='secondary'
+          data={[
+            {
+              label: 'Cost',
+              value: `${formatEther(chatCompletionJob.paymentJob?.weiCost || 0)} Ether`,
+            },
+            {
+              label: 'txHash',
+              value: chatCompletionJob.paymentJob?.txHash ? (
+                <>
+                  <a
+                    href={`https://optimistic.etherscan.io/tx/${chatCompletionJob.paymentJob?.txHash}`}
+                    className='underline line-clamp-1 block truncate break-normal max-w-[244px]'
+                    target='_blank'
+                    rel='noreferrer noopener'
+                  >
+                    {chatCompletionJob.paymentJob.txHash}
+                  </a>
+                </>
+              ) : (
+              'N/A'
+              ),
             },
           ]}
         />
