@@ -1,4 +1,4 @@
-import { redirect, useRouteLoaderData } from 'react-router';
+import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
@@ -8,6 +8,7 @@ import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
+import UserEditModal from '~/components/UserEditModal';
 import { useEffect, useState } from 'react';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
@@ -48,6 +49,21 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Dashboard' }];
 }
 
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  const formData = await request.formData();
+  const userId = formData.get('userId');
+  const jsonData: Record<string, any> = {};
+  formData.forEach((value, key) => {
+    jsonData[key] = value;
+  });
+  const res = await fetchWithAuth(`users/${userId}`, {
+    method: request.method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(jsonData),
+  });
+  return await res.json();
+}
+
 export async function clientLoader() {
   const [avatarsRes, dollsRes, chatsRes, scenariosRes] = await Promise.all([
     fetchWithAuth('avatars'),
@@ -68,8 +84,10 @@ export async function clientLoader() {
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
   const { avatars, dolls, chats, scenarios } = loaderData;
   const me = useRouteLoaderData('routes/_main') as User;
+  const fetcher = useFetcher();
 
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (loaderData) {
@@ -88,7 +106,13 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
         <div className='sm:hidden block ml-4.5 '>
           <Icons.mobileLogo />
         </div>
-        <DashboardBanner username={me.name} variant='welcome' description='What do you want to start from?' />
+        <DashboardBanner
+          username={me.name}
+          variant='welcome'
+          description='What do you want to start from?'
+          showEditLink={true}
+          onEditClick={() => setIsUserEditModalOpen(true)}
+        />
       </div>
       {!hasInitiallyLoaded || !loaderData ? (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
@@ -111,6 +135,8 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
       )}
+
+      <UserEditModal me={me} fetcher={fetcher} open={isUserEditModalOpen} onOpenChange={setIsUserEditModalOpen} />
     </div>
   );
 }

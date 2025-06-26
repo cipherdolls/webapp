@@ -41,11 +41,6 @@ const MainNavigation = ({ className }: { className?: string }) => {
             <PreferencesSvg />
             <span>Preferences</span>
           </NavLinkComponent>
-
-          <NavLinkComponent to='/account'>
-            <AccountSvg />
-            <span>Account</span>
-          </NavLinkComponent>
         </nav>
 
         <div className='hidden h-24 shrink-0 md:block'>
