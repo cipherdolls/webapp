@@ -67,10 +67,7 @@ const Sidebar = ({ className }: { className?: string }) => {
             const NavIcon = item.icon;
 
             if (item.name === 'Menu') {
-              const menuItems = [
-                { type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services },
-                { type: 'link' as const, text: 'Hardware', href: '/hardware', icon: Icons.gear },
-              ];
+              const menuItems = [{ type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services }];
 
               return (
                 <ViewMore
