@@ -1,4 +1,12 @@
 export type CssVariable = `--${string}`;
+
+export interface meta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+} 
+
 export interface ApiError {
   error: string;
   message: Array<string>;
@@ -31,6 +39,11 @@ export interface TokenPermit {
   updatedAt: string;
   userId: string;
   txHash?: string;
+}
+
+export interface AiProvidersPaginated {
+  data: AiProvider[];
+  meta: meta;
 }
 export interface AiProvider {
   id: string;

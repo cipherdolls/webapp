@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router';
 import React, { useEffect, useState } from 'react';
-import type { AiProvider, ChatModel, EmbeddingModel } from '~/types';
+import type { AiProvider, AiProvidersPaginated, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.services.ai';
 import type { TTableColumn } from '~/components/Table';
 import Table from '~/components/Table';
@@ -63,7 +63,8 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  const aiProviders: AiProvider[] = loaderData;
+  const aiProvidersPaginated: AiProvidersPaginated = loaderData;
+  const aiProviders: AiProvider[] = aiProvidersPaginated.data;
 
   const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     {
