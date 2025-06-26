@@ -38,18 +38,12 @@ const SidebarItems = [
     icon: Icons.services,
     hideOnMobile: true,
   },
-  {
-    name: 'Hardware',
-    href: '/hardware',
-    icon: Icons.gear,
-    hideOnMobile: true,
-  },
-  {
-    name: 'Account',
-    href: '/account',
-    icon: Icons.account,
-    hideOnMobile: true,
-  },
+  // {
+  //   name: 'Hardware',
+  //   href: '/hardware',
+  //   icon: Icons.gear,
+  //   hideOnMobile: true,
+  // },
   {
     name: 'Menu',
     href: '#',
@@ -73,11 +67,7 @@ const Sidebar = ({ className }: { className?: string }) => {
             const NavIcon = item.icon;
 
             if (item.name === 'Menu') {
-              const menuItems = [
-                { type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services },
-                { type: 'link' as const, text: 'Hardware', href: '/hardware', icon: Icons.gear },
-                { type: 'link' as const, text: 'Account', href: '/account', icon: Icons.account },
-              ];
+              const menuItems = [{ type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services }];
 
               return (
                 <ViewMore

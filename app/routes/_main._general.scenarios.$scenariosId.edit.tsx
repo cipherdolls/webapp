@@ -1,7 +1,7 @@
-import { Link, redirect, useFetcher, useNavigate } from 'react-router';
+import { redirect, useFetcher, useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Scenario, AiProvider } from '~/types';
+import type { AiProvider, Scenario } from '~/types';
 import type { Route } from './+types/_main._general.scenarios.$scenariosId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -69,6 +69,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [scenarioType, setScenarioType] = useState<'Long' | 'Short'>('Long');
 
   const [temperature, setTemperature] = useState(scenario.temperature);
   const [topP, setTopP] = useState(scenario.topP);
@@ -200,10 +201,10 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
         </div>
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
         <fetcher.Form method='PATCH' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
-          <input type="hidden" name="temperature" value={temperature} />
-          <input type="hidden" name="topP" value={topP} />
-          <input type="hidden" name="frequencyPenalty" value={frequencyPenalty} />
-          <input type="hidden" name="presencePenalty" value={presencePenalty} />
+          <input type='hidden' name='temperature' value={temperature} />
+          <input type='hidden' name='topP' value={topP} />
+          <input type='hidden' name='frequencyPenalty' value={frequencyPenalty} />
+          <input type='hidden' name='presencePenalty' value={presencePenalty} />
           <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='scenarioId' value={scenario.id} />
@@ -318,14 +319,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                       </div>
                       <span className='text-base-black text-body-sm font-semibold'>{topP}</span>
                     </div>
-                    <Slider.Root
-                      id='topP'
-                      defaultValue={[topP]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => setTopP(value[0])}
-                    >
+                    <Slider.Root id='topP' defaultValue={[topP]} min={0} max={1} step={0.1} onValueChange={(value) => setTopP(value[0])}>
                       <Slider.Thumb />
                     </Slider.Root>
                   </Input.Root>
@@ -411,6 +405,34 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
               )}
 
               <Input.Root>
+                <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioType === 'Long' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={() => setScenarioType('Long')}
+                  >
+                    Long
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioType === 'Short' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={() => setScenarioType('Short')}
+                  >
+                    Short
+                  </button>
+                </div>
+                <input type='hidden' name='scenarioType' value={scenarioType} />
+                <p className='text-xs text-gray-500'>Select type for new scenario.</p>
+              </Input.Root>
+
+              <Input.Root>
                 <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
                 <Select.Root name='chatModelId' defaultValue={scenario.chatModel.id}>
                   <Select.Trigger
@@ -435,55 +457,60 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 <p className='text-xs text-gray-500'>Select the AI chat model for this scenario.</p>
               </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-                <Select.Root name='embeddingModelId' defaultValue={scenario.embeddingModel.id}>
-                  <Select.Trigger
-                    id='embeddingModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select an embedding model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto'>
-                    {getOptions(false).map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
+              {scenarioType === 'Long' && (
+                <>
+                  <Input.Root>
+                    <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
+                    <Select.Root name='embeddingModelId' defaultValue={scenario.embeddingModel.id}>
+                      <Select.Trigger
+                        id='embeddingModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select an embedding model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        {getOptions(false).map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
                         ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
-              </Input.Root>
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
+                  </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-                <Select.Root name='reasoningModelId' defaultValue={scenario.reasoningModel?.id}>
-                  <Select.Trigger
-                    id='reasoningModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select a reasoning model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto'>
-                    {getReasoningModelOptions().map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
+                  <Input.Root>
+                    <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
+                    <Select.Root name='reasoningModelId' defaultValue={scenario.reasoningModel?.id}>
+                      <Select.Trigger
+                        id='reasoningModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select a reasoning model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        {getReasoningModelOptions().map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
                         ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
-              </Input.Root>
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
+                  </Input.Root>
+                </>
+              )}
+
               <div className={cn('grid gap-x-5 gap-y-6 w-full', 'grid-cols-1 sm:grid-cols-2', isExpanded && 'hidden')}>
                 <Input.Root>
                   <div className='flex items-center justify-between'>
@@ -524,14 +551,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     </div>
                     <span className='text-base-black text-body-sm font-semibold'>{topP}</span>
                   </div>
-                  <Slider.Root
-                    id='topP'
-                    defaultValue={[topP]}
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    onValueChange={(value) => setTopP(value[0])}
-                  >
+                  <Slider.Root id='topP' defaultValue={[topP]} min={0} max={1} step={0.1} onValueChange={(value) => setTopP(value[0])}>
                     <Slider.Thumb />
                   </Slider.Root>
                 </Input.Root>
