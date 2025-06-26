@@ -23,6 +23,10 @@ interface PermitButtonProps {
 const ERC20_ABI = [
   'function nonces(address) view returns (uint256)',
   'function decimals() view returns (uint8)',
+  'function name() view returns (string)',
+  'function symbol() view returns (string)',
+  'function balanceOf(address) view returns (uint256)',
+  'function allowance(address owner, address spender) view returns (uint256)',
 ];
 
 export const PermitButton: React.FC<PermitButtonProps> = ({
@@ -54,10 +58,95 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
       const network = await provider.getNetwork();
       const chainId = Number(network.chainId);
 
+      // Check if we're on Optimism mainnet (chainId: 10)
+      if (chainId !== 10) {
+        // Try to switch to Optimism automatically
+        try {
+          await provider.send('wallet_switchEthereumChain', [
+            { chainId: '0xa' }, // Optimism mainnet
+          ]);
+          // Refresh the network info after switching
+          const newNetwork = await provider.getNetwork();
+          const newChainId = Number(newNetwork.chainId);
+          if (newChainId !== 10) {
+            setError('Failed to switch to Optimism mainnet');
+            return;
+          }
+        } catch (switchError: any) {
+          if (switchError.code === 4902) {
+            // Chain not added to wallet, try to add it
+            try {
+              await provider.send('wallet_addEthereumChain', [
+                {
+                  chainId: '0xa',
+                  chainName: 'Optimism',
+                  nativeCurrency: {
+                    name: 'Ethereum',
+                    symbol: 'ETH',
+                    decimals: 18,
+                  },
+                  rpcUrls: ['https://mainnet.optimism.io'],
+                  blockExplorerUrls: ['https://optimistic.etherscan.io'],
+                },
+              ]);
+            } catch (addError) {
+              setError('Please manually switch to Optimism mainnet');
+              return;
+            }
+          } else {
+            setError('Please switch to Optimism mainnet (Chain ID: 10)');
+            return;
+          }
+        }
+      }
+
       const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
-      const nonce = await token.nonces(owner);
-      const decimals = await token.decimals();
-      const value = ethers.parseUnits(amount, decimals);
+
+      // Check if contract exists and has the required functions
+      try {
+        const code = await provider.getCode(tokenAddress);
+        if (code === '0x') {
+          setError('Token contract not found on this network');
+          return;
+        }
+
+        // Verify it's an ERC20 token by checking basic functions
+        const testContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+        try {
+          await testContract.symbol();
+        } catch (symbolErr) {
+          setError('This does not appear to be a valid ERC20 token contract');
+          return;
+        }
+      } catch (err) {
+        setError('Failed to verify token contract');
+        return;
+      }
+
+      let nonce, decimals, value;
+      try {
+        // Try nonces first
+        try {
+          nonce = await token.nonces(owner);
+        } catch (nonceErr: any) {
+          console.error('Nonces call failed:', nonceErr);
+          throw new Error('Failed to get nonces. This token might not support EIP-2612 permits.');
+        }
+
+        // Try decimals
+        try {
+          decimals = await token.decimals();
+        } catch (decimalsErr: any) {
+          console.error('Decimals call failed:', decimalsErr);
+          throw new Error('Failed to get token decimals.');
+        }
+
+        value = ethers.parseUnits(amount, decimals);
+      } catch (err: any) {
+        console.error('Contract call error:', err);
+        setError(err.message || "Failed to read token contract. Make sure you're on Optimism mainnet.");
+        return;
+      }
 
       const deadline = Math.floor(Date.now() / 1000) + deadlineSeconds;
 
@@ -108,11 +197,30 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
   };
 
   return (
-    <div>
-      <button onClick={handleClick} disabled={loading}>
-        {loading ? 'Signing...' : 'Grant Permit'}
+    <div className='flex flex-col gap-2 w-full'>
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className='w-full py-3 bg-base-black text-white rounded-xl text-body-lg font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2'
+      >
+        {loading ? (
+          <>
+            <span className='animate-spin'>⏳</span>
+            Signing...
+          </>
+        ) : (
+          'Sign Message'
+        )}
       </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && (
+        <div className='text-xs text-specials-danger bg-specials-danger/5 p-2 rounded-lg'>
+          <p className='font-medium mb-1'>Error:</p>
+          <p>{error}</p>
+          {error.includes('network') && (
+            <p className='mt-1 text-neutral-01'>Make sure you're connected to Optimism mainnet in your wallet.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
