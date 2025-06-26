@@ -9,11 +9,14 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
 import UserEditModal from '~/components/UserEditModal';
+import TokenBalance from '~/components/TokenBalance';
 import { useEffect, useState } from 'react';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-4 pb-5 w-full'>
+      {/* Token Balance Skeleton */}
+      <div className='rounded-xl h-20 bg-gradient-1 w-full animate-pulse'></div>
       {Array.from({ length: count }).map((_, i) => (
         <div className='flex flex-col gap-4 pl-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
@@ -65,24 +68,26 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export async function clientLoader() {
-  const [avatarsRes, dollsRes, chatsRes, scenariosRes] = await Promise.all([
+  const [avatarsRes, dollsRes, chatsRes, scenariosRes, tokenBalanceRes] = await Promise.all([
     fetchWithAuth('avatars'),
     fetchWithAuth('dolls'),
     fetchWithAuth('chats'),
     fetchWithAuth('scenarios'),
+    fetchWithAuth('token/balance'),
   ]);
-  if (!avatarsRes.ok || !dollsRes.ok || !chatsRes.ok) {
+  if (!avatarsRes.ok || !dollsRes.ok || !chatsRes.ok || !scenariosRes.ok) {
     throw new Error('Failed to fetch data');
   }
   const avatars: Avatar[] = await avatarsRes.json();
   const dolls: Doll[] = await dollsRes.json();
   const chats: Chat[] = await chatsRes.json();
   const scenarios: Scenario[] = await scenariosRes.json();
-  return { avatars, dolls, chats, scenarios };
+  const tokenBalance = tokenBalanceRes.ok ? await tokenBalanceRes.json() : { balance: '0' };
+  return { avatars, dolls, chats, scenarios, tokenBalance };
 }
 
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
-  const { avatars, dolls, chats, scenarios } = loaderData;
+  const { avatars, dolls, chats, scenarios, tokenBalance } = loaderData;
   const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
 
@@ -130,7 +135,8 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
             <YourAvatars avatars={avatars} />
             <YourScenarios scenarios={scenarios} />
           </div>
-          <div className=''>
+          <div className='flex flex-col gap-5'>
+            <TokenBalance balance={tokenBalance?.balance || '0'} />
             <YourDolls dolls={dolls} />
           </div>
         </div>
