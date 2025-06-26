@@ -16,6 +16,22 @@ export interface User {
   role: string;
   character: string;
 }
+
+export interface TokenPermit {
+  id: string;
+  owner: string;
+  spender: string;
+  value: string;
+  nonce: string;
+  deadline: number;
+  v: number;
+  r: string;
+  s: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  txHash?: string;
+}
 export interface AiProvider {
   id: string;
   name: string;

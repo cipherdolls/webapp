@@ -2,7 +2,7 @@ import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Avatar, Chat, Doll, Scenario, User } from '~/types';
+import type { Avatar, Chat, Doll, Scenario, User, TokenPermit } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -10,13 +10,14 @@ import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
 import UserEditModal from '~/components/UserEditModal';
 import TokenBalance from '~/components/TokenBalance';
+import TokenPermitsList from '~/components/TokenPermitsList';
 import { useEffect, useState } from 'react';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-4 pb-5 w-full'>
-      {/* Token Balance Skeleton */}
       <div className='rounded-xl h-20 bg-gradient-1 w-full animate-pulse'></div>
+      <div className='rounded-xl h-32 bg-gradient-1 w-full animate-pulse'></div>
       {Array.from({ length: count }).map((_, i) => (
         <div className='flex flex-col gap-4 pl-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
@@ -54,26 +55,46 @@ export function meta({}: Route.MetaArgs) {
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
-  const userId = formData.get('userId');
-  const jsonData: Record<string, any> = {};
-  formData.forEach((value, key) => {
-    jsonData[key] = value;
-  });
-  const res = await fetchWithAuth(`users/${userId}`, {
-    method: request.method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(jsonData),
-  });
-  return await res.json();
+  const actionType = formData.get('actionType');
+
+  if (actionType === 'createTokenPermit') {
+    // Handle token permit creation
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key !== 'actionType') {
+        jsonData[key] = value;
+      }
+    });
+    const res = await fetchWithAuth('token-permits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData),
+    });
+    return await res.json();
+  } else {
+    // Handle user updates
+    const userId = formData.get('userId');
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+    const res = await fetchWithAuth(`users/${userId}`, {
+      method: request.method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData),
+    });
+    return await res.json();
+  }
 }
 
 export async function clientLoader() {
-  const [avatarsRes, dollsRes, chatsRes, scenariosRes, tokenBalanceRes] = await Promise.all([
+  const [avatarsRes, dollsRes, chatsRes, scenariosRes, tokenBalanceRes, tokenPermitsRes] = await Promise.all([
     fetchWithAuth('avatars'),
     fetchWithAuth('dolls'),
     fetchWithAuth('chats'),
     fetchWithAuth('scenarios'),
     fetchWithAuth('token/balance'),
+    fetchWithAuth('token-permits'),
   ]);
   if (!avatarsRes.ok || !dollsRes.ok || !chatsRes.ok || !scenariosRes.ok) {
     throw new Error('Failed to fetch data');
@@ -83,11 +104,12 @@ export async function clientLoader() {
   const chats: Chat[] = await chatsRes.json();
   const scenarios: Scenario[] = await scenariosRes.json();
   const tokenBalance = tokenBalanceRes.ok ? await tokenBalanceRes.json() : { balance: '0' };
-  return { avatars, dolls, chats, scenarios, tokenBalance };
+  const tokenPermits: TokenPermit[] = tokenPermitsRes.ok ? await tokenPermitsRes.json() : [];
+  return { avatars, dolls, chats, scenarios, tokenBalance, tokenPermits };
 }
 
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
-  const { avatars, dolls, chats, scenarios, tokenBalance } = loaderData;
+  const { avatars, dolls, chats, scenarios, tokenBalance, tokenPermits } = loaderData;
   const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
 
@@ -137,6 +159,7 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
           </div>
           <div className='flex flex-col gap-5'>
             <TokenBalance balance={tokenBalance?.balance || '0'} />
+            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} userId={me.id} tokenBalance={tokenBalance?.balance || '0'} />
             <YourDolls dolls={dolls} />
           </div>
         </div>
