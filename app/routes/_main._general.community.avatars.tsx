@@ -34,10 +34,8 @@ export function meta({}: Route.MetaArgs) {
 
 export async function clientLoader() {
   const [allAvatarsRes, publishedAvatarsRes] = await Promise.all([fetchWithAuth(`avatars`), fetchWithAuth(`avatars?published=true`)]);
-
-  const [allAvatars, publishedAvatars] = await Promise.all([allAvatarsRes.json(), publishedAvatarsRes.json()]);
-
-  return { allAvatars, publishedAvatars };
+  const [allAvatarsPaginated, publishedAvatarsPaginated] = await Promise.all([allAvatarsRes.json(), publishedAvatarsRes.json()]);
+  return { allAvatarsPaginated, publishedAvatarsPaginated };
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
