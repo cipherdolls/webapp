@@ -25,6 +25,10 @@ export interface User {
   character: string;
 }
 
+export interface TokenPermitsPaginated {
+  data: TokenPermit[];
+  meta: meta;
+}
 export interface TokenPermit {
   id: string;
   owner: string;

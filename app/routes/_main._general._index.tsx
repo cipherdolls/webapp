@@ -2,7 +2,7 @@ import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Avatar, Chat, Doll, Scenario, User, TokenPermit } from '~/types';
+import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -104,12 +104,14 @@ export async function clientLoader() {
   const chats: Chat[] = await chatsRes.json();
   const scenarios: Scenario[] = await scenariosRes.json();
   const tokenBalance = tokenBalanceRes.ok ? await tokenBalanceRes.json() : { balance: '0' };
-  const tokenPermits: TokenPermit[] = tokenPermitsRes.ok ? await tokenPermitsRes.json() : [];
-  return { avatars, dolls, chats, scenarios, tokenBalance, tokenPermits };
+  const tokenPermitsPaginated: TokenPermitsPaginated = tokenPermitsRes.ok ? await tokenPermitsRes.json() : [];
+  return { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated };
 }
 
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
-  const { avatars, dolls, chats, scenarios, tokenBalance, tokenPermits } = loaderData;
+  const { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated } = loaderData;
+  const tokenPermits = tokenPermitsPaginated.data as TokenPermit[];
+  
   const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
 
