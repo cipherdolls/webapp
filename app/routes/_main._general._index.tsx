@@ -2,7 +2,7 @@ import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated } from '~/types';
+import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated, AvatarsPaginated } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -99,7 +99,8 @@ export async function clientLoader() {
   if (!avatarsRes.ok || !dollsRes.ok || !chatsRes.ok || !scenariosRes.ok) {
     throw new Error('Failed to fetch data');
   }
-  const avatars: Avatar[] = await avatarsRes.json();
+  const avatarsPaginated: AvatarsPaginated = await avatarsRes.json();
+  const avatars: Avatar[] = avatarsPaginated.data;
   const dolls: Doll[] = await dollsRes.json();
   const chats: Chat[] = await chatsRes.json();
   const scenarios: Scenario[] = await scenariosRes.json();
