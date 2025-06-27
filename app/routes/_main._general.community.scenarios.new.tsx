@@ -33,12 +33,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const [aiProvidersRes, reasoningModelsRes] = await Promise.all([fetchWithAuth('ai-providers'), fetchWithAuth('reasoning-models')]);
+  const aiProvidersRes = await fetchWithAuth('ai-providers');
 
-  const aiProviders = await aiProvidersRes.json();
-  const reasoningModels = await reasoningModelsRes.json();
+  const { data } = await aiProvidersRes.json();
+  const aiProviders = data;
 
-  return { aiProviders, reasoningModels };
+  return { aiProviders };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -65,7 +65,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
-  const { aiProviders, reasoningModels } = loaderData as { aiProviders: AiProvider[]; reasoningModels: any[] };
+  const { aiProviders } = loaderData as { aiProviders: AiProvider[] };
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
@@ -115,13 +115,16 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const getOptions = (forChatModels: boolean): OptionGroup[] => {
+  const getOptions = (forModel: 'chatModel' | 'embeddingModel' | 'reasoningModel'): OptionGroup[] => {
     let res: OptionGroup[] = [];
     if (!aiProviders) return res;
 
     aiProviders.forEach((aiProvider) => {
       let newOptionGroup: OptionGroup = { groupName: aiProvider.name, options: [] };
-      const modelsArr = forChatModels ? aiProvider.chatModels : aiProvider.embeddingModels;
+      const modelsArr =
+        (forModel === 'chatModel' && aiProvider.chatModels) ||
+        (forModel === 'embeddingModel' && aiProvider.embeddingModels) ||
+        (forModel === 'reasoningModel' && aiProvider.reasoningModels);
 
       if (!modelsArr || modelsArr.length === 0) {
         return;
@@ -137,37 +140,6 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
 
       res.push(newOptionGroup);
     });
-    return res;
-  };
-
-  const getReasoningModelOptions = (): OptionGroup[] => {
-    let res: OptionGroup[] = [];
-    if (!reasoningModels || reasoningModels.length === 0) return res;
-
-    // Group reasoning models by provider
-    const modelsByProvider: Record<string, any[]> = {};
-
-    reasoningModels.forEach((model) => {
-      const providerName = model.aiProvider?.name || 'Unknown Provider';
-      if (!modelsByProvider[providerName]) {
-        modelsByProvider[providerName] = [];
-      }
-      modelsByProvider[providerName].push(model);
-    });
-
-    // Convert grouped models to option groups
-    Object.entries(modelsByProvider).forEach(([providerName, models]) => {
-      const optionGroup: OptionGroup = {
-        groupName: providerName,
-        options: models.map((model) => ({
-          label: formatModelName(model.providerModelName),
-          value: model.id,
-          recommended: model.recommended || false,
-        })),
-      };
-      res.push(optionGroup);
-    });
-
     return res;
   };
 
@@ -412,7 +384,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                 <Select.Root
                   name='chatModelId'
                   defaultValue={
-                    getOptions(true)
+                    getOptions('chatModel')
                       .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
                       .filter((value) => value !== '')[0]
                   }
@@ -424,7 +396,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                     <Select.Value placeholder='Select a chat model' />
                   </Select.Trigger>
                   <Select.Content className='max-h-[250px] overflow-y-auto '>
-                    {getOptions(true).map((group) => (
+                    {getOptions('chatModel').map((group) => (
                       <Fragment key={group.groupName}>
                         <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                         {group.options.map((option: any) => (
@@ -446,7 +418,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                     <Select.Root
                       name='embeddingModelId'
                       defaultValue={
-                        getOptions(false)
+                        getOptions('embeddingModel')
                           .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
                           .filter((value) => value !== '')[0]
                       }
@@ -458,7 +430,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                         <Select.Value placeholder='Select an embedding model' />
                       </Select.Trigger>
                       <Select.Content className='max-h-[250px] overflow-y-auto'>
-                        {getOptions(false).map((group) => (
+                        {getOptions('embeddingModel').map((group) => (
                           <Fragment key={group.groupName}>
                             <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                             {group.options.map((option: any) => (
@@ -478,7 +450,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                     <Select.Root
                       name='reasoningModelId'
                       defaultValue={
-                        getReasoningModelOptions()
+                        getOptions('reasoningModel')
                           .flatMap((group) => group.options.find((option) => option.recommended)?.value || '')
                           .filter((value) => value !== '')[0]
                       }
@@ -490,7 +462,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                         <Select.Value placeholder='Select a reasoning model' />
                       </Select.Trigger>
                       <Select.Content className='max-h-[250px] overflow-y-auto'>
-                        {getReasoningModelOptions().map((group) => (
+                        {getOptions('reasoningModel').map((group) => (
                           <Fragment key={group.groupName}>
                             <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                             {group.options.map((option: any) => (
