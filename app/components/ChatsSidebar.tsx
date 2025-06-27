@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router';
-import type { Avatar, Chat } from '~/types';
+import type { Avatar, Chat, meta } from '~/types';
 import { cn } from '~/utils/cn';
 import { Icons } from './ui/icons';
 import AvatarCard from './AvatarCardReusable';
@@ -8,11 +8,12 @@ import AvatarSelectModal from './AvatarSelectModal';
 
 interface ChatsSidebarProps {
   chats: Chat[];
-  avatars: Avatar[];
+  avatars: Avatar[] | { data: Avatar[]; meta: meta };
 }
 
 const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
-  const showChatsButton = chats.length > 0 && avatars.some((avatar) => avatar.chats.length === 0);
+  const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
+  const showChatsButton = chats.length > 0 && avatarsList.some((avatar) => avatar.chats.length === 0);
 
   return (
     <div
@@ -23,7 +24,7 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
       <div className='px-5 py-[18px] flex items-center justify-between'>
         <h3 className='text-heading-h3'>Chats</h3>
         {showChatsButton && (
-          <AvatarSelectModal avatars={avatars}>
+          <AvatarSelectModal avatars={avatarsList}>
             <Button.Root size='icon' aria-label='New Chat' className='shrink-0'>
               <Button.Icon as={Icons.chat} />
             </Button.Root>
