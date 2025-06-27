@@ -1,7 +1,7 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, Scenario } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Scenario } from '~/types';
 import type { Route } from './+types/_main._general.scenarios.$scenariosId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -23,17 +23,14 @@ export function meta({}: Route.MetaArgs) {
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const scenarioId = params.scenariosId;
 
-  const [scenarioRes, aiProvidersRes, reasoningModelsRes] = await Promise.all([
-    fetchWithAuth(`scenarios/${scenarioId}`),
-    fetchWithAuth('ai-providers'),
-    fetchWithAuth('reasoning-models'),
-  ]);
+  const [scenarioRes, aiProvidersRes] = await Promise.all([fetchWithAuth(`scenarios/${scenarioId}`), fetchWithAuth('ai-providers')]);
 
   const scenario = await scenarioRes.json();
-  const aiProviders = await aiProvidersRes.json();
-  const reasoningModels = await reasoningModelsRes.json();
+  const { data }: AiProvidersPaginated = await aiProvidersRes.json();
 
-  return { scenario, aiProviders, reasoningModels };
+  const aiProviders = data;
+
+  return { scenario, aiProviders };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -62,7 +59,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
-  const { scenario, aiProviders, reasoningModels } = loaderData;
+  const { scenario, aiProviders } = loaderData as { scenario: Scenario; aiProviders: AiProvider[] };
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(scenario.picture ?? null);
@@ -121,13 +118,16 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
     options: Option[];
   }
 
-  const getOptions = (forChatModels: boolean): OptionGroup[] => {
+  const getOptions = (forModel: 'chatModel' | 'embeddingModel' | 'reasoningModel'): OptionGroup[] => {
     let res: OptionGroup[] = [];
     if (!aiProviders) return res;
 
-    aiProviders.forEach((aiProvider: AiProvider) => {
+    aiProviders.forEach((aiProvider) => {
       let newOptionGroup: OptionGroup = { groupName: aiProvider.name, options: [] };
-      const modelsArr = forChatModels ? aiProvider.chatModels : aiProvider.embeddingModels;
+      const modelsArr =
+        (forModel === 'chatModel' && aiProvider.chatModels) ||
+        (forModel === 'embeddingModel' && aiProvider.embeddingModels) ||
+        (forModel === 'reasoningModel' && aiProvider.reasoningModels);
 
       if (!modelsArr || modelsArr.length === 0) {
         return;
@@ -143,35 +143,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
 
       res.push(newOptionGroup);
     });
-    return res;
-  };
-
-  const getReasoningModelOptions = (): OptionGroup[] => {
-    let res: OptionGroup[] = [];
-    if (!reasoningModels || reasoningModels.length === 0) return res;
-
-    const modelsByProvider: Record<string, any[]> = {};
-
-    reasoningModels.forEach((model: any) => {
-      const providerName = model.aiProvider?.name || 'Unknown Provider';
-      if (!modelsByProvider[providerName]) {
-        modelsByProvider[providerName] = [];
-      }
-      modelsByProvider[providerName].push(model);
-    });
-
-    Object.entries(modelsByProvider).forEach(([providerName, models]) => {
-      const optionGroup: OptionGroup = {
-        groupName: providerName,
-        options: models.map((model: any) => ({
-          label: formatModelName(model.providerModelName),
-          value: model.id,
-          recommended: model.recommended || false,
-        })),
-      };
-      res.push(optionGroup);
-    });
-
     return res;
   };
 
@@ -442,7 +413,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     <Select.Value placeholder='Select a chat model' />
                   </Select.Trigger>
                   <Select.Content className='max-h-[250px] overflow-y-auto '>
-                    {getOptions(true).map((group) => (
+                    {getOptions('chatModel').map((group) => (
                       <Fragment key={group.groupName}>
                         <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                         {group.options.map((option: any) => (
@@ -469,7 +440,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                         <Select.Value placeholder='Select an embedding model' />
                       </Select.Trigger>
                       <Select.Content className='max-h-[250px] overflow-y-auto'>
-                        {getOptions(false).map((group) => (
+                        {getOptions('embeddingModel').map((group) => (
                           <Fragment key={group.groupName}>
                             <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                             {group.options.map((option: any) => (
@@ -494,7 +465,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                         <Select.Value placeholder='Select a reasoning model' />
                       </Select.Trigger>
                       <Select.Content className='max-h-[250px] overflow-y-auto'>
-                        {getReasoningModelOptions().map((group) => (
+                        {getOptions('reasoningModel').map((group) => (
                           <Fragment key={group.groupName}>
                             <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                             {group.options.map((option: any) => (
