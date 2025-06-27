@@ -69,10 +69,10 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const [temperature, setTemperature] = useState(0.2);
-  const [topP, setTopP] = useState(1);
-  const [frequencyPenalty, setFrequencyPenalty] = useState(0.2);
-  const [presencePenalty, setPresencePenalty] = useState(0.2);
+  const [temperature, setTemperature] = useState(0.8);
+  const [topP, setTopP] = useState(0.9);
+  const [frequencyPenalty, setFrequencyPenalty] = useState(0);
+  const [presencePenalty, setPresencePenalty] = useState(0.6);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
