@@ -1,5 +1,5 @@
 import { Outlet, useRouteLoaderData } from 'react-router';
-import type { Scenario, User, Avatar } from '~/types';
+import type { Scenario, User, Avatar, AvatarsPaginated } from '~/types';
 import type { Route } from './+types/_main._general.community.scenarios';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import MyScenarios from '~/components/my-scenarios';
@@ -36,14 +36,16 @@ export async function clientLoader() {
   ]);
 
   const scenarios = await scenariosRes.json();
-  const avatars = await avatarsRes.json();
-  const publishedAvatars = await publishedRes.json();
+  const avatarsPaginated = await avatarsRes.json();
+  const publishedAvatarsPaginated = await publishedRes.json();
 
-  return { scenarios, avatars, publishedAvatars };
+  return { scenarios, avatarsPaginated, publishedAvatarsPaginated };
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const { scenarios, avatars, publishedAvatars }: { scenarios: Scenario[]; avatars: Avatar[]; publishedAvatars: Avatar[] } = loaderData;
+  const { scenarios, avatarsPaginated, publishedAvatarsPaginated }: { scenarios: Scenario[]; avatarsPaginated: AvatarsPaginated; publishedAvatarsPaginated: AvatarsPaginated} = loaderData;
+  const avatars = avatarsPaginated.data as Avatar[];
+  const publishedAvatars = publishedAvatarsPaginated.data as Avatar[];
   const allAvatars = [...publishedAvatars, ...avatars];
   const me = useRouteLoaderData('routes/_main') as User;
 
