@@ -1,5 +1,5 @@
 import { Outlet, useRevalidator, useNavigate } from 'react-router';
-import type { Avatar, Chat, Message, ProcessEvent } from '~/types';
+import type { Avatar, Chat, Message, MessagesPaginated, ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useChatEvents } from '~/hooks/useChatEvents';
@@ -26,7 +26,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     throw new Error('Failed to fetch chats and messages');
   }
   const chat: Chat = await chatRes.json();
-  const messages: Message[] = await messagesRes.json();
+  const messagesPaginated: MessagesPaginated = await messagesRes.json();
 
   // fetch avatar
   const avatarRes = await fetchWithAuth(`avatars/${chat.avatar.id}`);
@@ -36,7 +36,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   const avatar: Avatar = await avatarRes.json();
 
 
-  return { chat, messages, avatar };
+  return { chat, messagesPaginated, avatar };
 }
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
@@ -68,7 +68,9 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 }
 
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
-  const { chat, messages, avatar } = loaderData;
+  const { chat, messagesPaginated, avatar } = loaderData;
+  const messages: Message[] = messagesPaginated.data || [];
+  
   const revalidator = useRevalidator();
   const navigate = useNavigate();
   const { load, stop, play, duration } = useAudioPlayerContext();

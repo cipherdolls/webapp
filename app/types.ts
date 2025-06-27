@@ -163,6 +163,11 @@ export interface Chat {
   scenario: Scenario;
 }
 
+
+export interface MessagesPaginated {
+  data: Message[];
+  meta: meta;
+}
 export interface Message {
   id: string;
   content: string;
