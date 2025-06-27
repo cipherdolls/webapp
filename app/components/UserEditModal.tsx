@@ -4,9 +4,9 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import { type FetcherWithComponents } from 'react-router';
 import type { User } from '~/types';
-import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { cn } from '~/utils/cn';
 
 interface UserEditModalProps {
   me: User;
@@ -17,6 +17,8 @@ interface UserEditModalProps {
 
 const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
+  const [gender, setGender] = useState<'Male' | 'Female'>('Male');
+
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
   const setOpenState = isControlled ? onOpenChange! : setInternalOpen;
@@ -57,14 +59,14 @@ const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) 
                 Update your name and character description
               </Dialog.Description>
             </div>
-            
+
             <fetcher.Form method='PATCH' className='sm:mt-[22px] mt-4.5'>
               <input name='userId' value={me.id} hidden readOnly />
               <input name='signerAddress' value={me.signerAddress} hidden readOnly />
-              
+
               <div className='flex flex-col gap-4'>
                 {fetcher.data?.message && <ErrorsBox errors={fetcher.data.message} className='mb-2' />}
-                
+
                 <Input.Root>
                   <Input.Label id='name' htmlFor='name'>
                     Name
@@ -78,22 +80,34 @@ const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) 
                     defaultValue={me.name}
                   />
                 </Input.Root>
-                
+
                 <Input.Root>
-                  <Input.Label id='publicName' htmlFor='publicName'>
-                    Public Name
-                  </Input.Label>
-                  <Input.Input 
-                    className='text-base-black py-3.5 px-3' 
-                    type='text' 
-                    placeholder='Add a public name' 
-                    defaultValue={''} 
-                  />
-                  <span className='text-body-sm text-neutral-01'>
-                    Your public name will be used on the pages of avatars you create and publish
-                  </span>
+                  <Input.Label htmlFor='gender'>Gender</Input.Label>
+                  <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                    <button
+                      type='button'
+                      className={cn(
+                        'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                        gender === 'Female' ? 'bg-white' : 'bg-transparent'
+                      )}
+                      onClick={() => setGender('Female')}
+                    >
+                      👩🏻 Female
+                    </button>
+                    <button
+                      type='button'
+                      className={cn(
+                        'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                        gender === 'Male' ? 'bg-white' : 'bg-transparent'
+                      )}
+                      onClick={() => setGender('Male')}
+                    >
+                      🧔🏻‍♂ Male
+                    </button>
+                  </div>
+                  <input type='hidden' name='gender' value={gender} />
                 </Input.Root>
-                
+
                 <Textarea.Root>
                   <Textarea.Label htmlFor='character'>Character</Textarea.Label>
                   <Textarea.Wrapper>
@@ -106,7 +120,7 @@ const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) 
                     />
                   </Textarea.Wrapper>
                 </Textarea.Root>
-                
+
                 <div className='grid grid-cols-2 gap-2 mt-4'>
                   <Dialog.Close asChild>
                     <Button.Root type='button' variant='secondary'>
