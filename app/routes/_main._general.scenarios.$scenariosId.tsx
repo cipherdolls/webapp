@@ -45,8 +45,8 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     publishedAvatars,
   }: {
     scenario: Scenario;
-    avatars: Avatar[];
-    publishedAvatars: Avatar[];
+    avatars: Avatar[] | { data: Avatar[]; meta: any };
+    publishedAvatars: Avatar[] | { data: Avatar[]; meta: any };
   } = loaderData;
 
   const fetcher = useFetcher();
@@ -55,7 +55,9 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
 
-  const allAvatars = [...avatars, ...publishedAvatars];
+  const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
+  const publishedAvatarsList = Array.isArray(publishedAvatars) ? publishedAvatars : publishedAvatars.data;
+  const allAvatars = [...avatarsList, ...publishedAvatarsList];
 
   return (
     <>
@@ -73,7 +75,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
           </Link>
 
           <div className='md:flex hidden items-center gap-3'>
-            {avatars.length > 0 && (
+            {avatarsList.length > 0 && (
               <SelectAvatarModal
                 avatars={allAvatars}
                 scenario={scenario}
