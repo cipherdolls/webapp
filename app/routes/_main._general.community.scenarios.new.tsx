@@ -7,7 +7,7 @@ import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { Fragment, useRef, useState } from 'react';
-import type { AiProvider } from '~/types';
+import type { AiProvider, AiProvidersPaginated } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
@@ -35,7 +35,7 @@ export function meta({}: Route.MetaArgs) {
 export async function clientLoader() {
   const aiProvidersRes = await fetchWithAuth('ai-providers');
 
-  const { data } = await aiProvidersRes.json();
+  const { data }: AiProvidersPaginated = await aiProvidersRes.json();
   const aiProviders = data;
 
   return { aiProviders };
