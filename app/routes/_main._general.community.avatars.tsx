@@ -1,5 +1,5 @@
 import { Outlet, useRouteLoaderData } from 'react-router';
-import type { Avatar, User } from '~/types';
+import type { Avatar, AvatarsPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general.community.avatars';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import MyAvatars from '~/components/my-avatars';
@@ -41,7 +41,10 @@ export async function clientLoader() {
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const { allAvatars, publishedAvatars }: { allAvatars: Avatar[]; publishedAvatars: Avatar[] } = loaderData;
+  const { allAvatarsPaginated, publishedAvatarsPaginated }: { allAvatarsPaginated: AvatarsPaginated; publishedAvatarsPaginated: AvatarsPaginated } = loaderData;
+  const allAvatars = allAvatarsPaginated.data as Avatar[];
+  const publishedAvatars = publishedAvatarsPaginated.data as Avatar[];
+
   const me = useRouteLoaderData('routes/_main') as User;
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   useEffect(() => {

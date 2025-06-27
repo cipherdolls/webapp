@@ -275,7 +275,10 @@ export interface PaymentJob {
 }
 
 type Gender = 'Female' | 'Male';
-
+export interface AvatarsPaginated {
+  data: Avatar[];
+  meta: meta;
+}
 export interface Avatar {
   id: string;
   name: string;
