@@ -39,4 +39,24 @@ jobs:
             docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} 
             docker stack deploy -c ~/devops/hostinger/prod-stack.yaml prod --with-registry-auth
             docker stack deploy -c ~/devops/hostinger/dev-stack.yaml dev --with-registry-auth
+
+
+      - name: Prune images on 77.37.51.42
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          username: root
+          host: 77.37.51.42
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          script: |
             docker image prune -a -f
+
+      - name: Prune images on 195.35.25.26
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          username: root
+          host: 195.35.25.26
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          script: |
+            docker image prune -a -f
+
+
