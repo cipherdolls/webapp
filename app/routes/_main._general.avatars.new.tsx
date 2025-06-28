@@ -1,5 +1,5 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
-import type { Route } from './+types/_main._general.community.avatars.new';
+import type { Route } from './+types/_main._general.avatars.new';
 import type { TtsVoice, Scenario } from '~/types';
 import { useRef, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
@@ -57,7 +57,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     await res.json();
-    return redirect(`/community/avatars`);
+    return redirect(`/avatars`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
@@ -114,7 +114,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate('/community/avatars');
+    navigate('/avatars');
   };
 
   const handleVoiceChange = (voice: TtsVoice) => {

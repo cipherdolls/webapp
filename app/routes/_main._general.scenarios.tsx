@@ -1,14 +1,16 @@
-import { Outlet, useRouteLoaderData } from 'react-router';
+import { NavLink, Outlet, useRouteLoaderData } from 'react-router';
 import type { Scenario, User, Avatar, AvatarsPaginated } from '~/types';
-import type { Route } from './+types/_main._general.community.scenarios';
+import type { Route } from './+types/_main._general.scenarios';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import MyScenarios from '~/components/my-scenarios';
 import PublicScenarios from '~/components/public-scenarios';
 import { useEffect, useState } from 'react';
+import * as Button from '~/components/ui/button/button';
+import { Icons } from '~/components/ui/icons';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <div className='flex flex-col gap-16 pb-5 mt-6'>
+    <div className='flex flex-col gap-16 pb-5 mt-6 w-full'>
       {Array.from({ length: count }).map((_, i) => (
         <div className='flex flex-col gap-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div>
@@ -43,7 +45,11 @@ export async function clientLoader() {
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const { scenarios, avatarsPaginated, publishedAvatarsPaginated }: { scenarios: Scenario[]; avatarsPaginated: AvatarsPaginated; publishedAvatarsPaginated: AvatarsPaginated} = loaderData;
+  const {
+    scenarios,
+    avatarsPaginated,
+    publishedAvatarsPaginated,
+  }: { scenarios: Scenario[]; avatarsPaginated: AvatarsPaginated; publishedAvatarsPaginated: AvatarsPaginated } = loaderData;
   const avatars = avatarsPaginated.data as Avatar[];
   const publishedAvatars = publishedAvatarsPaginated.data as Avatar[];
   const allAvatars = [...publishedAvatars, ...avatars];
@@ -73,10 +79,23 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const myScenarios = scenarios.filter((scenario) => scenario.userId === me.id);
 
   return (
-    <>
-      <MyScenarios scenarios={myScenarios} />
-      <PublicScenarios scenarios={scenarios} avatars={allAvatars} />
-      <Outlet />
-    </>
+    <div className='w-full'>
+      <div className='flex items-center justify-between sm:mt-8 mb-4'>
+        <h2 className='text-2xl font-semibold '>Scenarios</h2>
+
+        <NavLink to={'/avatars/new'}>
+          <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
+            <Button.Icon as={Icons.add} />
+            Add New Scenario
+          </Button.Root>
+        </NavLink>
+      </div>
+
+      <div className='flex flex-col gap-10'>
+        <MyScenarios scenarios={myScenarios} />
+        <PublicScenarios scenarios={scenarios} avatars={allAvatars} />
+        <Outlet />
+      </div>
+    </div>
   );
 }
