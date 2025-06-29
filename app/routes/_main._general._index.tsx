@@ -12,6 +12,10 @@ import UserEditModal from '~/components/UserEditModal';
 import TokenBalance from '~/components/TokenBalance';
 import TokenPermitsList from '~/components/TokenPermitsList';
 import { useEffect, useState } from 'react';
+import { useNetworkCheck } from '~/hooks/useNetworkCheck';
+import { switchToOptimismNetwork } from '~/utils/networkUtils';
+import { toast } from 'sonner';
+import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -112,12 +116,14 @@ export async function clientLoader() {
 export default function Dashbaord({ loaderData }: Route.ComponentProps) {
   const { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated } = loaderData;
   const tokenPermits = tokenPermitsPaginated.data as TokenPermit[];
-  
+
   const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
+  const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
 
   useEffect(() => {
     if (loaderData) {
@@ -129,6 +135,22 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
     }
   }, [loaderData]);
 
+  const handleSwitchNetwork = async () => {
+    setIsSwitchingNetwork(true);
+    try {
+      const result = await switchToOptimismNetwork();
+      if (!result.success) {
+        toast.error(result.error || 'Failed to switch network');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred while switching networks');
+    } finally {
+      setIsSwitchingNetwork(false);
+    }
+  };
+
+  const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
+
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
       <div className='flex flex-col sm:gap-4 gap-7'>
@@ -136,13 +158,16 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
         <div className='sm:hidden block ml-4.5 '>
           <Icons.mobileLogo />
         </div>
+
         <DashboardBanner
           username={me.name}
           variant='welcome'
-          description='What do you want to start from?'
+          description={shouldShowNetworkWarning ? null : 'What do you want to start from?'}
           showEditLink={true}
           onEditClick={() => setIsUserEditModalOpen(true)}
         />
+
+        {shouldShowNetworkWarning && <NetworkWarningBanner onSwitchNetwork={handleSwitchNetwork} isLoading={isSwitchingNetwork} />}
       </div>
       {!hasInitiallyLoaded || !loaderData ? (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
