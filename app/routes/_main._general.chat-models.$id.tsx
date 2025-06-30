@@ -106,6 +106,7 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
 
                   <h4 className='text-body-md font-semibold text-base-black sm:text-heading-h4 sm:hidden'>{chatModel.providerModelName}</h4>
                 </div>
+
                 <div className='flex flex-col gap-2'>
                   <h4 className='hidden text-body-md font-semibold text-base-black sm:text-heading-h4 sm:block'>
                     {chatModel.providerModelName}
@@ -145,8 +146,9 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           </div>
+
           <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
-            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max relative'>
+            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] h-max relative'>
               <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Model Properties</h2>
               <div className='flex flex-col gap-3'>
                 <div className='flex justify-between'>
@@ -164,10 +166,8 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <span className='text-body-sm font-semibold'>${scientificNumConvert(chatModel.dollarPerOutputToken * 1000000)}</span>
                 </div>
               </div>
-              <span className='text-xs hidden text-neutral-01 font-semibold items-center justify-end mt-3 md:flex'>
-                Prices are per million token
-              </span>
             </div>
+
             <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max'>
               <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Performance Stats</h2>
 

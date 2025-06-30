@@ -35,11 +35,11 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
           <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
-              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200'>
+              <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
                 {formatModelName(embeddingModel.providerModelName)}
               </h3>
-              <span className='text-neutral-01 word text-body-lg'>•</span>
-              <span className='text-neutral-01 text-body-lg'>AI</span>
+              <span className='text-body-md text-neutral-01 word sm:text-body-lg'>•</span>
+              <span className='text-body-md text-neutral-01 sm:text-body-lg'>AI</span>
             </div>
           </Link>
           {me.role === 'ADMIN' && (
@@ -85,20 +85,31 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
             )}
           </div>
         </div>
+
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
-          <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl '>
-            <div className='flex sm:gap-5 md:gap-10 gap-5 justify-center items-center md:items-end md:justify-between md:flex-row flex-col'>
-              <div className='flex items-center gap-5'>
-                <div className='size-[72px]'>
-                  <img
-                    src={getPicture(embeddingModel.aiProvider, 'ai-providers', false)}
-                    srcSet={getPicture(embeddingModel.aiProvider, 'ai-providers', true)}
-                    alt={embeddingModel.providerModelName}
-                    className='size-full object-cover rounded-lg'
-                  />
+          <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl'>
+            <div className='flex items-start flex-col gap-5 justify-center sm:gap-5 md:gap-10 md:items-end md:justify-between md:flex-row'>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5'>
+                <div className='flex items-center gap-3 sm:gap-5'>
+                  <div className='size-6 sm:size-[72px]'>
+                    <img
+                      src={getPicture(embeddingModel.aiProvider, 'ai-providers', false)}
+                      srcSet={getPicture(embeddingModel.aiProvider, 'ai-providers', true)}
+                      alt={embeddingModel.providerModelName}
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
+
+                  <h4 className='text-body-md font-semibold text-base-black sm:text-heading-h4 sm:hidden'>
+                    {embeddingModel.providerModelName}
+                  </h4>
                 </div>
+
                 <div className='flex flex-col gap-2'>
-                  <h4 className='text-body-sm font-semibold sm:text-heading-h4 text-base-black'>{embeddingModel.providerModelName}</h4>
+                  <h4 className='hidden text-body-md font-semibold text-base-black sm:text-heading-h4 sm:block'>
+                    {embeddingModel.providerModelName}
+                  </h4>
+
                   <div className='flex items-center gap-1'>
                     {embeddingModel.recommended && (
                       <div className='flex items-center gap-1'>
@@ -110,21 +121,25 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <p className='text-body-sm text-base-black'>{embeddingModel.info}</p>
                 </div>
               </div>
-              <div className='flex flex-1 justify-end items-end h-full'>
-                <div className='flex flex-col gap-2'>
-                  <p className='md:text-right text-body-sm text-neutral-01 text-center'>
+
+              <div className='border-neutral-04 border w-full md:hidden' />
+
+              <div className='flex flex-1 justify-end w-full h-full md:items-end'>
+                <div className='flex flex-col flex-1 gap-2'>
+                  <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
                     Provider: <span className='text-base-black font-semibold'>{embeddingModel.aiProvider?.name}</span>
                   </p>
-                  <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                  <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
                     Created at: <span className='text-base-black font-semibold'>{createdDate}</span>
                   </p>
-                  <p className='text-body-sm text-neutral-01 md:text-right text-center'>
+                  <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
                     Updated at: <span className='text-base-black font-semibold'>{updatedDate}</span>
                   </p>
                 </div>
               </div>
             </div>
           </div>
+
           <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
             <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max relative'>
               <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Model Properties</h2>
@@ -139,7 +154,6 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   <span className='text-body-sm font-semibold'>${scientificNumConvert(embeddingModel.dollarPerOutputToken * 1000000)}</span>
                 </div>
               </div>
-              <span className='text-xs text-neutral-01 font-semibold flex items-center justify-end mt-3'>Prices are per million token</span>
             </div>
           </div>
         </div>
