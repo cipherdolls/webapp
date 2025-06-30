@@ -2,7 +2,7 @@ import { redirect, useFetcher, useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { AiProvider, AiProvidersPaginated, Scenario } from '~/types';
-import type { Route } from './+types/_main._general.scenarios.$scenariosId.edit';
+import type { Route } from './+types/_main._general._id.scenarios.$scenariosId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';

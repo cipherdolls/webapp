@@ -1,6 +1,6 @@
 import { Form, Link, Outlet, redirect, useFetcher, useRouteLoaderData } from 'react-router';
 import type { Avatar, User } from '~/types';
-import type { Route } from './+types/_main._general.avatars.$id';
+import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
