@@ -4,6 +4,8 @@ import * as Popover from '~/components/ui/popover';
 import { cn } from '~/utils/cn';
 import type { ReactNode } from 'react';
 import { Icons } from './components/ui/icons';
+import SelectAvatarModal from '~/components/SelectAvatarModal';
+import type { Avatar, Scenario } from '~/types';
 
 type PopoverActionItem = {
   text: string;
@@ -28,6 +30,11 @@ type PopoverActionItem = {
   | {
       type: 'component';
       component: ReactNode;
+    }
+  | {
+      type: 'addToChat';
+      allAvatars: Avatar[];
+      scenario: Scenario;
     }
 );
 
@@ -102,6 +109,19 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
 
       case 'component':
         return <div key={index}>{item.component}</div>;
+
+      case 'addToChat':
+        return (
+          <SelectAvatarModal
+            avatars={item.allAvatars}
+            scenario={item.scenario}
+            triggerContent={
+              <button className={baseClassName} type='button'>
+                {renderContent(item.text)}
+              </button>
+            }
+          />
+        );
 
       default:
         return null;

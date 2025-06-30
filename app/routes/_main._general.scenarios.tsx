@@ -1,7 +1,6 @@
-
 import { NavLink, Outlet, useRouteLoaderData } from 'react-router';
 import type { Scenario, User, Avatar, AvatarsPaginated, ScenariosPaginated } from '~/types';
-import type { Route } from './+types/_main._general.community.scenarios';
+import type { Route } from './+types/_main._general.scenarios';
 import { fetchWithAuth, fetchWithAuthAndType } from '~/utils/fetchWithAuth';
 import MyScenarios from '~/components/my-scenarios';
 import PublicScenarios from '~/components/public-scenarios';
@@ -40,11 +39,11 @@ export async function clientLoader() {
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const { scenariosPaginated, avatarsPaginated, publishedAvatarsPaginated } = loaderData;
-  const scenarios = scenariosPaginated.data
-  const avatars = avatarsPaginated.data
-  const publishedAvatars = publishedAvatarsPaginated.data
+  const scenarios = scenariosPaginated.data;
+  const avatars = avatarsPaginated.data;
+  const publishedAvatars = publishedAvatarsPaginated.data;
   const allAvatars = [...publishedAvatars, ...avatars];
-  
+
   const me = useRouteLoaderData('routes/_main') as User;
 
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);

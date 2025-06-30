@@ -1,5 +1,5 @@
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.scenarios.$scenariosId';
+import type { Route } from './+types/_main._general._id.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { Link, Outlet, useFetcher, useRouteLoaderData } from 'react-router';
@@ -61,16 +61,16 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
+      <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
           <Link to={`/scenarios`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
-            <div className='flex items-center gap-3 break-all'>
-              <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200 line-clamp-2'>
+            <div className='flex items-center gap-3 break-all flex-wrap'>
+              <h3 className='font-semibold text-body-md text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
                 {formatModelName(scenario.name)}
               </h3>
-              <span className='text-neutral-01 word text-body-lg'>•</span>
-              <span className='text-neutral-01 text-body-lg shrink-0'>Scenarios</span>
+              <span className='text-body-md text-neutral-01 word sm:text-body-lg'>•</span>
+              <span className='text-body-md text-neutral-01 sm:text-body-lg'>Scenarios</span>
             </div>
           </Link>
 
@@ -138,6 +138,12 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   text: 'Edit',
                   href: `/scenarios/${scenario.id}/edit`,
                   visible: me.id === scenario.userId,
+                },
+                {
+                  type: 'addToChat',
+                  text: 'Add to Chat',
+                  allAvatars: allAvatars,
+                  scenario: scenario,
                 },
                 {
                   type: 'component',
