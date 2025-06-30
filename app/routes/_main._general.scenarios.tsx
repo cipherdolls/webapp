@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useRouteLoaderData } from 'react-router';
-import type { Scenario, User, Avatar, AvatarsPaginated } from '~/types';
+import type { Avatar, AvatarsPaginated, Scenario, User } from '~/types';
 import type { Route } from './+types/_main._general.scenarios';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import MyScenarios from '~/components/my-scenarios';
@@ -83,7 +83,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold '>Scenarios</h2>
 
-        <NavLink to={'/avatars/new'}>
+        <NavLink to={'/scenarios/new'}>
           <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
             <Button.Icon as={Icons.add} />
             Add New Scenario
