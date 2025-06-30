@@ -140,6 +140,12 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   visible: me.id === scenario.userId,
                 },
                 {
+                  type: 'addToChat',
+                  text: 'Add to Chat',
+                  allAvatars: allAvatars,
+                  scenario: scenario,
+                },
+                {
                   type: 'component',
                   text: 'Delete',
                   isDelete: true,
