@@ -67,7 +67,7 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
                     <Slider.Thumb />
                   </Slider.Root>
                 </div>
-                <div className='text-xs text-neutral-01 text-center'>Available balance: {safeMaxBalance.toFixed(2)} LOW</div>
+                <div className='text-xs text-neutral-01 text-center'>Available balance: {safeMaxBalance.toFixed(2)} LOV</div>
               </div>
 
               <div className='grid grid-cols-2 gap-3'>

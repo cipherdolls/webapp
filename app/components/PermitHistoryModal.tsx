@@ -49,8 +49,8 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
                   💰
                 </button>
                 <div>
-                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOW Token Allowance</h4>
-                  <p className='text-sm text-neutral-01'>{formatPermitAmount(permit.value)} LOW approved for spending</p>
+                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
+                  <p className='text-sm text-neutral-01'>{formatPermitAmount(permit.value)} LOV approved for spending</p>
                 </div>
                 {isExpired(permit.deadline) && (
                   <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>

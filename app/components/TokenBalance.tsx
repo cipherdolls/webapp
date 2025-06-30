@@ -27,7 +27,7 @@ const TokenBalance = ({ balance }: TokenBalanceProps) => {
               </div>
             </button>
             <span className='text-heading-h3 font-semibold text-base-black'>
-              {displayBalance} <span className='text-neutral-01'>LOW</span>
+              {displayBalance} <span className='text-neutral-01'>LOV</span>
             </span>
           </div>
         </Card.Content>
