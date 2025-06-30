@@ -27,7 +27,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
         {hasScenarios ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
-              <Link to={'/community/scenarios'} className='group '>
+              <Link to={'/scenarios'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -35,7 +35,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                   </span>
                 </div>
               </Link>
-              <Link to={'/community/scenarios/new'} className='group '>
+              <Link to={'/scenarios/new'} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -82,7 +82,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
               <Link
-                to='/community/scenarios/new'
+                to='/scenarios/new'
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new scenario

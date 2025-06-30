@@ -187,7 +187,7 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
           </div>
           <div className='flex flex-col gap-5'>
             <TokenBalance balance={tokenBalance?.balance || '0'} />
-            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} userId={me.id} tokenBalance={tokenBalance?.balance || '0'} />
+            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} tokenBalance={tokenBalance?.balance || '0'} />
             <YourDolls dolls={dolls} />
           </div>
         </div>

@@ -11,7 +11,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   if (!res.ok) {
     return await res.json();
   }
-  return redirect(`/community/scenarios`);
+  return redirect(`/scenarios`);
 }
 
 export default function ScenarioDestroy() {

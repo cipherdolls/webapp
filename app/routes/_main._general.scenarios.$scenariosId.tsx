@@ -63,7 +63,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
-          <Link to={`/community/scenarios`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`/scenarios`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3 break-all'>
               <h3 className='text-heading-h3 font-semibold text-base-black hover:underline transition-all duration-200 line-clamp-2'>
@@ -87,7 +87,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               />
             )}
 
-            <fetcher.Form method='POST' action='/community/scenarios/new'>
+            <fetcher.Form method='POST' action='/scenarios/new'>
               <input hidden readOnly name='name' defaultValue={`${scenario.name} copy`} />
               <input hidden readOnly name='systemMessage' defaultValue={scenario.systemMessage} />
               <input hidden readOnly name='chatModelId' defaultValue={scenario.chatModel.id} />
@@ -120,7 +120,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 {
                   type: 'form',
                   text: 'Duplicate',
-                  action: '/community/scenarios/new',
+                  action: '/scenarios/new',
                   method: 'POST',
                   formData: {
                     name: `${scenario.name} copy`,
