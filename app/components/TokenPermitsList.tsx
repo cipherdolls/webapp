@@ -9,15 +9,15 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { Icons } from '~/components/ui/icons';
 import moment from 'moment';
 import { InformationBadge } from './ui/InformationBadge';
+import PermitHistoryModal from './PermitHistoryModal';
 
 interface TokenPermitsListProps {
   permits: TokenPermit[];
   fetcher: FetcherWithComponents<any>;
-  userId: string;
   tokenBalance: string | number;
 }
 
-const TokenPermitsList = ({ permits, fetcher, userId, tokenBalance }: TokenPermitsListProps) => {
+const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListProps) => {
   const handlePermitSigned = async (permit: {
     owner: string;
     spender: string;
@@ -77,6 +77,13 @@ const TokenPermitsList = ({ permits, fetcher, userId, tokenBalance }: TokenPermi
             className='size-6 !max-w-[300px]'
             side='top'
           />
+          {permits.length > 1 && (
+            <PermitHistoryModal permits={permits}>
+              <button className='px-2 py-1 text-xs bg-neutral-04 text-neutral-01 hover:bg-neutral-05 hover:text-neutral-02 transition-colors rounded-md'>
+                History
+              </button>
+            </PermitHistoryModal>
+          )}
           {permits.length > 0 && (
             <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
               <button className='p-px rounded-full bg-neutral-04 text-neutral-01 hover:bg-neutral-05 hover:text-neutral-02 transition-colors '>
@@ -102,49 +109,45 @@ const TokenPermitsList = ({ permits, fetcher, userId, tokenBalance }: TokenPermi
               </div>
             </div>
           ) : (
-            <div className='flex flex-col gap-3 divide-y divide-neutral-04'>
-              {sortedPermits.map((permit) => (
-                <div key={permit.id} className={`p-3 hover:opacity-70 transition-opacity`}>
-                  <div className='flex items-center gap-3'>
-                    <button className='sm:size-14 size-10 flex text-3xl items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
-                      💰
-                    </button>
-                    <div>
-                      <h4 className='text-heading-h4 font-semibold text-base-black'>LOW Token Allowance</h4>
-                      <p className='text-sm text-neutral-01'>{formatPermitAmount(permit.value)} LOW approved for spending</p>
-                    </div>
-                    {isExpired(permit.deadline) && (
-                      <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>
-                    )}
-                  </div>
-
-                  <Accordion.Root type='single' collapsible className='w-full'>
-                    <Accordion.Item value='details'>
-                      <Accordion.Trigger className='flex items-center justify-center w-full py-2 text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
-                        <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
-                        <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
-                        <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-                      </Accordion.Trigger>
-                      <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
-                        <div className='flex flex-col gap-4 pt-[18px]'>
-                          <DetailRow title='Status' value={isExpired(permit.deadline) ? 'Expired' : 'Active'} />
-                          <DetailRow title='Expires' value={formatDeadline(permit.deadline)} />
-                          <DetailRow title='Created' value={moment(permit.createdAt).format('MMM DD, YYYY HH:mm')} />
-                          <DetailRow title='Permit ID' value={permit.id} />
-                          <DetailRow title='Owner' value={permit.owner} />
-                          <DetailRow title='Spender' value={permit.spender} />
-                          <DetailRow title='Nonce' value={permit.nonce} />
-                          <DetailRow title='Deadline (Unix)' value={permit.deadline.toString()} />
-                          <DetailRow title='Signature V' value={permit.v.toString()} />
-                          <DetailRow title='Signature R' value={permit.r} />
-                          <DetailRow title='Signature S' value={permit.s} />
-                          {permit.txHash && <DetailRow title='Transaction Hash' value={permit.txHash} />}
-                        </div>
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  </Accordion.Root>
+            <div className='p-3 hover:opacity-70 transition-opacity'>
+              <div className='flex items-center gap-3'>
+                <button className='sm:size-14 size-10 flex text-3xl items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
+                  💰
+                </button>
+                <div>
+                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOW Token Allowance</h4>
+                  <p className='text-sm text-neutral-01'>{formatPermitAmount(sortedPermits[0].value)} LOW approved for spending</p>
                 </div>
-              ))}
+                {isExpired(sortedPermits[0].deadline) && (
+                  <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>
+                )}
+              </div>
+
+              <Accordion.Root type='single' collapsible className='w-full'>
+                <Accordion.Item value='details'>
+                  <Accordion.Trigger className='flex items-center justify-center w-full py-2 text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
+                    <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
+                    <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
+                    <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
+                  </Accordion.Trigger>
+                  <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
+                    <div className='flex flex-col gap-4 pt-[18px]'>
+                      <DetailRow title='Status' value={isExpired(sortedPermits[0].deadline) ? 'Expired' : 'Active'} />
+                      <DetailRow title='Expires' value={formatDeadline(sortedPermits[0].deadline)} />
+                      <DetailRow title='Created' value={moment(sortedPermits[0].createdAt).format('MMM DD, YYYY HH:mm')} />
+                      <DetailRow title='Permit ID' value={sortedPermits[0].id} />
+                      <DetailRow title='Owner' value={sortedPermits[0].owner} />
+                      <DetailRow title='Spender' value={sortedPermits[0].spender} />
+                      <DetailRow title='Nonce' value={sortedPermits[0].nonce} />
+                      <DetailRow title='Deadline (Unix)' value={sortedPermits[0].deadline.toString()} />
+                      <DetailRow title='Signature V' value={sortedPermits[0].v.toString()} />
+                      <DetailRow title='Signature R' value={sortedPermits[0].r} />
+                      <DetailRow title='Signature S' value={sortedPermits[0].s} />
+                      {sortedPermits[0].txHash && <DetailRow title='Transaction Hash' value={sortedPermits[0].txHash} />}
+                    </div>
+                  </Accordion.Content>
+                </Accordion.Item>
+              </Accordion.Root>
             </div>
           )}
         </Card.Content>
