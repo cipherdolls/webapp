@@ -13,7 +13,7 @@ const SearchAvatars = () => {
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const me = useRouteLoaderData('routes/_main') as User;
-  const avatars = useRouteLoaderData('routes/_main._general.community.avatars') as Avatar[];
+  const avatars = useRouteLoaderData('routes/_main._general.avatars') as Avatar[];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
