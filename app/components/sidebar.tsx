@@ -5,17 +5,6 @@ import SignOutModal from './signOutModal';
 import type { User } from '~/types';
 import { ViewMore } from '~/view-more';
 
-const PREFERENCE_RELATED_PATHS = [
-  '/preferences',
-  '/ai-providers',
-  '/chat-models',
-  '/doll-bodies',
-  '/embedding-models',
-  '/scenarios',
-  '/stt-providers',
-  '/tts-providers',
-];
-
 const SidebarItems = [
   {
     name: 'Dashboard',
@@ -28,8 +17,13 @@ const SidebarItems = [
     icon: Icons.chats,
   },
   {
-    name: 'Community',
-    href: '/community',
+    name: 'Avatars',
+    href: '/avatars',
+    icon: Icons.avatars,
+  },
+  {
+    name: 'Scenarios',
+    href: '/scenarios',
     icon: Icons.users,
   },
   {
@@ -54,7 +48,6 @@ const SidebarItems = [
 
 const Sidebar = ({ className }: { className?: string }) => {
   const me = useRouteLoaderData('routes/_main') as User;
-  const location = useLocation();
   const isAdmin = me.role === 'ADMIN';
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
@@ -90,9 +83,6 @@ const Sidebar = ({ className }: { className?: string }) => {
                 to={item.href}
                 key={index}
                 className={({ isActive }) => {
-                  if (item.name === 'Preferences') {
-                    isActive = PREFERENCE_RELATED_PATHS.some((path) => location.pathname.includes(path));
-                  }
                   return cn(
                     'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
                     isActive

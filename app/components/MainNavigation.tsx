@@ -4,7 +4,6 @@ import LogoSvg from '~/assets/svg/logo.svg';
 import DashboardSvg from '~/assets/svg/dashboard-icon.svg';
 import ChatsSvg from '~/assets/svg/chat.svg';
 import PreferencesSvg from '~/assets/svg/preferences.svg';
-import AccountSvg from '~/assets/svg/account.svg';
 import Logout from '~/assets/svg/logout.svg';
 
 const MainNavigation = ({ className }: { className?: string }) => {

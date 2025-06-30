@@ -89,7 +89,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={'/community/avatars'} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={'/avatars'} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft />
             <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{avatar.name}</h3>
@@ -112,7 +112,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 </Button.Root>
               </Form>
             )}
-            <fetcher.Form method='POST' action='/community/avatars/new'>
+            <fetcher.Form method='POST' action='/avatars/new'>
               <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />
               <textarea hidden readOnly id='character' name='character' defaultValue={avatar.character} />
               <input hidden readOnly id='ttsVoiceId' name='ttsVoiceId' defaultValue={avatar.ttsVoiceId} />
@@ -153,7 +153,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 {
                   type: 'form',
                   text: 'Duplicate',
-                  action: '/community/avatars/new',
+                  action: '/avatars/new',
                   method: 'POST',
                   formData: {
                     name: `${avatar.name} copy`,

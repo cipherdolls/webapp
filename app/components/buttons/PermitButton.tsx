@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import * as Button from '~/components/ui/button/button';
 
 interface PermitButtonProps {
   tokenAddress: string;
@@ -198,11 +199,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
 
   return (
     <div className='flex flex-col gap-2 w-full'>
-      <button
-        onClick={handleClick}
-        disabled={loading}
-        className='w-full py-3 bg-base-black text-white rounded-xl text-body-lg font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2'
-      >
+      <Button.Root className='w-full' onClick={handleClick} disabled={loading}>
         {loading ? (
           <>
             <span className='animate-spin'>⏳</span>
@@ -211,7 +208,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         ) : (
           'Sign Message'
         )}
-      </button>
+      </Button.Root>
       {error && (
         <div className='text-xs text-specials-danger bg-specials-danger/5 p-2 rounded-lg'>
           <p className='font-medium mb-1'>Error:</p>

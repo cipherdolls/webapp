@@ -28,3 +28,31 @@ export const PATHS = {
   avatarAudio: (id: string) => `${apiUrl}/avatars/${id}/audio`,
 };
 
+
+export const NETWORKS = {
+  ETHEREUM_MAINNET: {
+    chainId: '0x1',
+    chainName: 'Ethereum Mainnet',
+    nativeCurrency: {
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    rpcUrls: ['https://mainnet.infura.io/v3/'],
+    blockExplorerUrls: ['https://etherscan.io'],
+  },
+  OPTIMISM: {
+    chainId: '0xa',
+    chainName: 'Optimism',
+    nativeCurrency: {
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    rpcUrls: ['https://mainnet.optimism.io'],
+    blockExplorerUrls: ['https://optimistic.etherscan.io'],
+  },
+} as const;
+
+export const REQUIRED_NETWORK_FOR_TOKEN_PERMITS = NETWORKS.OPTIMISM;
+
