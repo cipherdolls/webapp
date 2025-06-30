@@ -1,7 +1,8 @@
+
 import { NavLink, Outlet, useRouteLoaderData } from 'react-router';
-import type { Avatar, AvatarsPaginated, Scenario, User } from '~/types';
-import type { Route } from './+types/_main._general.scenarios';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { Scenario, User, Avatar, AvatarsPaginated, ScenariosPaginated } from '~/types';
+import type { Route } from './+types/_main._general.community.scenarios';
+import { fetchWithAuth, fetchWithAuthAndType } from '~/utils/fetchWithAuth';
 import MyScenarios from '~/components/my-scenarios';
 import PublicScenarios from '~/components/public-scenarios';
 import { useEffect, useState } from 'react';
@@ -31,28 +32,19 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const [scenariosRes, avatarsRes, publishedRes] = await Promise.all([
-    fetchWithAuth('scenarios'),
-    fetchWithAuth('avatars'),
-    fetchWithAuth('avatars?published=true'),
-  ]);
-
-  const scenarios = await scenariosRes.json();
-  const avatarsPaginated = await avatarsRes.json();
-  const publishedAvatarsPaginated = await publishedRes.json();
-
-  return { scenarios, avatarsPaginated, publishedAvatarsPaginated };
+  const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
+  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
+  const publishedAvatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars?published=true');
+  return { scenariosPaginated, avatarsPaginated, publishedAvatarsPaginated };
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const {
-    scenarios,
-    avatarsPaginated,
-    publishedAvatarsPaginated,
-  }: { scenarios: Scenario[]; avatarsPaginated: AvatarsPaginated; publishedAvatarsPaginated: AvatarsPaginated } = loaderData;
-  const avatars = avatarsPaginated.data as Avatar[];
-  const publishedAvatars = publishedAvatarsPaginated.data as Avatar[];
+  const { scenariosPaginated, avatarsPaginated, publishedAvatarsPaginated } = loaderData;
+  const scenarios = scenariosPaginated.data
+  const avatars = avatarsPaginated.data
+  const publishedAvatars = publishedAvatarsPaginated.data
   const allAvatars = [...publishedAvatars, ...avatars];
+  
   const me = useRouteLoaderData('routes/_main') as User;
 
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);

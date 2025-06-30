@@ -2,10 +2,10 @@ import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated, AvatarsPaginated } from '~/types';
+import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated, AvatarsPaginated, ScenariosPaginated } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { fetchWithAuthAndType, fetchWithAuth } from '~/utils/fetchWithAuth';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
 import UserEditModal from '~/components/UserEditModal';
@@ -91,32 +91,24 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
+
 export async function clientLoader() {
-  const [avatarsRes, dollsRes, chatsRes, scenariosRes, tokenBalanceRes, tokenPermitsRes] = await Promise.all([
-    fetchWithAuth('avatars'),
-    fetchWithAuth('dolls'),
-    fetchWithAuth('chats'),
-    fetchWithAuth('scenarios'),
-    fetchWithAuth('token/balance'),
-    fetchWithAuth('token-permits'),
-  ]);
-  if (!avatarsRes.ok || !dollsRes.ok || !chatsRes.ok || !scenariosRes.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  const avatarsPaginated: AvatarsPaginated = await avatarsRes.json();
-  const avatars: Avatar[] = avatarsPaginated.data;
-  const dolls: Doll[] = await dollsRes.json();
-  const chats: Chat[] = await chatsRes.json();
-  const scenarios: Scenario[] = await scenariosRes.json();
-  const tokenBalance = tokenBalanceRes.ok ? await tokenBalanceRes.json() : { balance: '0' };
-  const tokenPermitsPaginated: TokenPermitsPaginated = tokenPermitsRes.ok ? await tokenPermitsRes.json() : [];
-  return { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated };
+  const dolls = await fetchWithAuthAndType<Doll[]>('dolls');
+  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
+  const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits');
+  const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
+  const tokenBalance = await fetchWithAuthAndType<{ balance: string }>('token/balance');
+  const chats = await fetchWithAuthAndType<Chat[]>('chats');
+  return { dolls, avatarsPaginated, tokenPermitsPaginated, scenariosPaginated, tokenBalance, chats};
 }
 
-export default function Dashbaord({ loaderData }: Route.ComponentProps) {
-  const { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated } = loaderData;
-  const tokenPermits = tokenPermitsPaginated.data as TokenPermit[];
 
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
+  const { avatarsPaginated, dolls, chats, scenariosPaginated, tokenBalance, tokenPermitsPaginated } = loaderData;
+  const avatars = avatarsPaginated.data
+  const scenarios = scenariosPaginated.data
+  const tokenPermits = tokenPermitsPaginated.data
+  
   const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
