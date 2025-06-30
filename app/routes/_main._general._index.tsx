@@ -2,16 +2,20 @@ import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated, AvatarsPaginated } from '~/types';
+import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated, AvatarsPaginated, ScenariosPaginated } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { fetchWithAuthAndType, fetchWithAuth } from '~/utils/fetchWithAuth';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
 import UserEditModal from '~/components/UserEditModal';
 import TokenBalance from '~/components/TokenBalance';
 import TokenPermitsList from '~/components/TokenPermitsList';
 import { useEffect, useState } from 'react';
+import { useNetworkCheck } from '~/hooks/useNetworkCheck';
+import { switchToOptimismNetwork } from '~/utils/networkUtils';
+import { toast } from 'sonner';
+import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -87,37 +91,31 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
+
 export async function clientLoader() {
-  const [avatarsRes, dollsRes, chatsRes, scenariosRes, tokenBalanceRes, tokenPermitsRes] = await Promise.all([
-    fetchWithAuth('avatars'),
-    fetchWithAuth('dolls'),
-    fetchWithAuth('chats'),
-    fetchWithAuth('scenarios'),
-    fetchWithAuth('token/balance'),
-    fetchWithAuth('token-permits'),
-  ]);
-  if (!avatarsRes.ok || !dollsRes.ok || !chatsRes.ok || !scenariosRes.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  const avatarsPaginated: AvatarsPaginated = await avatarsRes.json();
-  const avatars: Avatar[] = avatarsPaginated.data;
-  const dolls: Doll[] = await dollsRes.json();
-  const chats: Chat[] = await chatsRes.json();
-  const scenarios: Scenario[] = await scenariosRes.json();
-  const tokenBalance = tokenBalanceRes.ok ? await tokenBalanceRes.json() : { balance: '0' };
-  const tokenPermitsPaginated: TokenPermitsPaginated = tokenPermitsRes.ok ? await tokenPermitsRes.json() : [];
-  return { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated };
+  const dolls = await fetchWithAuthAndType<Doll[]>('dolls');
+  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
+  const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits');
+  const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
+  const tokenBalance = await fetchWithAuthAndType<{ balance: string }>('token/balance');
+  const chats = await fetchWithAuthAndType<Chat[]>('chats');
+  return { dolls, avatarsPaginated, tokenPermitsPaginated, scenariosPaginated, tokenBalance, chats};
 }
 
-export default function Dashbaord({ loaderData }: Route.ComponentProps) {
-  const { avatars, dolls, chats, scenarios, tokenBalance, tokenPermitsPaginated } = loaderData;
-  const tokenPermits = tokenPermitsPaginated.data as TokenPermit[];
+
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
+  const { avatarsPaginated, dolls, chats, scenariosPaginated, tokenBalance, tokenPermitsPaginated } = loaderData;
+  const avatars = avatarsPaginated.data
+  const scenarios = scenariosPaginated.data
+  const tokenPermits = tokenPermitsPaginated.data
   
   const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
+  const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
 
   useEffect(() => {
     if (loaderData) {
@@ -129,6 +127,22 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
     }
   }, [loaderData]);
 
+  const handleSwitchNetwork = async () => {
+    setIsSwitchingNetwork(true);
+    try {
+      const result = await switchToOptimismNetwork();
+      if (!result.success) {
+        toast.error(result.error || 'Failed to switch network');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred while switching networks');
+    } finally {
+      setIsSwitchingNetwork(false);
+    }
+  };
+
+  const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
+
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
       <div className='flex flex-col sm:gap-4 gap-7'>
@@ -136,13 +150,16 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
         <div className='sm:hidden block ml-4.5 '>
           <Icons.mobileLogo />
         </div>
+
         <DashboardBanner
           username={me.name}
           variant='welcome'
-          description='What do you want to start from?'
+          description={shouldShowNetworkWarning ? null : 'What do you want to start from?'}
           showEditLink={true}
           onEditClick={() => setIsUserEditModalOpen(true)}
         />
+
+        {shouldShowNetworkWarning && <NetworkWarningBanner onSwitchNetwork={handleSwitchNetwork} isLoading={isSwitchingNetwork} />}
       </div>
       {!hasInitiallyLoaded || !loaderData ? (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
@@ -162,7 +179,7 @@ export default function Dashbaord({ loaderData }: Route.ComponentProps) {
           </div>
           <div className='flex flex-col gap-5'>
             <TokenBalance balance={tokenBalance?.balance || '0'} />
-            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} userId={me.id} tokenBalance={tokenBalance?.balance || '0'} />
+            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} tokenBalance={tokenBalance?.balance || '0'} />
             <YourDolls dolls={dolls} />
           </div>
         </div>

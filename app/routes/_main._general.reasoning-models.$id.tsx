@@ -90,9 +90,10 @@ export default function ReasoningModelShow({ loaderData }: Route.ComponentProps)
             )}
           </div>
         </div>
+
         <div className='flex flex-col md:gap-4 sm:gap-8 gap-4 sm:flex-1 pb-2.5'>
           <div className='flex flex-col gap-4 p-5 bg-gradient-1 rounded-xl'>
-            <div className='flex flex-col gap-5 justify-center sm:gap-5 md:gap-10 items-center md:justify-between md:flex-row'>
+            <div className='flex flex-col gap-5 justify-center sm:gap-5 md:gap-10 md:items-start md:justify-between md:flex-row'>
               <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5'>
                 <div className='flex items-center gap-3 sm:gap-5'>
                   <div className='size-6 sm:size-[72px]'>
@@ -108,6 +109,7 @@ export default function ReasoningModelShow({ loaderData }: Route.ComponentProps)
                     {reasoningModel.providerModelName}
                   </h4>
                 </div>
+
                 <div className='flex flex-col gap-2'>
                   <h4 className='hidden text-body-md font-semibold text-base-black sm:text-heading-h4 sm:block'>
                     {reasoningModel.providerModelName}
@@ -137,18 +139,30 @@ export default function ReasoningModelShow({ loaderData }: Route.ComponentProps)
                   <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
                     Updated at: <span className='text-base-black font-semibold'>{updatedDate}</span>
                   </p>
-                  <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
-                    Input Token:{' '}
-                    <span className='text-base-black font-semibold'>
-                      ${scientificNumConvert(reasoningModel.dollarPerInputToken * 1000000)}
-                    </span>
-                  </p>
-                  <p className='flex gap-1 justify-between text-body-sm text-neutral-01 md:justify-end md:text-right'>
-                    Output Token:{' '}
-                    <span className='text-base-black font-semibold'>
-                      ${scientificNumConvert(reasoningModel.dollarPerOutputToken * 1000000)}
-                    </span>
-                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-4'>
+            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px] max-h-max relative'>
+              <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Model Properties</h2>
+              <div className='flex flex-col gap-3'>
+                <div className='flex justify-between'>
+                  <span className='text-neutral-01 text-body-sm'>Context Window:</span>
+                  <span className='text-body-sm font-semibold'>
+                    {reasoningModel.contextWindow ? reasoningModel.contextWindow.toLocaleString() : 0} token
+                  </span>
+                </div>
+
+                <div className='flex justify-between'>
+                  <span className='text-neutral-01 text-body-sm'>Input Token: </span>
+                  <span className='text-body-sm font-semibold'>${scientificNumConvert(reasoningModel.dollarPerInputToken * 1000000)}</span>
+                </div>
+
+                <div className='flex justify-between'>
+                  <span className='text-neutral-01 text-body-sm'>Output Token:</span>
+                  <span className='text-body-sm font-semibold'>${scientificNumConvert(reasoningModel.dollarPerOutputToken * 1000000)}</span>
                 </div>
               </div>
             </div>

@@ -403,7 +403,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                           {aiProvider.embeddingModels.map((embeddingModel, index) => {
                             return (
                               <Fragment key={embeddingModel.id}>
-                                <DataCard.Item collapsible>
+                                <DataCard.Item collapsible href={`/embedding-models/${embeddingModel.id}`}>
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {formatModelName(embeddingModel.providerModelName)}

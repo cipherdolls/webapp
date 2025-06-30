@@ -129,6 +129,11 @@ export interface TtsVoice {
   gender: Gender;
 }
 
+export interface ScenariosPaginated {
+  data: Scenario[];
+  meta: meta;
+}
+
 export interface Scenario {
   id: string;
   createdAt: Date;

@@ -1,7 +1,7 @@
 import { redirect, useFetcher, useNavigate, useParams } from 'react-router';
 
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main._general.community.scenarios.new';
+import type { Route } from './+types/_main._general.scenarios.new';
 import * as Button from '~/components/ui/button/button';
 
 import { Icons } from '~/components/ui/icons';
@@ -57,7 +57,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     const scenario = await res.json();
-    return redirect(`/community/scenarios`);
+    return redirect(`/scenarios`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
@@ -69,10 +69,10 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const [temperature, setTemperature] = useState(0.2);
-  const [topP, setTopP] = useState(1);
-  const [frequencyPenalty, setFrequencyPenalty] = useState(0.2);
-  const [presencePenalty, setPresencePenalty] = useState(0.2);
+  const [temperature, setTemperature] = useState(0.8);
+  const [topP, setTopP] = useState(0.9);
+  const [frequencyPenalty, setFrequencyPenalty] = useState(0.0);
+  const [presencePenalty, setPresencePenalty] = useState(0.6);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
@@ -84,7 +84,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
-    navigate(`/community/scenarios`);
+    navigate(`/scenarios`);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

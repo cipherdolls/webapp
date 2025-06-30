@@ -47,6 +47,17 @@ async function verifyToken(): Promise<boolean> {
  *   3) If response is 401 or 403, optionally re-checks token validity,
  *      removes it, and throws redirect('/signin').
  */
+
+export async function fetchWithAuthAndType<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetchWithAuth(endpoint, options);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${endpoint}: ${res.status}`);
+  }
+
+  return await res.json() as T;
+}
+
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
   // 1) Check localStorage for a token
   const localToken = localStorage.getItem('token')?.replaceAll('"', '');
