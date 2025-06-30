@@ -77,10 +77,10 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
     } bg-white transition-colors text-body-md font-semibold rounded-[10px] ${withIcon ? 'flex items-center gap-2' : ''}`;
 
     const renderContent = (text: string) => (
-      <>
+      <div key={index}>
         {withIcon && item.icon && <item.icon className={cn('w-6 h-6', iconClassName)} />}
         {text}
-      </>
+      </div>
     );
 
     switch (item.type) {
