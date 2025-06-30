@@ -58,6 +58,24 @@ export async function fetchWithAuthAndType<T>(endpoint: string, options: Request
   return await res.json() as T;
 }
 
+// Generic function for paginated data fetching
+export async function fetchPaginatedData<T>(
+  endpoint: string, 
+  searchParams: URLSearchParams, 
+  page: number, 
+  limit: number = 10
+): Promise<T> {
+  // Clone the search params and add pagination
+  const queryParams = new URLSearchParams(searchParams);
+  queryParams.set('page', page.toString());
+  queryParams.set('limit', limit.toString());
+  
+  const queryString = queryParams.toString();
+  const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+  
+  return fetchWithAuthAndType<T>(url);
+}
+
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
   // 1) Check localStorage for a token
   const localToken = localStorage.getItem('token')?.replaceAll('"', '');

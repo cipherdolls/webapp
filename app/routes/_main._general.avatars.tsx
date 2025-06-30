@@ -1,13 +1,19 @@
-import { NavLink, Outlet, useRouteLoaderData } from 'react-router';
-import type { Avatar, AvatarsPaginated, User } from '~/types';
+import { NavLink, Outlet, useRouteLoaderData, useNavigate, useSearchParams } from 'react-router';
+import type { AvatarsPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import MyAvatars from '~/components/my-avatars';
-import PublicAvatars from '~/components/public-avatars';
+import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import SearchAvatars from '~/components/ui/search-avatars';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
+import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
+import { Form, Link } from 'react-router';
+import { getPicture } from '~/utils/getPicture';
+import PlayerButton from '~/components/PlayerButton';
+import { PATHS } from '~/constants';
+import * as Popover from '~/components/ui/popover';
+
+type GenderFilter = 'All' | 'Male' | 'Female';
 
 function AvatarSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -34,22 +40,113 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
-export async function clientLoader() {
-  const [allAvatarsRes, publishedAvatarsRes] = await Promise.all([fetchWithAuth(`avatars`), fetchWithAuth(`avatars?published=true`)]);
-  const [allAvatarsPaginated, publishedAvatarsPaginated] = await Promise.all([allAvatarsRes.json(), publishedAvatarsRes.json()]);
-  return { allAvatarsPaginated, publishedAvatarsPaginated };
+export async function clientLoader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  // Default to published=true if no filter params provided
+  if (!searchParams.has('mine') && !searchParams.has('published')) {
+    searchParams.set('published', 'true');
+  }
+
+  // Ensure gender parameter is properly capitalized for API compatibility
+  if (searchParams.has('gender')) {
+    const gender = searchParams.get('gender');
+    if (gender && gender !== 'All') {
+      const capitalizedGender = gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
+      searchParams.set('gender', capitalizedGender);
+    }
+  }
+
+  const avatarsPaginated = await fetchPaginatedData<AvatarsPaginated>('avatars', searchParams, 1, 10);
+
+  return {
+    avatarsPaginated,
+    searchParams: Object.fromEntries(searchParams.entries()),
+  };
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const {
-    allAvatarsPaginated,
-    publishedAvatarsPaginated,
-  }: { allAvatarsPaginated: AvatarsPaginated; publishedAvatarsPaginated: AvatarsPaginated } = loaderData;
-  const allAvatars = allAvatarsPaginated.data as Avatar[];
-  const publishedAvatars = publishedAvatarsPaginated.data as Avatar[];
+  const { avatarsPaginated, searchParams: initialSearchParams } = loaderData;
 
   const me = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const showMyAvatars = searchParams.has('mine');
+  const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
+  const searchQuery = searchParams.get('name') || '';
+
+  // Check if there are any active filters (excluding the default published=true)
+  const hasActiveFilters = showMyAvatars || genderFilter !== 'All' || searchQuery.length > 0;
+
+  const fetchMoreWithParams = async (page: number) => {
+    // Use the initial search params from the loader which include all defaults and normalization
+    const currentSearchParams = new URLSearchParams(initialSearchParams);
+
+    // Override with any current URL changes (like search input)
+    for (const [key, value] of searchParams.entries()) {
+      currentSearchParams.set(key, value);
+    }
+
+    // Ensure gender parameter is properly capitalized for API compatibility
+    if (currentSearchParams.has('gender')) {
+      const gender = currentSearchParams.get('gender');
+      if (gender && gender !== 'All') {
+        const capitalizedGender = gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
+        currentSearchParams.set('gender', capitalizedGender);
+      }
+    }
+
+    return fetchPaginatedData<AvatarsPaginated>('avatars', currentSearchParams, page, 10);
+  };
+
+  const infiniteScroll = useInfiniteScroll({
+    initialData: avatarsPaginated.data,
+    initialMeta: avatarsPaginated.meta,
+    fetchMore: fetchMoreWithParams,
+    enabled: hasInitiallyLoaded,
+  });
+
+  const handleToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('mine');
+    newSearchParams.delete('published');
+
+    if (showMyAvatars) {
+      newSearchParams.set('published', 'true');
+    } else {
+      newSearchParams.set('mine', 'true');
+    }
+
+    navigate(`/avatars?${newSearchParams.toString()}`);
+  };
+
+  const handleFilterChange = (filter: GenderFilter) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+
+    if (filter === 'All') {
+      newSearchParams.delete('gender');
+    } else {
+      newSearchParams.set('gender', filter);
+    }
+
+    navigate(`/avatars?${newSearchParams.toString()}`);
+    setPopoverOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    // Navigate to default state (public avatars only)
+    navigate('/avatars?published=true');
+  };
+
+  const filteredAndSortedAvatars = useMemo(() => {
+    return [...infiniteScroll.data].sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [infiniteScroll.data]);
   useEffect(() => {
     if (loaderData) {
       const timer = setTimeout(() => {
@@ -82,10 +179,162 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
         </NavLink>
       </div>
 
-      <div className='flex flex-col gap-10'>
+      <div className='flex flex-col gap-5'>
         <SearchAvatars />
-        <MyAvatars avatars={allAvatars.filter((avatar) => avatar.userId === me.id)} />
-        <PublicAvatars avatars={publishedAvatars} />
+
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-3'>
+            <button
+              onClick={handleToggle}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude ${
+                !showMyAvatars ? 'bg-gradient-1 text-base-black' : 'text-base-black hover:bg-neutral-05'
+              }`}
+            >
+              <p className='text-body-md font-medium'>Public Avatars</p>
+            </button>
+            <span className='text-neutral-01'>|</span>
+            <button
+              onClick={handleToggle}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude ${
+                showMyAvatars ? 'bg-gradient-1 text-base-black' : 'text-base-black hover:bg-neutral-05'
+              }`}
+            >
+              <p className='text-body-md font-medium'>My Avatars</p>
+            </button>
+
+            <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
+              <Popover.Trigger
+                className={`group navigation-exclude flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                  genderFilter !== 'All' ? 'bg-gradient-1 text-base-black' : 'text-base-black hover:bg-neutral-05'
+                }`}
+              >
+                <p className='text-body-md font-medium capitalize'>{genderFilter === 'All' ? 'All genders' : genderFilter}</p>
+                <Icons.chevronDown className='size-6' />
+              </Popover.Trigger>
+              <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude !w-[200px]'>
+                <button
+                  onClick={() => handleFilterChange('All')}
+                  className={`cursor-pointer text-left w-full py-3.5 px-3 navigation-exclude ${genderFilter === 'All' ? 'bg-neutral-05' : 'hover:bg-neutral-05'} text-base-black bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
+                >
+                  All genders
+                </button>
+                <button
+                  onClick={() => handleFilterChange('Male')}
+                  className={`cursor-pointer text-left w-full py-3.5 px-3 navigation-exclude ${genderFilter === 'Male' ? 'bg-neutral-05' : 'hover:bg-neutral-05'} text-base-black bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
+                >
+                  Male
+                </button>
+                <button
+                  onClick={() => handleFilterChange('Female')}
+                  className={`cursor-pointer text-left w-full py-3.5 px-3 navigation-exclude ${genderFilter === 'Female' ? 'bg-neutral-05' : 'hover:bg-neutral-05'} text-base-black bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
+                >
+                  Female
+                </button>
+              </Popover.Content>
+            </Popover.Root>
+          </div>
+
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
+            >
+              <Icons.close className='size-4' />
+              <p className='text-body-md font-medium'>Clear filters</p>
+            </button>
+          )}
+        </div>
+
+        <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
+          {filteredAndSortedAvatars.length === 0 ? (
+            <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
+              {showMyAvatars ? 'No avatars found.' : 'No published avatars found.'}
+            </p>
+          ) : (
+            filteredAndSortedAvatars.map((avatar) => (
+              <div className='transition-all duration-500 ease-out' key={avatar.id}>
+                <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                  <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                    <img
+                      src={getPicture(avatar, 'avatars', false)}
+                      srcSet={getPicture(avatar, 'avatars', true)}
+                      alt={`${avatar.name} picture`}
+                      className='object-cover size-full'
+                    />
+                    {!showMyAvatars && me.id === avatar.userId && (
+                      <div className='absolute top-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          🌐
+                          <span>By you</span>
+                        </div>
+                      </div>
+                    )}
+                    {avatar.gender === 'Female' ? (
+                      <div className='absolute bottom-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          👩🏻
+                          <span>Female</span>
+                        </div>
+                      </div>
+                    ) : avatar.gender === 'Male' ? (
+                      <div className='absolute bottom-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-[#85D2FF] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          🧔🏻‍♂️
+                          <span>Male</span>
+                        </div>
+                      </div>
+                    ) : null}
+                  </Link>
+                  <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
+                    <div className='flex flex-col gap-1'>
+                      <div className='flex items-center gap-2'>
+                        <h4 className='text-heading-h4 text-base-black'>{avatar.name}</h4>
+                        <Icons.thumb />
+                      </div>
+                      <p className='text-body-md text-neutral-01 line-clamp-1'>{avatar.shortDesc}</p>
+                    </div>
+                    <div className='flex items-center gap-3'>
+                      <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
+
+                      {avatar.chats.length > 0 ? (
+                        <Link to={`/chats/${avatar.chats[0].id}`}>
+                          <Button.Root size='sm' className='px-5'>
+                            Continue Chat
+                          </Button.Root>
+                        </Link>
+                      ) : (
+                        <Form method='POST' action='/chats'>
+                          <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
+                          <Button.Root type='submit' size='sm' className='px-5'>
+                            Chat
+                          </Button.Root>
+                        </Form>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {infiniteScroll.error && (
+          <div className='text-center text-red-500 py-4'>
+            <p>Failed to load avatars: {infiniteScroll.error}</p>
+          </div>
+        )}
+
+        {infiniteScroll.loading && (
+          <div className='text-center py-4'>
+            <div className='inline-flex items-center gap-2'>
+              <Icons.loading className='size-4 animate-spin' />
+              <span className='text-neutral-01'>Loading more avatars...</span>
+            </div>
+          </div>
+        )}
+
+        {infiniteScroll.hasMore && !infiniteScroll.loading && <div ref={infiniteScroll.triggerRef} className='h-4' />}
+
         <Outlet />
       </div>
     </div>
