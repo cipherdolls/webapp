@@ -1,16 +1,20 @@
-import { NavLink, Outlet, useRouteLoaderData } from 'react-router';
-import type { Scenario, User, Avatar, AvatarsPaginated, ScenariosPaginated } from '~/types';
+import { NavLink, Outlet, useRouteLoaderData, useNavigate, useSearchParams } from 'react-router';
+import type { User, ScenariosPaginated } from '~/types';
 import type { Route } from './+types/_main._general.scenarios';
-import { fetchWithAuth, fetchWithAuthAndType } from '~/utils/fetchWithAuth';
-import MyScenarios from '~/components/my-scenarios';
-import PublicScenarios from '~/components/public-scenarios';
-import { useEffect, useState } from 'react';
+import { fetchPaginatedData } from '~/utils/fetchWithAuth';
+import SearchScenarios from '~/components/ui/search-scenarios';
+import { useEffect, useState, useMemo } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
+import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
+import { Form, Link } from 'react-router';
+import { getPicture } from '~/utils/getPicture';
+import { PATHS } from '~/constants';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <div className='flex flex-col gap-16 pb-5 mt-6 w-full'>
+    <div className='flex flex-col gap-10 pb-5 w-full'>
+      <div className='rounded-[10px] h-[52px] bg-gradient-1 w-full animate-pulse mb-8'></div>
       {Array.from({ length: count }).map((_, i) => (
         <div className='flex flex-col gap-5' key={i}>
           <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div>
@@ -19,6 +23,8 @@ function ScenarioSkeleton({ count = 2 }: { count?: number }) {
             <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
             <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
             <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
           </div>
         </div>
       ))}
@@ -30,23 +36,80 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
 }
 
-export async function clientLoader() {
-  const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
-  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
-  const publishedAvatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars?published=true');
-  return { scenariosPaginated, avatarsPaginated, publishedAvatarsPaginated };
+export async function clientLoader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  // Default to published=true if no filter params provided
+  if (!searchParams.has('mine') && !searchParams.has('published')) {
+    searchParams.set('published', 'true');
+  }
+
+  const scenariosPaginated = await fetchPaginatedData<ScenariosPaginated>('scenarios', searchParams, 1, 10);
+
+  return {
+    scenariosPaginated,
+    searchParams: Object.fromEntries(searchParams.entries()),
+  };
 }
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const { scenariosPaginated, avatarsPaginated, publishedAvatarsPaginated } = loaderData;
-  const scenarios = scenariosPaginated.data;
-  const avatars = avatarsPaginated.data;
-  const publishedAvatars = publishedAvatarsPaginated.data;
-  const allAvatars = [...publishedAvatars, ...avatars];
+  const { scenariosPaginated, searchParams: initialSearchParams } = loaderData;
 
   const me = useRouteLoaderData('routes/_main') as User;
-
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  const showMyScenarios = searchParams.has('mine');
+  const searchQuery = searchParams.get('name') || '';
+
+  // Check if there are any active filters (excluding the default published=true and mine toggle)
+  const hasActiveFilters = searchQuery.length > 0;
+
+  const fetchMoreWithParams = async (page: number) => {
+    // Use the initial search params from the loader which include all defaults and normalization
+    const currentSearchParams = new URLSearchParams(initialSearchParams);
+
+    // Override with any current URL changes (like search input)
+    for (const [key, value] of searchParams.entries()) {
+      currentSearchParams.set(key, value);
+    }
+
+    return fetchPaginatedData<ScenariosPaginated>('scenarios', currentSearchParams, page, 10);
+  };
+
+  const infiniteScroll = useInfiniteScroll({
+    initialData: scenariosPaginated.data,
+    initialMeta: scenariosPaginated.meta,
+    fetchMore: fetchMoreWithParams,
+    enabled: hasInitiallyLoaded,
+  });
+
+  const handleToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('mine');
+    newSearchParams.delete('published');
+
+    if (showMyScenarios) {
+      newSearchParams.set('published', 'true');
+    } else {
+      newSearchParams.set('mine', 'true');
+    }
+
+    navigate(`/scenarios?${newSearchParams.toString()}`);
+  };
+
+  const handleClearFilters = () => {
+    // Navigate to default state (public scenarios only)
+    navigate('/scenarios?published=true');
+  };
+
+  const filteredAndSortedScenarios = useMemo(() => {
+    return [...infiniteScroll.data].sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [infiniteScroll.data]);
 
   useEffect(() => {
     if (loaderData) {
@@ -67,8 +130,6 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  const myScenarios = scenarios.filter((scenario) => scenario.userId === me.id);
-
   return (
     <div className='w-full'>
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
@@ -82,9 +143,114 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
         </NavLink>
       </div>
 
-      <div className='flex flex-col gap-10'>
-        <MyScenarios scenarios={myScenarios} />
-        <PublicScenarios scenarios={scenarios} avatars={allAvatars} />
+      <div className='flex flex-col gap-5'>
+        <SearchScenarios />
+
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-3'>
+            <button
+              onClick={handleToggle}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude ${
+                !showMyScenarios ? 'bg-gradient-1 text-base-black' : 'text-base-black hover:bg-neutral-05'
+              }`}
+            >
+              <p className='text-body-md font-medium'>Public Scenarios</p>
+            </button>
+            <span className='text-neutral-01'>|</span>
+            <button
+              onClick={handleToggle}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude ${
+                showMyScenarios ? 'bg-gradient-1 text-base-black' : 'text-base-black hover:bg-neutral-05'
+              }`}
+            >
+              <p className='text-body-md font-medium'>My Scenarios</p>
+            </button>
+          </div>
+
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
+            >
+              <Icons.close className='size-4' />
+              <p className='text-body-md font-medium'>Clear filters</p>
+            </button>
+          )}
+        </div>
+
+        <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
+          {filteredAndSortedScenarios.length === 0 ? (
+            <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
+              {showMyScenarios ? 'No scenarios found.' : 'No published scenarios found.'}
+            </p>
+          ) : (
+            filteredAndSortedScenarios.map((scenario) => (
+              <div className='transition-all duration-500 ease-out' key={scenario.id}>
+                <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                  <Link to={`/scenarios/${scenario.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                    <img
+                      src={getPicture(scenario, 'scenarios', false)}
+                      srcSet={getPicture(scenario, 'scenarios', true)}
+                      alt={`${scenario.name} picture`}
+                      className='object-cover size-full'
+                    />
+                    {!showMyScenarios && me.id === scenario.userId && (
+                      <div className='absolute top-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          🌐
+                          <span>By you</span>
+                        </div>
+                      </div>
+                    )}
+                  </Link>
+                  <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
+                    <div className='flex flex-col gap-1'>
+                      <div className='flex items-center gap-2'>
+                        <h4 className='text-heading-h4 text-base-black'>{scenario.name}</h4>
+                        <Icons.thumb />
+                      </div>
+                      <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.systemMessage}</p>
+                    </div>
+                    <div className='flex items-center gap-3'>
+                      {scenario.chats && scenario.chats.length > 0 ? (
+                        <Link to={`/chats/${scenario.chats[0].id}`}>
+                          <Button.Root size='sm' className='px-5'>
+                            Continue Chat
+                          </Button.Root>
+                        </Link>
+                      ) : (
+                        <Form method='POST' action='/chats'>
+                          <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
+                          <Button.Root type='submit' size='sm' className='px-5'>
+                            Chat
+                          </Button.Root>
+                        </Form>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {infiniteScroll.error && (
+          <div className='text-center text-red-500 py-4'>
+            <p>Failed to load scenarios: {infiniteScroll.error}</p>
+          </div>
+        )}
+
+        {infiniteScroll.loading && (
+          <div className='text-center py-4'>
+            <div className='inline-flex items-center gap-2'>
+              <Icons.loading className='size-4 animate-spin' />
+              <span className='text-neutral-01'>Loading more scenarios...</span>
+            </div>
+          </div>
+        )}
+
+        {infiniteScroll.hasMore && !infiniteScroll.loading && <div ref={infiniteScroll.triggerRef} className='h-4' />}
+
         <Outlet />
       </div>
     </div>

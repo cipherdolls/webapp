@@ -5,7 +5,7 @@ export interface meta {
   page: number;
   limit: number;
   totalPages: number;
-} 
+}
 
 export interface ApiError {
   error: string;
@@ -151,6 +151,8 @@ export interface Scenario {
   userId: string;
   chats: Chat[];
   recommended: boolean;
+  introduction?: string;
+  published?: boolean;
 }
 
 export interface Chat {
@@ -167,7 +169,6 @@ export interface Chat {
   avatar: Avatar;
   scenario: Scenario;
 }
-
 
 export interface MessagesPaginated {
   data: Message[];
