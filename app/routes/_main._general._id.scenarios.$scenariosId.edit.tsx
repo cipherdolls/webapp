@@ -9,6 +9,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
+import * as Checkbox from '@radix-ui/react-checkbox';
 import { Fragment, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
@@ -374,6 +375,24 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   <p className='text-xs text-gray-500'>Provide a system message for this scenario.</p>
                 </Input.Root>
               )}
+
+              <div className='flex items-center gap-2'>
+                <input type='hidden' name='published' value='false' />
+                <Checkbox.Root
+                  className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
+                  id='published'
+                  name='published'
+                  value='true'
+                  defaultChecked={scenario.published}
+                >
+                  <Checkbox.Indicator>
+                    <Icons.check className='text-white size-4.5' />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className='text-body-sm font-semibold text-neutral-01' htmlFor='published'>
+                  Published
+                </label>
+              </div>
 
               <Input.Root>
                 <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>
