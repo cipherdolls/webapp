@@ -166,11 +166,11 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
         </div>
         <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-5 sm:flex-1 sm:divide-x divide-neutral-04 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
           <div className='sm:pr-4 flex size-full flex-col gap-4'>
-            <DetailCard title='System Message' copy={true} copyText={scenario.systemMessage} isScenario={true}>
-              <ReactMarkdown>{scenario.systemMessage}</ReactMarkdown>
+            <DetailCard title='Introduction' copy={true} copyText={scenario.introduction} isScenario={true}>
+              {scenario.introduction && <ReactMarkdown>{scenario.introduction}</ReactMarkdown>}
             </DetailCard>
           </div>
-          <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
+          <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-5'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
                 {scenario.picture ? (
