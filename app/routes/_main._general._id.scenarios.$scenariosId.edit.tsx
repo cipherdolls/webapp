@@ -39,9 +39,24 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const scenarioId = formData.get('scenarioId');
 
+    // Convert FormData to JSON object, handling boolean fields properly
+    const jsonData: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key === 'published') {
+        // For published field, check if checkbox was checked (has 'true' value)
+        const publishedValues = formData.getAll('published');
+        jsonData[key] = publishedValues.includes('true');
+      } else if (key !== 'scenarioId') {
+        jsonData[key] = value;
+      }
+    });
+
     const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
       method: request.method,
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jsonData),
     });
 
     if (!res.ok) {
