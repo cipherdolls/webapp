@@ -114,7 +114,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
               </p>
             </div>
           </div>
-        ) : (
+        ) : sortedPermits.length > 0 ? (
           <div className='p-3 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
             <div className='flex items-center gap-3'>
               <button className='sm:size-10 size-8 flex text-2xl items-center justify-center bg-black/5 backdrop-blur-48 rounded-full relative shrink-0'>
@@ -156,6 +156,19 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
                 </Accordion.Content>
               </Accordion.Item>
             </Accordion.Root>
+          </div>
+        ) : (
+          <div className='py-6 px-6 flex flex-col items-center gap-2'>
+            <h1 className='text-heading-h1'>🔐</h1>
+            <div className='flex flex-col gap-1 text-center'>
+              <h4 className='text-heading-h4 text-base-black'>No Token Allowances</h4>
+              <p className='text-body-md text-neutral-01'>
+                You don't have any allowances.
+                <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+                  <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
+                </CreateTokenAllowanceModal>
+              </p>
+            </div>
           </div>
         )}
       </div>
