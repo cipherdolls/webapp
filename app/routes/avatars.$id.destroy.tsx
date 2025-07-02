@@ -1,4 +1,4 @@
-import { Form, redirect, useFetcher } from 'react-router';
+import { redirect, useFetcher } from 'react-router';
 import type { Route } from './+types/avatars.$id.destroy';
 import * as Button from '~/components/ui/button/button';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -11,7 +11,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   if (!res.ok) {
     return await res.json();
   }
-  return redirect(`/`);
+  return redirect(`/avatars`);
 }
 
 export default function AvatarDestroy() {
