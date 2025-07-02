@@ -5,25 +5,20 @@ interface NetworkWarningBannerProps {
   isLoading?: boolean;
 }
 
-export const NetworkWarningBanner: FC<NetworkWarningBannerProps> = ({
-  onSwitchNetwork,
-  isLoading = false,
-}) => {
+export const NetworkWarningBanner: FC<NetworkWarningBannerProps> = ({ onSwitchNetwork, isLoading = false }) => {
   return (
-    <div className='bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-4 mb-4'>
+    <div className='bg-base-white border border-neutral-04 rounded-xl p-4 mb-4'>
       <div className='flex items-start gap-3'>
-        <div className='text-2xl'>🔗</div>
+        <div className='text-3xl leading-none'>⚠️</div>
         <div className='flex-1'>
-          <h4 className='text-heading-h4 font-semibold text-orange-800 mb-1'>
-            Wrong Network Detected
-          </h4>
+          <h4 className='text-heading-h4 font-semibold text-orange-800 mb-2'>Wrong Network Detected</h4>
           <p className='text-sm text-orange-700 mb-3'>
             You need to be on the Optimism network to create token permits. Please switch your network to continue.
           </p>
           <button
             onClick={onSwitchNetwork}
             disabled={isLoading}
-            className='inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium'
+            className='inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium'
           >
             {isLoading ? (
               <>
