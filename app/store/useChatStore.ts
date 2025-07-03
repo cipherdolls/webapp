@@ -3,6 +3,8 @@ import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware'; // Add persist middleware
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatState } from '~/components/chat/types/chatState';
+import type { Chat, Message } from '~/types';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 interface ChatStore {
   silentMode: boolean;
@@ -12,27 +14,25 @@ interface ChatStore {
 
   talkMode: boolean;
 
-
   setCurrentChatState: (state: ChatStateType) => void;
   setCurrentJob: (job: ChatJobType | null) => void;
   toggleSilentMode: () => void;
-  requestMicAccess: () => Promise<void>; 
+  requestMicAccess: () => Promise<void>;
   setMicAccess: (hasAccess: boolean) => void;
   setTalkMode: (talkMode: boolean) => void;
 
-  initChatStore: () => void;
+  initChatStore: (chat: Chat) => void;
   resetChatStore: () => void;
 }
 
 export const useChatStore = create<ChatStore>()(
   persist(
-    immer((set) => ({
+    immer((set, get) => ({
       silentMode: false,
       hasMicAccess: false,
       talkMode: false,
       currentChatState: ChatState.Idle,
       currentJob: null,
-      
 
       setCurrentChatState: (state) => set({ currentChatState: state }),
       setCurrentJob: (job) => set({ currentJob: job }),
@@ -40,7 +40,6 @@ export const useChatStore = create<ChatStore>()(
         set((state) => {
           state.silentMode = !state.silentMode;
         }),
-        
 
       setTalkMode: (talkMode) => set({ talkMode }),
 
@@ -49,7 +48,7 @@ export const useChatStore = create<ChatStore>()(
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           set({ hasMicAccess: true });
           // Cleanup stream if needed later
-          stream.getTracks().forEach(track => track.stop());
+          stream.getTracks().forEach((track) => track.stop());
         } catch (error) {
           set({ hasMicAccess: false });
           console.error('Microphone access denied', error);
@@ -57,10 +56,12 @@ export const useChatStore = create<ChatStore>()(
       },
       setMicAccess: (hasAccess) => set({ hasMicAccess: hasAccess }),
 
-   
-
-      initChatStore: () =>
-        set({ currentChatState: ChatState.Idle, currentJob: null, talkMode: false }),
+      initChatStore: (chat) =>
+        set({
+          currentChatState: ChatState.Idle,
+          currentJob: null,
+          talkMode: false,
+        }),
 
       resetChatStore: () =>
         set({
@@ -70,8 +71,8 @@ export const useChatStore = create<ChatStore>()(
         }),
     })),
     {
-      name: 'chat-storage', 
-      partialize: (state) => ({ silentMode: state.silentMode }), 
+      name: 'chat-storage',
+      partialize: (state) => ({ silentMode: state.silentMode }),
     }
   )
 );

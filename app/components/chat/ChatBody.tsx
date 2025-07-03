@@ -1,19 +1,75 @@
-import React, { Fragment } from 'react';
-import ChatMessagesList from './ui/ChatMessagesList';
+import React, { Fragment, useCallback, useLayoutEffect, useRef } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
 import ChatDateDivider from './ui/ChatDateDivider';
 import { Link } from 'react-router';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { Icons } from '../ui/icons';
 
 interface ChatBodyProps {
   messages: Message[];
+  loadMoreMessages: () => void;
+  isLoading: boolean;
+  hasMore: boolean;
+  // TODO: remove this prop when cursor-based pagination is implemented
+  messagesLimit: number;
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages }) => {
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoading, hasMore, messagesLimit }) => {
+  const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
+  const lastScrollDistanceToBottomRef = useRef<number>(0);
+  const prevMessagesLengthRef = useRef<number>(0);
+
+  const [infiniteRef, { rootRef }] = useInfiniteScroll({
+    loading: isLoading,
+    hasNextPage: hasMore,
+    onLoadMore: () => loadMoreMessages(),
+    disabled: !hasMore,
+    delayInMs: 200,
+  });
+
+  useLayoutEffect(() => {
+    const scrollableRoot = scrollableRootRef.current;
+    if (!scrollableRoot) return;
+
+    if (messages.length === messagesLimit) {
+      scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
+    } else {
+      const lastScrollDistanceToBottom = lastScrollDistanceToBottomRef.current;
+      scrollableRoot.scrollTop = scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
+    }
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages, rootRef]);
+
+  const rootRefSetter = useCallback(
+    (node: HTMLDivElement) => {
+      rootRef(node);
+      scrollableRootRef.current = node;
+    },
+    [rootRef]
+  );
+
+  const handleRootScroll = useCallback(() => {
+    const rootNode = scrollableRootRef.current;
+    if (rootNode) {
+      const scrollDistanceToBottom = rootNode.scrollHeight - rootNode.scrollTop;
+      lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
+    }
+  }, []);
+
   return (
     <div className='flex-1 flex overflow-auto shrink-0'>
-      <ChatMessagesList>
+      <div
+        ref={rootRefSetter}
+        onScroll={handleRootScroll}
+        className='flex-1 overflow-auto scrollbar scrollbar-medium bg-white rounded-t-xl lg:rounded-none'
+      >
+        {hasMore && (
+          <div ref={infiniteRef} className='flex justify-center items-center py-5'>
+            <Icons.loader className='size-10 animate-spin text-neutral-01' />
+          </div>
+        )}
         {messages.map((message, index) => {
           const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
           const isSystemMessage = message.role === 'SYSTEM';
@@ -36,13 +92,12 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages }) => {
             </Fragment>
           );
         })}
-        {/* Loading state */}
         {/* { (
         <ChatBubble.Root>
           <ChatBubble.Message isLoading />
         </ChatBubble.Root>
       )} */}
-      </ChatMessagesList>
+      </div>
     </div>
   );
 };
