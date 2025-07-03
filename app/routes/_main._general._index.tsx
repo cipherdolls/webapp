@@ -95,7 +95,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export async function clientLoader() {
   const dolls = await fetchWithAuthAndType<Doll[]>('dolls');
   const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
-  const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits');
+  const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits?limit=1&page=1');
   const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
   const tokenBalance = await fetchWithAuthAndType<{ balance: string }>('token/balance');
   const chats = await fetchWithAuthAndType<Chat[]>('chats');
