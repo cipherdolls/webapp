@@ -25,28 +25,21 @@ export function meta({}: Route.MetaArgs) {
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const scenarioId = params.scenariosId;
 
-  const [scenarioIdRes, avatarsRes, publishedAvatarsRes] = await Promise.all([
-    fetchWithAuth(`scenarios/${scenarioId}`),
-    fetchWithAuth('avatars'),
-    fetchWithAuth('avatars?published=true'),
-  ]);
+  const [scenarioIdRes, mineAvatarsRes] = await Promise.all([fetchWithAuth(`scenarios/${scenarioId}`), fetchWithAuth('avatars?mine=true')]);
 
   const scenario = await scenarioIdRes.json();
-  const avatars = await avatarsRes.json();
-  const publishedAvatars = await publishedAvatarsRes.json();
+  const mineAvatars = await mineAvatarsRes.json();
 
-  return { scenario, avatars, publishedAvatars };
+  return { scenario, mineAvatars };
 }
 
 export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const {
     scenario,
-    avatars,
-    publishedAvatars,
+    mineAvatars,
   }: {
     scenario: Scenario;
-    avatars: Avatar[] | { data: Avatar[]; meta: any };
-    publishedAvatars: Avatar[] | { data: Avatar[]; meta: any };
+    mineAvatars: Avatar[] | { data: Avatar[]; meta: any };
   } = loaderData;
 
   const fetcher = useFetcher();
@@ -55,9 +48,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
 
-  const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
-  const publishedAvatarsList = Array.isArray(publishedAvatars) ? publishedAvatars : publishedAvatars.data;
-  const allAvatars = [...avatarsList, ...publishedAvatarsList];
+  const mineAvatarsList = Array.isArray(mineAvatars) ? mineAvatars : mineAvatars.data;
 
   return (
     <>
@@ -75,13 +66,13 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
           </Link>
 
           <div className='md:flex hidden items-center gap-3'>
-            {avatarsList.length > 0 && (
+            {mineAvatarsList.length > 0 && (
               <SelectAvatarModal
-                avatars={allAvatars}
+                avatars={mineAvatarsList}
                 scenario={scenario}
                 triggerContent={
                   <Button.Root variant='primary' className='px-6'>
-                    Add to Chat
+                    Add to My Avatar
                   </Button.Root>
                 }
               />
@@ -141,8 +132,8 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 },
                 {
                   type: 'addToChat',
-                  text: 'Add to Chat',
-                  allAvatars: allAvatars,
+                  text: 'Add to My Avatar',
+                  avatars: mineAvatarsList,
                   scenario: scenario,
                 },
                 {

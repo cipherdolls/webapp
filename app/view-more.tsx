@@ -33,7 +33,7 @@ type PopoverActionItem = {
     }
   | {
       type: 'addToChat';
-      allAvatars: Avatar[];
+      avatars: Avatar[];
       scenario: Scenario;
     }
 );
@@ -113,7 +113,7 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
       case 'addToChat':
         return (
           <SelectAvatarModal
-            avatars={item.allAvatars}
+            avatars={item.avatars}
             scenario={item.scenario}
             triggerContent={
               <button className={baseClassName} type='button'>
