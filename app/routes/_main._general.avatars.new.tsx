@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
-import type { TtsVoice, Scenario } from '~/types';
+import type { Scenario, TtsVoice } from '~/types';
 import { useRef, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
@@ -144,7 +144,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
           <button
             type='button'
             onClick={() => setIsExpanded(!isExpanded)}
-            className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+            className='p-2 hover:bg-gray-100 rounded-lg transition-colors hidden md:block'
             title={isExpanded ? 'Collapse modal' : 'Expand modal'}
           >
             <Icons.expand />
@@ -152,13 +152,13 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
         </div>
         <Modal.Description className='sr-only'>Create new avatar</Modal.Description>
         <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
-          <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
+          <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-col md:flex-row ' : 'flex-col')}>
             <div className={cn('w-full', isExpanded && 'hidden')}>
               <ErrorsBox errors={errors} />
             </div>
 
             {isExpanded && (
-              <div className='flex-1 flex flex-col gap-6'>
+              <div className='flex-1 flex-col pb-8 gap-6 hidden md:flex'>
                 <Textarea.Root className='h-full'>
                   <Textarea.Label htmlFor='character'>Character</Textarea.Label>
                   <Textarea.Wrapper className='flex-1'>
@@ -171,6 +171,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                     />
                   </Textarea.Wrapper>
                 </Textarea.Root>
+
                 <Input.Root>
                   <div className='flex items-center justify-between mb-3'>
                     <div className='flex flex-col gap-1'>
@@ -197,7 +198,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               </div>
             )}
 
-            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1' : 'w-full')}>
+            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1 pb-8' : 'w-full')}>
               <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-5' : 'mb-10')}>
                 <div className='relative'>
                   <label
