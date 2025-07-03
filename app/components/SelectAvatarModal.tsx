@@ -1,7 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Icons } from './ui/icons';
 import type { Avatar, Scenario } from '~/types';
-import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
 import { useState } from 'react';
@@ -89,7 +88,7 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
             <Dialog.Close className='sm:hidden block'>
               <Icons.chevronLeft className='mr-3' />
             </Dialog.Close>
-            Add Scenario to Avatar
+            Add Scenario to My Avatar
           </Dialog.Title>
           <Dialog.Description className='sr-only'>
             Select an avatar to add the scenario <strong>{scenario.name}</strong> to.
