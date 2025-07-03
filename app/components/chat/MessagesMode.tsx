@@ -35,7 +35,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
     stop();
     setCurrentChatState(ChatState.Idle);
     loadMessages();
-  }, [chat.id, window.location.pathname]);
+  }, [chat.id, chat._count.messages]);
 
   useUnmount(() => {
     stop();

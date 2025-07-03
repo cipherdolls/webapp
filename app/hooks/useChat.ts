@@ -9,12 +9,6 @@ const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-
-
-  const initMessages = (messages: Message[]) => {
-    setMessages(messages);
-  };
-
   const loadMessages = async (page: number = 1) => {
     if (isLoading || !hasMore) return;
     setIsLoading(true);
@@ -64,7 +58,6 @@ const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
     error,
     loadMessages,
     loadMoreMessages,
-    initMessages,
   };
 };
 

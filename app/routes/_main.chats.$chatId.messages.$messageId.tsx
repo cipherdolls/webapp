@@ -9,7 +9,7 @@ import ChatTTSJobCard from '~/components/job-cards/ChatTTSJobCard';
 import ChatCompletionJobCard from '~/components/job-cards/ChatCompletionJobCard';
 import ChatSTTJobCard from '~/components/job-cards/ChatSTTJobCard';
 import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
-import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
+import DestroyMessageButton from './_main.chats.$chatId.messages.$messageId.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -24,36 +24,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export default function ChatMessage({ loaderData }: Route.ComponentProps) {
   const message: Message = loaderData;
   const navigate = useNavigate();
-  const confirm = useConfirm();
-  const alert = useAlert();
 
   const handleMessageClose = () => {
     navigate(`/chats/${message.chatId}`);
-  };
-
-  const handleMessageDelete = async () => {
-    const confirmResult = await confirm({
-      icon: '🗑️',
-      title: 'Delete the Message?',
-      body: 'All followed messages will be deleted as well',
-      actionButton: 'Yes, Delete',
-    });
-
-    if (confirmResult) {
-      const res = await fetchWithAuth(`messages/${message.id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        alert({
-          icon: '❌',
-          title: 'Failed to delete message',
-          body: 'Please try reload the page',
-          actionButton: 'OK',
-        });
-      } else {
-        navigate(`/chats/${message.chatId}`, { replace: true });
-      }
-    }
   };
 
   return (
@@ -87,9 +60,7 @@ export default function ChatMessage({ loaderData }: Route.ComponentProps) {
             {message.chatCompletionJob && <ChatCompletionJobCard message={message} />}
 
             <div className='mt-auto pt-10'>
-              <Button.Root type='button' variant='danger' className='w-full px-10' onClick={handleMessageDelete}>
-                Delete Message
-              </Button.Root>
+              <DestroyMessageButton />
             </div>
           </div>
         </div>
