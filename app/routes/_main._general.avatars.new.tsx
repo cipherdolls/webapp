@@ -158,7 +158,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
             </div>
 
             {isExpanded && (
-              <div className='flex-1 flex-col pb-8 gap-6 hidden md:flex'>
+              <div className='flex-1 flex-col pb-5 gap-6 hidden md:flex'>
                 <Textarea.Root className='h-full'>
                   <Textarea.Label htmlFor='character'>Character</Textarea.Label>
                   <Textarea.Wrapper className='flex-1'>
@@ -198,7 +198,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               </div>
             )}
 
-            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1 pb-8' : 'w-full')}>
+            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1 pb-5' : 'w-full')}>
               <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-5' : 'mb-10')}>
                 <div className='relative'>
                   <label

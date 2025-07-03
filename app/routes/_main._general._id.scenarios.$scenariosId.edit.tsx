@@ -180,7 +180,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
           <button
             type='button'
             onClick={() => setIsExpanded(!isExpanded)}
-            className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+            className='p-2 hover:bg-gray-100 rounded-lg transition-colors hidden md:block'
             title={isExpanded ? 'Collapse modal' : 'Expand modal'}
           >
             <Icons.expand />
@@ -197,7 +197,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
             <input type='hidden' name='scenarioId' value={scenario.id} />
 
             {isExpanded && (
-              <div className='flex-1 flex flex-col'>
+              <div className='flex-1 flex flex-col pb-5'>
                 <Input.Root className='h-full'>
                   <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
                   <Textarea.Textarea
