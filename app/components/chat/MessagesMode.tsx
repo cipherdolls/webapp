@@ -1,62 +1,54 @@
-import type { AudioEvent, Avatar, Chat, Message } from '~/types';
+import type { AudioEvent, Avatar, Chat } from '~/types';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { apiUrl } from '~/constants';
 import { useEffect } from 'react';
-import type { ChatJobType } from '~/components/chat/types/chatState';
-import { ChatJob, ChatState } from '~/components/chat/types/chatState';
+import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
+import useChat from '~/hooks/useChat';
 
 interface MessagesModeProps {
   chat: Chat;
   avatar: Avatar;
-  messages: Message[];
 }
 
-const MessagesMode = ({ chat, avatar, messages }: MessagesModeProps) => {
-  
-  const { load, stop } = useAudioPlayerContext();
+const MESSAGES_LIMIT = 50;
 
-  const { silentMode, setCurrentJob, initChatStore, currentChatState, setCurrentChatState } = useChatStore(
+const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
+  const { load, stop } = useAudioPlayerContext();
+  const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
-      talkMode: state.talkMode,
       silentMode: state.silentMode,
-      setCurrentJob: state.setCurrentJob,
-      initChatStore: state.initChatStore,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
     }))
   );
 
+  const { messages, loadMessages, loadMoreMessages, isLoading, hasMore } = useChat(chat.id, { limit: MESSAGES_LIMIT });
+
   useEffect(() => {
-    initChatStore();
     stop();
-  }, [chat.id]);
+    setCurrentChatState(ChatState.Idle);
+    loadMessages();
+  }, [chat.id, window.location.pathname]);
 
   useUnmount(() => {
     stop();
   });
 
-  useChatEvents({
-    chatId: chat.id,
+  useChatEvents(chat.id, {
     onProcessEvent: (event) => {
-      // checking if a job exist in a chat jobs enum
-      const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
-      if (isValidJob(event.resourceName)) {
-        setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
-      }
+      if (event.resourceName === 'Message' && event.jobStatus === 'completed') loadMessages();
     },
     onActionEvent: (event) => {
       if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
     },
   });
-
-
 
   useEffect(() => {
     if (silentMode && currentChatState === ChatState.avatarSpeaking) {
@@ -85,7 +77,13 @@ const MessagesMode = ({ chat, avatar, messages }: MessagesModeProps) => {
       {/* chat header */}
       <ChatTopBar chat={chat} avatar={avatar} />
       {/* chat messages scroll */}
-      <ChatBody messages={messages} />
+      <ChatBody
+        messages={messages}
+        loadMoreMessages={loadMoreMessages}
+        isLoading={isLoading}
+        hasMore={hasMore}
+        messagesLimit={MESSAGES_LIMIT}
+      />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

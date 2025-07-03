@@ -1,4 +1,4 @@
-import { Form, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import type { Message } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId.messages.$messageId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -9,7 +9,7 @@ import ChatTTSJobCard from '~/components/job-cards/ChatTTSJobCard';
 import ChatCompletionJobCard from '~/components/job-cards/ChatCompletionJobCard';
 import ChatSTTJobCard from '~/components/job-cards/ChatSTTJobCard';
 import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
-import MessageDestroy from '~/routes/_main.chats.$chatId.messages.$messageId.destroy';
+import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -24,9 +24,36 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export default function ChatMessage({ loaderData }: Route.ComponentProps) {
   const message: Message = loaderData;
   const navigate = useNavigate();
+  const confirm = useConfirm();
+  const alert = useAlert();
 
   const handleMessageClose = () => {
     navigate(`/chats/${message.chatId}`);
+  };
+
+  const handleMessageDelete = async () => {
+    const confirmResult = await confirm({
+      icon: '🗑️',
+      title: 'Delete the Message?',
+      body: 'All followed messages will be deleted as well',
+      actionButton: 'Yes, Delete',
+    });
+
+    if (confirmResult) {
+      const res = await fetchWithAuth(`messages/${message.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        alert({
+          icon: '❌',
+          title: 'Failed to delete message',
+          body: 'Please try reload the page',
+          actionButton: 'OK',
+        });
+      } else {
+        navigate(`/chats/${message.chatId}`, { replace: true });
+      }
+    }
   };
 
   return (
@@ -60,7 +87,9 @@ export default function ChatMessage({ loaderData }: Route.ComponentProps) {
             {message.chatCompletionJob && <ChatCompletionJobCard message={message} />}
 
             <div className='mt-auto pt-10'>
-              <MessageDestroy />
+              <Button.Root type='button' variant='danger' className='w-full px-10' onClick={handleMessageDelete}>
+                Delete Message
+              </Button.Root>
             </div>
           </div>
         </div>
