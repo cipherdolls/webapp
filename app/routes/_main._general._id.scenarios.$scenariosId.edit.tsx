@@ -9,7 +9,6 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
-import * as Checkbox from '@radix-ui/react-checkbox';
 import { Fragment, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
@@ -39,24 +38,15 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const scenarioId = formData.get('scenarioId');
 
-    // Convert FormData to JSON object, handling boolean fields properly
-    const jsonData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      if (key === 'published') {
-        // For published field, check if checkbox was checked (has 'true' value)
-        const publishedValues = formData.getAll('published');
-        jsonData[key] = publishedValues.includes('true');
-      } else if (key !== 'scenarioId') {
-        jsonData[key] = value;
-      }
-    });
+    // Handle boolean conversion for published field
+    const publishedValue = formData.get('published');
+    if (publishedValue === 'true' || publishedValue === 'false') {
+      formData.set('published', publishedValue);
+    }
 
     const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
       method: request.method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(jsonData),
+      body: formData,
     });
 
     if (!res.ok) {
@@ -83,6 +73,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [scenarioType, setScenarioType] = useState<'Long' | 'Short'>('Long');
+  const [publishedStatus, setPublishedStatus] = useState<'private' | 'public'>(scenario.published ? 'public' : 'private');
 
   const [temperature, setTemperature] = useState(scenario.temperature);
   const [topP, setTopP] = useState(scenario.topP);
@@ -391,24 +382,6 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 </Input.Root>
               )}
 
-              <div className='flex items-center gap-2'>
-                <input type='hidden' name='published' value='false' />
-                <Checkbox.Root
-                  className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
-                  id='published'
-                  name='published'
-                  value='true'
-                  defaultChecked={scenario.published}
-                >
-                  <Checkbox.Indicator>
-                    <Icons.check className='text-white size-4.5' />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className='text-body-sm font-semibold text-neutral-01' htmlFor='published'>
-                  Published
-                </label>
-              </div>
-
               <Input.Root>
                 <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>
                 <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
@@ -611,6 +584,35 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   </Slider.Root>
                 </Input.Root>
               </div>
+              <Input.Root>
+                <Input.Label htmlFor='published'>Availability</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      publishedStatus === 'private' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={() => setPublishedStatus('private')}
+                  >
+                    🔒 Private
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      publishedStatus === 'public' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={() => setPublishedStatus('public')}
+                  >
+                    🌐 Public
+                  </button>
+                </div>
+                <input type='hidden' name='published' value={publishedStatus === 'public' ? 'true' : 'false'} />
+                <p className='text-xs text-gray-500'>
+                  Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.
+                </p>
+              </Input.Root>
               <Modal.Footer className='pb-5'>
                 <Modal.Close asChild>
                   <Button.Root variant='secondary' aria-label='Close' className='w-full'>

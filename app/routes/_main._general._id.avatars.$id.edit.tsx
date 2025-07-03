@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id.edit';
-import type { Avatar, TtsVoice, Scenario } from '~/types';
+import type { Avatar, TtsVoice, Scenario, ScenariosPaginated } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
@@ -13,7 +13,6 @@ import { useRef, useState } from 'react';
 import SelectVoiceModal from '~/components/selectVoiceModal';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import PublishAvatarModal from '~/components/publishAvatarModal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
 
@@ -31,7 +30,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
   const avatar: Avatar = await avatarResponse.json();
   const ttsVoices: TtsVoice[] = await ttsVoicesResponse.json();
-  const scenarios: Scenario[] = await scenariosResponse.json();
+  const scenarios: ScenariosPaginated = await scenariosResponse.json();
 
   return { avatar, ttsVoices, scenarios };
 }
@@ -142,12 +141,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
           </button>
         </div>
         <Modal.Description className='sr-only'>Edit avatar</Modal.Description>
-        <fetcher.Form
-          method='PATCH'
-          action='/avatars/update'
-          encType='multipart/form-data'
-          className='w-full flex flex-col mt-[18px] h-full'
-        >
+        <fetcher.Form method='PATCH' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
           <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='avatarId' value={avatar.id} />
@@ -334,7 +328,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  options={scenarios}
+                  options={scenarios.data}
                   selectedOptions={selectedScenarios}
                   onChange={setSelectedScenarios}
                   placeholder='Select scenarios for this avatar'
@@ -359,17 +353,17 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                   >
                     🔒 Private
                   </button>
-                  <PublishAvatarModal onConfirm={handlePublishConfirm}>
-                    <button
-                      type='button'
-                      className={cn(
-                        'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                        availability === 'public' ? 'bg-white' : 'bg-transparent'
-                      )}
-                    >
-                      🌐 Public
-                    </button>
-                  </PublishAvatarModal>
+
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      availability === 'public' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={handlePublishConfirm}
+                  >
+                    🌐 Public
+                  </button>
                 </div>
                 <p className='text-xs text-gray-500'>
                   Anyone in the system can use public avatars. Once published, you will no longer be able to edit or delete your avatar.

@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
-import type { TtsVoice, Scenario } from '~/types';
+import type { TtsVoice, Scenario, ScenariosPaginated } from '~/types';
 import { useRef, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
@@ -36,7 +36,7 @@ export async function clientLoader() {
   const [ttsVoicesResponse, scenariosResponse] = await Promise.all([fetchWithAuth('tts-voices'), fetchWithAuth('scenarios')]);
 
   const ttsVoices = await ttsVoicesResponse.json();
-  const scenarios = await scenariosResponse.json();
+  const scenarios: ScenariosPaginated = await scenariosResponse.json();
 
   return { ttsVoices, scenarios };
 }
@@ -65,7 +65,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
-  const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: Scenario[] } = loaderData;
+  const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: ScenariosPaginated } = loaderData;
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -321,7 +321,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  options={scenarios}
+                  options={scenarios.data}
                   selectedOptions={selectedScenarios}
                   onChange={setSelectedScenarios}
                   placeholder='Select scenarios for this avatar'
