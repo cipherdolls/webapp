@@ -29,7 +29,11 @@ export default function MessageDestroy() {
     });
 
     if (confirmResult) {
-      submit(null, { method: 'DELETE', action: 'destroy' });
+      submit(null, { 
+        method: 'DELETE', 
+        action: 'destroy',
+        replace: true,
+      });
     }
   };
 

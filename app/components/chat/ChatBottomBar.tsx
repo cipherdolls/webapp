@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
 import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
-import { ChatState, type ChatJobType, type ChatStateType } from './types/chatState';
+import { ChatState, } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
@@ -17,7 +17,6 @@ interface ChatBottomBarProps {
 }
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
-  const navigate = useNavigate();
   const { currentChatState, hasMicAccess, setTalkMode } = useChatStore(useShallow(state=> (
     {
       currentChatState: state.currentChatState,
@@ -30,7 +29,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   const [newMessage, setNewMessage] = useState('');
   const fetcher = useFetcher();
-  const { isUnlocked, isUnlocking, unlockAudio } = useAudioUnlock();
+  const { unlockAudio } = useAudioUnlock();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
