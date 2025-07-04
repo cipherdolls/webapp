@@ -1,13 +1,12 @@
-import { NavLink, Outlet, useRouteLoaderData, useNavigate, useSearchParams } from 'react-router';
+import { Form, Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { AvatarsPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
 import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import SearchAvatars from '~/components/ui/search-avatars';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
-import { Form, Link } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
@@ -182,7 +181,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       <div className='flex flex-col gap-5'>
         <SearchAvatars />
 
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center flex-wrap gap-2 justify-between'>
           <div className='flex items-center gap-3'>
             <button
               onClick={handleToggle}
