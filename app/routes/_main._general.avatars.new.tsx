@@ -57,7 +57,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     await res.json();
-    return redirect(`/avatars`);
+    return redirect(`/avatars?mine=true`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
