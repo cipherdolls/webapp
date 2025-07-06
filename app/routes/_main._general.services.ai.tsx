@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router';
-import React, { useEffect, useState } from 'react';
+import { Outlet, useNavigate, useSearchParams } from 'react-router';
+import React, { useEffect, useState, useMemo } from 'react';
 import type { AiProvider, AiProvidersPaginated, ChatModel, EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.services.ai';
 import type { TTableColumn } from '~/components/Table';
@@ -7,7 +7,7 @@ import Table from '~/components/Table';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { DataCard } from '~/components/DataCard';
 import { Fragment } from 'react/jsx-runtime';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
@@ -15,6 +15,8 @@ import { InformationBadge } from '~/components/ui/InformationBadge';
 import { formatModelName } from '~/utils/formatModelName';
 import Tooltip from '~/components/ui/tooltip';
 import { Icons } from '~/components/ui/icons';
+import SearchAiProviders from '~/components/ui/search-ai-providers';
+import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 
 function AiProviderSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -36,14 +38,53 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'AI Providers' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const res = await fetchWithAuth(`ai-providers`);
-  return await res.json();
+export async function clientLoader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  const aiProvidersPaginated = await fetchPaginatedData<AiProvidersPaginated>('ai-providers', searchParams, 1, 10);
+
+  return {
+    aiProvidersPaginated,
+    searchParams: Object.fromEntries(searchParams.entries()),
+  };
 }
 
 export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
+  const { aiProvidersPaginated, searchParams: initialSearchParams } = loaderData;
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  
+  const searchQuery = searchParams.get('name') || '';
+  const hasActiveFilters = searchQuery.length > 0;
 
+  const fetchMoreWithParams = async (page: number) => {
+    const currentSearchParams = new URLSearchParams(initialSearchParams);
+    
+    // Override with any current URL changes (like search input)
+    for (const [key, value] of searchParams.entries()) {
+      currentSearchParams.set(key, value);
+    }
+    
+    return fetchPaginatedData<AiProvidersPaginated>('ai-providers', currentSearchParams, page, 10);
+  };
+  
+  const infiniteScroll = useInfiniteScroll({
+    initialData: aiProvidersPaginated.data,
+    initialMeta: aiProvidersPaginated.meta,
+    fetchMore: fetchMoreWithParams,
+    enabled: hasInitiallyLoaded,
+  });
+  
+  const handleClearFilters = () => {
+    navigate('/services/ai');
+  };
+  
+  const filteredAiProviders = useMemo(() => {
+    return [...infiniteScroll.data];
+  }, [infiniteScroll.data]);
+  
   useEffect(() => {
     if (loaderData) {
       const timer = setTimeout(() => {
@@ -62,9 +103,6 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       </>
     );
   }
-
-  const aiProvidersPaginated: AiProvidersPaginated = loaderData;
-  const aiProviders: AiProvider[] = aiProvidersPaginated.data;
 
   const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     {
@@ -248,11 +286,37 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       align: 'right',
     },
   ];
-  console.log(aiProviders);
   return (
     <>
-      <div className='flex flex-col gap-10 pb-5'>
-        {aiProviders.map((aiProvider) => {
+      <div className='w-full'>
+        <div className='flex items-center justify-between sm:mt-8 mb-4'>
+          <h2 className='text-2xl font-semibold'>AI Providers</h2>
+        </div>
+        
+        <div className='flex flex-col gap-5'>
+          <SearchAiProviders />
+          
+          {hasActiveFilters && (
+            <div className='flex items-center justify-end'>
+              <button
+                onClick={handleClearFilters}
+                className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
+              >
+                <Icons.close className='size-4' />
+                <p className='text-body-md font-medium'>Clear filters</p>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className='flex flex-col gap-10 pb-5 mt-5'>
+        {filteredAiProviders.length === 0 ? (
+          <p className='text-body-md text-neutral-01 text-center'>
+            No AI providers found.
+          </p>
+        ) : (
+          filteredAiProviders.map((aiProvider) => {
           return (
             <div key={aiProvider.id} className='flex flex-col gap-5'>
               <DataCard.Root>
@@ -533,7 +597,24 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
               </DataCard.Root>
             </div>
           );
-        })}
+        }))}
+        
+        {infiniteScroll.error && (
+          <div className='text-center text-red-500 py-4'>
+            <p>Failed to load AI providers: {infiniteScroll.error}</p>
+          </div>
+        )}
+        
+        {infiniteScroll.loading && (
+          <div className='text-center py-4'>
+            <div className='inline-flex items-center gap-2'>
+              <Icons.loading className='size-4 animate-spin' />
+              <span className='text-neutral-01'>Loading more AI providers...</span>
+            </div>
+          </div>
+        )}
+        
+        {infiniteScroll.hasMore && !infiniteScroll.loading && <div ref={infiniteScroll.triggerRef} className='h-4' />}
       </div>
       <Outlet />
     </>
