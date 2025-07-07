@@ -78,7 +78,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   });
   
   const handleClearFilters = () => {
-    navigate('/services/ai');
+    navigate('/services/ai', { replace: true });
   };
   
   const filteredAiProviders = useMemo(() => {
