@@ -2,35 +2,50 @@ import React from 'react';
 import * as Input from '~/components/ui/input/input';
 import { Icons } from '~/components/ui/icons';
 import { useSearchParams, useNavigate } from 'react-router';
-import { useEffect, useState, useCallback } from 'react';
-import { useDebounceValue } from 'usehooks-ts';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 const SearchAiProviders = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState(searchParams.get('name') || '');
-  const [debouncedSearchValue] = useDebounceValue(searchValue, 300);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update local state when URL changes
   useEffect(() => {
-    setSearchValue(searchParams.get('name') || '');
+    const urlValue = searchParams.get('name') || '';
+    setSearchValue(urlValue);
   }, [searchParams]);
 
-  // Update URL when debounced value changes
+  // Handle search with proper debounce
   useEffect(() => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (debouncedSearchValue.trim()) {
-      newSearchParams.set('name', debouncedSearchValue.trim());
-    } else {
-      newSearchParams.delete('name');
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
     
-    // Only navigate if the debounced value is different from current URL param
-    const currentName = searchParams.get('name') || '';
-    if (debouncedSearchValue.trim() !== currentName) {
-      navigate(`/services/ai?${newSearchParams.toString()}`);
-    }
-  }, [debouncedSearchValue, searchParams, navigate]);
+    timeoutRef.current = setTimeout(() => {
+      const currentName = searchParams.get('name') || '';
+      const trimmedValue = searchValue.trim();
+      
+      // Only navigate if the search value is different from current URL param
+      if (trimmedValue !== currentName) {
+        const newSearchParams = new URLSearchParams(searchParams);
+        if (trimmedValue) {
+          newSearchParams.set('name', trimmedValue);
+        } else {
+          newSearchParams.delete('name');
+        }
+        
+        navigate(`/services/ai?${newSearchParams.toString()}`);
+      }
+    }, 300);
+    
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [searchValue, searchParams, navigate]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
