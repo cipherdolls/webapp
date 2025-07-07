@@ -167,8 +167,8 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 {scenario.picture ? (
                   <div className='size-full'>
                     <img
-                      src={getPicture(scenario, 'avatars', false)}
-                      srcSet={getPicture(scenario, 'avatars', true)}
+                      src={getPicture(scenario, 'scenarios', false)}
+                      srcSet={getPicture(scenario, 'scenarios', true)}
                       alt={scenario.name}
                       className='size-full object-cover rounded-lg'
                     />
