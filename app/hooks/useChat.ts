@@ -10,11 +10,12 @@ const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const loadMessages = async (page: number = 1) => {
-    if (isLoading || !hasMore) return;
+    if (isLoading) return;
     setIsLoading(true);
     setError(null);
     try {
       const response = await fetchWithAuth(`messages?chatId=${chatId}&limit=${limit}&page=${page}&order=desc`);
+     
       if (response.ok) {
         const data = await response.json();
         const messages = data.data.reverse() || [];
