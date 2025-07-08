@@ -19,4 +19,7 @@ export default defineConfig({
       include: '**/*.svg',
     }),
   ],
+  ssr: {
+    noExternal: ['esp-web-tools'],
+  },
 });
