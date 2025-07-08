@@ -84,6 +84,10 @@ export interface ChatModel {
   error?: string;
 }
 
+export interface ChatModelsPaginated {
+  data: ChatModel[];
+  meta: meta;
+}
 export interface EmbeddingModel {
   id: string;
   providerModelName: string;

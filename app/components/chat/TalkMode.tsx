@@ -35,7 +35,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
       setCurrentJob: state.setCurrentJob,
     }))
   );
-  
+
   const recorder = useVoiceRecorder({
     listening: currentChatState === ChatState.userSpeaking,
     onRecordingComplete: async (blob: Blob) => {
@@ -55,10 +55,8 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   });
 
   const { load, stop, isPlaying } = useAudioPlayerContext();
-  
 
-  useChatEvents({
-    chatId: chat.id,
+  useChatEvents(chat.id, {
     onProcessEvent: (event) => {
       if (event.jobStatus === 'completed') {
         setJobsDone((p) => {
@@ -110,7 +108,6 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   useEffect(() => {
     setCurrentChatState(ChatState.userSpeaking);
   }, []);
-
 
   // cleanup
   useUnmount(() => {

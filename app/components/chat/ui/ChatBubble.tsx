@@ -6,12 +6,12 @@ import { formatTime } from '~/utils/date.utils';
 import { Slot } from '@radix-ui/react-slot';
 
 // ChatBubble
-const chatBubbleVariant = cva('flex gap-2 items-end relative w-full px-4.5 mt-4 max-w-[900px] mx-auto', {
+const chatBubbleVariant = cva('flex gap-2 items-end relative w-full px-4.5 mt-4 max-w-[900px] mx-auto pb-4', {
   variants: {
     variant: {
-      received: 'justify-start received [&+.received]:mt-1.5 [&+.received_.message-corner]:hidden',
-      sent: 'flex-row-reverse sent [&+.sent]:mt-1.5 [&+.sent_.message-corner]:hidden',
-      system: 'justify-center my-6 ',
+      received: 'justify-start received [&+.received]:mt-0.5 [&+.received_.message-corner]:hidden',
+      sent: 'flex-row-reverse sent [&+.sent]:mt-0.5 [&+.sent_.message-corner]:hidden',
+      system: 'justify-center my-6',
     },
   },
   defaultVariants: {

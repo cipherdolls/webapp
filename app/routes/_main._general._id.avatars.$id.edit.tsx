@@ -134,7 +134,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
           <button
             type='button'
             onClick={() => setIsExpanded(!isExpanded)}
-            className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+            className='p-2 hover:bg-gray-100 rounded-lg transition-colors hidden md:block'
             title={isExpanded ? 'Collapse modal' : 'Expand modal'}
           >
             <Icons.expand />
@@ -147,7 +147,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
             <input type='hidden' name='avatarId' value={avatar.id} />
 
             {isExpanded && (
-              <div className='flex-1 flex flex-col gap-6'>
+              <div className='flex-1 flex flex-col gap-6 pb-5'>
                 <Textarea.Root className='h-full'>
                   <Textarea.Label htmlFor='character'>Character</Textarea.Label>
                   <Textarea.Wrapper className='flex-1'>
@@ -187,7 +187,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
               </div>
             )}
 
-            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1' : 'w-full')}>
+            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1 pb-5' : 'w-full')}>
               <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-5' : 'mb-10')}>
                 <div className='relative'>
                   <label

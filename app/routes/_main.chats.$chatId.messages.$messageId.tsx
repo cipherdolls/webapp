@@ -1,4 +1,4 @@
-import { Form, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import type { Message } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId.messages.$messageId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -9,7 +9,7 @@ import ChatTTSJobCard from '~/components/job-cards/ChatTTSJobCard';
 import ChatCompletionJobCard from '~/components/job-cards/ChatCompletionJobCard';
 import ChatSTTJobCard from '~/components/job-cards/ChatSTTJobCard';
 import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
-import MessageDestroy from '~/routes/_main.chats.$chatId.messages.$messageId.destroy';
+import DestroyMessageButton from './_main.chats.$chatId.messages.$messageId.destroy';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -60,7 +60,7 @@ export default function ChatMessage({ loaderData }: Route.ComponentProps) {
             {message.chatCompletionJob && <ChatCompletionJobCard message={message} />}
 
             <div className='mt-auto pt-10'>
-              <MessageDestroy />
+              <DestroyMessageButton />
             </div>
           </div>
         </div>
