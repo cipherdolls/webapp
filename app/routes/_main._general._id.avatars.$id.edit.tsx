@@ -1,6 +1,5 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id.edit';
-
 import type { Avatar, TtsVoice, Scenario, ScenariosPaginated } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { Icons } from '~/components/ui/icons';
