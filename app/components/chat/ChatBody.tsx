@@ -12,14 +12,13 @@ interface ChatBodyProps {
   loadMoreMessages: () => void;
   isLoading: boolean;
   hasMore: boolean;
-  // TODO: remove this prop when cursor-based pagination is implemented
-  messagesLimit: number;
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoading, hasMore, messagesLimit }) => {
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
   const prevMessagesLengthRef = useRef<number>(0);
+  const lastMessageIdRef = useRef<string | null>(null);
 
   const [infiniteRef, { rootRef }] = useInfiniteScroll({
     loading: isLoading,
@@ -33,7 +32,9 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
     const scrollableRoot = scrollableRootRef.current;
     if (!scrollableRoot) return;
 
-    if (messages.length === messagesLimit) {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.id !== lastMessageIdRef.current) {
+      lastMessageIdRef.current = lastMessage?.id || null;
       scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
     } else {
       const lastScrollDistanceToBottom = lastScrollDistanceToBottomRef.current;
@@ -71,26 +72,8 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
           </div>
         )}
         {messages.map((message, index) => {
-          const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
-          const isSystemMessage = message.role === 'SYSTEM';
           const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
-          if (!message.content) return null;
-          return (
-            <Fragment key={message.id}>
-              {/* divider between days */}
-              {isNextDay && <ChatDateDivider date={message.createdAt} />}
-
-              {/* chat bubble */}
-              <ChatBubble.Root variant={bubbleVariant}>
-                <ChatBubble.Message asChild>
-                  <Link to={`messages/${message.id}`}>
-                    <ChatBubble.Text>{message.content}</ChatBubble.Text>
-                    {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
-                  </Link>
-                </ChatBubble.Message>
-              </ChatBubble.Root>
-            </Fragment>
-          );
+          return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
         })}
         {/* { (
         <ChatBubble.Root>
@@ -103,3 +86,29 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
 };
 
 export default ChatBody;
+
+const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(
+  ({ message, isNextDay }) => {
+    const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
+    const isSystemMessage = message.role === 'SYSTEM';
+
+    if (!message.content) return null;
+    return (
+      <>
+        {/* divider between days */}
+        {isNextDay && <ChatDateDivider date={message.createdAt} />}
+        {/* chat bubble */}
+        <ChatBubble.Root variant={bubbleVariant}>
+          <ChatBubble.Message asChild>
+            <Link to={`messages/${message.id}`}>
+              <ChatBubble.Text>{message.content}</ChatBubble.Text>
+              {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
+            </Link>
+          </ChatBubble.Message>
+        </ChatBubble.Root>
+      </>
+    );
+  }
+);
+
+ChatBubbleComponent.displayName = 'ChatBubbleComponent';

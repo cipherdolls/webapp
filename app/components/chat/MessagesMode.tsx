@@ -17,8 +17,6 @@ interface MessagesModeProps {
   avatar: Avatar;
 }
 
-const MESSAGES_LIMIT = 50;
-
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
   const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
@@ -29,13 +27,12 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
     }))
   );
 
-  const { messages, loadMessages, loadMoreMessages, isLoading, hasMore } = useChat(chat.id, { limit: MESSAGES_LIMIT });
+  const { messages, loadMessages, loadMoreMessages, newMessage, deleteMessage, isLoading, hasMore } = useChat(chat.id);
 
   useEffect(() => {
     stop();
-    setCurrentChatState(ChatState.Idle);
     loadMessages();
-  }, [chat.id, chat._count.messages]);
+  }, [chat.id]);
 
   useUnmount(() => {
     stop();
@@ -43,7 +40,13 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   useChatEvents(chat.id, {
     onProcessEvent: (event) => {
-      if (event.resourceName === 'Message' && event.jobStatus === 'completed') loadMessages();
+      if (event.resourceName === 'Message' && event.jobStatus === 'completed') {
+        if (event.jobName === 'created') {
+          newMessage(event.resourceId);
+        } else if (event.jobName === 'deleted') {
+          deleteMessage(event.resourceId);
+        }
+      }
     },
     onActionEvent: (event) => {
       if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
@@ -82,7 +85,6 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
         loadMoreMessages={loadMoreMessages}
         isLoading={isLoading}
         hasMore={hasMore}
-        messagesLimit={MESSAGES_LIMIT}
       />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
