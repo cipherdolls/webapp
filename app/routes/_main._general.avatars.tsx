@@ -8,8 +8,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
-import { Form, Link } from 'react-router';
-
 import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
