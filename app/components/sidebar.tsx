@@ -1,4 +1,4 @@
-import { Link, NavLink, useLocation, useRouteLoaderData } from 'react-router';
+import { Link, NavLink, useRouteLoaderData } from 'react-router';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
@@ -19,12 +19,12 @@ const SidebarItems = [
   {
     name: 'Avatars',
     href: '/avatars',
-    icon: Icons.avatars,
+    icon: Icons.users,
   },
   {
     name: 'Scenarios',
     href: '/scenarios',
-    icon: Icons.users,
+    icon: Icons.scenarios,
   },
   {
     name: 'Services',
