@@ -8,7 +8,7 @@ import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ChatDestroy from './chats.$id.edit.destroy';
-import type { Avatar, Chat, SttProvider } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Avatar, Chat, SttProvider } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -17,19 +17,49 @@ import DetailRow from '~/components/ui/detail/detail-row';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import Tooltip from '~/components/ui/tooltip';
 import React from 'react';
+import EditScenarioModal from '~/components/editScenarioModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const sttProvidersRes = await fetchWithAuth(`stt-providers`);
-  const sttProviders: SttProvider[] = await sttProvidersRes.json();
-  return { sttProviders };
+  const [sttProvidersRes, aiProvidersRes] = await Promise.all([fetchWithAuth(`stt-providers`), fetchWithAuth('ai-providers')]);
+
+  const { data }: AiProvidersPaginated = await aiProvidersRes.json();
+  const sttProviders = await sttProvidersRes.json();
+
+  const aiProviders = data;
+
+  return { sttProviders, aiProviders };
+}
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  try {
+    const formData = await request.formData();
+    const scenarioId = formData.get('scenarioId');
+
+    const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
+      method: request.method,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const responseData = await res.json();
+      return {
+        errors: responseData.message || 'Request failed',
+      };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
 }
 
 export default function ChatEdit({ loaderData }: Route.ComponentProps) {
-  const { sttProviders } = loaderData;
+  const { sttProviders, aiProviders } = loaderData as { sttProviders: SttProvider[]; aiProviders: AiProvider[] };
   const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
 
   const submit = useSubmit();
@@ -105,9 +135,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  <button className='opacity-50 transition-opacity hover:opacity-80'>
-                    <Icons.pen />
-                  </button>
+                  <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders} />
 
                   <button
                     onClick={() => {
