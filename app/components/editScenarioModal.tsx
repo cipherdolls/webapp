@@ -6,7 +6,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { formatModelName } from '~/utils/formatModelName';
 import * as Modal from '~/components/ui/new-modal';
@@ -15,23 +15,12 @@ import { InformationBadge } from '~/components/ui/InformationBadge';
 const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiProviders: AiProvider[] }) => {
   const fetcher = useFetcher();
 
-  const [isOpen, setIsOpen] = useState(false);
-
   const [temperature, setTemperature] = useState(scenario.temperature);
   const [topP, setTopP] = useState(scenario.topP);
   const [frequencyPenalty, setFrequencyPenalty] = useState(scenario.frequencyPenalty);
   const [presencePenalty, setPresencePenalty] = useState(scenario.presencePenalty);
 
   const errors = fetcher.data?.errors;
-  const isSuccess = fetcher.data?.success;
-
-  useEffect(() => {
-    const handleOpenChange = () => {
-      if (fetcher.data?.success) setIsOpen(!isSuccess);
-    };
-
-    handleOpenChange();
-  }, [isSuccess]);
 
   interface Option {
     label: string;
@@ -73,7 +62,7 @@ const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiPr
   };
 
   return (
-    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Modal.Root>
       <Modal.Trigger asChild>
         <button className='opacity-50 transition-opacity hover:opacity-80'>
           <Icons.pen />
