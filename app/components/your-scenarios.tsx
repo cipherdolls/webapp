@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router';
+import { useMemo, useState } from 'react';
+import { Form, Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import type { Scenario } from '~/types';
-import { InformationBadge } from './ui/InformationBadge';
 import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
+import { getPicture } from '~/utils/getPicture';
 
 const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   const [showAll, setShowAll] = useState(false);
@@ -47,31 +47,52 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
               {sortedScenarios.map((scenario, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <Link
-                    to={`/scenarios/${scenario.id}`}
-                    className={cn(
-                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group h-full',
-                      sortedScenarios.length === 1 && 'col-span-2'
-                    )}
-                  >
-                    <div className='flex items-center gap-2'>
-                      <span className='text-body-md text-base-black font-semibold break-all line-clamp-1'>{scenario.name}</span>
-                      <InformationBadge
-                        className='size-4 text-neutral-02'
-                        popoverClassName='!w-full'
-                        tooltipText={
-                          <div className='flex flex-col gap-1 text-body-sm text-base-black'>
-                            <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
-                            <span>Presence Penalty: {scenario.presencePenalty}</span>
-                            <span>Temperature: {scenario.temperature}</span>
-                            <span>Top P: {scenario.topP}</span>
-                          </div>
-                        }
+                  <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                    <Link
+                      to={`/scenarios/${scenario.id}`}
+                      className='block h-[200px] sm:h-[152px] md:h-[120px] rounded-xl bg-black relative'
+                    >
+                      <img
+                        src={getPicture(scenario, 'scenarios', false)}
+                        srcSet={getPicture(scenario, 'scenarios', true)}
+                        alt={`${scenario.name} picture`}
+                        className='object-cover size-full'
                       />
+
+                      <div className='absolute top-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          🌐
+                          <span>By you</span>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
+                      <div className='flex flex-col gap-1'>
+                        <div className='flex items-center gap-2'>
+                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+                          <Icons.thumb />
+                        </div>
+                        <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
+                      </div>
+                      <div className='flex items-center gap-3'>
+                        {scenario.chats && scenario.chats.length > 0 ? (
+                          <Link to={`/chats/${scenario.chats[0].id}`}>
+                            <Button.Root size='sm' className='px-5'>
+                              Continue Chat
+                            </Button.Root>
+                          </Link>
+                        ) : (
+                          <Form method='POST' action='/chats'>
+                            <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
+                            <Button.Root type='submit' size='sm' className='px-5'>
+                              Chat
+                            </Button.Root>
+                          </Form>
+                        )}
+                      </div>
                     </div>
-                    <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
-                    <p className='text-base-black line-clamp-2 text-body-sm break-all'>{scenario.systemMessage}</p>
-                  </Link>
+                  </div>
                 </div>
               ))}
             </div>
