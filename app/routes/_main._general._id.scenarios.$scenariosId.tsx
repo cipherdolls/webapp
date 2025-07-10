@@ -54,7 +54,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
-          <Link to={`/scenarios?mine=true`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${scenario.userId === me.id ? '/scenarios?mine=true' : '/scenarios'}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3 break-all flex-wrap'>
               <h3 className='font-semibold text-body-md text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
