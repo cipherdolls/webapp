@@ -3,16 +3,13 @@ import type { Avatar, User } from '~/types';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useRef, useState } from 'react';
-import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS, PICTURE_SIZE } from '~/constants';
+import { PATHS } from '~/constants';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
-import PublishAvatarModal from '~/components/publishAvatarModal';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import { ViewButton } from '~/components/preferencesViewButton';
 import { ViewMore } from '~/view-more';
 
 export function meta({}: Route.MetaArgs) {
@@ -89,7 +86,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={'/avatars'} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${avatar.userId === me.id ? '/avatars?mine=true' : '/avatars'}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft />
             <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{avatar.name}</h3>
