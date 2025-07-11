@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id.edit';
-import type { Avatar, TtsVoice, Scenario, ScenariosPaginated } from '~/types';
+import type { Avatar, TtsVoice, Scenario, ScenariosPaginated, Gender } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
@@ -72,7 +72,7 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [availability, setAvailability] = useState<'private' | 'public'>(avatar.published ? 'public' : 'private');
-  const [gender, setGender] = useState<'Male' | 'Female' | ''>(avatar.gender || '');
+  const [gender, setGender] = useState<Gender | ''>(avatar.gender || '');
   const [isExpanded, setIsExpanded] = useState(false);
   const errors = fetcher.data?.errors;
 

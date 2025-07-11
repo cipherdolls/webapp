@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useRouteLoaderData, useNavigate, useSearchParams } from 'react-router';
-import type { User, ScenariosPaginated } from '~/types';
+import type { User, ScenariosPaginated, GenderFilter } from '~/types';
 import type { Route } from './+types/_main._general.scenarios';
 import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import SearchScenarios from '~/components/ui/search-scenarios';
@@ -10,6 +10,7 @@ import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { Form, Link } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS } from '~/constants';
+import * as Popover from '~/components/ui/popover';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -55,6 +56,7 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const { scenariosPaginated, searchParams: initialSearchParams } = loaderData;
+  console.log(scenariosPaginated);
 
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
@@ -63,9 +65,11 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
   const showMyScenarios = searchParams.has('mine');
   const searchQuery = searchParams.get('name') || '';
+  const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
+  const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
 
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0;
+  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All';
 
   const fetchMoreWithParams = async (page: number) => {
     // Use the initial search params from the loader which include all defaults and normalization
@@ -103,6 +107,26 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const handleClearFilters = () => {
     // Navigate to default state (public scenarios only)
     navigate('/scenarios?published=true');
+  };
+
+  const handleUserGenderFilterChange = (filter: GenderFilter) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (filter === 'All') {
+      newSearchParams.delete('userGender');
+    } else {
+      newSearchParams.set('userGender', filter);
+    }
+    navigate(`/scenarios?${newSearchParams.toString()}`);
+  };
+
+  const handleAvatarGenderFilterChange = (filter: GenderFilter) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (filter === 'All') {
+      newSearchParams.delete('avatarGender');
+    } else {
+      newSearchParams.set('avatarGender', filter);
+    }
+    navigate(`/scenarios?${newSearchParams.toString()}`);
   };
 
   const filteredAndSortedScenarios = useMemo(() => {
@@ -167,15 +191,66 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
             </button>
           </div>
 
-          {hasActiveFilters && (
-            <button
-              onClick={handleClearFilters}
-              className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
-            >
-              <Icons.close className='size-4' />
-              <p className='text-body-md font-medium'>Clear filters</p>
-            </button>
-          )}
+          <div className='flex items-center gap-3 flex-wrap'>
+            {hasActiveFilters && (
+              <button
+                onClick={handleClearFilters}
+                className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
+              >
+                <Icons.close className='size-4' />
+                <p className='text-body-md font-medium'>Clear filters</p>
+              </button>
+            )}
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button.Root variant='secondary' size='sm' className='px-4'>
+                  <Icons.preferences className='size-4' />
+                  User Gender: {userGenderFilter}
+                  <Icons.chevronDown className='size-4' />
+                </Button.Root>
+              </Popover.Trigger>
+              <Popover.Content className='w-48 p-0'>
+                <div className='p-1'>
+                  {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => handleUserGenderFilterChange(filter)}
+                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                        userGenderFilter === filter ? 'bg-gradient-1 text-base-black font-medium' : 'text-neutral-01 hover:bg-neutral-05'
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+              </Popover.Content>
+            </Popover.Root>
+
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button.Root variant='secondary' size='sm' className='px-4'>
+                  <Icons.preferences className='size-4' />
+                  Avatar Gender: {avatarGenderFilter}
+                  <Icons.chevronDown className='size-4' />
+                </Button.Root>
+              </Popover.Trigger>
+              <Popover.Content className='w-48 p-0'>
+                <div className='p-1'>
+                  {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => handleAvatarGenderFilterChange(filter)}
+                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                        avatarGenderFilter === filter ? 'bg-gradient-1 text-base-black font-medium' : 'text-neutral-01 hover:bg-neutral-05'
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+              </Popover.Content>
+            </Popover.Root>
+          </div>
         </div>
 
         <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
@@ -199,6 +274,22 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                         <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
                           🌐
                           <span>By you</span>
+                        </div>
+                      </div>
+                    )}
+                    {(scenario.userGender || scenario.avatarGender) && (
+                      <div className='absolute top-2 right-2 z-10'>
+                        <div className='flex items-center gap-1'>
+                          {scenario.userGender && (
+                            <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
+                              👤 {scenario.userGender}
+                            </div>
+                          )}
+                          {scenario.avatarGender && (
+                            <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
+                              🤖 {scenario.avatarGender}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
