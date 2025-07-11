@@ -85,7 +85,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
     {
       id: 'dollarPerSecond',
       label: 'Output',
-      headerClassName: 'pr-11',
+      headerClassName: 'pr-1',
       render: (data) => (
         <div className='flex items-center justify-end gap-2.5'>
           <span className='text-body-sm'>${data.dollarPerSecond * 60}</span>
