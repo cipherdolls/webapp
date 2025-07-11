@@ -8,7 +8,7 @@ import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ChatDestroy from './chats.$id.edit.destroy';
-import type { AiProvider, AiProvidersPaginated, Avatar, Chat, SttProvider } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Avatar, Chat, SttProvider, User } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -61,6 +61,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   const { sttProviders, aiProviders } = loaderData as { sttProviders: SttProvider[]; aiProviders: AiProvider[] };
   const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
+  const me = useRouteLoaderData('routes/_main') as User;
 
   const submit = useSubmit();
   const navigate = useNavigate();
@@ -135,7 +136,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders} />
+                  {me.id === chat.scenario.userId && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders} />}
 
                   <button
                     onClick={() => {
