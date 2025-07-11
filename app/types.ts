@@ -284,7 +284,7 @@ export interface PaymentJob {
   timeTakenMs: number;
 }
 
-type Gender = 'Female' | 'Male';
+export type Gender = 'Female' | 'Male' | 'Other';
 export interface AvatarsPaginated {
   data: Avatar[];
   meta: meta;
