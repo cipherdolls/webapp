@@ -44,13 +44,13 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                 </div>
               </Link>
             </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
               {sortedScenarios.map((scenario, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                   <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                     <Link
                       to={`/scenarios/${scenario.id}`}
-                      className='block h-[200px] sm:h-[152px] md:h-[120px] rounded-xl bg-black relative'
+                      className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
                     >
                       <img
                         src={getPicture(scenario, 'scenarios', false)}
