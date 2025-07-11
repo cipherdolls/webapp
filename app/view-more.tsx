@@ -113,6 +113,7 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
       case 'addToChat':
         return (
           <SelectAvatarModal
+            key={index}
             avatars={item.avatars}
             scenario={item.scenario}
             triggerContent={

@@ -287,7 +287,9 @@ export interface PaymentJob {
 }
 
 export type Gender = 'Female' | 'Male' | 'Other';
+
 export type GenderFilter = 'All' | 'Male' | 'Female' | 'Other';
+
 export interface AvatarsPaginated {
   data: Avatar[];
   meta: meta;

@@ -7,7 +7,7 @@ import { useEffect, useState, useMemo } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
-import { Form, Link } from 'react-router';
+import { Link } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS } from '~/constants';
 import * as Popover from '~/components/ui/popover';
@@ -169,7 +169,6 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
       <div className='flex flex-col gap-5'>
         <SearchScenarios />
-
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-3'>
             <button
@@ -252,7 +251,6 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
             </Popover.Root>
           </div>
         </div>
-
         <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
           {filteredAndSortedScenarios.length === 0 ? (
             <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
@@ -310,12 +308,11 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                           </Button.Root>
                         </Link>
                       ) : (
-                        <Form method='POST' action='/chats'>
-                          <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
-                          <Button.Root type='submit' size='sm' className='px-5'>
+                        <Link to={`/scenarios/chat?scenarioId=${scenario.id}`}>
+                          <Button.Root size='sm' className='px-5'>
                             Chat
                           </Button.Root>
-                        </Form>
+                        </Link>
                       )}
                     </div>
                   </div>
@@ -324,13 +321,11 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
             ))
           )}
         </div>
-
         {infiniteScroll.error && (
           <div className='text-center text-red-500 py-4'>
             <p>Failed to load scenarios: {infiniteScroll.error}</p>
           </div>
         )}
-
         {infiniteScroll.loading && (
           <div className='text-center py-4'>
             <div className='inline-flex items-center gap-2'>
@@ -339,9 +334,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         )}
-
         {infiniteScroll.hasMore && !infiniteScroll.loading && <div ref={infiniteScroll.triggerRef} className='h-4' />}
-
         <Outlet />
       </div>
     </div>
