@@ -14,12 +14,12 @@ const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchWithAuth(`messages?chatId=${chatId}&limit=${limit}&order=desc`);
+      const response = await fetchWithAuth(`messages?chatId=${chatId}&limit=${limit}&direction=next&order=desc`);
 
       if (response.ok) {
         const data = await response.json();
         const messages = data.data.reverse() || [];
-        cursorRef.current = data.meta?.prevCursor;
+        cursorRef.current = data.meta?.nextCursor;
         setMessages(messages);
         setHasMore(data.meta?.hasMore || false);
       }
@@ -36,12 +36,12 @@ const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchWithAuth(`messages?chatId=${chatId}&cursor=${cursorRef.current}&limit=${limit}&order=desc`);
+      const response = await fetchWithAuth(`messages?chatId=${chatId}&cursor=${cursorRef.current}&limit=${limit}&direction=next&order=desc`);
       if (response.ok) {
         const data = await response.json();
         const messages = data.data.reverse() || [];
         setMessages((prev) => [...messages, ...prev]);
-        cursorRef.current = data.meta?.prevCursor;
+        cursorRef.current = data.meta?.nextCursor;
         setHasMore(data.meta?.hasMore || false);
       }
     } catch (error) {
@@ -54,10 +54,9 @@ const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
 
   const newMessage = async (messageId: string) => {
     try {
-      const response = await fetchWithAuth(`messages?chatId=${chatId}&cursor=${messageId}&limit=1`);
+      const response = await fetchWithAuth(`messages/${messageId}`);
       if (response.ok) {
-        const data = await response.json();
-        const message = data.data[0];
+        const message = await response.json();
         setMessages((prev) => [...prev, message]);
       }
     } catch (error) {

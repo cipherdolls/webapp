@@ -6,6 +6,7 @@ import ChatDateDivider from './ui/ChatDateDivider';
 import { Link } from 'react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
+import { cn } from '~/utils/cn';
 
 interface ChatBodyProps {
   messages: Message[];
@@ -67,7 +68,12 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
         className='flex-1 overflow-auto scrollbar scrollbar-medium bg-white rounded-t-xl lg:rounded-none'
       >
         {hasMore && (
-          <div ref={infiniteRef} className='flex justify-center items-center py-5'>
+          <div
+            ref={infiniteRef}
+            className={cn('flex justify-center items-center py-5', {
+              'h-full': messages.length === 0,
+            })}
+          >
             <Icons.loader className='size-10 animate-spin text-neutral-01' />
           </div>
         )}
@@ -87,28 +93,26 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
 
 export default ChatBody;
 
-const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(
-  ({ message, isNextDay }) => {
-    const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
-    const isSystemMessage = message.role === 'SYSTEM';
+const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(({ message, isNextDay }) => {
+  const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
+  const isSystemMessage = message.role === 'SYSTEM';
 
-    if (!message.content) return null;
-    return (
-      <>
-        {/* divider between days */}
-        {isNextDay && <ChatDateDivider date={message.createdAt} />}
-        {/* chat bubble */}
-        <ChatBubble.Root variant={bubbleVariant}>
-          <ChatBubble.Message asChild>
-            <Link to={`messages/${message.id}`}>
-              <ChatBubble.Text>{message.content}</ChatBubble.Text>
-              {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
-            </Link>
-          </ChatBubble.Message>
-        </ChatBubble.Root>
-      </>
-    );
-  }
-);
+  if (!message.content) return null;
+  return (
+    <>
+      {/* divider between days */}
+      {isNextDay && <ChatDateDivider date={message.createdAt} />}
+      {/* chat bubble */}
+      <ChatBubble.Root variant={bubbleVariant}>
+        <ChatBubble.Message asChild>
+          <Link to={`messages/${message.id}`}>
+            <ChatBubble.Text>{message.content}</ChatBubble.Text>
+            {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
+          </Link>
+        </ChatBubble.Message>
+      </ChatBubble.Root>
+    </>
+  );
+});
 
 ChatBubbleComponent.displayName = 'ChatBubbleComponent';
