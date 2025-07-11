@@ -7,7 +7,7 @@ import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { Fragment, useRef, useState } from 'react';
-import type { AiProvider, AiProvidersPaginated } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Gender } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
@@ -78,6 +78,8 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [scenarioType, setScenarioType] = useState<'Long' | 'Short'>('Long');
+  const [userGender, setUserGender] = useState<Gender>('Male');
+  const [avatarGender, setAvatarGender] = useState<Gender>('Female');
 
   const { avatarId } = useParams();
 
@@ -350,6 +352,44 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                   <p className='text-xs text-gray-500'>Provide a system message for this new scenario.</p>
                 </Input.Root>
               )}
+
+              <div className='grid gap-x-5 gap-y-3 w-full grid-cols-1 sm:grid-cols-2'>
+                <Input.Root>
+                  <Input.Label htmlFor='userGender'>User Gender</Input.Label>
+                  <Select.Root name='userGender' defaultValue={userGender} onValueChange={(value) => setUserGender(value as Gender)}>
+                    <Select.Trigger
+                      id='userGender'
+                      className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                    >
+                      <Select.Value placeholder='Select user gender' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value='Male'>Male</Select.Item>
+                      <Select.Item value='Female'>Female</Select.Item>
+                      <Select.Item value='Other'>Other</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                  <p className='text-xs text-gray-500'>Select the user gender for this scenario.</p>
+                </Input.Root>
+
+                <Input.Root>
+                  <Input.Label htmlFor='avatarGender'>Avatar Gender</Input.Label>
+                  <Select.Root name='avatarGender' defaultValue={avatarGender} onValueChange={(value) => setAvatarGender(value as Gender)}>
+                    <Select.Trigger
+                      id='avatarGender'
+                      className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                    >
+                      <Select.Value placeholder='Select avatar gender' />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value='Male'>Male</Select.Item>
+                      <Select.Item value='Female'>Female</Select.Item>
+                      <Select.Item value='Other'>Other</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                  <p className='text-xs text-gray-500'>Select the avatar gender for this scenario.</p>
+                </Input.Root>
+              </div>
 
               <Input.Root>
                 <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>

@@ -157,6 +157,8 @@ export interface Scenario {
   recommended: boolean;
   introduction?: string;
   published?: boolean;
+  userGender?: Gender;
+  avatarGender?: Gender;
 }
 
 export interface Chat {
@@ -285,6 +287,9 @@ export interface PaymentJob {
 }
 
 export type Gender = 'Female' | 'Male' | 'Other';
+
+export type GenderFilter = 'All' | 'Male' | 'Female' | 'Other';
+
 export interface AvatarsPaginated {
   data: Avatar[];
   meta: meta;
