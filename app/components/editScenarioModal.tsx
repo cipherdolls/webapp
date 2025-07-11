@@ -167,7 +167,7 @@ const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiPr
                     <p className='text-xs text-gray-500'>Select the AI chat model for this scenario.</p>
                   </Input.Root>
 
-                  <div className={'grid gap-x-5 gap-y-6 w-full grid-cols-1'}>
+                  <div className={cn('grid gap-x-5 gap-y-6 w-full grid-cols-1', isExpanded ? 'grid-cols-1' : 'grid-cols-2')}>
                     <Input.Root>
                       <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-1'>
