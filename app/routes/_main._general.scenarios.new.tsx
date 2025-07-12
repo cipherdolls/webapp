@@ -78,6 +78,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [scenarioType, setScenarioType] = useState<'Long' | 'Short'>('Long');
+  const [publishedStatus, setPublishedStatus] = useState<'private' | 'public'>('private');
   const [userGender, setUserGender] = useState<Gender>('Male');
   const [avatarGender, setAvatarGender] = useState<Gender>('Female');
 
@@ -614,6 +615,36 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                   </Slider.Root>
                 </Input.Root>
               </div>
+
+              <Input.Root>
+                <Input.Label htmlFor='published'>Availability</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      publishedStatus === 'private' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={() => setPublishedStatus('private')}
+                  >
+                    🔒 Private
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      publishedStatus === 'public' ? 'bg-white' : 'bg-transparent'
+                    )}
+                    onClick={() => setPublishedStatus('public')}
+                  >
+                    🌐 Public
+                  </button>
+                </div>
+                <input type='hidden' name='published' value={publishedStatus === 'public' ? 'true' : 'false'} />
+                <p className='text-xs text-gray-500'>
+                  Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.
+                </p>
+              </Input.Root>
             </div>
           </Modal.Body>
           <Modal.Footer className='pb-5'>
