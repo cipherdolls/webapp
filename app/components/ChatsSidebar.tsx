@@ -15,6 +15,17 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
   const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
   const showChatsButton = chats.length > 0 && avatarsList.some((avatar) => avatar.chats.length === 0);
 
+  let lastActiveChat = 0;
+  let showIndicatorChatId = '';
+
+  // Last active chat ID
+  for (const chat of chats) {
+    if (new Date(chat.updatedAt).getTime() > lastActiveChat) {
+      lastActiveChat = new Date(chat.updatedAt).getTime();
+      showIndicatorChatId = chat.id;
+    }
+  }
+
   return (
     <div
       className={cn('pb-3 px-2 md:pb-0 md:px-0 h-full w-full md:w-[348px] shrink-0 flex flex-col', {
@@ -48,11 +59,9 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
                 <AvatarCard.Content>
                   <AvatarCard.Name className='@max-[400px]:text-body-md' />
                   <div className='flex items-center gap-x-2 max-w-full'>
-                    {/* TODO: add last message */}
-                    <AvatarCard.Description>Some text here Some text here Some text here text here Some text here</AvatarCard.Description>
+                    <AvatarCard.Description>{chat.scenario.name}</AvatarCard.Description>
 
-                    {/* TODO: add logic for indicator */}
-                    <Icons.indicator className='shrink-0 ml-auto' />
+                    {showIndicatorChatId === chat.id && <Icons.indicator className='shrink-0 ml-auto' />}
                   </div>
                 </AvatarCard.Content>
               </AvatarCard>
