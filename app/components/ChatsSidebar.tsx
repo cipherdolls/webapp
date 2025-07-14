@@ -48,11 +48,9 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
                 <AvatarCard.Content>
                   <AvatarCard.Name className='@max-[400px]:text-body-md' />
                   <div className='flex items-center gap-x-2 max-w-full'>
-                    {/* TODO: add last message */}
-                    <AvatarCard.Description>Some text here Some text here Some text here text here Some text here</AvatarCard.Description>
+                    <AvatarCard.Description>{chat.scenario.name}</AvatarCard.Description>
 
-                    {/* TODO: add logic for indicator */}
-                    <Icons.indicator className='shrink-0 ml-auto' />
+                    {/*<Icons.indicator className='shrink-0 ml-auto' />*/}
                   </div>
                 </AvatarCard.Content>
               </AvatarCard>
