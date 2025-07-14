@@ -15,17 +15,6 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
   const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
   const showChatsButton = chats.length > 0 && avatarsList.some((avatar) => avatar.chats.length === 0);
 
-  let lastActiveChat = 0;
-  let showIndicatorChatId = '';
-
-  // Last active chat ID
-  for (const chat of chats) {
-    if (new Date(chat.updatedAt).getTime() > lastActiveChat) {
-      lastActiveChat = new Date(chat.updatedAt).getTime();
-      showIndicatorChatId = chat.id;
-    }
-  }
-
   return (
     <div
       className={cn('pb-3 px-2 md:pb-0 md:px-0 h-full w-full md:w-[348px] shrink-0 flex flex-col', {
@@ -61,7 +50,7 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
                   <div className='flex items-center gap-x-2 max-w-full'>
                     <AvatarCard.Description>{chat.scenario.name}</AvatarCard.Description>
 
-                    {showIndicatorChatId === chat.id && <Icons.indicator className='shrink-0 ml-auto' />}
+                    {/*<Icons.indicator className='shrink-0 ml-auto' />*/}
                   </div>
                 </AvatarCard.Content>
               </AvatarCard>
