@@ -201,7 +201,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                           <DetailRow title='Presence Penalty' value={chat.scenario.presencePenalty} />
 
                           {chat.scenario.chatModel.error && (
-                            <>
+                            <div className='flex gap-1'>
                               <Tooltip
                                 side={'top'}
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
@@ -209,7 +209,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                                 popoverClassName='max-w-[350px]'
                               />
                               <DetailRow title='Chat Model Error' value={chat.scenario.chatModel.error} />
-                            </>
+                            </div>
                           )}
 
                           <div className='w-full  border border-neutral-04' />
@@ -234,7 +234,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                                 popoverClassName='max-w-[350px]'
                               />
 
-                              <DetailRow title='Chat Model Error' value={chat.scenario.embeddingModel.error} />
+                              <DetailRow title='Embedding Error' value={chat.scenario.embeddingModel.error} />
                             </div>
                           )}
 
@@ -262,7 +262,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                                     popoverClassName='max-w-[350px]'
                                   />
 
-                                  <DetailRow title='Chat Model Error' value={chat.scenario.reasoningModel.error} />
+                                  <DetailRow title='Reasoning Error' value={chat.scenario.reasoningModel.error} />
                                 </div>
                               )}
                             </>
