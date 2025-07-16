@@ -1,6 +1,6 @@
 import { redirect, useFetcher, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
-import type { TtsVoice, Scenario, ScenariosPaginated } from '~/types';
+import type { Scenario, ScenariosPaginated, TtsVoice } from '~/types';
 import { useRef, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
@@ -33,10 +33,17 @@ const genreOptions = [
 ];
 
 export async function clientLoader() {
-  const [ttsVoicesResponse, scenariosResponse] = await Promise.all([fetchWithAuth('tts-voices'), fetchWithAuth('scenarios')]);
+  const [ttsVoicesRes, scenariosRes, publishedScenariosRes] = await Promise.all([
+    fetchWithAuth('tts-voices'),
+    fetchWithAuth('scenarios'),
+    fetchWithAuth('scenarios?published=true'),
+  ]);
 
-  const ttsVoices = await ttsVoicesResponse.json();
-  const scenarios: ScenariosPaginated = await scenariosResponse.json();
+  const ttsVoices = await ttsVoicesRes.json();
+  const mineScenarios: ScenariosPaginated = await scenariosRes.json();
+  const publishedScenarios: ScenariosPaginated = await publishedScenariosRes.json();
+
+  const scenarios = [...mineScenarios.data, ...publishedScenarios.data];
 
   return { ttsVoices, scenarios };
 }
@@ -65,12 +72,13 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
-  const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: ScenariosPaginated } = loaderData;
+  const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: Scenario[] } = loaderData;
+  const defaultScenario = [scenarios[0]];
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null);
-  const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>([]);
+  const [selectedScenarios, setSelectedScenarios] = useState<Scenario[]>(defaultScenario || []);
   const [availability, setAvailability] = useState<'private' | 'public'>('private');
   const [gender, setGender] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -267,6 +275,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
                   <p className='text-xs text-gray-500'>Detailed character description.</p>
                 </Textarea.Root>
               )}
+
               {!isExpanded && (
                 <Input.Root>
                   <Input.Label htmlFor='voice'>Voice</Input.Label>
@@ -322,7 +331,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  options={scenarios.data}
+                  options={scenarios}
                   selectedOptions={selectedScenarios}
                   onChange={setSelectedScenarios}
                   placeholder='Select scenarios for this avatar'
