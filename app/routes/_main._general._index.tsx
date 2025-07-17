@@ -2,7 +2,7 @@ import { useRouteLoaderData, useFetcher } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Avatar, Chat, Doll, Scenario, User, TokenPermit, TokenPermitsPaginated, AvatarsPaginated, ScenariosPaginated } from '~/types';
+import type { Chat, Doll, User, TokenPermitsPaginated, AvatarsPaginated, ScenariosPaginated } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
 import { fetchWithAuthAndType, fetchWithAuth } from '~/utils/fetchWithAuth';
@@ -91,25 +91,23 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
-
 export async function clientLoader() {
   const dolls = await fetchWithAuthAndType<Doll[]>('dolls');
   const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
   const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits?limit=1&page=1');
   const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
-  const tokenBalance = await fetchWithAuthAndType<{ balance: string }>('token/balance');
   const chats = await fetchWithAuthAndType<Chat[]>('chats');
-  return { dolls, avatarsPaginated, tokenPermitsPaginated, scenariosPaginated, tokenBalance, chats};
+  return { dolls, avatarsPaginated, tokenPermitsPaginated, scenariosPaginated, chats };
 }
 
-
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { avatarsPaginated, dolls, chats, scenariosPaginated, tokenBalance, tokenPermitsPaginated } = loaderData;
-  const avatars = avatarsPaginated.data
-  const scenarios = scenariosPaginated.data
-  const tokenPermits = tokenPermitsPaginated.data
-  
+  const { avatarsPaginated, dolls, chats, scenariosPaginated, tokenPermitsPaginated } = loaderData;
+  const avatars = avatarsPaginated.data;
+  const scenarios = scenariosPaginated.data;
+  const tokenPermits = tokenPermitsPaginated.data;
+
   const me = useRouteLoaderData('routes/_main') as User;
+  console.log(me);
   const fetcher = useFetcher();
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
@@ -178,8 +176,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             <YourScenarios scenarios={scenarios} />
           </div>
           <div className='flex flex-col gap-5'>
-            <TokenBalance balance={tokenBalance?.balance || '0'} />
-            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} tokenBalance={tokenBalance?.balance || '0'} />
+            <TokenBalance balance={me.tokenBalance || '0'} />
+            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} tokenBalance={me.tokenBalance || '0'} />
             <YourDolls dolls={dolls} />
           </div>
         </div>
