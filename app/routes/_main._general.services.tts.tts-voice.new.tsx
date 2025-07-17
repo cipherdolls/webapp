@@ -45,7 +45,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function NewTtsVoice() {
   const [searchParams] = useSearchParams();
   const ttsProviderId = searchParams.get('id') || '';
-  const providerName = searchParams.get('name') || '';
+  const providerName = searchParams.get('modelName') || '';
   const fetcher = useFetcher<{ errors?: string }>();
   const navigate = useNavigate();
   const errors = fetcher.data?.errors;

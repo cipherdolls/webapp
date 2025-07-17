@@ -15,7 +15,7 @@ export function meta({}: Route.MetaArgs) {
 export default function TtsProviderDelete() {
   const [searchParams] = useSearchParams();
   const ttsProviderId = searchParams.get('id') || '';
-  const name = searchParams.get('name') || '';
+  const name = searchParams.get('modelName') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
