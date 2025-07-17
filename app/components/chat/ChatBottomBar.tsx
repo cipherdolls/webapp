@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useFetcher, useSubmit } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
@@ -28,17 +28,18 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   const alert = useAlert();
 
   const [newMessage, setNewMessage] = useState('');
-  const fetcher = useFetcher();
+  const submit = useSubmit();
   const { unlockAudio } = useAudioUnlock();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     unlockAudio();
     const formData = new FormData(e.currentTarget);
-    fetcher.submit(formData, {
+    submit(formData, {
       method: 'post',
       action: '/messages/new',
       encType: 'multipart/form-data',
+      navigate: false,
     });
     setNewMessage('');
   };
@@ -59,7 +60,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   return (
     <div className='shrink-0 bg-white'>
       <div className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'>
-        <fetcher.Form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
+        <form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
           {/* eye status of the current chat state */}
           <EyeStatus />
           <div className='flex flex-1 items-center min-h-10 gap-4'>
@@ -103,7 +104,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
               <Button.Icon as={Icons.liveTalk} />
             </Button.Root>
           </div>
-        </fetcher.Form>
+        </form>
       </div>
     </div>
   );

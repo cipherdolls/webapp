@@ -21,7 +21,7 @@ interface ChatStore {
   setMicAccess: (hasAccess: boolean) => void;
   setTalkMode: (talkMode: boolean) => void;
 
-  initChatStore: (chat: Chat) => void;
+  initChatStore: () => void;
   resetChatStore: () => void;
 }
 
@@ -56,7 +56,7 @@ export const useChatStore = create<ChatStore>()(
       },
       setMicAccess: (hasAccess) => set({ hasMicAccess: hasAccess }),
 
-      initChatStore: (chat) =>
+      initChatStore: () =>
         set({
           currentChatState: ChatState.Idle,
           currentJob: null,
