@@ -1,16 +1,16 @@
-import { NavLink, Outlet, useRouteLoaderData, useNavigate, useSearchParams } from 'react-router';
-import type { User, ScenariosPaginated, GenderFilter } from '~/types';
+import { Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
+import type { GenderFilter, ScenariosPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general.scenarios';
 import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import SearchScenarios from '~/components/ui/search-scenarios';
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
-import { Link } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS } from '~/constants';
 import * as Popover from '~/components/ui/popover';
+import RecommendedBadge from '~/components/ui/RecommendedBadge';
+import Tooltip from '~/components/ui/tooltip';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -296,7 +296,34 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                     <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <h4 className='text-heading-h4 text-base-black'>{scenario.name}</h4>
-                        <Icons.thumb />
+                        <RecommendedBadge recommended={true} tooltipText='Recommended' className='pt-1' />
+
+                        {scenario.chatModel.error && (
+                          <Tooltip
+                            side={'top'}
+                            trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                            content={scenario.chatModel.error}
+                            className='max-w-[350px]'
+                          />
+                        )}
+
+                        {scenario.embeddingModel.error && (
+                          <Tooltip
+                            side={'top'}
+                            trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                            content={scenario.embeddingModel.error}
+                            className='max-w-[350px]'
+                          />
+                        )}
+
+                        {scenario.reasoningModel?.error && (
+                          <Tooltip
+                            side={'top'}
+                            trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                            content={scenario.reasoningModel?.error}
+                            className='max-w-[350px]'
+                          />
+                        )}
                       </div>
                       <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.systemMessage}</p>
                     </div>

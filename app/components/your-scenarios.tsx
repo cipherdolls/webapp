@@ -102,7 +102,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
               <Link
-                to='/scenarios/new'
+                to='/scenarios'
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new scenario

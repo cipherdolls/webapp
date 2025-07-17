@@ -72,7 +72,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [scenarioType, setScenarioType] = useState<'Long' | 'Short'>('Long');
+  // const [scenarioType, setScenarioType] = useState<'Long' | 'Short'>('Long');
   const [publishedStatus, setPublishedStatus] = useState<'private' | 'public'>(scenario.published ? 'public' : 'private');
   const [userGender, setUserGender] = useState<Gender>(scenario.userGender || 'Male');
   const [avatarGender, setAvatarGender] = useState<Gender>(scenario.avatarGender || 'Female');
@@ -422,7 +422,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 </Input.Root>
               </div>
 
-              <Input.Root>
+              {/* <Input.Root>
                 <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>
                 <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
                   <button
@@ -448,7 +448,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 </div>
                 <input type='hidden' name='scenarioType' value={scenarioType} />
                 <p className='text-xs text-gray-500'>Select type for new scenario.</p>
-              </Input.Root>
+              </Input.Root> */}
 
               <Input.Root>
                 <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
@@ -475,7 +475,7 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                 <p className='text-xs text-gray-500'>Select the AI chat model for this scenario.</p>
               </Input.Root>
 
-              {scenarioType === 'Long' && (
+              {/* {scenarioType === 'Long' && (
                 <>
                   <Input.Root>
                     <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
@@ -527,7 +527,57 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                     <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
                   </Input.Root>
                 </>
-              )}
+              )} */}
+
+              <Input.Root>
+                <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
+                <Select.Root name='embeddingModelId' defaultValue={scenario.embeddingModel.id}>
+                  <Select.Trigger
+                    id='embeddingModelId'
+                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                  >
+                    <Select.Value placeholder='Select an embedding model' />
+                  </Select.Trigger>
+                  <Select.Content className='max-h-[250px] overflow-y-auto'>
+                    {getOptions('embeddingModel').map((group) => (
+                      <Fragment key={group.groupName}>
+                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                        {group.options.map((option: any) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {option.label}
+                          </Select.Item>
+                        ))}
+                      </Fragment>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
+              </Input.Root>
+
+              <Input.Root>
+                <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
+                <Select.Root name='reasoningModelId' defaultValue={scenario.reasoningModel?.id}>
+                  <Select.Trigger
+                    id='reasoningModelId'
+                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                  >
+                    <Select.Value placeholder='Select a reasoning model' />
+                  </Select.Trigger>
+                  <Select.Content className='max-h-[250px] overflow-y-auto'>
+                    {getOptions('reasoningModel').map((group) => (
+                      <Fragment key={group.groupName}>
+                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                        {group.options.map((option: any) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {option.label}
+                          </Select.Item>
+                        ))}
+                      </Fragment>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
+              </Input.Root>
 
               <div className={cn('grid gap-x-5 gap-y-6 w-full', 'grid-cols-1 sm:grid-cols-2', isExpanded && 'hidden')}>
                 <Input.Root>
