@@ -58,7 +58,7 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
                   </a>
                 </>
               ) : (
-              'N/A'
+                'N/A'
               ),
             },
           ]}

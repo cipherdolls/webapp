@@ -17,6 +17,8 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
+import Tooltip from '~/components/ui/tooltip';
+import React from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -195,6 +197,18 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                     title='Output Token Cost'
                     value={`$${scientificNumConvert(scenario.chatModel.dollarPerOutputToken * 1000000)}`}
                   />
+
+                  {scenario.chatModel.error && (
+                    <div className='flex gap-1 overflow-hidden'>
+                      <Tooltip
+                        side={'top'}
+                        trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                        content={scenario.chatModel.error}
+                        popoverClassName='max-w-[350px]'
+                      />
+                      <DetailRow title='Chat Model Error' value={scenario.chatModel.error} />
+                    </div>
+                  )}
                 </div>
                 <Accordion.Root type='single' collapsible className='w-full'>
                   <Accordion.Item value='parameters'>
@@ -227,6 +241,18 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   title='Output Token Cost'
                   value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerOutputToken * 1000000)}`}
                 />
+
+                {scenario.embeddingModel.error && (
+                  <div className='flex gap-1 overflow-hidden'>
+                    <Tooltip
+                      side={'top'}
+                      trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                      content={scenario.embeddingModel.error}
+                      popoverClassName='max-w-[350px]'
+                    />
+                    <DetailRow title='Embedding Error' value={scenario.embeddingModel.error} />
+                  </div>
+                )}
               </div>
             </DetailCard>
             <DetailCard isScenario title='Reasoning Model'>
@@ -243,6 +269,18 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                     value={`$${scientificNumConvert(scenario.reasoningModel.dollarPerOutputToken * 1000000)}`}
                   />
                   <DetailRow title='Recommended' value={scenario.reasoningModel.recommended ? 'Yes' : 'No'} />
+
+                  {scenario.reasoningModel?.error && (
+                    <div className='flex gap-1 overflow-hidden'>
+                      <Tooltip
+                        side={'top'}
+                        trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                        content={scenario.reasoningModel?.error}
+                        popoverClassName='max-w-[350px]'
+                      />
+                      <DetailRow title='Reasoning Error' value={scenario.reasoningModel?.error} />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
