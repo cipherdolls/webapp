@@ -107,7 +107,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const tokenPermits = tokenPermitsPaginated.data;
 
   const me = useRouteLoaderData('routes/_main') as User;
-  console.log(me);
   const fetcher = useFetcher();
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
@@ -138,6 +137,17 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       setIsSwitchingNetwork(false);
     }
   };
+
+  const handleRefreshBalance = () => {
+    const formData = new FormData();
+    formData.append('userId', me.id);
+    formData.append('signerAddress', me.signerAddress);
+    formData.append('action', 'RefreshTokenBalance');
+
+    fetcher.submit(formData, { method: 'PATCH' });
+  };
+
+  const isRefreshingBalance = fetcher.state === 'submitting' && fetcher.formData?.get('action') === 'RefreshTokenBalance';
 
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
 
@@ -176,7 +186,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             <YourScenarios scenarios={scenarios} />
           </div>
           <div className='flex flex-col gap-5'>
-            <TokenBalance balance={me.tokenBalance || '0'} />
+            <TokenBalance balance={me.tokenBalance || '0'} onRefresh={handleRefreshBalance} isRefreshing={isRefreshingBalance} />
             <TokenPermitsList permits={tokenPermits} fetcher={fetcher} tokenBalance={me.tokenBalance || '0'} />
             <YourDolls dolls={dolls} />
           </div>
