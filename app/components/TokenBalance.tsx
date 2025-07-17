@@ -1,5 +1,7 @@
 import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
+import * as Button from '~/components/ui/button/button';
+import React from 'react';
 
 interface TokenBalanceProps {
   balance: string | number;
@@ -39,6 +41,15 @@ const TokenBalance = ({ balance, onRefresh, isRefreshing }: TokenBalanceProps) =
           </span>
         </div>
       </div>
+
+      <a
+        href={'https://app.uniswap.org/explore/pools/optimism/0x6d0f116c3c01fa4e20f1b122124927587e9e56d092513f444aba98811e59063d'}
+        target={'_blank'}
+      >
+        <Button.Root variant='primary' className='w-full'>
+          Get LOV Token
+        </Button.Root>
+      </a>
     </div>
   );
 };
