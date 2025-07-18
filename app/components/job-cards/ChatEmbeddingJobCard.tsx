@@ -12,12 +12,16 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   return (
     <DataCard.Root>
       <div className='flex items-center gap-2'>
-        <Tooltip
-          side={'top'}
-          trigger={<Icons.warning className='size-5 text-specials-danger mb-4' />}
-          content={embeddingJob.embeddingModel.error}
-          popoverClassName='max-w-[350px]'
-        />
+        {embeddingJob?.embeddingModel.error && (
+          <Tooltip
+            side={'top'}
+            trigger={<Icons.warning className='size-5 text-specials-danger mb-4' />}
+            content={embeddingJob.embeddingModel.error}
+            popoverClassName='max-w-[320px]'
+            className='max-w-[350px]'
+          />
+        )}
+
         <DataCard.Label>Embedding Job</DataCard.Label>
       </div>
 
