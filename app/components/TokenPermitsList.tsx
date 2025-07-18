@@ -15,9 +15,11 @@ interface TokenPermitsListProps {
   permits: TokenPermit[];
   fetcher: FetcherWithComponents<any>;
   tokenBalance: string | number;
+  allowance?: string;
 }
 
-const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListProps) => {
+const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPermitsListProps) => {
+  console.log(allowance);
   const handlePermitSigned = async (permit: {
     owner: string;
     spender: string;
@@ -171,6 +173,9 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
             </div>
           </div>
         )}
+        <span className='text-body-sm text-neutral-01 font-medium text-right mt-2'>
+          Allowance left: <span className='text-base-black font-semibold'>{allowance}</span>
+        </span>
       </div>
     </div>
   );
