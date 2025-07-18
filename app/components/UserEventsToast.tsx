@@ -12,7 +12,7 @@ const UserEventsToast = ({ user }: { user: User }) => {
       const { resourceName, resourceId, jobName, jobStatus } = processEvent;
 
       let icon = <Icons.loader className='w-8 h-8 animate-spin' />;
-      let duration = 10000;
+      let duration = 5000;
       let actionLink;
       let description = 'Process has begun...';
 
