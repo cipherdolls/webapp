@@ -5,7 +5,9 @@ import { toast, Toaster } from 'sonner';
 export type ToastPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
 export interface ShowToastProps {
+  toastId?: string;
   emoji?: string;
+  icon?: React.ReactNode;
   title?: string;
   description?: string;
   actionLink?: string;
@@ -21,6 +23,8 @@ export const CustomToaster: React.FC<CustomToasterProps> = ({ position = 'top-ri
   return (
     <Toaster
       style={{ width: 'fit-content' }}
+      visibleToasts={3}
+      expand={true}
       position={position}
       toastOptions={{
         unstyled: true,
@@ -29,11 +33,12 @@ export const CustomToaster: React.FC<CustomToasterProps> = ({ position = 'top-ri
   );
 };
 
-export const showToast = ({ emoji, title, description, actionLink, actionText, duration = 1500 }: ShowToastProps) => {
+export const showToast = ({ toastId, emoji, icon, title, description, actionLink, actionText, duration = 1500 }: ShowToastProps) => {
   return toast.custom(
     (t) => (
       <div className='flex items-center gap-4 px-4 py-3 bg-gradient-1 backdrop-blur-48 rounded-[10px] shadow-floating-banner w-[368px]'>
-        {emoji && <h2 className='text-heading-h2 shrink-0'>{emoji}</h2>}
+        {icon && <div className='shrink-0'>{icon}</div>}
+        {emoji && <h2 className='text-2xl shrink-0'>{emoji}</h2>}
 
         <div className='flex-1 min-w-0 flex flex-col gap-1'>
           {title && <p className='text-body-sm font-semibold text-base-black truncate'>{title}</p>}
@@ -63,7 +68,9 @@ export const showToast = ({ emoji, title, description, actionLink, actionText, d
       </div>
     ),
     {
+      id: toastId,
       duration,
     }
   );
 };
+
