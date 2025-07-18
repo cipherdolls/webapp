@@ -1,5 +1,4 @@
 import { Outlet, useNavigate } from 'react-router';
-import mqtt from 'mqtt';
 import Sidebar from '~/components/sidebar';
 import type { Route } from './+types/_main';
 import type { ProcessEvent, User } from '~/types';
@@ -8,9 +7,9 @@ import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import { showToast } from '~/components/ui/toast';
 import { wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
+import UserEventsToast from '~/components/UserEventsToast';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -19,92 +18,9 @@ export async function clientLoader() {
 
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;
-  const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
-  const localStorageToken = localStorage.getItem('token');
-  const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
   const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!mqttClientRef.current) {
-      const mqttClient = mqtt.connect(wsURL, {
-        clientId,
-        username: 'frontend',
-        password: localStorageToken?.replaceAll('"', ''),
-        will: {
-          topic: `connections`,
-          payload: Buffer.from(JSON.stringify({ clientId, deviceType: 'browser', status: 'disconnected' })), // Convert string to Buffer
-          qos: 1,
-          retain: false,
-        },
-      });
-      mqttClientRef.current = mqttClient;
-
-      const userTopic = `users/${me.id}/processEvents`;
-      mqttClient.subscribe(userTopic);
-
-      const handleMessage = (topic: string, message: Buffer) => {
-        const processEvent: ProcessEvent = JSON.parse(message.toString());
-
-        const { resourceName, resourceId, jobName, jobStatus } = processEvent;
-
-        let emoji = '⏳';
-        let duration = 5000;
-        let actionLink;
-        let description = 'Process has begun...';
-
-        if (jobStatus === 'completed') {
-          emoji = '✅';
-          duration = 5000;
-          description = 'Process finished successfully.';
-        } else if (jobStatus === 'failed') {
-          emoji = '❌';
-          duration = 8000;
-
-          switch (resourceName) {
-            case 'Avatar':
-              actionLink = `/avatars/${resourceId}`;
-              break;
-            case 'Chat':
-              actionLink = `/chats/${resourceId}`;
-              break;
-
-            default:
-              break;
-          }
-        }
-
-        const formattedResourceName = resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
-        const formattedJobName = jobName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-        const formattedJobStatus = `${jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)} (ID: ${resourceId})`;
-
-        showToast({
-          emoji,
-          title: `${formattedResourceName} ${formattedJobName}`,
-          description: `${description ? description : formattedJobStatus}`,
-          actionLink,
-          actionText: actionLink ? 'View' : undefined,
-          duration,
-        });
-      };
-
-      mqttClient.on('message', handleMessage);
-      mqttClient.on('connect', () => {
-          mqttClient.publish(`connections`, JSON.stringify({ clientId, deviceType: 'browser', status: 'connected' }), {
-          qos: 1,
-        });
-      });
-
-      return () => {
-        mqttClient.unsubscribe(userTopic);
-        mqttClient.off('message', handleMessage);
-        mqttClient.end(); // Disconnect the client
-        mqttClientRef.current = null;
-      };
-    }
-    // eslint-disable-next-line
-  }, [me.id]);
 
   // Initialize provider
   useEffect(() => {
@@ -173,12 +89,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         <Sidebar />
         <Outlet />
       </div>
+      <UserEventsToast user={me} />
     </MainLayoutProviders>
   );
 };
 
 export default MainLayout;
-
 
 // PROVIDERS WRAPPER
 
