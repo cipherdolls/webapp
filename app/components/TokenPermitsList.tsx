@@ -19,7 +19,6 @@ interface TokenPermitsListProps {
 }
 
 const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPermitsListProps) => {
-  console.log(allowance);
   const handlePermitSigned = async (permit: {
     owner: string;
     spender: string;
