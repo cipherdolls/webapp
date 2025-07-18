@@ -10,7 +10,7 @@ export function meta({}: Route.MetaArgs) {
 export default function AiProviderDelete() {
   const [searchParams] = useSearchParams();
   const aiProviderId = searchParams.get('id') || '';
-  const name = searchParams.get('name') || '';
+  const name = searchParams.get('modelName') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
 

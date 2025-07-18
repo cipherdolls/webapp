@@ -169,8 +169,8 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
       <div className='flex flex-col gap-5'>
         <SearchScenarios />
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
+        <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
+          <div className='flex flex-1 items-center gap-3'>
             <button
               onClick={handleToggle}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude ${
@@ -190,7 +190,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
             </button>
           </div>
 
-          <div className='flex items-center gap-3 flex-wrap'>
+          <div className='flex items-center gap-3 md:justify-end md:flex-wrap'>
             {hasActiveFilters && (
               <button
                 onClick={handleClearFilters}
@@ -202,7 +202,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
             )}
             <Popover.Root>
               <Popover.Trigger asChild>
-                <Button.Root variant='secondary' size='sm' className='px-4'>
+                <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
                   <Icons.preferences className='size-4' />
                   User Gender: {userGenderFilter}
                   <Icons.chevronDown className='size-4' />
@@ -227,7 +227,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
 
             <Popover.Root>
               <Popover.Trigger asChild>
-                <Button.Root variant='secondary' size='sm' className='px-4'>
+                <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
                   <Icons.preferences className='size-4' />
                   Avatar Gender: {avatarGenderFilter}
                   <Icons.chevronDown className='size-4' />
@@ -304,6 +304,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                             trigger={<Icons.warning className='size-4 text-specials-danger' />}
                             content={scenario.chatModel.error}
                             className='max-w-[350px]'
+                            popoverClassName='max-w-[320px]'
                           />
                         )}
 
@@ -313,6 +314,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                             trigger={<Icons.warning className='size-4 text-specials-danger' />}
                             content={scenario.embeddingModel.error}
                             className='max-w-[350px]'
+                            popoverClassName='max-w-[320px]'
                           />
                         )}
 
@@ -322,6 +324,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                             trigger={<Icons.warning className='size-4 text-specials-danger' />}
                             content={scenario.reasoningModel?.error}
                             className='max-w-[350px]'
+                            popoverClassName='max-w-[320px]'
                           />
                         )}
                       </div>

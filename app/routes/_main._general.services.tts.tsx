@@ -130,10 +130,10 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                       popoverItems={[
                         { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
 
-                        { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&name=${ttsProvider.name}` },
+                        { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&modelName=${ttsProvider.name}` },
                         {
                           text: 'Delete',
-                          href: `/services/tts/providers/delete?id=${ttsProvider.id}&name=${ttsProvider.name}`,
+                          href: `/services/tts/providers/delete?id=${ttsProvider.id}&modelName=${ttsProvider.name}`,
                           isDelete: true,
                         },
                       ]}

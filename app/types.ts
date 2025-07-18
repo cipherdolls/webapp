@@ -23,6 +23,7 @@ export interface User {
   apikey: string;
   role: string;
   character: string;
+  tokenBalance?: number;
 }
 
 export interface TokenPermitsPaginated {

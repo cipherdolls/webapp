@@ -326,19 +326,19 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                           { text: 'Edit AI Provider', href: `/services/ai/ai-providers/${aiProvider.id}/edit` },
                           {
                             text: 'Add Chat Model',
-                            href: `/services/ai/chat-models/new?id=${aiProvider.id}&name=${aiProvider.name}`,
+                            href: `/services/ai/chat-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                           },
                           {
                             text: 'Add Embedding Model',
-                            href: `/services/ai/embedding-models/new?id=${aiProvider.id}&name=${aiProvider.name}`,
+                            href: `/services/ai/embedding-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                           },
                           {
                             text: 'Add Reasoning Model',
-                            href: `/services/ai/reasoning-models/new?id=${aiProvider.id}&name=${aiProvider.name}`,
+                            href: `/services/ai/reasoning-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                           },
                           {
                             text: 'Delete',
-                            href: `/services/ai/providers/delete?id=${aiProvider.id}&name=${aiProvider.name}`,
+                            href: `/services/ai/providers/delete?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                             isDelete: true,
                           },
                         ]}

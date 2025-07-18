@@ -74,7 +74,7 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
   );
 
   useEffect(() => {
-    initChatStore(chat);
+    initChatStore();
   }, [chat.id]);
 
   useChatEvents(chat.id, {

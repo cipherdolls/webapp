@@ -44,7 +44,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function NewEmbeddingModel() {
   const [searchParams] = useSearchParams();
   const aiProviderId = searchParams.get('id') || '';
-  const name = searchParams.get('name') || '';
+  const name = searchParams.get('modelName') || '';
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
