@@ -46,6 +46,10 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
     searchParams.set('published', 'true');
   }
 
+  // Add server-side sorting
+  searchParams.set('sortBy', 'updatedAt');
+  searchParams.set('sortOrder', 'desc');
+
   const scenariosPaginated = await fetchPaginatedData<ScenariosPaginated>('scenarios', searchParams, 1, 10);
 
   return {
@@ -79,6 +83,10 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     for (const [key, value] of searchParams.entries()) {
       currentSearchParams.set(key, value);
     }
+
+    // Add server-side sorting
+    currentSearchParams.set('sortBy', 'updatedAt');
+    currentSearchParams.set('sortOrder', 'desc');
 
     return fetchPaginatedData<ScenariosPaginated>('scenarios', currentSearchParams, page, 10);
   };
@@ -130,9 +138,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   };
 
   const filteredAndSortedScenarios = useMemo(() => {
-    return [...infiniteScroll.data].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
+    return infiniteScroll.data;
   }, [infiniteScroll.data]);
 
   useEffect(() => {
