@@ -58,6 +58,10 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
     }
   }
 
+  // Add server-side sorting
+  searchParams.set('sortBy', 'updatedAt');
+  searchParams.set('sortOrder', 'desc');
+  
   const avatarsPaginated = await fetchPaginatedData<AvatarsPaginated>('avatars', searchParams, 1, 10);
 
   return {
@@ -99,6 +103,10 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
         currentSearchParams.set('gender', capitalizedGender);
       }
     }
+
+    // Add server-side sorting
+    currentSearchParams.set('sortBy', 'updatedAt');
+    currentSearchParams.set('sortOrder', 'desc');
 
     return fetchPaginatedData<AvatarsPaginated>('avatars', currentSearchParams, page, 10);
   };
@@ -143,9 +151,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
   };
 
   const filteredAndSortedAvatars = useMemo(() => {
-    return [...infiniteScroll.data].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
+    return infiniteScroll.data;
   }, [infiniteScroll.data]);
   useEffect(() => {
     if (loaderData) {

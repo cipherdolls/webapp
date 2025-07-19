@@ -187,7 +187,12 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           </div>
           <div className='flex flex-col gap-5'>
             <TokenBalance balance={me.tokenBalance || '0'} onRefresh={handleRefreshBalance} isRefreshing={isRefreshingBalance} />
-            <TokenPermitsList permits={tokenPermits} fetcher={fetcher} tokenBalance={me.tokenBalance || '0'} />
+            <TokenPermitsList
+              permits={tokenPermits}
+              fetcher={fetcher}
+              tokenBalance={me.tokenBalance || '0'}
+              allowance={me.tokenAllowance}
+            />
             <YourDolls dolls={dolls} />
           </div>
         </div>
