@@ -1,5 +1,4 @@
 import { formatEther } from 'ethers';
-import { Card } from '~/components/card';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
 import DetailRow from '~/components/ui/detail/detail-row';
 import type { TokenPermit } from '~/types';
@@ -10,14 +9,16 @@ import moment from 'moment';
 import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
+import React from 'react';
 
 interface TokenPermitsListProps {
   permits: TokenPermit[];
   fetcher: FetcherWithComponents<any>;
   tokenBalance: string | number;
+  allowance?: string;
 }
 
-const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListProps) => {
+const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPermitsListProps) => {
   const handlePermitSigned = async (permit: {
     owner: string;
     spender: string;
@@ -79,11 +80,12 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
           />
         </div>
       </div>
+
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {permits.length !== 0 && (
-          <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
+          <div className='flex justify-between py-4 '>
             <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
-              <button className={cn('flex items-center justify-center gap-2 group', permits.length === 0 && 'col-span-2')}>
+              <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
                   Create Allowances
@@ -91,8 +93,10 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
               </button>
             </CreateTokenAllowanceModal>
 
+            <div className='h-6 w-[1px] bg-neutral-04' />
+
             <PermitHistoryModal permits={permits}>
-              <button className='flex items-center justify-center gap-2 group'>
+              <button className='flex w-fit items-center justify-center gap-2 group'>
                 <Icons.history className='group-hover:text-base-black/50 transition-colors size-5' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
                   View History
@@ -101,17 +105,17 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
             </PermitHistoryModal>
           </div>
         )}
+
         {permits.length === 0 ? (
           <div className='py-6 px-6 flex flex-col items-center gap-2'>
-            <h1 className='text-heading-h1'>🔐</h1>
+            <h1 className='text-heading-h1'>🎁</h1>
             <div className='flex flex-col gap-1 text-center'>
-              <h4 className='text-heading-h4 text-base-black'>No Token Allowances</h4>
-              <p className='text-body-md text-neutral-01'>
-                You don't have any allowances.
-                <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
-                  <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
-                </CreateTokenAllowanceModal>
-              </p>
+              <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
+              <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
+
+              <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+                <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
+              </CreateTokenAllowanceModal>
             </div>
           </div>
         ) : sortedPermits.length > 0 ? (
@@ -170,6 +174,12 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance }: TokenPermitsListPr
               </p>
             </div>
           </div>
+        )}
+
+        {sortedPermits.length > 0 && (
+          <span className='text-body-sm text-neutral-01 font-medium text-right mt-2'>
+            Allowance left: <span className='text-base-black font-semibold'>{allowance}</span>
+          </span>
         )}
       </div>
     </div>
