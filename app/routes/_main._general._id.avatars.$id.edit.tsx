@@ -1,6 +1,6 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
+import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id.edit';
-import type { Avatar, TtsVoice, Scenario, ScenariosPaginated, Gender } from '~/types';
+import type { Avatar, Gender, Scenario, ScenariosPaginated, TtsVoice, User } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
@@ -22,15 +22,19 @@ export function meta({}: Route.MetaArgs) {
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const avatarId = params.id;
-  const [avatarResponse, ttsVoicesResponse, scenariosResponse] = await Promise.all([
+  const [avatarRes, ttsVoicesRes, scenariosRes, publicScenariosRes] = await Promise.all([
     fetchWithAuth(`avatars/${avatarId}`),
     fetchWithAuth('tts-voices'),
     fetchWithAuth('scenarios'),
+    fetchWithAuth('scenarios?published=true'),
   ]);
 
-  const avatar: Avatar = await avatarResponse.json();
-  const ttsVoices: TtsVoice[] = await ttsVoicesResponse.json();
-  const scenarios: ScenariosPaginated = await scenariosResponse.json();
+  const avatar: Avatar = await avatarRes.json();
+  const ttsVoices: TtsVoice[] = await ttsVoicesRes.json();
+  const mineScenarios: ScenariosPaginated = await scenariosRes.json();
+  const publicScenarios: ScenariosPaginated = await publicScenariosRes.json();
+
+  const scenarios = [...mineScenarios.data, ...publicScenarios.data];
 
   return { avatar, ttsVoices, scenarios };
 }
@@ -63,6 +67,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
   const { avatar, ttsVoices, scenarios } = loaderData;
   const fetcher = useFetcher();
+  const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
   const [selectedVoice, setSelectedVoice] = useState<TtsVoice | null>(
     avatar.ttsVoice || (ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null)
@@ -328,7 +333,8 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  options={scenarios.data}
+                  userId={me.id}
+                  options={scenarios}
                   selectedOptions={selectedScenarios}
                   onChange={setSelectedScenarios}
                   placeholder='Select scenarios for this avatar'
