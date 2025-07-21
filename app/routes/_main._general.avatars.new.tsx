@@ -1,6 +1,6 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
+import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
-import type { Scenario, ScenariosPaginated, TtsVoice } from '~/types';
+import type { Scenario, ScenariosPaginated, TtsVoice, User } from '~/types';
 import { useRef, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import SelectVoiceModal from '~/components/selectVoiceModal';
@@ -33,7 +33,7 @@ const genreOptions = [
 ];
 
 export async function clientLoader() {
-  const [ttsVoicesRes, scenariosRes, publishedScenariosRes] = await Promise.all([
+  const [ttsVoicesRes, scenariosRes, publicScenariosRes] = await Promise.all([
     fetchWithAuth('tts-voices'),
     fetchWithAuth('scenarios'),
     fetchWithAuth('scenarios?published=true'),
@@ -41,9 +41,9 @@ export async function clientLoader() {
 
   const ttsVoices = await ttsVoicesRes.json();
   const mineScenarios: ScenariosPaginated = await scenariosRes.json();
-  const publishedScenarios: ScenariosPaginated = await publishedScenariosRes.json();
+  const publicScenarios: ScenariosPaginated = await publicScenariosRes.json();
 
-  const scenarios = [...mineScenarios.data, ...publishedScenarios.data];
+  const scenarios = [...mineScenarios.data, ...publicScenarios.data];
 
   return { ttsVoices, scenarios };
 }
@@ -74,6 +74,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 export default function AvatarNew({ loaderData }: Route.ComponentProps) {
   const { ttsVoices, scenarios }: { ttsVoices: TtsVoice[]; scenarios: Scenario[] } = loaderData;
   const defaultScenario = [scenarios[0]];
+  const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -331,6 +332,7 @@ export default function AvatarNew({ loaderData }: Route.ComponentProps) {
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
+                  userId={me.id}
                   options={scenarios}
                   selectedOptions={selectedScenarios}
                   onChange={setSelectedScenarios}

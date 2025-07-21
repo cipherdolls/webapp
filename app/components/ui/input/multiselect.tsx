@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import { Icons } from '../icons';
 
 interface Option {
   id: string;
+  userId: string;
   name: string;
   [key: string]: any;
 }
 
 interface MultiselectProps<T extends Option = Option> {
+  userId: string;
   options: T[];
   selectedOptions: T[];
   onChange: (selected: T[]) => void;
@@ -18,6 +20,7 @@ interface MultiselectProps<T extends Option = Option> {
 }
 
 export const Multiselect = <T extends Option>({
+  userId,
   options,
   selectedOptions,
   onChange,
@@ -27,6 +30,11 @@ export const Multiselect = <T extends Option>({
 }: MultiselectProps<T>) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const groupScenarios = {
+    yourScenarios: options.filter((scenario) => scenario.userId === userId),
+    publicScenarios: options.filter((scenario) => scenario.userId !== userId),
+  };
 
   useEffect(() => {
     if (Array.isArray(defaultValue) && defaultValue.length > 0 && Array.isArray(selectedOptions) && selectedOptions.length === 0) {
@@ -105,24 +113,82 @@ export const Multiselect = <T extends Option>({
         <div className='absolute top-full left-0 right-0 z-[60] mt-1 bg-base-white shadow-bottom-level-1 rounded-xl border border-neutral-04'>
           <div className='max-h-60 w-full overflow-auto rounded-xl' role='listbox'>
             <div className='p-1 flex flex-col gap-1.5'>
-              {options.map((option) => {
-                const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
-                return (
-                  <div
-                    key={option.id}
-                    onClick={() => toggleOption(option)}
-                    className={cn(
-                      'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
-                      isSelected && 'bg-neutral-05'
-                    )}
-                    role='option'
-                    aria-selected={isSelected}
-                  >
-                    <span>{option.name}</span>
-                    {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
-                  </div>
-                );
-              })}
+              {groupScenarios.yourScenarios.length > 0 && (
+                <>
+                  <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>Your Scenarios</span>
+                  {groupScenarios.yourScenarios.map((scenario) => {
+                    const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === scenario.id);
+                    return (
+                      <>
+                        <div
+                          key={scenario.id}
+                          onClick={() => toggleOption(scenario)}
+                          className={cn(
+                            'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
+                            isSelected && 'bg-neutral-05'
+                          )}
+                          role='option'
+                          aria-selected={isSelected}
+                        >
+                          <span className='block'>{scenario.name}</span>
+                          {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
+                        </div>
+                      </>
+                    );
+                  })}
+                </>
+              )}
+
+              {groupScenarios.publicScenarios.length > 0 && (
+                <>
+                  <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>Public Scenarios</span>
+                  {groupScenarios.publicScenarios.map((scenario) => {
+                    const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === scenario.id);
+                    return (
+                      <>
+                        <div
+                          key={scenario.id}
+                          onClick={() => toggleOption(scenario)}
+                          className={cn(
+                            'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
+                            isSelected && 'bg-neutral-05'
+                          )}
+                          role='option'
+                          aria-selected={isSelected}
+                        >
+                          <span className='block'>{scenario.name}</span>
+                          {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
+                        </div>
+                      </>
+                    );
+                  })}
+                </>
+              )}
+
+              {/*{options.map((option) => {*/}
+              {/*  const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);*/}
+              {/*  return (*/}
+              {/*    <>*/}
+              {/*      <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>*/}
+              {/*        {userId === option.userId ? 'Your Scenarios' : 'Public Scenarios'}*/}
+              {/*      </span>*/}
+
+              {/*      <div*/}
+              {/*        key={option.id}*/}
+              {/*        onClick={() => toggleOption(option)}*/}
+              {/*        className={cn(*/}
+              {/*          'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',*/}
+              {/*          isSelected && 'bg-neutral-05'*/}
+              {/*        )}*/}
+              {/*        role='option'*/}
+              {/*        aria-selected={isSelected}*/}
+              {/*      >*/}
+              {/*        <span className='block'>{option.name}</span>*/}
+              {/*        {isSelected && <Icons.check className='h-4 w-4 text-primary' />}*/}
+              {/*      </div>*/}
+              {/*    </>*/}
+              {/*  );*/}
+              {/*})}*/}
             </div>
           </div>
         </div>
