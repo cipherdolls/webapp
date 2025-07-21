@@ -31,8 +31,8 @@ export const Multiselect = <T extends Option>({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const groupScenarios = {
-    yourScenarios: options.filter((scenario) => scenario.userId === userId),
+  const groupOptions = {
+    mineScenarios: options.filter((scenario) => scenario.userId === userId),
     publicScenarios: options.filter((scenario) => scenario.userId !== userId),
   };
 
@@ -113,16 +113,16 @@ export const Multiselect = <T extends Option>({
         <div className='absolute top-full left-0 right-0 z-[60] mt-1 bg-base-white shadow-bottom-level-1 rounded-xl border border-neutral-04'>
           <div className='max-h-60 w-full overflow-auto rounded-xl' role='listbox'>
             <div className='p-1 flex flex-col gap-1.5'>
-              {groupScenarios.yourScenarios.length > 0 && (
+              {groupOptions.mineScenarios.length > 0 && (
                 <>
                   <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>Your Scenarios</span>
-                  {groupScenarios.yourScenarios.map((scenario) => {
-                    const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === scenario.id);
+                  {groupOptions.mineScenarios.map((option) => {
+                    const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
                     return (
                       <>
                         <div
-                          key={scenario.id}
-                          onClick={() => toggleOption(scenario)}
+                          key={option.id}
+                          onClick={() => toggleOption(option)}
                           className={cn(
                             'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
                             isSelected && 'bg-neutral-05'
@@ -130,7 +130,7 @@ export const Multiselect = <T extends Option>({
                           role='option'
                           aria-selected={isSelected}
                         >
-                          <span className='block'>{scenario.name}</span>
+                          <span className='block'>{option.name}</span>
                           {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
                         </div>
                       </>
@@ -139,16 +139,16 @@ export const Multiselect = <T extends Option>({
                 </>
               )}
 
-              {groupScenarios.publicScenarios.length > 0 && (
+              {groupOptions.publicScenarios.length > 0 && (
                 <>
                   <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>Public Scenarios</span>
-                  {groupScenarios.publicScenarios.map((scenario) => {
-                    const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === scenario.id);
+                  {groupOptions.publicScenarios.map((option) => {
+                    const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
                     return (
                       <>
                         <div
-                          key={scenario.id}
-                          onClick={() => toggleOption(scenario)}
+                          key={option.id}
+                          onClick={() => toggleOption(option)}
                           className={cn(
                             'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
                             isSelected && 'bg-neutral-05'
@@ -156,7 +156,7 @@ export const Multiselect = <T extends Option>({
                           role='option'
                           aria-selected={isSelected}
                         >
-                          <span className='block'>{scenario.name}</span>
+                          <span className='block'>{option.name}</span>
                           {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
                         </div>
                       </>
@@ -172,7 +172,6 @@ export const Multiselect = <T extends Option>({
               {/*      <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>*/}
               {/*        {userId === option.userId ? 'Your Scenarios' : 'Public Scenarios'}*/}
               {/*      </span>*/}
-
               {/*      <div*/}
               {/*        key={option.id}*/}
               {/*        onClick={() => toggleOption(option)}*/}
