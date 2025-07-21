@@ -1,12 +1,11 @@
 import { Outlet, useNavigate, useSearchParams } from 'react-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AiProvidersPaginated, ChatModelsPaginated } from '~/types';
 import { ModelTabs, type EmbeddingModelsPaginated, type ReasoningModelsPaginated } from '~/components/ai-services/ModelTabs';
-import { ChatModelsFilters, type LocalFilters } from '~/components/chat-models/ChatModelsFilters';
-import { chatModelColumns, embeddingModelColumns, reasoningModelColumns } from '~/components/ai-services/TableDefinitions';
 import type { Route } from './+types/_main._general.services.ai';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { DataCard } from '~/components/DataCard';
+import { chatModelColumns, embeddingModelColumns, reasoningModelColumns } from '~/components/ai-services/TableDefinitions';
 import { Fragment } from 'react/jsx-runtime';
 import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
@@ -60,7 +59,7 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
       if (activeTab === 'chat-models') {
         chatModelsPaginated = await fetchPaginatedData<ChatModelsPaginated>('chat-models', searchParams, 1, 10);
       } else if (activeTab === 'embedding-models') {
-        const embeddingResult = await fetchPaginatedData<any>('embedding-models', searchParams, 1, 10);
+        const embeddingResult = await fetchPaginatedData<EmbeddingModelsPaginated>('embedding-models', searchParams, 1, 10);
         
         // Handle case where API returns array directly instead of paginated format
         embeddingModelsPaginated = Array.isArray(embeddingResult) ? {
@@ -68,7 +67,7 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
           meta: { total: embeddingResult.length, page: 1, limit: embeddingResult.length, totalPages: 1 }
         } : embeddingResult;
       } else if (activeTab === 'reasoning-models') {
-        const reasoningResult = await fetchPaginatedData<any>('reasoning-models', searchParams, 1, 10);
+        const reasoningResult = await fetchPaginatedData<ReasoningModelsPaginated>('reasoning-models', searchParams, 1, 10);
         
         // Handle case where API returns array directly instead of paginated format
         reasoningModelsPaginated = Array.isArray(reasoningResult) ? {
@@ -114,117 +113,6 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
   const viewMode = searchParams.get('view') || 'providers';
   const activeTab = searchParams.get('tab') || 'chat-models';
 
-  // Chat Models Filter Logic (only for chat-models tab)
-  const contextWindowMin = searchParams.get('contextWindowMin') || '';
-  const contextWindowMax = searchParams.get('contextWindowMax') || '';
-  const dollarPerInputTokenMin = searchParams.get('dollarPerInputTokenMin') || '';
-  const dollarPerInputTokenMax = searchParams.get('dollarPerInputTokenMax') || '';
-  const dollarPerOutputTokenMin = searchParams.get('dollarPerOutputTokenMin') || '';
-  const dollarPerOutputTokenMax = searchParams.get('dollarPerOutputTokenMax') || '';
-  const recommended = searchParams.get('recommended') === 'true';
-  const censored = searchParams.get('censored') === 'true';
-
-  // Local filter state for form inputs
-  const [localFilters, setLocalFilters] = useState<LocalFilters>({
-    contextWindowMin: contextWindowMin,
-    contextWindowMax: contextWindowMax,
-    dollarPerInputTokenMin: dollarPerInputTokenMin,
-    dollarPerInputTokenMax: dollarPerInputTokenMax,
-    dollarPerOutputTokenMin: dollarPerOutputTokenMin,
-    dollarPerOutputTokenMax: dollarPerOutputTokenMax,
-    recommended: recommended,
-    censored: censored,
-  });
-
-  // Update local state when URL params change
-  useEffect(() => {
-    setLocalFilters({
-      contextWindowMin: contextWindowMin,
-      contextWindowMax: contextWindowMax,
-      dollarPerInputTokenMin: dollarPerInputTokenMin,
-      dollarPerInputTokenMax: dollarPerInputTokenMax,
-      dollarPerOutputTokenMin: dollarPerOutputTokenMin,
-      dollarPerOutputTokenMax: dollarPerOutputTokenMax,
-      recommended: recommended,
-      censored: censored,
-    });
-  }, [contextWindowMin, contextWindowMax, dollarPerInputTokenMin, dollarPerInputTokenMax, dollarPerOutputTokenMin, dollarPerOutputTokenMax, recommended, censored]);
-
-  const hasActiveFilters =
-    contextWindowMin.length > 0 ||
-    contextWindowMax.length > 0 ||
-    dollarPerInputTokenMin.length > 0 ||
-    dollarPerInputTokenMax.length > 0 ||
-    dollarPerOutputTokenMin.length > 0 ||
-    dollarPerOutputTokenMax.length > 0 ||
-    recommended ||
-    censored;
-
-  const activeFilterCount = [
-    contextWindowMin.length > 0,
-    contextWindowMax.length > 0,
-    dollarPerInputTokenMin.length > 0,
-    dollarPerInputTokenMax.length > 0,
-    dollarPerOutputTokenMin.length > 0,
-    dollarPerOutputTokenMax.length > 0,
-    recommended,
-    censored,
-  ].filter(Boolean).length;
-
-  const handleLocalFilterChange = (key: string, value: string | boolean) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  const handleApplyFilters = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    
-    // Apply all local filter values to URL
-    Object.entries(localFilters).forEach(([key, value]) => {
-      if (value === '' || value === false) {
-        newSearchParams.delete(key);
-      } else {
-        newSearchParams.set(key, value.toString());
-      }
-    });
-
-    // Keep current tab in URL
-    newSearchParams.set('tab', 'chat-models');
-    navigate(`/services/ai?${newSearchParams.toString()}`);
-  };
-
-  const handleResetFilters = () => {
-    // Reset local state
-    setLocalFilters({
-      contextWindowMin: '',
-      contextWindowMax: '',
-      dollarPerInputTokenMin: '',
-      dollarPerInputTokenMax: '',
-      dollarPerOutputTokenMin: '',
-      dollarPerOutputTokenMax: '',
-      recommended: false,
-      censored: false,
-    });
-    // Immediately clear URL filters (keep view, tab, and providerModelName search)
-    const newSearchParams = new URLSearchParams();
-    const currentSearch = searchParams.get('providerModelName');
-    const currentView = searchParams.get('view');
-    const currentTab = searchParams.get('tab');
-    
-    if (currentSearch) {
-      newSearchParams.set('providerModelName', currentSearch);
-    }
-    if (currentView) {
-      newSearchParams.set('view', currentView);
-    }
-    if (currentTab) {
-      newSearchParams.set('tab', currentTab);
-    }
-    
-    navigate(`/services/ai?${newSearchParams.toString()}`, { replace: true });
-  };
 
   const providersSearchQuery = searchParams.get('name') || '';
 
@@ -249,9 +137,6 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
     enabled: hasInitiallyLoaded,
   });
 
-  const handleClearFilters = () => {
-    navigate('/services/ai', { replace: true });
-  };
 
   const handleViewModeChange = (mode: 'providers' | 'models') => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -262,9 +147,15 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
     navigate(`/services/ai?${newSearchParams.toString()}`, { replace: true });
   };
 
-  const filteredAiProviders = useMemo(() => {
-    return [...infiniteScroll.data];
-  }, [infiniteScroll.data]);
+  // Remove unnecessary memoization - just use the data directly
+
+  // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
+
+  const tabs = ModelTabs({ 
+    chatModelsPaginated, 
+    embeddingModelsPaginated, 
+    reasoningModelsPaginated 
+  });
 
   useEffect(() => {
     if (loaderData) {
@@ -284,27 +175,6 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
       </>
     );
   }
-
-
-
-
-  // Create filter component for chat models tab
-  const chatModelsFilterComponent = activeTab === 'chat-models' ? (
-    <ChatModelsFilters
-      hasActiveFilters={hasActiveFilters}
-      activeFilterCount={activeFilterCount}
-      localFilters={localFilters}
-      onLocalFilterChange={handleLocalFilterChange}
-      onApplyFilters={handleApplyFilters}
-      onResetFilters={handleResetFilters}
-    />
-  ) : null;
-
-  const tabs = ModelTabs({ 
-    chatModelsPaginated, 
-    embeddingModelsPaginated, 
-    reasoningModelsPaginated 
-  });
 
   return (
     <>
@@ -336,7 +206,7 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
         {/* Secondary Navigation - Tabs for Models or Search for Providers */}
         <div className='mb-6'>
           {viewMode === 'models' ? (
-            <AiServicesTabs tabs={tabs} defaultTab={activeTab} filterComponent={chatModelsFilterComponent} />
+            <AiServicesTabs tabs={tabs} defaultTab={activeTab} />
           ) : (
             <div className='flex flex-col gap-5'>
               <SearchAiProviders />
@@ -344,7 +214,7 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
               {providersHasActiveFilters && (
                 <div className='flex items-center justify-end'>
                   <button
-                    onClick={handleClearFilters}
+                    onClick={() => navigate('/services/ai', { replace: true })}
                     className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
                   >
                     <Icons.close className='size-4' />
@@ -359,10 +229,10 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
         {/* Content Area */}
         {viewMode === 'providers' && (
           <div className='flex flex-col gap-10 pb-5'>
-            {filteredAiProviders.length === 0 ? (
+            {infiniteScroll.data.length === 0 ? (
               <p className='text-body-md text-neutral-01 text-center'>No AI providers found.</p>
             ) : (
-              filteredAiProviders.map((aiProvider) => {
+              infiniteScroll.data.map((aiProvider) => {
                 return (
                   <div key={aiProvider.id} className='flex flex-col gap-5'>
                     <DataCard.Root>
