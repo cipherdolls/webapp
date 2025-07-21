@@ -1,7 +1,5 @@
 import type { ChatModel, EmbeddingModel, ChatModelsPaginated, meta } from '~/types';
-import { ChatModelsTab } from './ChatModelsTab';
-import { EmbeddingModelsTab } from './EmbeddingModelsTab';
-import { ReasoningModelsTab } from './ReasoningModelsTab';
+import { UniversalModelTab } from './UniversalModelTab';
 
 type EmbeddingModelsPaginated = {
   data: EmbeddingModel[];
@@ -24,21 +22,22 @@ export function ModelTabs({
   embeddingModelsPaginated, 
   reasoningModelsPaginated 
 }: ModelTabsProps) {
+  // Use the same universal component for all tabs to ensure consistent hook calls
   const tabs = [
     {
       id: 'chat-models',
       label: 'Chat Models',
-      content: <ChatModelsTab initialData={chatModelsPaginated} />,
+      content: <UniversalModelTab key="chat-models" tabType="chat-models" initialData={chatModelsPaginated} />,
     },
     {
       id: 'embedding-models',
       label: 'Embedding Models',
-      content: <EmbeddingModelsTab initialData={embeddingModelsPaginated} />,
+      content: <UniversalModelTab key="embedding-models" tabType="embedding-models" initialData={embeddingModelsPaginated} />,
     },
     {
       id: 'reasoning-models',
       label: 'Reasoning Models',
-      content: <ReasoningModelsTab initialData={reasoningModelsPaginated} />,
+      content: <UniversalModelTab key="reasoning-models" tabType="reasoning-models" initialData={reasoningModelsPaginated} />,
     },
   ];
 

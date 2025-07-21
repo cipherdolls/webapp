@@ -10,10 +10,9 @@ type Tab = {
 type AiServicesTabsProps = {
   tabs: Tab[];
   defaultTab?: string;
-  filterComponent?: React.ReactNode;
 };
 
-export function AiServicesTabs({ tabs, defaultTab, filterComponent }: AiServicesTabsProps) {
+export function AiServicesTabs({ tabs, defaultTab }: AiServicesTabsProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
@@ -27,41 +26,38 @@ export function AiServicesTabs({ tabs, defaultTab, filterComponent }: AiServices
     navigate(`/services/ai?${newSearchParams.toString()}`, { replace: true });
   };
 
-  const activeTabContent = tabs.find(tab => tab.id === activeTab)?.content;
-
   return (
     <div className='w-full'>
       {/* Tab Navigation */}
       <div className='border-b border-neutral-04 mb-6'>
-        <div className='flex justify-between items-center'>
-          <div className='flex space-x-8'>
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabClick(tab.id)}
-                className={cn(
-                  'py-3 px-1 text-sm font-medium border-b-2 transition-colors relative',
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-neutral-01 hover:text-base-black hover:border-neutral-03'
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          {/* Filter Component on the right */}
-          {filterComponent && (
-            <div className='flex items-center'>
-              {filterComponent}
-            </div>
-          )}
+        <div className='flex space-x-8'>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.id)}
+              className={cn(
+                'py-3 px-1 text-sm font-medium border-b-2 transition-colors relative',
+                activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-neutral-01 hover:text-base-black hover:border-neutral-03'
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Tab Content */}
+      {/* Tab Content - Always render all tabs but hide inactive ones to prevent unmounting */}
       <div className='w-full'>
-        {activeTabContent}
+        {tabs.map((tab) => (
+          <div
+            key={tab.id}
+            className={activeTab === tab.id ? 'block' : 'hidden'}
+          >
+            {tab.content}
+          </div>
+        ))}
       </div>
     </div>
   );
