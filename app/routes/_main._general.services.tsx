@@ -4,7 +4,8 @@ import { cn } from '~/utils/cn';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { User } from '~/types';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Services' }];
 }
@@ -15,6 +16,7 @@ const servicesNavItems = [
     to: 'ai',
     link: 'AI Provider',
     href: '/services/ai/ai-provider/new',
+    infoMessage: 'ai-info-message',
     banner: {
       emoji: '🤖',
       text: 'Tools with pricing for text processing, data analysis, and other AI tasks.',
@@ -25,6 +27,7 @@ const servicesNavItems = [
     to: 'tts',
     link: 'TTS Provider',
     href: '/services/tts/tts-provider/new',
+    infoMessage: 'tts-info-message',
     banner: {
       emoji: '🗣️',
       text: 'Services for converting text to speech.',
@@ -35,6 +38,7 @@ const servicesNavItems = [
     to: 'stt',
     link: 'STT Provider',
     href: '/services/stt/stt-provider/new',
+    infoMessage: 'stt-info-message',
     banner: {
       emoji: '👂',
       text: 'Services for converting speech to text.',
@@ -47,15 +51,25 @@ export default function Services() {
   const navigate = useNavigate();
   const me = useRouteLoaderData('routes/_main') as User;
 
-  useEffect(() => {
-    if (location.pathname === '/services') {
-      navigate('/services/ai', { replace: true });
-    }
-  }, [location.pathname, navigate]);
+  const [isShouldShowInfoMessage, setIsShouldShowInfoMessage] = useState(false);
 
   const activeItem = useMemo(() => {
     return servicesNavItems.find((item) => location.pathname.includes(`/${item.to}`)) || servicesNavItems[0];
   }, [location.pathname]);
+
+  const handleClose = (item: string) => {
+    localStorage.setItem(item, 'hidden');
+    setIsShouldShowInfoMessage(false);
+  };
+
+  useEffect(() => {
+    if (location.pathname === '/services') {
+      navigate('/services/ai', { replace: true });
+      return;
+    }
+
+    setIsShouldShowInfoMessage(localStorage.getItem(activeItem.infoMessage) !== 'hidden');
+  }, [location.pathname, navigate, activeItem.infoMessage]);
 
   return (
     <div className='w-full'>
@@ -93,15 +107,19 @@ export default function Services() {
       </nav>
 
       <div className='mt-6 flex flex-col gap-6'>
-        <div className='rounded-[10px] bg-gradient-1 px-4 py-3 flex items-center justify-between'>
-          <div className='flex items-center gap-4'>
-            <span className='text-4xl leading-[1.1] font-semibold'>{activeItem.banner.emoji}</span>
-            <span className='text-body-sm text-base-black'>{activeItem.banner.text}</span>
+        {isShouldShowInfoMessage && (
+          <div className='rounded-[10px] bg-gradient-1 px-4 py-3 flex items-center justify-between'>
+            <div className='flex items-center gap-4'>
+              <span className='text-4xl leading-[1.1] font-semibold'>{activeItem.banner.emoji}</span>
+              <span className='text-body-sm text-base-black'>{activeItem.banner.text}</span>
+            </div>
+
+            <button onClick={() => handleClose(activeItem.infoMessage)} className='hover:opacity-50 transition-colors'>
+              <Icons.close />
+            </button>
           </div>
-          <button className='hover:opacity-50 transition-colors'>
-            <Icons.close />
-          </button>
-        </div>
+        )}
+
         <Outlet />
       </div>
     </div>
