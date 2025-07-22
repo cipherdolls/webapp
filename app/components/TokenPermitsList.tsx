@@ -83,7 +83,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
 
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {permits.length !== 0 && (
-          <div className='flex justify-between py-4 '>
+          <div className='flex justify-between py-4 px-4'>
             <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
