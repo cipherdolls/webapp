@@ -1,14 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Form, Link, useNavigate } from 'react-router';
+import { Form, Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import { cn } from '~/utils/cn';
 import type { Avatar } from '~/types';
-import AvatarPicture from './AvatarPicture';
 import * as Button from '~/components/ui/button/button';
+import { getPicture } from '~/utils/getPicture';
 
 const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
   const [showAll, setShowAll] = useState(false);
-  const navigate = useNavigate();
   const hasAvatars = avatars.length > 0;
 
   const sortedAvatars = useMemo(() => {
@@ -24,7 +22,7 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Avatars</h3>
-      <div className={cn('p-2 pt-0 rounded-xl flex flex-col', hasAvatars && 'bg-gradient-1')}>
+      <div className={'bg-gradient-1 rounded-xl p-2 pt-0 flex flex-col'}>
         {hasAvatars ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
@@ -45,71 +43,63 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                 </div>
               </Link>
             </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
               {sortedAvatars.map((avatar, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <Link
-                    to={`/avatars/${avatar.id}`}
-                    className={cn(
-                      'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group',
-                      sortedAvatars.length === 1 && 'col-span-2'
-                    )}
-                  >
-                    <AvatarPicture avatar={avatar} className='size-14' />
-                    <div className='flex items-center gap-4 min-w-0 flex-1'>
-                      <div className='flex flex-col gap-1 overflow-hidden min-w-0 flex-1'>
-                        <span className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</span>
-                        <div className='flex items-center gap-2'>
-                          <p className={cn('truncate text-body-sm font-semibold text-neutral-01')}>{avatar.shortDesc}</p>
+                  <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                    <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'>
+                      <img
+                        src={getPicture(avatar, 'avatars', false)}
+                        srcSet={getPicture(avatar, 'avatars', true)}
+                        alt={`${avatar.name} picture`}
+                        className='object-cover size-full'
+                      />
+
+                      <div className='absolute top-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          👤
+                          <span>By you</span>
                         </div>
                       </div>
-                      {avatar.chats.length > 0 ? (
-                        <Button.Root
-                          variant='secondary'
-                          className='h-10 md:px-0 px-6 md:group-hover:px-6 md:max-w-0 md:group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (avatar.chats && avatar.chats.length > 0) {
-                              navigate(`/chats/${avatar.chats[0].id}`);
-                            }
-                          }}
-                        >
-                          Chat
-                        </Button.Root>
-                      ) : (
-                        <Form
-                          method='POST'
-                          action='/chats'
-                          onSubmit={(e) => {
-                            e.stopPropagation();
-                          }}
-                        >
-                          <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                          <Button.Root
-                            variant='secondary'
-                            className='h-10 md:px-0 px-6 md:group-hover:px-6 md:max-w-0 md:group-hover:max-w-24 overflow-hidden transition-all duration-200 ease-out'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          >
-                            Chat
-                          </Button.Root>
-                        </Form>
-                      )}
+                    </Link>
+
+                    <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
+                      <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                        <div className='flex items-center gap-2'>
+                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
+                          <Icons.thumb />
+                        </div>
+                        <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
+                      </div>
+                      <div className='flex items-center gap-3 flex-shrink-0'>
+                        {avatar.chats && avatar.chats.length > 0 ? (
+                          <Link to={`/chats/${avatar.chats[0].id}`}>
+                            <Button.Root size='sm' className='px-5'>
+                              Continue Chat
+                            </Button.Root>
+                          </Link>
+                        ) : (
+                          <Form method='POST' action='/chats'>
+                            <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
+                            <Button.Root type='submit' size='sm' className='px-5'>
+                              Chat
+                            </Button.Root>
+                          </Form>
+                        )}
+                      </div>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               ))}
             </div>
           </>
         ) : (
-          <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
+          <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
             <h1 className='text-heading-h2'>👤</h1>
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
               <Link
-                to='/avatars/new'
+                to='/avatars'
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new avatar
