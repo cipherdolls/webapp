@@ -46,19 +46,28 @@ const servicesNavItems = [
   },
 ];
 
-export default function Services() {
+export async function clientLoader() {
+  return {
+    'ai-info-message': localStorage.getItem('ai-info-message') === 'hidden',
+    'tts-info-message': localStorage.getItem('tts-info-message') === 'hidden',
+    'stt-info-message': localStorage.getItem('stt-info-message') === 'hidden',
+  };
+}
+
+export default function Services({ loaderData }: Route.ComponentProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const me = useRouteLoaderData('routes/_main') as User;
-
-  const [isShouldShowInfoMessage, setIsShouldShowInfoMessage] = useState(false);
+  const hiddenMessages: Record<string, boolean> = loaderData;
 
   const activeItem = useMemo(() => {
     return servicesNavItems.find((item) => location.pathname.includes(`/${item.to}`)) || servicesNavItems[0];
   }, [location.pathname]);
 
-  const handleClose = (item: string) => {
-    localStorage.setItem(item, 'hidden');
+  const [isShouldShowInfoMessage, setIsShouldShowInfoMessage] = useState(!hiddenMessages?.[activeItem.infoMessage]);
+
+  const handleClose = (activeItem: string) => {
+    localStorage.setItem(activeItem, 'hidden');
     setIsShouldShowInfoMessage(false);
   };
 
@@ -68,8 +77,8 @@ export default function Services() {
       return;
     }
 
-    setIsShouldShowInfoMessage(localStorage.getItem(activeItem.infoMessage) !== 'hidden');
-  }, [location.pathname, navigate, activeItem.infoMessage]);
+    setIsShouldShowInfoMessage(!hiddenMessages?.[activeItem.infoMessage]);
+  }, [location.pathname, navigate]);
 
   return (
     <div className='w-full'>
