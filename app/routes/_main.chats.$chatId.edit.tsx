@@ -3,7 +3,6 @@ import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { useAlert } from '~/providers/AlertDialogProvider';
-import ScenarioToggle from '~/components/ScenarioToggle';
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
@@ -164,8 +163,6 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               </div>
 
               <Card.Main>
-                <ScenarioToggle chat={chat} avatar={avatar} className='!bg-transparent !backdrop-blur-none w-full' />
-
                 <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
                   <div className='p-4 flex gap-2 items-center justify-between'>
                     <span className='text-body-sm'>Chat Model:</span>

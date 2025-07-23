@@ -21,21 +21,10 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat, avatar }) => {
         <AvatarPicture avatar={chat.avatar} sizeType={PICTURE_SIZE.semiMedium} className='size-10 shrink-0' />
         <div className='flex-1 mr-auto sm:mr-0'>
           <h3 className='text-body-md sm:text-heading-h3 font-semibold leading-[1em] truncate'>{chat.avatar.name}</h3>
-          <div className='sm:hidden'>
-            <Modal.Root>
-              <Modal.Trigger className='flex whitespace-nowrap'>
-                {chat.scenario.name} <Icons.chevronDown />
-              </Modal.Trigger>
-              <Modal.Content title='Avatars'>
-                <ScenarioToggle chat={chat} avatar={avatar} />
-              </Modal.Content>
-            </Modal.Root>
-          </div>
         </div>
       </div>
       {/* <ChatDestroy /> */}
       <div className='flex gap-3 items-center'>
-        <ScenarioToggle chat={chat} avatar={avatar} className='max-md:hidden' wideVariant={true} />
         <Link to={`/chats/${chat.id}/edit`} className=' text-base-black shrink-0'>
           <Icons.gear />
         </Link>
