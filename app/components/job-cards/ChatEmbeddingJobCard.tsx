@@ -1,13 +1,16 @@
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { formatModelName } from '~/utils/formatModelName';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import Tooltip from '~/components/ui/tooltip';
 import { Icons } from '~/components/ui/icons';
 import React from 'react';
+import { formatEther } from 'ethers';
 
 const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   const embeddingJob = message?.embeddingJob;
+
+  const formattedUsdCost = embeddingJob?.usdCost > 0 ? embeddingJob?.usdCost.toFixed(8) : 0;
+  const formattedPaymentJob = embeddingJob.paymentJob?.weiCost ? formatEther(embeddingJob.paymentJob?.weiCost) : 0;
 
   return (
     <DataCard.Root>
@@ -47,7 +50,33 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
             },
             {
               label: 'Cost (USD)',
-              value: `$${scientificNumConvert(embeddingJob.usdCost)}`,
+              value: `$${formattedUsdCost}`,
+            },
+          ]}
+        />
+        <DataCard.ItemDataGrid
+          variant='secondary'
+          data={[
+            {
+              label: 'Cost',
+              value: `${formattedPaymentJob} LOV`,
+            },
+            {
+              label: 'txHash',
+              value: embeddingJob.paymentJob?.txHash ? (
+                <>
+                  <a
+                    href={`https://optimistic.etherscan.io/tx/${embeddingJob.paymentJob?.txHash}`}
+                    className='underline line-clamp-1 block truncate break-normal max-w-[244px]'
+                    target='_blank'
+                    rel='noreferrer noopener'
+                  >
+                    {embeddingJob.paymentJob?.txHash}
+                  </a>
+                </>
+              ) : (
+                'N/A'
+              ),
             },
           ]}
         />
