@@ -1,4 +1,4 @@
-import { Link, NavLink, useRouteLoaderData } from 'react-router';
+import { Link, NavLink, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
@@ -49,6 +49,8 @@ const SidebarItems = [
 const Sidebar = ({ className }: { className?: string }) => {
   const me = useRouteLoaderData('routes/_main') as User;
   const isAdmin = me.role === 'ADMIN';
+  const navigate = useNavigate();
+
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
       <div className='sm:py-4 sm:px-2 flex flex-col items-center justify-between flex-1 sm:bg-transparent sm:rounded-none rounded-t-xl bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] sm:bg-none'>
@@ -60,7 +62,19 @@ const Sidebar = ({ className }: { className?: string }) => {
             const NavIcon = item.icon;
 
             if (item.name === 'Menu') {
-              const menuItems = [{ type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services }];
+              const menuItems = [
+                { type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services },
+                {
+                  type: 'onClick' as const,
+                  text: 'Sign Out',
+                  onClick: () => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('redirectAfterSignIn');
+                    navigate('/signin');
+                  },
+                  icon: Icons.logout,
+                },
+              ];
 
               return (
                 <ViewMore
