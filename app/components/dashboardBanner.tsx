@@ -33,7 +33,7 @@ export const DashboardBanner: FC<BannerProps> = ({ variant, username, descriptio
         <h1 className='sm:text-heading-h1 text-heading-h2 text-base-black break-all'>
           {config.title}
           {isDefaultUsername && (
-            <span className='text-xs max-w-72 block text-neutral-01 mt-1 break-normal'>
+            <span className='text-xs max-w-72 block text-neutral-01 mt-1 break-normal sm:max-w-full'>
               This is a default username. If it's not your real name, you can change it below.
             </span>
           )}
