@@ -33,7 +33,24 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const address = await signer.getAddress();
-    const message = `I am signing this message to prove my identity. Nonce: ${nonce}`;
+    const timestamp = new Date().toISOString();
+    const url = new URL(request.url);
+    const domain = url.hostname;
+    
+    const message = `
+${domain} wants you to sign in with your Ethereum account:
+${address}
+
+By signing this message, you prove ownership of this wallet
+and agree to our Terms of Service and Privacy Policy.
+
+URI: ${url}
+Version: 1
+Chain ID: 10
+Nonce: ${nonce}
+Issued At: ${timestamp}
+    `.trim();
+
     const signedMessage = await signer.signMessage(message);
     const signinRes = await fetch(`${apiUrl}/auth/signin`, {
       method: 'POST',
