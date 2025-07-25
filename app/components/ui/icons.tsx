@@ -21,13 +21,7 @@ export const Icons = {
         strokeLinecap='round'
         strokeLinejoin='round'
       />
-      <path
-        d='M21 3v5h-5'
-        stroke='currentColor'
-        strokeWidth='2'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
+      <path d='M21 3v5h-5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
       <path
         d='M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16'
         stroke='currentColor'
@@ -35,13 +29,7 @@ export const Icons = {
         strokeLinecap='round'
         strokeLinejoin='round'
       />
-      <path
-        d='M3 21v-5h5'
-        stroke='currentColor'
-        strokeWidth='2'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
+      <path d='M3 21v-5h5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
     </svg>
   ),
   dashboard: (props: IconProps) => (
@@ -660,6 +648,16 @@ export const Icons = {
       {...props}
     >
       <path d='M21 12a9 9 0 1 1-6.219-8.56' />
+    </svg>
+  ),
+  logout: (props: IconProps) => (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
+      <path
+        fillRule='evenodd'
+        clipRule='evenodd'
+        d='M4.34835 4.34835C5.05161 3.64509 6.00544 3.25 7 3.25H9C9.41421 3.25 9.75 3.58579 9.75 4C9.75 4.41421 9.41421 4.75 9 4.75H7C6.40326 4.75 5.83097 4.98705 5.40901 5.40901C4.98705 5.83097 4.75 6.40326 4.75 7V17C4.75 17.5967 4.98705 18.169 5.40901 18.591C5.83097 19.0129 6.40326 19.25 7 19.25H9C9.41421 19.25 9.75 19.5858 9.75 20C9.75 20.4142 9.41421 20.75 9 20.75H7C6.00544 20.75 5.05161 20.3549 4.34835 19.6516C3.64509 18.9484 3.25 17.9946 3.25 17V7C3.25 6.00544 3.64509 5.05161 4.34835 4.34835ZM15.4697 7.46967C15.7626 7.17678 16.2374 7.17678 16.5303 7.46967L20.5303 11.4697C20.8232 11.7626 20.8232 12.2374 20.5303 12.5303L16.5303 16.5303C16.2374 16.8232 15.7626 16.8232 15.4697 16.5303C15.1768 16.2374 15.1768 15.7626 15.4697 15.4697L18.1893 12.75H8C7.58579 12.75 7.25 12.4142 7.25 12C7.25 11.5858 7.58579 11.25 8 11.25H18.1893L15.4697 8.53033C15.1768 8.23744 15.1768 7.76256 15.4697 7.46967Z'
+        fill='currentColor'
+      />
     </svg>
   ),
 };

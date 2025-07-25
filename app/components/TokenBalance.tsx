@@ -11,7 +11,16 @@ interface TokenBalanceProps {
 }
 
 const TokenBalance = ({ balance, onRefresh, isRefreshing }: TokenBalanceProps) => {
-  const formattedBalance = typeof balance === 'string' ? parseFloat(balance) : balance;
+  const numberValue = typeof balance === 'string' ? parseFloat(balance) : balance;
+  const roundedValue = Number(numberValue.toFixed(3));
+
+  const formattedBalance =
+    roundedValue > 0
+      ? numberValue.toLocaleString(undefined, {
+          maximumFractionDigits: 3,
+          minimumFractionDigits: 3,
+        })
+      : '0';
 
   return (
     <div className='flex flex-col gap-5 sm:pl-4'>
@@ -36,9 +45,11 @@ const TokenBalance = ({ balance, onRefresh, isRefreshing }: TokenBalanceProps) =
               <img src={OP} alt='OP' />
             </div>
           </button>
-          <span className='text-heading-h3 font-semibold text-base-black'>
-            {formattedBalance.toString()} <span className='text-neutral-01'>LOV</span>
-          </span>
+
+          <div className='flex justify-between text-heading-h3 font-semibold text-base-black'>
+            <span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</span>
+            <span className='text-neutral-01'>LOV</span>
+          </div>
         </div>
       </div>
 

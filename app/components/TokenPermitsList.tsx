@@ -76,6 +76,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
           <InformationBadge
             tooltipText='Token permits allow the CipherDolls platform to spend your LOV tokens for chat functionality.'
             className='size-6 !max-w-[300px]'
+            popoverClassName='max-w-[320px]'
             side='top'
           />
         </div>

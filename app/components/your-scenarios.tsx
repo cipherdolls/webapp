@@ -4,6 +4,7 @@ import { Icons } from '~/components/ui/icons';
 import type { Scenario } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
+import { cn } from '~/utils/cn';
 
 const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   const [showAll, setShowAll] = useState(false);
@@ -22,7 +23,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Scenarios</h3>
-      <div className={'bg-gradient-1 rounded-xl p-2 pt-0 flex flex-col'}>
+      <div className={cn('bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col', hasScenarios && '!pt-0')}>
         {hasScenarios ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
