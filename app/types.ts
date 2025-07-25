@@ -309,6 +309,7 @@ export interface Avatar {
   createdAt: Date;
   updatedAt: Date;
   editable: boolean;
+  recommended: boolean;
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
