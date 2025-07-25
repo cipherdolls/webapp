@@ -72,7 +72,6 @@ const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Ch
                       <div className='flex flex-col gap-1'>
                         <div className='flex items-center gap-2'>
                           <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
-                          <Icons.thumb />
                         </div>
                         {scenario.introduction && (
                           <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
