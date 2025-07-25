@@ -302,7 +302,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                     <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <h4 className='text-heading-h4 text-base-black'>{scenario.name}</h4>
-                        <RecommendedBadge recommended={true} tooltipText='Recommended' className='pt-1' />
+                        <RecommendedBadge recommended={scenario.recommended} tooltipText='Recommended' className='pt-1' />
 
                         {scenario.chatModel.error && (
                           <Tooltip
