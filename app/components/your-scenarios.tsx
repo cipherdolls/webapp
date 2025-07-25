@@ -69,10 +69,8 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
 
                     <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
                       <div className='flex flex-col gap-1'>
-                        <div className='flex items-center gap-2'>
-                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
-                          <Icons.thumb />
-                        </div>
+                        <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+
                         <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
                       </div>
                       <div className='flex items-center gap-3'>
