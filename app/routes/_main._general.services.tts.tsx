@@ -124,7 +124,7 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                     <div className='hidden items-center gap-2 text-body-sm sm:flex'>
                       <span className='text-base-black font-normal'>$/Character</span>
                       <span className='text-neutral-01 font-normal'>-</span>
-                      <span className='font-semibold text-base-black'>$0</span>
+                      <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
                     </div>
                     <ViewButton
                       popoverItems={[
