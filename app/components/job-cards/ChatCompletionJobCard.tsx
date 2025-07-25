@@ -7,6 +7,9 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 const ChatCompletionJobCard = ({ message }: { message: Message }) => {
   const chatCompletionJob = message?.chatCompletionJob;
 
+  const formattedUsdCost = chatCompletionJob?.usdCost > 0 ? chatCompletionJob?.usdCost.toFixed(8) : 0;
+  const formattedPaymentJob = chatCompletionJob.paymentJob?.weiCost ? formatEther(chatCompletionJob.paymentJob?.weiCost) : 0;
+
   return (
     <DataCard.Root>
       <DataCard.Label>Chat Completion Job</DataCard.Label>
@@ -27,6 +30,10 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
         <DataCard.ItemDataGrid
           data={[
             {
+              label: 'Time Taken',
+              value: `${chatCompletionJob.timeTakenMs} ms`,
+            },
+            {
               label: 'Input Tokens',
               value: scientificNumConvert(chatCompletionJob.inputTokens),
             },
@@ -40,22 +47,16 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
             },
             {
               label: 'Cost (USD)',
-              value: `$${scientificNumConvert(chatCompletionJob.usdCost)}`,
-            },
-            {
-              label: 'Time Taken',
-              value: `${chatCompletionJob.timeTakenMs} ms`,
+              value: `$${formattedUsdCost}`,
             },
           ]}
         />
-        <DataCard.Divider />
-        <DataCard.ItemLabel className='pb-4'>Payment Job</DataCard.ItemLabel>
         <DataCard.ItemDataGrid
           variant='secondary'
           data={[
             {
               label: 'Cost',
-              value: `${formatEther(chatCompletionJob.paymentJob?.weiCost || 0)} Ether`,
+              value: `${formattedPaymentJob} LOV`,
             },
             {
               label: 'txHash',
@@ -71,7 +72,7 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
                   </a>
                 </>
               ) : (
-              'N/A'
+                'N/A'
               ),
             },
           ]}

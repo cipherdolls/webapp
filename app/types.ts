@@ -246,6 +246,7 @@ export interface EmbeddingJob {
   usdCost: number;
   timeTakenMs: number;
   embeddingModel: EmbeddingModel;
+  paymentJob: PaymentJob;
 }
 
 export interface ChatCompletionJob {
