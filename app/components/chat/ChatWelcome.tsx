@@ -57,7 +57,7 @@ const CHATS_STATE_CONFIGS: Record<ChatStateVariants, (avatars: Avatar[], chats?:
           <Form method='POST' action='/chats'>
             <input hidden name='avatarId' id='avatarId' value={avatars[0].id} readOnly />
             {avatars[0].scenarios?.[0]?.id && (
-              <input hidden name='scenarioId' id='scenarioId' value={avatars[0].scenarios![0].id} readOnly />
+              <input hidden name='scenarioId' id='scenarioId' value={avatars[0].scenarios?.[0]?.id} readOnly />
             )}
             <Button.Root className='px-5 sm:h-12' type='submit' size='sm'>
               Chat with Avatar

@@ -28,7 +28,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       if (avatarRes.ok) {
         const avatar = await avatarRes.json();
         if (avatar.scenarios && (avatar.scenarios?.length || 0) > 0) {
-          bodyObj.scenarioId = avatar.scenarios![0].id;
+          bodyObj.scenarioId = avatar.scenarios?.[0]?.id;
         }
       }
     }

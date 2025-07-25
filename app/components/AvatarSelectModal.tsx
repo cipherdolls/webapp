@@ -21,9 +21,9 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
   const handleAvatarSelect = (avatar: Avatar) => {
     setSelectedAvatar(avatar);
     if (avatar.scenarios?.length === 1) {
-      setSelectedScenario(avatar.scenarios[0].id);
+      setSelectedScenario(avatar.scenarios?.[0]?.id || null);
     } else if ((avatar.scenarios?.length || 0) > 0) {
-      setSelectedScenario(avatar.scenarios![0].id);
+      setSelectedScenario(avatar.scenarios?.[0]?.id || null);
     } else {
       setSelectedScenario(null);
     }

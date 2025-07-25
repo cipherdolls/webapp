@@ -66,16 +66,14 @@ AvatarCard.ChatButton = function AvatarCardChatButton({ onClick }: { onClick?: (
     <>
       {(avatar.chats?.length || 0) > 0 ? (
         <Button.Root size='sm' className='px-5' asChild>
-          <Link to={`/chats/${avatar.chats![0].id}`} onClick={onClick}>
+          <Link to={`/chats/${avatar.chats?.[0]?.id}`} onClick={onClick}>
             Continue Chats
           </Link>
         </Button.Root>
       ) : (
         <Form method='POST' action='/chats' onSubmit={onClick}>
           <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-          {avatar.scenarios?.[0]?.id && (
-            <input hidden name='scenarioId' id='scenarioId' value={avatar.scenarios![0].id} readOnly />
-          )}
+          {avatar.scenarios?.[0]?.id && <input hidden name='scenarioId' id='scenarioId' value={avatar.scenarios?.[0]?.id} readOnly />}
           <Button.Root type='submit' size='sm' className='px-5'>
             Start Chat
           </Button.Root>
