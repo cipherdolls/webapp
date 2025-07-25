@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Form, Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import type { Avatar } from '~/types';
@@ -65,10 +65,8 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
 
                     <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
                       <div className='flex flex-col gap-1 min-w-0 flex-1'>
-                        <div className='flex items-center gap-2'>
-                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
-                          <Icons.thumb />
-                        </div>
+                        <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
+
                         <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                       </div>
                       <div className='flex items-center gap-3 flex-shrink-0'>
