@@ -57,7 +57,8 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       throw new Error(errorData.message || `Failed to ${request.method} chat`);
     }
   } catch (error) {
-    console.error('Failed to update chat');
+    console.error('Failed to update chat:', error);
+    throw error; // Re-throw to see the actual error
   }
 }
 

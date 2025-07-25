@@ -73,13 +73,17 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
     }))
   );
 
-  const handleMessageClose = () => {
+  const handleEditChatClose = () => {
     navigate(`/chats/${chat.id}`);
   };
 
   const handleSttProviderChange = (sttProvider: SttProvider) => {
     submit(
-      { sttProviderId: sttProvider.id },
+      { 
+        sttProviderId: sttProvider.id,
+        avatarId: chat.avatar.id,
+        scenarioId: chat.scenario.id,
+      },
       {
         method: 'PATCH',
         action: `/chats/${chat.id}`,
@@ -91,14 +95,14 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className='pageModal'>
-        <div className='pageModal-overlay' onClick={handleMessageClose}></div>
+        <div className='pageModal-overlay' onClick={handleEditChatClose}></div>
         <div className='pageModal-content'>
-          <Button.Root size='icon' variant='white' className='pageModal-button-close' onClick={handleMessageClose}>
+          <Button.Root size='icon' variant='white' className='pageModal-button-close' onClick={handleEditChatClose}>
             <Button.Icon as={Icons.close} />
           </Button.Root>
           {/* page modal header */}
           <div className='pageModal-header'>
-            <button onClick={handleMessageClose} className='md:hidden'>
+            <button onClick={handleEditChatClose} className='md:hidden'>
               <Icons.chevronLeft />
             </button>
             <div className='flex items-center gap-3'>
