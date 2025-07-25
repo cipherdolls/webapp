@@ -119,21 +119,19 @@ export const Multiselect = <T extends Option>({
                   {groupOptions.mineScenarios.map((option) => {
                     const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
                     return (
-                      <>
-                        <div
-                          key={option.id}
-                          onClick={() => toggleOption(option)}
-                          className={cn(
-                            'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
-                            isSelected && 'bg-neutral-05'
-                          )}
-                          role='option'
-                          aria-selected={isSelected}
-                        >
-                          <span className='block'>{option.name}</span>
-                          {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
-                        </div>
-                      </>
+                      <div
+                        key={option.id}
+                        onClick={() => toggleOption(option)}
+                        className={cn(
+                          'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
+                          isSelected && 'bg-neutral-05'
+                        )}
+                        role='option'
+                        aria-selected={isSelected}
+                      >
+                        <span className='block'>{option.name}</span>
+                        {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
+                      </div>
                     );
                   })}
                 </>
@@ -145,49 +143,23 @@ export const Multiselect = <T extends Option>({
                   {groupOptions.publicScenarios.map((option) => {
                     const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
                     return (
-                      <>
-                        <div
-                          key={option.id}
-                          onClick={() => toggleOption(option)}
-                          className={cn(
-                            'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
-                            isSelected && 'bg-neutral-05'
-                          )}
-                          role='option'
-                          aria-selected={isSelected}
-                        >
-                          <span className='block'>{option.name}</span>
-                          {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
-                        </div>
-                      </>
+                      <div
+                        key={option.id}
+                        onClick={() => toggleOption(option)}
+                        className={cn(
+                          'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',
+                          isSelected && 'bg-neutral-05'
+                        )}
+                        role='option'
+                        aria-selected={isSelected}
+                      >
+                        <span className='block'>{option.name}</span>
+                        {isSelected && <Icons.check className='h-4 w-4 text-primary' />}
+                      </div>
                     );
                   })}
                 </>
               )}
-
-              {/*{options.map((option) => {*/}
-              {/*  const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);*/}
-              {/*  return (*/}
-              {/*    <>*/}
-              {/*      <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>*/}
-              {/*        {userId === option.userId ? 'Your Scenarios' : 'Public Scenarios'}*/}
-              {/*      </span>*/}
-              {/*      <div*/}
-              {/*        key={option.id}*/}
-              {/*        onClick={() => toggleOption(option)}*/}
-              {/*        className={cn(*/}
-              {/*          'flex items-center justify-between cursor-pointer rounded-lg px-3 py-2 hover:bg-neutral-04',*/}
-              {/*          isSelected && 'bg-neutral-05'*/}
-              {/*        )}*/}
-              {/*        role='option'*/}
-              {/*        aria-selected={isSelected}*/}
-              {/*      >*/}
-              {/*        <span className='block'>{option.name}</span>*/}
-              {/*        {isSelected && <Icons.check className='h-4 w-4 text-primary' />}*/}
-              {/*      </div>*/}
-              {/*    </>*/}
-              {/*  );*/}
-              {/*})}*/}
             </div>
           </div>
         </div>

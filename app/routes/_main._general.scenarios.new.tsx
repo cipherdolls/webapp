@@ -1,4 +1,4 @@
-import { redirect, useFetcher, useNavigate, useParams } from 'react-router';
+import { redirect, useFetcher, useNavigate, useParams, useRouteLoaderData } from 'react-router';
 
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.scenarios.new';
@@ -7,10 +7,11 @@ import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { Fragment, useRef, useState } from 'react';
-import type { AiProvider, AiProvidersPaginated, Gender } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Gender, Avatar, AvatarsPaginated, User } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
+import Multiselect from '~/components/ui/input/multiselect';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { formatModelName } from '~/utils/formatModelName';
 import * as Modal from '~/components/ui/new-modal';
@@ -33,12 +34,25 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const aiProvidersRes = await fetchWithAuth('ai-providers');
+  const [aiProvidersRes, avatarsRes, publicAvatarsRes] = await Promise.all([
+    fetchWithAuth('ai-providers'),
+    fetchWithAuth('avatars'),
+    fetchWithAuth('avatars?published=true'),
+  ]);
 
   const { data }: AiProvidersPaginated = await aiProvidersRes.json();
   const aiProviders = data;
 
-  return { aiProviders };
+  const mineAvatars: AvatarsPaginated = await avatarsRes.json();
+  const publicAvatars: AvatarsPaginated = await publicAvatarsRes.json();
+
+  // Deduplicate avatars by ID
+  const allAvatars = [...mineAvatars.data, ...publicAvatars.data];
+  const avatars = allAvatars.filter((avatar, index, self) => 
+    index === self.findIndex((a) => a.id === avatar.id)
+  );
+
+  return { aiProviders, avatars };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -56,7 +70,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       };
     }
 
-    const scenario = await res.json();
+    await res.json();
     return redirect(`/scenarios`);
   } catch (error: any) {
     console.error(error);
@@ -65,7 +79,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
-  const { aiProviders } = loaderData as { aiProviders: AiProvider[] };
+  const { aiProviders, avatars } = loaderData as { aiProviders: AiProvider[]; avatars: Avatar[] };
+  const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
@@ -81,13 +96,22 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const [publishedStatus, setPublishedStatus] = useState<'private' | 'public'>('private');
   const [userGender, setUserGender] = useState<Gender>('Male');
   const [avatarGender, setAvatarGender] = useState<Gender>('Female');
-
-  const { avatarId } = useParams();
+  const [selectedAvatars, setSelectedAvatars] = useState<Avatar[]>([]);
+  const [validationError, setValidationError] = useState<string>('');
 
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/scenarios`);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    if (selectedAvatars.length === 0) {
+      e.preventDefault();
+      setValidationError('Please select at least one avatar for this scenario.');
+      return;
+    }
+    setValidationError('');
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,13 +195,18 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
           </button>
         </div>
         <Modal.Description className='sr-only'>Create new scenario</Modal.Description>
-        <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
+        <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full' onSubmit={handleSubmit}>
           <input type='hidden' name='temperature' value={temperature} />
           <input type='hidden' name='topP' value={topP} />
           <input type='hidden' name='frequencyPenalty' value={frequencyPenalty} />
           <input type='hidden' name='presencePenalty' value={presencePenalty} />
           <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
             <ErrorsBox errors={errors} />
+            {validationError && (
+              <div className='p-3 bg-red-50 border border-red-200 rounded-lg'>
+                <p className='text-red-700 text-sm'>{validationError}</p>
+              </div>
+            )}
 
             {isExpanded && (
               <div className='flex-1 flex flex-col'>
@@ -679,6 +708,26 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
                   </Slider.Root>
                 </Input.Root>
               </div>
+
+              <Input.Root>
+                <Input.Label htmlFor='avatars'>Avatars</Input.Label>
+                <Multiselect<Avatar>
+                  userId={me.id}
+                  options={avatars}
+                  selectedOptions={selectedAvatars}
+                  onChange={(newSelectedAvatars) => {
+                    setSelectedAvatars(newSelectedAvatars);
+                    if (validationError && newSelectedAvatars.length > 0) {
+                      setValidationError('');
+                    }
+                  }}
+                  placeholder='Select avatars for this scenario'
+                />
+                {Array.isArray(selectedAvatars) &&
+                  selectedAvatars.length > 0 &&
+                  selectedAvatars.map((avatar) => <input key={avatar.id} type='hidden' name='avatarIds[]' value={avatar.id} />)}
+                <p className='text-xs text-gray-500'>Select avatars this scenario can be used with.</p>
+              </Input.Root>
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>

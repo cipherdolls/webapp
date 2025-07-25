@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Form, Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import type { Avatar } from '~/types';
+import type { Avatar, Chat } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
+import AvatarScenarioModal from './AvatarScenarioModal';
 
-const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
+const YourAvatars = ({ avatars, chats }: { avatars: Avatar[]; chats?: Chat[] }) => {
   const [showAll, setShowAll] = useState(false);
   const hasAvatars = avatars.length > 0;
 
@@ -70,20 +71,11 @@ const YourAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                         <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                       </div>
                       <div className='flex items-center gap-3 flex-shrink-0'>
-                        {avatar.chats && avatar.chats.length > 0 ? (
-                          <Link to={`/chats/${avatar.chats[0].id}`}>
-                            <Button.Root size='sm' className='px-5'>
-                              Continue Chat
-                            </Button.Root>
-                          </Link>
-                        ) : (
-                          <Form method='POST' action='/chats'>
-                            <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                            <Button.Root type='submit' size='sm' className='px-5'>
-                              Chat
-                            </Button.Root>
-                          </Form>
-                        )}
+                        <AvatarScenarioModal avatar={avatar} chats={chats}>
+                          <Button.Root size='sm' className='px-5'>
+                            {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
+                          </Button.Root>
+                        </AvatarScenarioModal>
                       </div>
                     </div>
                   </div>

@@ -73,6 +73,9 @@ AvatarCard.ChatButton = function AvatarCardChatButton({ onClick }: { onClick?: (
       ) : (
         <Form method='POST' action='/chats' onSubmit={onClick}>
           <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
+          {avatar.defaultScenarioId && (
+            <input hidden name='scenarioId' id='scenarioId' value={avatar.defaultScenarioId} readOnly />
+          )}
           <Button.Root type='submit' size='sm' className='px-5'>
             Start Chat
           </Button.Root>

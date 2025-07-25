@@ -286,6 +286,32 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
               )}
             </DetailCard>
+            {scenario.avatars && scenario.avatars.length > 0 && (
+              <DetailCard isScenario title='Avatars'>
+                <div className='flex flex-col gap-4'>
+                  {scenario.avatars.map((avatar) => (
+                    <Link
+                      to={`/avatars/${avatar.id}`}
+                      key={avatar.id}
+                      className='p-4 border rounded-lg border-neutral-04 hover:border-neutral-01 transition-colors'
+                    >
+                      <div className='flex items-center justify-between mb-2'>
+                        <h4 className='font-semibold'>{avatar.name}</h4>
+                        <div className='flex items-center gap-2'>
+                          {avatar.userId === me.id && (
+                            <span className='text-xs bg-neutral-04 text-neutral-01 px-2 py-1 rounded-full'>👤</span>
+                          )}
+                          {avatar.published && (
+                            <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Published</span>
+                          )}
+                        </div>
+                      </div>
+                      <p className='text-sm text-neutral-01 line-clamp-2'>{avatar.shortDesc}</p>
+                    </Link>
+                  ))}
+                </div>
+              </DetailCard>
+            )}
             <DetailCard isScenario>
               <div className='flex flex-col gap-4'>
                 <DetailRow title='Created at: ' value={createdDate} />

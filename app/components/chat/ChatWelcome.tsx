@@ -18,19 +18,19 @@ interface ChatWelcomeProps {
   avatars: Avatar[];
 }
 
-const CHATS_STATE_CONFIGS: Record<ChatStateVariants, (avatars: Avatar[]) => ChatStateConfig> = {
+const CHATS_STATE_CONFIGS: Record<ChatStateVariants, (avatars: Avatar[], chats?: Chat[]) => ChatStateConfig> = {
   // user already has existing chat sessions
-  hasChats: () => ({
+  hasChats: (_avatars, _chats) => ({
     header: '👈',
     title: 'Choose a message to open it',
   }),
   // user has no chat sessions and no avatars
-  noChatsNoAvatars: () => ({
+  noChatsNoAvatars: (_avatars, _chats) => ({
     header: '💬',
     title: 'You Have No Avatar to Chat',
   }),
   // user has no chat sessions but has avatars
-  noChatsHasAvatars: (avatars: Avatar[]) => ({
+  noChatsHasAvatars: (avatars: Avatar[], chats?: Chat[]) => ({
     header: (
       <>
         {avatars.slice(0, 3).map((avatar, index) => (
@@ -56,6 +56,9 @@ const CHATS_STATE_CONFIGS: Record<ChatStateVariants, (avatars: Avatar[]) => Chat
         ) : (
           <Form method='POST' action='/chats'>
             <input hidden name='avatarId' id='avatarId' value={avatars[0].id} readOnly />
+            {avatars[0].defaultScenarioId && (
+              <input hidden name='scenarioId' id='scenarioId' value={avatars[0].defaultScenarioId} readOnly />
+            )}
             <Button.Root className='px-5 sm:h-12' type='submit' size='sm'>
               Chat with Avatar
             </Button.Root>
@@ -72,7 +75,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chats, avatars }) => {
 
   const variant: ChatStateVariants = hasChats ? 'hasChats' : hasAvatars ? 'noChatsHasAvatars' : 'noChatsNoAvatars';
 
-  const { header, title, footer } = CHATS_STATE_CONFIGS[variant](avatars);
+  const { header, title, footer } = CHATS_STATE_CONFIGS[variant](avatars, chats);
 
   return (
     <div

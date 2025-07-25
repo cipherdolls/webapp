@@ -1,4 +1,4 @@
-import { Form, Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
+import { Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { AvatarsPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
 import { fetchPaginatedData } from '~/utils/fetchWithAuth';
@@ -11,6 +11,7 @@ import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import * as Popover from '~/components/ui/popover';
+import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
@@ -301,20 +302,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                     <div className='flex items-center gap-3'>
                       <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
 
-                      {avatar.chats.length > 0 ? (
-                        <Link to={`/chats/${avatar.chats[0].id}`}>
-                          <Button.Root size='sm' className='px-5'>
-                            Continue Chat
-                          </Button.Root>
-                        </Link>
-                      ) : (
-                        <Form method='POST' action='/chats'>
-                          <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                          <Button.Root type='submit' size='sm' className='px-5'>
-                            Chat
-                          </Button.Root>
-                        </Form>
-                      )}
+                      <AvatarScenarioModal avatar={avatar}>
+                        <Button.Root size='sm' className='px-5'>
+                          {avatar.chats.length > 0 ? 'Continue Chat' : 'Chat'}
+                        </Button.Root>
+                      </AvatarScenarioModal>
                     </div>
                   </div>
                 </div>

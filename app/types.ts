@@ -156,11 +156,14 @@ export interface Scenario {
   reasoningModel?: ChatModel;
   userId: string;
   chats: Chat[];
+  avatars?: Avatar[];
   recommended: boolean;
   introduction?: string;
   published?: boolean;
   userGender?: Gender;
   avatarGender?: Gender;
+  defaultAvatarId?: string;
+  defaultAvatar?: Avatar;
 }
 
 export interface Chat {
@@ -317,9 +320,16 @@ export interface Avatar {
   language: string;
   scenarios: Scenario[];
   gender: Gender;
+  defaultScenarioId?: string;
+  defaultScenario?: Scenario;
 }
 export interface AvatarCount {
   chats: number;
+}
+
+export interface GroupedChatsByAvatar {
+  avatar: Avatar;
+  chats: Chat[];
 }
 
 export type AudioEvent = {

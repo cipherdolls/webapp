@@ -1,7 +1,7 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
+import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, AiProvidersPaginated, Scenario, Gender } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Scenario, Gender, Avatar, AvatarsPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -9,6 +9,7 @@ import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
+import Multiselect from '~/components/ui/input/multiselect';
 import { Fragment, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
@@ -23,14 +24,24 @@ export function meta({}: Route.MetaArgs) {
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const scenarioId = params.scenariosId;
 
-  const [scenarioRes, aiProvidersRes] = await Promise.all([fetchWithAuth(`scenarios/${scenarioId}`), fetchWithAuth('ai-providers')]);
+  const [scenarioRes, aiProvidersRes, avatarsRes, publicAvatarsRes] = await Promise.all([
+    fetchWithAuth(`scenarios/${scenarioId}`),
+    fetchWithAuth('ai-providers'),
+    fetchWithAuth('avatars'),
+    fetchWithAuth('avatars?published=true'),
+  ]);
 
   const scenario = await scenarioRes.json();
   const { data }: AiProvidersPaginated = await aiProvidersRes.json();
-
   const aiProviders = data;
 
-  return { scenario, aiProviders };
+  const mineAvatars: AvatarsPaginated = await avatarsRes.json();
+  const publicAvatars: AvatarsPaginated = await publicAvatarsRes.json();
+
+  const allAvatars = [...mineAvatars.data, ...publicAvatars.data];
+  const avatars = allAvatars.filter((avatar, index, self) => index === self.findIndex((a) => a.id === avatar.id));
+
+  return { scenario, aiProviders, avatars };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -65,7 +76,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
-  const { scenario, aiProviders } = loaderData as { scenario: Scenario; aiProviders: AiProvider[] };
+  const { scenario, aiProviders, avatars } = loaderData as { scenario: Scenario; aiProviders: AiProvider[]; avatars: Avatar[] };
+  const me = useRouteLoaderData('routes/_main') as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(scenario.picture ?? null);
@@ -81,6 +93,16 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
   const [topP, setTopP] = useState(scenario.topP);
   const [frequencyPenalty, setFrequencyPenalty] = useState(scenario.frequencyPenalty);
   const [presencePenalty, setPresencePenalty] = useState(scenario.presencePenalty);
+
+  const [selectedAvatars, setSelectedAvatars] = useState<Avatar[]>(() => {
+    if (!scenario.avatars) return [];
+
+    const matched = scenario.avatars
+      .map((scenarioAvatar) => avatars.find((avatar) => avatar.id === scenarioAvatar.id))
+      .filter(Boolean) as Avatar[];
+
+    return matched;
+  });
 
   const errors = fetcher.data?.errors;
 
@@ -674,6 +696,22 @@ export default function ScenarioEdit({ loaderData }: Route.ComponentProps) {
                   </Slider.Root>
                 </Input.Root>
               </div>
+
+              <Input.Root>
+                <Input.Label htmlFor='avatars'>Avatars</Input.Label>
+                <Multiselect<Avatar>
+                  userId={me.id}
+                  options={avatars}
+                  selectedOptions={selectedAvatars}
+                  onChange={setSelectedAvatars}
+                  placeholder='Select avatars for this scenario'
+                />
+                {Array.isArray(selectedAvatars) &&
+                  selectedAvatars.length > 0 &&
+                  selectedAvatars.map((avatar) => <input key={avatar.id} type='hidden' name='avatarIds[]' value={avatar.id} />)}
+                <p className='text-xs text-gray-500'>Select avatars this scenario can be used with.</p>
+              </Input.Root>
+
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
                 <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
