@@ -1,10 +1,9 @@
-
 import { Form, Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { AvatarsPaginated, User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
 import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import SearchAvatars from '~/components/ui/search-avatars';
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
@@ -12,6 +11,7 @@ import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import * as Popover from '~/components/ui/popover';
+import RecommendedBadge from '~/components/ui/RecommendedBadge';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -61,7 +61,7 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
   // Add server-side sorting
   searchParams.set('sortBy', 'updatedAt');
   searchParams.set('sortOrder', 'desc');
-  
+
   const avatarsPaginated = await fetchPaginatedData<AvatarsPaginated>('avatars', searchParams, 1, 10);
 
   return {
@@ -294,7 +294,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                     <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <h4 className='text-heading-h4 text-base-black'>{avatar.name}</h4>
-                        <Icons.thumb />
+                        <RecommendedBadge recommended={avatar.recommended} tooltipText='Recommended' className='pt-1' />
                       </div>
                       <p className='text-body-md text-neutral-01 line-clamp-1'>{avatar.shortDesc}</p>
                     </div>
