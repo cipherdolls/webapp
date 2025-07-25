@@ -16,14 +16,14 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
 
   // Filter out avatars that already have chats (unless we want to show them for new scenarios)
-  const availableAvatars = avatars.filter((avatar) => avatar.chats.length === 0 || avatar.scenarios.length > 1);
+  const availableAvatars = avatars.filter((avatar) => (avatar.chats?.length || 0) === 0 || (avatar.scenarios?.length || 0) > 1);
 
   const handleAvatarSelect = (avatar: Avatar) => {
     setSelectedAvatar(avatar);
-    if (avatar.defaultScenarioId) {
-      setSelectedScenario(avatar.defaultScenarioId);
-    } else if (avatar.scenarios.length === 1) {
+    if (avatar.scenarios?.length === 1) {
       setSelectedScenario(avatar.scenarios[0].id);
+    } else if ((avatar.scenarios?.length || 0) > 0) {
+      setSelectedScenario(avatar.scenarios![0].id);
     } else {
       setSelectedScenario(null);
     }
@@ -49,11 +49,11 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
                   <AvatarCard.Name />
                   <AvatarCard.Description>{avatar.shortDesc}</AvatarCard.Description>
                   <div className='text-xs text-neutral-01 mt-1'>
-                    {avatar.scenarios.length} scenario{avatar.scenarios.length !== 1 ? 's' : ''}
+                    {avatar.scenarios?.length || 0} scenario{(avatar.scenarios?.length || 0) !== 1 ? 's' : ''}
                   </div>
                 </AvatarCard.Content>
                 <AvatarCard.Actions>
-                  {avatar.scenarios.length === 1 ? (
+                  {(avatar.scenarios?.length || 0) === 1 ? (
                     <Modal.Close asChild>
                       <AvatarCard.ChatButton />
                     </Modal.Close>
@@ -82,7 +82,7 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
             </div>
 
             <div className='space-y-2'>
-              {selectedAvatar.scenarios.map((scenario) => (
+              {(selectedAvatar.scenarios || []).map((scenario) => (
                 <button
                   key={scenario.id}
                   onClick={() => setSelectedScenario(scenario.id)}
@@ -93,7 +93,7 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
                 >
                   <div className='flex items-center justify-between'>
                     <h5 className='font-semibold'>{scenario.name}</h5>
-                    {selectedAvatar.defaultScenarioId === scenario.id && (
+                    {selectedAvatar.scenarios?.[0]?.id === scenario.id && (
                       <span className='text-xs bg-base-black text-white px-2 py-1 rounded'>Default</span>
                     )}
                   </div>

@@ -162,8 +162,6 @@ export interface Scenario {
   published?: boolean;
   userGender?: Gender;
   avatarGender?: Gender;
-  defaultAvatarId?: string;
-  defaultAvatar?: Avatar;
 }
 
 export interface Chat {
@@ -316,12 +314,10 @@ export interface Avatar {
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
-  chats: Chat[];
+  chats?: Chat[];
   language: string;
-  scenarios: Scenario[];
+  scenarios?: Scenario[];
   gender: Gender;
-  defaultScenarioId?: string;
-  defaultScenario?: Scenario;
 }
 export interface AvatarCount {
   chats: number;

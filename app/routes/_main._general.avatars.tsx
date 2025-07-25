@@ -304,7 +304,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
 
                       <AvatarScenarioModal avatar={avatar}>
                         <Button.Root size='sm' className='px-5'>
-                          {avatar.chats.length > 0 ? 'Continue Chat' : 'Chat'}
+                          {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
                         </Button.Root>
                       </AvatarScenarioModal>
                     </div>

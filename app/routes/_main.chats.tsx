@@ -27,10 +27,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       const avatarRes = await fetchWithAuth(`avatars/${bodyObj.avatarId}`);
       if (avatarRes.ok) {
         const avatar = await avatarRes.json();
-        if (avatar.defaultScenarioId) {
-          bodyObj.scenarioId = avatar.defaultScenarioId;
-        } else if (avatar.scenarios && avatar.scenarios.length > 0) {
-          bodyObj.scenarioId = avatar.scenarios[0].id;
+        if (avatar.scenarios && (avatar.scenarios?.length || 0) > 0) {
+          bodyObj.scenarioId = avatar.scenarios![0].id;
         }
       }
     }

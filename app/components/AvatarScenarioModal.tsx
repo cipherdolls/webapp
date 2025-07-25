@@ -66,7 +66,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
       // Ensure scenarios with existing chats are always included
       if (!isLoadMore) {
         const existingChatsByScenario = new Map<string, Chat>();
-        const avatarChats = chats?.filter((chat: Chat) => chat.avatar.id === avatar.id) ?? avatar.chats;
+        const avatarChats = chats?.filter((chat: Chat) => chat.avatar.id === avatar.id) ?? avatar.chats ?? [];
         avatarChats.forEach((chat: Chat) => {
           if (chat?.scenario?.id) {
             existingChatsByScenario.set(chat.scenario.id, chat);
@@ -88,7 +88,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
         setScenarios((prev) => [...prev, ...limitedNewScenarios]);
       } else {
         const existingChatsByScenario = new Map<string, Chat>();
-        const avatarChats = chats?.filter((chat: Chat) => chat.avatar.id === avatar.id) ?? avatar.chats;
+        const avatarChats = chats?.filter((chat: Chat) => chat.avatar.id === avatar.id) ?? avatar.chats ?? [];
         avatarChats.forEach((chat: Chat) => {
           if (chat?.scenario?.id) {
             existingChatsByScenario.set(chat.scenario.id, chat);
@@ -144,7 +144,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
     }
   }, [fetcher.state, fetcher.data]);
   const existingChatsByScenario = new Map<string, Chat>();
-  const avatarChats = chats?.filter((chat) => chat.avatar.id === avatar.id) ?? avatar.chats;
+  const avatarChats = chats?.filter((chat) => chat.avatar.id === avatar.id) ?? avatar.chats ?? [];
 
   avatarChats.forEach((chat) => {
     if (chat.scenario?.id) {
@@ -202,11 +202,11 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
         }
       }
 
-      const isScenarioAttached = avatar.scenarios?.some((s) => s.id === selectedScenario);
+      const isScenarioAttached = avatar.scenarios?.some((s) => s.id === selectedScenario) ?? false;
 
       if (!isScenarioAttached) {
         try {
-          const currentScenarioIds = avatar.scenarios.map((s) => s.id);
+          const currentScenarioIds = avatar.scenarios?.map((s) => s.id) || [];
           const updatedScenarioIds = [...currentScenarioIds, selectedScenario];
 
           const avatarFormData = new FormData();
@@ -218,9 +218,6 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
           avatarFormData.append('published', avatar.published.toString());
           avatarFormData.append('language', avatar.language);
           avatarFormData.append('gender', avatar.gender);
-          if (avatar.defaultScenarioId) {
-            avatarFormData.append('defaultScenarioId', avatar.defaultScenarioId);
-          }
           updatedScenarioIds.forEach((id) => {
             avatarFormData.append('scenarioIds[]', id);
           });
@@ -321,7 +318,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
 
             <div>
               <h3 className='font-semibold text-base-black mb-3'>Select Scenario:</h3>
-              {!avatar.scenarios || avatar.scenarios.length === 0 ? (
+              {!avatar.scenarios || (avatar.scenarios?.length || 0) === 0 ? (
                 <div className='p-8 text-center text-neutral-01'>
                   <Icons.loading className='w-6 h-6 animate-spin mx-auto mb-2' />
                   <p>Loading scenarios...</p>
@@ -329,11 +326,11 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
               ) : (
                 <div className='space-y-6 max-h-[480px] overflow-y-auto'>
                   {/* Avatar's existing scenarios */}
-                  {avatar.scenarios && avatar.scenarios.length > 0 && (
+                  {avatar.scenarios && (avatar.scenarios?.length || 0) > 0 && (
                     <div>
                       <h4 className='text-sm font-medium text-neutral-01 mb-3'>Added to this avatar</h4>
                       <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                        {avatar.scenarios.map((scenario) => {
+                        {(avatar.scenarios || []).map((scenario) => {
                           const existingChat = existingChatsByScenario.get(scenario.id);
                           const isSelected = selectedScenario === scenario.id;
 
@@ -349,7 +346,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
                               <div className='flex items-center justify-between'>
                                 <h5 className='font-semibold text-base-black'>{scenario.name}</h5>
                                 <div className='flex gap-1'>
-                                  {avatar.defaultScenarioId === scenario.id && (
+                                  {avatar.scenarios?.[0]?.id === scenario.id && (
                                     <span className='text-xs bg-base-black text-white px-2 py-1 rounded-full'>Default</span>
                                   )}
                                   {scenario.recommended && (
@@ -488,7 +485,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
                   )}
 
                   {/* Show message if no scenarios at all */}
-                  {(!avatar.scenarios || avatar.scenarios.length === 0) && scenarios.length === 0 && !loading && (
+                  {(!avatar.scenarios || (avatar.scenarios?.length || 0) === 0) && scenarios.length === 0 && !loading && (
                     <div className='p-8 text-center text-neutral-01'>
                       <p>No scenarios available.</p>
                       <p className='text-sm mt-2'>Create a scenario first to start chatting.</p>
@@ -520,7 +517,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
                 </>
               ) : (
                 (() => {
-                  const isScenarioAttached = avatar.scenarios?.some((s) => s.id === selectedScenario);
+                  const isScenarioAttached = avatar.scenarios?.some((s) => s.id === selectedScenario) ?? false;
 
                   if (existingChatsByScenario.has(selectedScenario) && !replaceExisting) {
                     return 'Continue Chat';

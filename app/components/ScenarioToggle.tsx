@@ -32,8 +32,8 @@ const ScenarioToggle = ({ chat, avatar, className, wideVariant = false }: Scenar
         className
       )}
     >
-      {avatar.scenarios.length > 0 ? (
-        avatar.scenarios.map((scenario) => (
+      {(avatar.scenarios?.length || 0) > 0 ? (
+        avatar.scenarios?.map((scenario) => (
           <button
             key={scenario.id}
             type='button'
@@ -42,7 +42,7 @@ const ScenarioToggle = ({ chat, avatar, className, wideVariant = false }: Scenar
               'flex items-center justify-center flex-1 px-4 h-[48px] text-body-sm font-semibold rounded-xl border-neutral-04 bg-clip-padding bg-neutral-04',
               wideVariant && 'sm:h-[40px] sm:w-[110px] sm:rounded-[10px] sm:bg-transparent sm:border-none md:w-auto md:min-w-[120px]',
               chat.scenario.id === scenario.id && '!bg-base-white shadow-regular pointer-events-none',
-              avatar.scenarios.length === 1 && !wideVariant && 'col-span-2'
+              (avatar.scenarios?.length || 0) === 1 && !wideVariant && 'col-span-2'
             )}
           >
             {scenario.name}

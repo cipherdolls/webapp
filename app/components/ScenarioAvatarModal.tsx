@@ -126,7 +126,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
     }
   }, [fetcher.state, fetcher.data]);
   const existingChatsByAvatar = new Map<string, Chat>();
-  const scenarioChats = chats?.filter((chat) => chat.scenario.id === scenario.id) ?? scenario.chats;
+  const scenarioChats = chats?.filter((chat) => chat.scenario.id === scenario.id) ?? scenario.chats ?? [];
   scenarioChats.forEach((chat) => {
     if (chat.avatar?.id) {
       existingChatsByAvatar.set(chat.avatar.id, chat);
@@ -218,9 +218,6 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
           }
           if (scenario.avatarGender) {
             scenarioFormData.append('avatarGender', scenario.avatarGender);
-          }
-          if (scenario.defaultAvatarId) {
-            scenarioFormData.append('defaultAvatarId', scenario.defaultAvatarId);
           }
 
           updatedAvatarIds.forEach((id) => {
