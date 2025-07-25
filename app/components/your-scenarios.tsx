@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Form, Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import type { Scenario } from '~/types';
+import type { Scenario, Chat } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
+import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
 
-const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
+const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Chat[] }) => {
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
 
@@ -69,25 +70,19 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
 
                     <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
                       <div className='flex flex-col gap-1'>
-                        <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
-
-                        <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
+                        <div className='flex items-center gap-2'>
+                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+                        </div>
+                        {scenario.introduction && (
+                          <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
+                        )}
                       </div>
                       <div className='flex items-center gap-3'>
-                        {scenario.chats && scenario.chats.length > 0 ? (
-                          <Link to={`/chats/${scenario.chats[0].id}`}>
-                            <Button.Root size='sm' className='px-5'>
-                              Continue Chat
-                            </Button.Root>
-                          </Link>
-                        ) : (
-                          <Form method='POST' action='/chats'>
-                            <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
-                            <Button.Root type='submit' size='sm' className='px-5'>
-                              Chat
-                            </Button.Root>
-                          </Form>
-                        )}
+                        <ScenarioAvatarModal scenario={scenario} chats={chats}>
+                          <Button.Root size='sm' className='px-5'>
+                            {scenario.chats && scenario.chats.length > 0 ? 'Continue Chat' : 'Chat'}
+                          </Button.Root>
+                        </ScenarioAvatarModal>
                       </div>
                     </div>
                   </div>

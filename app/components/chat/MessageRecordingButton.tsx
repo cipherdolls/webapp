@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { ChatState, type ChatStateType } from '~/components/chat/types/chatState';
+import { ChatState } from '~/components/chat/types/chatState';
 import AnimationRecording from '~/components/ui/AnimationRecording';
 import { cn } from '~/utils/cn';
 import { useFetcher } from 'react-router';

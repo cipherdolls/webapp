@@ -11,6 +11,7 @@ import { getPicture } from '~/utils/getPicture';
 import * as Popover from '~/components/ui/popover';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import Tooltip from '~/components/ui/tooltip';
+import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -334,22 +335,14 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                           />
                         )}
                       </div>
-                      <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.systemMessage}</p>
+                      {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
                     </div>
                     <div className='flex items-center gap-3'>
-                      {scenario.chats && scenario.chats.length > 0 ? (
-                        <Link to={`/chats/${scenario.chats[0].id}`}>
-                          <Button.Root size='sm' className='px-5'>
-                            Continue Chat
-                          </Button.Root>
-                        </Link>
-                      ) : (
-                        <Link to={`/scenarios/chat?scenarioId=${scenario.id}`}>
-                          <Button.Root size='sm' className='px-5'>
-                            Chat
-                          </Button.Root>
-                        </Link>
-                      )}
+                      <ScenarioAvatarModal scenario={scenario}>
+                        <Button.Root size='sm' className='px-5'>
+                          {scenario.chats && scenario.chats.length > 0 ? 'Continue Chat' : 'Chat'}
+                        </Button.Root>
+                      </ScenarioAvatarModal>
                     </div>
                   </div>
                 </div>

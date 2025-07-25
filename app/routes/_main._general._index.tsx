@@ -182,7 +182,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
           <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
             <YourChats chats={chats} />
-            <YourAvatars avatars={avatars} />
+            <YourAvatars avatars={avatars} chats={chats} />
             <YourScenarios scenarios={scenarios} />
           </div>
           <div className='flex flex-col gap-5'>
