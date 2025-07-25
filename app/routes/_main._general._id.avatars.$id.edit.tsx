@@ -130,11 +130,11 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
     >
       <Modal.Content
         className={cn(
-          'overflow-y-auto flex flex-col scrollbar-medium',
+          'overflow-y-auto flex flex-col scrollbar-medium ',
           isExpanded ? 'max-w-none w-[90vw] h-screen' : 'max-h-[calc(100vh-104px)]'
         )}
       >
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between pb-4'>
           <Modal.Title>Edit Avatar</Modal.Title>
           <button
             type='button'
@@ -146,9 +146,9 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
           </button>
         </div>
         <Modal.Description className='sr-only'>Edit avatar</Modal.Description>
-        <fetcher.Form method='PATCH' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
-          <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
-            <ErrorsBox errors={errors} />
+        <fetcher.Form method='PATCH' encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
+          <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1 overflow-auto scrollbar-medium -mx-8 px-8 [scrollbar-gutter:stable]', isExpanded ? 'flex-row' : 'flex-col')}>
+            
             <input type='hidden' name='avatarId' value={avatar.id} />
 
             {isExpanded && (
@@ -166,33 +166,10 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                     />
                   </Textarea.Wrapper>
                 </Textarea.Root>
-                <Input.Root>
-                  <div className='flex items-center justify-between mb-3'>
-                    <div className='flex flex-col gap-1'>
-                      <Input.Label htmlFor='voice'>Voice</Input.Label>
-                      <span className='text-sm text-gray-500'>Select a voice for the avatar</span>
-                    </div>
-                    <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={selectedVoice} onVoiceChange={handleVoiceChange} />
-                  </div>
-                  {selectedVoice && (
-                    <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                      <PlayerButton
-                        variant='white'
-                        className='shrink-0 shadow-bottom-level-1'
-                        audioSrc={PATHS.ttsVoice(selectedVoice.id)}
-                      />
-                      <div className='flex flex-col gap-1'>
-                        <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
-                        <span className='text-body-md text-neutral-01'>{selectedVoice.ttsProvider?.name || 'Voice Provider'}</span>
-                        <input type='hidden' name='ttsVoiceId' value={selectedVoice.id} />
-                      </div>
-                    </div>
-                  )}
-                </Input.Root>
               </div>
             )}
 
-            <div className={cn('flex flex-col gap-4 md:gap-6', isExpanded ? 'flex-1 pb-5' : 'w-full')}>
+            <div className={cn('flex flex-col gap-4 md:gap-6  ', isExpanded ? 'flex-1 pb-5 h-full -mx-4 px-4 overflow-auto scrollbar-medium' : 'w-full')}>
               <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-5' : 'mb-10')}>
                 <div className='relative'>
                   <label
@@ -278,29 +255,6 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                   <p className='text-xs text-gray-500'>Detailed character description.</p>
                 </Textarea.Root>
               )}
-              {!isExpanded && (
-                <Input.Root>
-                  <Input.Label htmlFor='voice'>Voice</Input.Label>
-                  <div className='flex items-center justify-between mb-3'>
-                    <span className='text-sm text-gray-500'>Select a voice for the avatar</span>
-                    <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={selectedVoice} onVoiceChange={handleVoiceChange} />
-                  </div>
-                  {selectedVoice && (
-                    <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                      <PlayerButton
-                        variant='white'
-                        className='shrink-0 shadow-bottom-level-1'
-                        audioSrc={PATHS.ttsVoice(selectedVoice.id)}
-                      />
-                      <div className='flex flex-col gap-1'>
-                        <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
-                        <span className='text-body-md text-neutral-01'>{selectedVoice.ttsProvider?.name || 'Voice Provider'}</span>
-                        <input type='hidden' name='ttsVoiceId' value={selectedVoice.id} />
-                      </div>
-                    </div>
-                  )}
-                </Input.Root>
-              )}
 
               <Input.Root>
                 <Input.Label htmlFor='gender'>Gender</Input.Label>
@@ -328,6 +282,24 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                 </div>
                 <input type='hidden' name='gender' value={gender} />
                 <p className='text-xs text-gray-500'>Select the gender for this avatar.</p>
+              </Input.Root>
+
+              <Input.Root>
+                <Input.Label htmlFor='voice'>Voice</Input.Label>
+                <div className='flex items-center justify-between mb-3'>
+                  <span className='text-sm text-gray-500'>Select a voice for the avatar</span>
+                  <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={selectedVoice} onVoiceChange={handleVoiceChange} />
+                </div>
+                {selectedVoice && (
+                  <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
+                    <PlayerButton variant='white' className='shrink-0 shadow-bottom-level-1' audioSrc={PATHS.ttsVoice(selectedVoice.id)} />
+                    <div className='flex flex-col gap-1'>
+                      <p className='text-body-lg font-semibold text-base-black'>{selectedVoice.name}</p>
+                      <span className='text-body-md text-neutral-01'>{selectedVoice.ttsProvider?.name || 'Voice Provider'}</span>
+                      <input type='hidden' name='ttsVoiceId' value={selectedVoice.id} />
+                    </div>
+                  </div>
+                )}
               </Input.Root>
 
               <Input.Root>
@@ -375,18 +347,20 @@ export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
                   Anyone in the system can use public avatars. Once published, you will no longer be able to edit or delete your avatar.
                 </p>
               </Input.Root>
-              <Modal.Footer className={cn(isExpanded ? 'p-0 mt-auto !pt-0' : 'pb-5 !pt-5')}>
-                <Modal.Close asChild>
-                  <Button.Root variant='secondary' aria-label='Close' className='w-full'>
-                    Cancel
-                  </Button.Root>
-                </Modal.Close>
-                <Button.Root type='submit' className='w-full'>
-                  Save Avatar
-                </Button.Root>
-              </Modal.Footer>
             </div>
           </Modal.Body>
+          <ErrorsBox errors={errors}  className='mt-3'/>
+          <Modal.Footer className={cn('flex-shrink-0 pt-7', isExpanded ? 'justify-end' : '')}>
+          
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className={'w-full'}>
+                Cancel
+              </Button.Root>
+            </Modal.Close>
+            <Button.Root type='submit' className={'w-full'}>
+              Save Avatar
+            </Button.Root>
+          </Modal.Footer>
 
           <input type='hidden' name='published' value={availability === 'public' ? 'true' : 'false'} />
         </fetcher.Form>
