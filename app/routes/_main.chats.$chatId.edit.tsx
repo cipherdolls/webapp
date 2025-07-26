@@ -3,6 +3,7 @@ import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { useAlert } from '~/providers/AlertDialogProvider';
+// ScenarioToggle removed - scenario switching disabled in running chats
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
@@ -167,6 +168,16 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               </div>
 
               <Card.Main>
+                <div className='p-4 bg-neutral-04 rounded-xl'>
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <h4 className='text-body-md font-semibold text-base-black'>{chat.scenario.name}</h4>
+                      <p className='text-body-sm text-neutral-01'>Current scenario</p>
+                    </div>
+                    <div className='text-xs text-neutral-01 bg-neutral-05 px-3 py-1 rounded-full'>Active</div>
+                  </div>
+                </div>
+
                 <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
                   <div className='p-4 flex gap-2 items-center justify-between'>
                     <span className='text-body-sm'>Chat Model:</span>

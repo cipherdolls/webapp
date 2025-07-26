@@ -11,6 +11,7 @@ import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewMore } from '~/view-more';
+import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 
 export function meta({}: Route.MetaArgs) {
@@ -53,14 +54,15 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const [showAll, setShowAll] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const scenarios = avatar.scenarios ? avatar.scenarios : [];
+  const hasScenarios = scenarios.length > 0;
   const isPublished = avatar.published;
-  const hasScenarios = avatar.scenarios.length > 0;
 
   const sortedScenarios = useMemo(() => {
-    return [...avatar.scenarios].sort((a, b) => {
+    return [...scenarios].sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }, [avatar.scenarios]);
+  }, [scenarios]);
 
   // const handleCopyToClipboard = () => {
   //   navigator.clipboard.writeText(avatar.character);
@@ -109,22 +111,12 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
-            {avatar.chats.length > 0 ? (
-              <Link to={`/chats/${avatar.chats[0]?.id}`}>
-                <Button.Root variant='primary' className='px-6' type='submit'>
-                  Continue Chat
-                </Button.Root>
-              </Link>
-            ) : (
-              <Form method='POST' action='/chats'>
-                <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                <Button.Root variant='primary' className='px-6' type='submit'>
-                  Start Chat
-                </Button.Root>
-              </Form>
-            )}
+            <AvatarScenarioModal avatar={avatar}>
+              <Button.Root variant='primary' className='px-6'>
+                {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Start Chat'}
+              </Button.Root>
+            </AvatarScenarioModal>
 
-            {/*Duplicate*/}
             {/*<fetcher.Form method='POST' action='/avatars/new'>*/}
             {/*  <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />*/}
             {/*  <textarea hidden readOnly id='character' name='character' defaultValue={avatar.character} />*/}
@@ -159,9 +151,15 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   visible: me.id === avatar.userId,
                 },
                 {
-                  type: 'link',
+                  type: 'component',
                   text: 'Chat',
-                  href: avatar.chats.length > 0 ? `/chats/${avatar.chats[0]?.id}` : '/chats',
+                  component: (
+                    <AvatarScenarioModal avatar={avatar}>
+                      <button className='w-full text-left px-3 py-2 text-body-md text-base-black hover:bg-neutral-05 rounded-lg transition-colors'>
+                        {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
+                      </button>
+                    </AvatarScenarioModal>
+                  ),
                 },
                 // {
                 //   type: 'form',
@@ -247,7 +245,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                       </div>
                     ))}
                   </div>
-                  {avatar.scenarios.length > 4 && (
+                  {scenarios.length > 4 && (
                     <div className='mx-auto -mt-2'>
                       <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
                         {showAll ? 'Collapse' : 'Show all'}

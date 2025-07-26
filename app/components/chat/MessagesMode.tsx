@@ -78,7 +78,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   return (
     <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
       {/* chat header */}
-      <ChatTopBar chat={chat} avatar={avatar} />
+      <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
       <ChatBody
         messages={messages}
