@@ -8,14 +8,14 @@ const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
     <div className='relative'>
       <div
         className={cn(
-          'bg-gradient-1 select-none p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black min-h-[415px] h-[415px] rounded-xl overflow-hidden  backdrop-blur-48 cursor-pointer',
+          'bg-gradient-1 select-none p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black min-h-[415px] h-[415px] rounded-xl overflow-hidden backdrop-blur-48 cursor-pointer',
           showFull && 'h-auto'
         )}
         onClick={() => setShowFull((prev) => !prev)}
       >
         <div
           className={cn(
-            'absolute inset-0 top-5 z-20 bg-linear-to-t from-[rgba(254,253,248,1)] to-[rgba(255,255,255,0)]',
+            'absolute inset-0 top-5 z-20 bg-linear-to-t from-[rgba(254,253,248,0.9)] to-[rgba(255,255,255,0)]',
             showFull && 'hidden'
           )}
         ></div>
