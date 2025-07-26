@@ -1,8 +1,8 @@
-import { Form, Link, Outlet, redirect, useFetcher, useRouteLoaderData } from 'react-router';
+import { Form, Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
 import type { Avatar, User } from '~/types';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS } from '~/constants';
 import DeleteAvatarModal from '~/components/deleteAvatarModal';
@@ -11,6 +11,7 @@ import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewMore } from '~/view-more';
+import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -46,30 +47,35 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
 export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const avatar: Avatar = loaderData;
-  const fetcher = useFetcher();
   const me = useRouteLoaderData('routes/_main') as User;
-  const [copied, setCopied] = useState(false);
+  // const fetcher = useFetcher();
+  // const [copied, setCopied] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const isPublished = avatar.published;
+  const hasScenarios = avatar.scenarios.length > 0;
 
-  useEffect(() => {
-    return () => {
-      if (copyTimeoutRef.current) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-    };
-  }, []);
+  const sortedScenarios = useMemo(() => {
+    return [...avatar.scenarios].sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [avatar.scenarios]);
 
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(avatar.character);
-    setCopied(true);
+  // const handleCopyToClipboard = () => {
+  //   navigator.clipboard.writeText(avatar.character);
+  //   setCopied(true);
+  //
+  //   if (copyTimeoutRef.current) {
+  //     clearTimeout(copyTimeoutRef.current);
+  //   }
+  //
+  //   const timeoutId = setTimeout(() => setCopied(false), 2000);
+  //   copyTimeoutRef.current = timeoutId;
+  // };
 
-    if (copyTimeoutRef.current) {
-      clearTimeout(copyTimeoutRef.current);
-    }
-
-    const timeoutId = setTimeout(() => setCopied(false), 2000);
-    copyTimeoutRef.current = timeoutId;
+  const handleShowAll = () => {
+    setShowAll(!showAll);
   };
 
   const getTextAfterThe = (text: string): string => {
@@ -81,6 +87,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
 
     return text;
   };
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -109,18 +123,20 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 </Button.Root>
               </Form>
             )}
-            <fetcher.Form method='POST' action='/avatars/new'>
-              <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />
-              <textarea hidden readOnly id='character' name='character' defaultValue={avatar.character} />
-              <input hidden readOnly id='ttsVoiceId' name='ttsVoiceId' defaultValue={avatar.ttsVoiceId} />
-              <input hidden readOnly id='shortDesc' name='shortDesc' defaultValue={avatar.shortDesc} />
-              {avatar.scenarios?.map((scenario) => (
-                <input key={scenario.id} hidden readOnly name='scenarioIds[]' defaultValue={scenario.id} />
-              ))}
-              <Button.Root variant='secondary' className='w-[130px]' type='submit'>
-                Duplicate
-              </Button.Root>
-            </fetcher.Form>
+
+            {/*Duplicate*/}
+            {/*<fetcher.Form method='POST' action='/avatars/new'>*/}
+            {/*  <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />*/}
+            {/*  <textarea hidden readOnly id='character' name='character' defaultValue={avatar.character} />*/}
+            {/*  <input hidden readOnly id='ttsVoiceId' name='ttsVoiceId' defaultValue={avatar.ttsVoiceId} />*/}
+            {/*  <input hidden readOnly id='shortDesc' name='shortDesc' defaultValue={avatar.shortDesc} />*/}
+            {/*  {avatar.scenarios?.map((scenario) => (*/}
+            {/*    <input key={scenario.id} hidden readOnly name='scenarioIds[]' defaultValue={scenario.id} />*/}
+            {/*  ))}*/}
+            {/*  <Button.Root variant='secondary' className='w-[130px]' type='submit'>*/}
+            {/*    Duplicate*/}
+            {/*  </Button.Root>*/}
+            {/*</fetcher.Form>*/}
             {avatar.userId === me.id && (
               <>
                 <Link to={`/avatars/${avatar.id}/edit`}>
@@ -147,19 +163,19 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   text: 'Chat',
                   href: avatar.chats.length > 0 ? `/chats/${avatar.chats[0]?.id}` : '/chats',
                 },
-                {
-                  type: 'form',
-                  text: 'Duplicate',
-                  action: '/avatars/new',
-                  method: 'POST',
-                  formData: {
-                    name: `${avatar.name} copy`,
-                    character: avatar.character,
-                    ttsVoiceId: avatar.ttsVoiceId,
-                    shortDesc: avatar.shortDesc,
-                    'scenarioIds[]': avatar.scenarios?.map((scenario) => scenario.id) || [],
-                  },
-                },
+                // {
+                //   type: 'form',
+                //   text: 'Duplicate',
+                //   action: '/avatars/new',
+                //   method: 'POST',
+                //   formData: {
+                //     name: `${avatar.name} copy`,
+                //     character: avatar.character,
+                //     ttsVoiceId: avatar.ttsVoiceId,
+                //     shortDesc: avatar.shortDesc,
+                //     'scenarioIds[]': avatar.scenarios?.map((scenario) => scenario.id) || [],
+                //   },
+                // },
                 {
                   type: 'component',
                   text: 'Delete',
@@ -171,21 +187,95 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
+
         <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-5 sm:flex-1 sm:divide-x divide-neutral-04 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
-          <div className='sm:pr-4 flex size-full flex-col gap-4'>
-            <div className='bg-gradient-1 rounded-xl p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black'>
-              <div className='flex items-center justify-between'>
-                <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Characteristic</h3>
-                <div className='flex items-center gap-2'>
-                  {copied && <span className='text-body-sm font-semibold text-base-black'>Copied</span>}
-                  <button onClick={handleCopyToClipboard} title='Copy to clipboard' className='hover:opacity-80 transition-opacity'>
-                    {copied ? <Icons.copied /> : <Icons.copy />}
-                  </button>
+          <div className='flex gap-4 flex-col sm:pr-4'>
+            <div className='flex w-full h-fit flex-col gap-4'>
+              <AvatarCharacterPreview message={<ReactMarkdown>{avatar.character}</ReactMarkdown>} />
+            </div>
+
+            <div className={'bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col'}>
+              {hasScenarios ? (
+                <div className='flex flex-col gap-5'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                    {sortedScenarios.map((scenario, index) => (
+                      <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                        <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                          <Link
+                            to={`/scenarios/${scenario.id}`}
+                            className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
+                          >
+                            <img
+                              src={getPicture(scenario, 'scenarios', false)}
+                              srcSet={getPicture(scenario, 'scenarios', true)}
+                              alt={`${scenario.name} picture`}
+                              className='object-cover size-full'
+                            />
+
+                            <div className='absolute top-2 left-2 z-10'>
+                              <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                                🌐
+                                <span>By you</span>
+                              </div>
+                            </div>
+                          </Link>
+
+                          <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
+                            <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                              <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+
+                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
+                            </div>
+                            <div className='flex items-center gap-3'>
+                              {scenario.chats && scenario.chats.length > 0 ? (
+                                <Link to={`/chats/${scenario.chats[0].id}`}>
+                                  <Button.Root size='sm' className='px-5'>
+                                    Continue Chat
+                                  </Button.Root>
+                                </Link>
+                              ) : (
+                                <Form method='POST' action='/chats'>
+                                  <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
+                                  <Button.Root type='submit' size='sm' className='px-5'>
+                                    Chat
+                                  </Button.Root>
+                                </Form>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {avatar.scenarios.length > 4 && (
+                    <div className='mx-auto -mt-2'>
+                      <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
+                        {showAll ? 'Collapse' : 'Show all'}
+                        <Button.Icon
+                          as={Icons.chevronDown}
+                          className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`}
+                        />
+                      </Button.Root>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <ReactMarkdown>{avatar.character}</ReactMarkdown>
+              ) : (
+                <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
+                  <h1 className='text-heading-h2'>📚</h1>
+                  <div className='flex flex-col items-center sm:gap-2 gap-1'>
+                    <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
+                    <Link
+                      to='/scenarios'
+                      className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
+                    >
+                      Add new scenario
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
           <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
@@ -233,30 +323,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 </div>
               </div>
             </div>
-            {avatar.scenarios && avatar.scenarios.length > 0 && (
-              <div className='sm:bg-gradient-1 rounded-xl p-5 flex flex-col gap-5  max-h-max text-body-md text-base-black'>
-                <div className='flex flex-col gap-4'>
-                  <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Scenarios</h3>
-                  <div className='flex flex-col gap-4'>
-                    {avatar.scenarios.map((scenario) => (
-                      <Link
-                        to={`/scenarios/${scenario.id}`}
-                        key={scenario.id}
-                        className='p-4 border rounded-lg border-neutral-04 hover:border-neutral-01 transition-colors'
-                      >
-                        <div className='flex items-center justify-between mb-2'>
-                          <h4 className='font-semibold'>{scenario.name}</h4>
-                          {scenario.recommended && (
-                            <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Recommended</span>
-                          )}
-                        </div>
-                        <p className='text-sm text-neutral-01 line-clamp-2'>{scenario.systemMessage}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
