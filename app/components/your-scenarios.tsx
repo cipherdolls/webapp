@@ -68,7 +68,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                     </Link>
 
                     <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
-                      <div className='flex flex-col gap-1'>
+                      <div className='flex flex-col gap-1 min-w-0 flex-1'>
                         <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
 
                         <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
