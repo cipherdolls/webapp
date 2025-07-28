@@ -164,8 +164,8 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-        <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-5 sm:flex-1 sm:divide-x divide-neutral-04 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
-          <div className='sm:pr-4 flex size-full flex-col gap-4'>
+        <div className='flex flex-col-reverse rounded-xl divide-neutral-04 pb-2.5 gap-5 sm:flex-1 sm:backdrop-blur-none md:gap-0 sm:bg-none sm:rounded-none md:divide-x md:flex-row'>
+          <div className='flex size-full flex-col gap-5 md:pr-4'>
             <DetailCard title='' copy={false} copyText={scenario.introduction} isScenario={true}>
               {scenario.introduction && <ReactMarkdown>{scenario.introduction}</ReactMarkdown>}
             </DetailCard>
@@ -173,7 +173,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             <div className={'bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col'}>
               {hasAvatars ? (
                 <div className='flex flex-col gap-5'>
-                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                  <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2'>
                     {avatars.map((avatar, index) => (
                       <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
@@ -255,7 +255,8 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
               )}
             </div>
           </div>
-          <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-5'>
+
+          <div className='flex size-full flex-col gap-5 md:pl-4 md:max-w-[310px]'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
                 {scenario.picture ? (
@@ -292,13 +293,14 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
 
                   {scenario.chatModel.error && (
                     <div className='flex gap-1 overflow-hidden'>
+                      <DetailRow title='Embedding Error' value={''} />
                       <Tooltip
                         side={'top'}
                         trigger={<Icons.warning className='size-4 text-specials-danger' />}
                         content={scenario.chatModel.error}
-                        popoverClassName='max-w-[350px]'
+                        popoverClassName='max-w-[320px]'
+                        className={'max-w-[310px]'}
                       />
-                      <DetailRow title='Chat Model Error' value={scenario.chatModel.error} />
                     </div>
                   )}
                 </div>
@@ -335,14 +337,16 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 />
 
                 {scenario.embeddingModel.error && (
-                  <div className='flex gap-1 overflow-hidden'>
+                  <div className='flex justify-between w-full gap-1 overflow-hidden'>
+                    <DetailRow title='Embedding Error' value={''} />
+
                     <Tooltip
                       side={'top'}
                       trigger={<Icons.warning className='size-4 text-specials-danger' />}
                       content={scenario.embeddingModel.error}
-                      popoverClassName='max-w-[350px]'
+                      popoverClassName='max-w-[320px]'
+                      className={'max-w-[310px]'}
                     />
-                    <DetailRow title='Embedding Error' value={scenario.embeddingModel.error} />
                   </div>
                 )}
               </div>
@@ -363,13 +367,14 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
 
                   {scenario.reasoningModel?.error && (
                     <div className='flex gap-1 overflow-hidden'>
+                      <DetailRow title='Embedding Error' value={''} />
                       <Tooltip
                         side={'top'}
                         trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                        content={scenario.reasoningModel?.error}
-                        popoverClassName='max-w-[350px]'
+                        content={scenario.reasoningModel.error}
+                        popoverClassName='max-w-[320px]'
+                        className={'max-w-[310px]'}
                       />
-                      <DetailRow title='Reasoning Error' value={scenario.reasoningModel?.error} />
                     </div>
                   )}
                 </div>
