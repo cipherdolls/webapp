@@ -120,7 +120,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
             {avatar?.id && <input type='hidden' name='avatarId' defaultValue={avatar?.id} />}
 
             {isExpanded && (
-              <div className='flex-1 flex flex-col gap-6 pb-0.5'>
+              <div className='flex-1 flex flex-col pb-0.5'>
                 <Textarea.Root className='h-full'>
                   <Textarea.Label htmlFor='character'>Character</Textarea.Label>
                   <Textarea.Wrapper className='flex-1'>
@@ -335,7 +335,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
             </div>
           </Modal.Body>
           <ErrorsBox errors={errors} className='mt-3' />
-          <Modal.Footer className={cn('flex-shrink-0 pt-7', isExpanded ? 'justify-end' : '')}>
+          <Modal.Footer className={cn('flex-shrink-0 pt-7')}>
             <Modal.Close asChild>
               <Button.Root variant='secondary' aria-label='Close' className={'w-full'}>
                 Cancel
