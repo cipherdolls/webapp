@@ -186,8 +186,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
 
-        <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-5 sm:flex-1 sm:divide-x divide-neutral-04 sm:backdrop-blur-none sm:bg-none sm:rounded-none rounded-xl pb-2.5'>
-          <div className='flex gap-4 flex-col sm:pr-4'>
+        <div className='flex md:flex-row flex-col-reverse gap-5 sm:flex-1 divide-neutral-04 rounded-xl pb-2.5 sm:backdrop-blur-none sm:bg-none sm:rounded-none md:gap-0 md:divide-x'>
+          <div className='flex gap-4 flex-col md:pr-4'>
             <div className='flex w-full h-fit flex-col gap-4'>
               <AvatarCharacterPreview message={<ReactMarkdown>{avatar.character}</ReactMarkdown>} />
             </div>
@@ -195,7 +195,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             <div className={'bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col'}>
               {hasScenarios ? (
                 <div className='flex flex-col gap-5'>
-                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2'>
                     {sortedScenarios.map((scenario, index) => (
                       <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
@@ -274,7 +274,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className='sm:pl-4 sm:max-w-[352px] flex size-full flex-col gap-10'>
+          <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px]'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
                 {avatar.picture ? (
@@ -307,7 +307,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 </div>
               </div>
             )}
-            <div className='flex flex-col gap-5 max-sm:-mt-5'>
+            <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
               <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
                 <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
@@ -315,7 +315,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   <p className='text-body-lg font-semibold text-base-black text-left truncate'>
                     {isPublished ? 'Published' : 'Your Special'}
                   </p>
-                  <span className='text-body-md text-neutral-01 text-left truncate'>
+                  <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
                     {me.id === avatar.userId ? 'Made by you' : avatar.userId}
                   </span>
                 </div>
