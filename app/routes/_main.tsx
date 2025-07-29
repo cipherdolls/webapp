@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
+import { BalanceProvider } from '~/providers/BalanceContext';
 import UserEventsToast from '~/components/UserEventsToast';
 
 export async function clientLoader() {
@@ -84,7 +85,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   }, [provider]);
 
   return (
-    <MainLayoutProviders>
+    <MainLayoutProviders me={me}>
       <div className='flex sm:flex-row flex-col-reverse size-full'>
         <Sidebar />
         <Outlet />
@@ -98,7 +99,7 @@ export default MainLayout;
 
 // PROVIDERS WRAPPER
 
-export const MainLayoutProviders = ({ children }: { children: React.ReactNode }) => {
+export const MainLayoutProviders = ({ children, me }: { children: React.ReactNode; me: User }) => {
   const localStorageToken = localStorage.getItem('token');
   const mqttConfig = useMemo(() => {
     const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
@@ -131,7 +132,9 @@ export const MainLayoutProviders = ({ children }: { children: React.ReactNode })
 
   return (
     <MqttProvider config={mqttConfig}>
-      <AudioPlayerProvider>{children}</AudioPlayerProvider>
+      <BalanceProvider initialUser={me}>
+        <AudioPlayerProvider>{children}</AudioPlayerProvider>
+      </BalanceProvider>
     </MqttProvider>
   );
 };

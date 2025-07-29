@@ -12,6 +12,8 @@ import SignOutModal from '~/components/signOutModal';
 import { Tooltip } from '~/components/ui/tooltip';
 import OP from '~/assets/svg/op-png.png';
 import LogoSvg from '~/assets/svg/logo.svg';
+import { useBalance } from '~/providers/BalanceContext';
+import { useBalanceEvents } from '~/hooks/useBalanceEvents';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Account' }];
@@ -34,8 +36,12 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
 export default function Account({}: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
-  const { id, signerAddress, weiBalance, freeWeiBalance } = me;
+  const { id, signerAddress } = me;
   const fetcher = useFetcher();
+  const { balance } = useBalance();
+  
+  // Listen for balance updates via MQTT
+  useBalanceEvents({ userId: me.id });
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
@@ -65,7 +71,7 @@ export default function Account({}: Route.ComponentProps) {
                   className='hover:opacity-80 transition-opacity'
                 >
                   <h2 className='text-heading-h2 sm:text-heading-h1 font-semibold break-all'>
-                    {!weiBalance || Number(formatEther(weiBalance)) === 0 ? '0.00' : String(Number(formatEther(weiBalance)).toFixed(5))}{' '}
+                    {!balance.weiBalance || Number(formatEther(balance.weiBalance)) === 0 ? '0.00' : String(Number(formatEther(balance.weiBalance)).toFixed(5))}{' '}
                     <span className='text-neutral-01'>ETH</span>
                   </h2>
                 </a>
@@ -77,7 +83,7 @@ export default function Account({}: Route.ComponentProps) {
             className='px-2 py-1 text-xs max-w-48'
           />
 
-          {(!weiBalance || Number(formatEther(weiBalance)) === 0) && freeWeiBalance && Number(formatEther(freeWeiBalance)) > 0 && (
+          {(!balance.weiBalance || Number(formatEther(balance.weiBalance)) === 0) && balance.freeWeiBalance && Number(formatEther(balance.freeWeiBalance)) > 0 && (
             <Tooltip
               trigger={
                 <div className='flex items-center sm:gap-6 gap-4 '>
@@ -88,7 +94,7 @@ export default function Account({}: Route.ComponentProps) {
                     </div>
                   </button>
                   <h2 className='text-heading-h2 sm:text-heading-h1 font-semibold break-all'>
-                    {!freeWeiBalance || Number(formatEther(freeWeiBalance)) === 0 ? '0.00' : String(Number(formatEther(freeWeiBalance)).toFixed(5))}{' '}
+                    {!balance.freeWeiBalance || Number(formatEther(balance.freeWeiBalance)) === 0 ? '0.00' : String(Number(formatEther(balance.freeWeiBalance)).toFixed(5))}{' '}
                     <span className='text-neutral-01'>ETH</span>
                   </h2>
                 </div>

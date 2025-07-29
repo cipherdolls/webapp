@@ -16,6 +16,7 @@ import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import { switchToOptimismNetwork } from '~/utils/networkUtils';
 import { toast } from 'sonner';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
+import { useBalanceEvents } from '~/hooks/useBalanceEvents';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -110,6 +111,9 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
+  // Listen for balance updates via MQTT
+  useBalanceEvents({ userId: me.id });
+
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
@@ -186,11 +190,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             <YourScenarios scenarios={scenarios} />
           </div>
           <div className='flex flex-col gap-5'>
-            <TokenBalance balance={me.tokenBalance || '0'} onRefresh={handleRefreshBalance} isRefreshing={isRefreshingBalance} />
+            <TokenBalance onRefresh={handleRefreshBalance} isRefreshing={isRefreshingBalance} />
             <TokenPermitsList
               permits={tokenPermits}
               fetcher={fetcher}
-              tokenBalance={me.tokenBalance || '0'}
               allowance={me.tokenAllowance}
             />
             <YourDolls dolls={dolls} />

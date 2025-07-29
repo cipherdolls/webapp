@@ -2,16 +2,17 @@ import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
 import * as Button from '~/components/ui/button/button';
 import React from 'react';
+import { useBalance } from '~/providers/BalanceContext';
 
 interface TokenBalanceProps {
-  balance: string | number;
   className?: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
 }
 
-const TokenBalance = ({ balance, onRefresh, isRefreshing }: TokenBalanceProps) => {
-  const numberValue = typeof balance === 'string' ? parseFloat(balance) : balance;
+const TokenBalance = ({ onRefresh, isRefreshing }: TokenBalanceProps) => {
+  const { balance } = useBalance();
+  const numberValue = typeof balance.tokenBalance === 'string' ? parseFloat(balance.tokenBalance) : balance.tokenBalance;
   const roundedValue = Number(numberValue.toFixed(3));
 
   const formattedBalance =

@@ -10,15 +10,16 @@ import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
 import React from 'react';
+import { useBalance } from '~/providers/BalanceContext';
 
 interface TokenPermitsListProps {
   permits: TokenPermit[];
   fetcher: FetcherWithComponents<any>;
-  tokenBalance: string | number;
   allowance?: string;
 }
 
-const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPermitsListProps) => {
+const TokenPermitsList = ({ permits, fetcher, allowance }: TokenPermitsListProps) => {
+  const { balance } = useBalance();
   const handlePermitSigned = async (permit: {
     owner: string;
     spender: string;
@@ -85,7 +86,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {permits.length !== 0 && (
           <div className='flex justify-between py-4 px-4'>
-            <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+            <CreateTokenAllowanceModal tokenBalance={balance.tokenBalance} onPermitSigned={handlePermitSigned}>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -114,7 +115,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
               <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
               <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
 
-              <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+              <CreateTokenAllowanceModal tokenBalance={balance.tokenBalance} onPermitSigned={handlePermitSigned}>
                 <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
               </CreateTokenAllowanceModal>
             </div>
@@ -169,7 +170,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
               <h4 className='text-heading-h4 text-base-black'>No Token Allowances</h4>
               <p className='text-body-md text-neutral-01'>
                 You don't have any allowances.
-                <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+                <CreateTokenAllowanceModal tokenBalance={balance.tokenBalance} onPermitSigned={handlePermitSigned}>
                   <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
                 </CreateTokenAllowanceModal>
               </p>
