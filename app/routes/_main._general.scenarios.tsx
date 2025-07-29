@@ -61,7 +61,6 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
 
 export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
   const { scenariosPaginated, searchParams: initialSearchParams } = loaderData;
-  console.log(scenariosPaginated);
 
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
