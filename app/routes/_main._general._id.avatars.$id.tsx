@@ -113,7 +113,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
           <div className='md:flex hidden items-center gap-3'>
             <AvatarScenarioModal avatar={avatar}>
               <Button.Root variant='primary' className='px-6'>
-                {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Start Chat'}
+                Start Chat
               </Button.Root>
             </AvatarScenarioModal>
 

@@ -302,19 +302,11 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                     <div className='flex items-center gap-3'>
                       <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
 
-                      {(avatar.chats?.length || 0) > 0 ? (
-                        <Link to={`/chats/${avatar.chats?.[0].id}`}>
-                          <Button.Root size='sm' className='px-5'>
-                            Continue Chat
-                          </Button.Root>
-                        </Link>
-                      ) : (
-                        <AvatarScenarioModal avatar={avatar}>
-                          <Button.Root size='sm' className='px-5'>
-                           Chat
-                          </Button.Root>
-                        </AvatarScenarioModal>
-                      )}
+                      <AvatarScenarioModal avatar={avatar}>
+                        <Button.Root size='sm' className='px-5'>
+                          Chat
+                        </Button.Root>
+                      </AvatarScenarioModal>
                     </div>
                   </div>
                 </div>
