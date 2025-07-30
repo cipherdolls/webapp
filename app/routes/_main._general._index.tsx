@@ -93,7 +93,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
 export async function clientLoader() {
   const dolls = await fetchWithAuthAndType<Doll[]>('dolls');
-  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars');
+  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars?mine=true');
   const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits?limit=1&page=1');
   const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
   const chats = await fetchWithAuthAndType<Chat[]>('chats');
@@ -150,6 +150,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const isRefreshingBalance = fetcher.state === 'submitting' && fetcher.formData?.get('action') === 'RefreshTokenBalance';
 
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
+
+  console.log(avatars);
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
