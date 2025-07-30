@@ -71,19 +71,11 @@ const YourAvatars = ({ avatars, chats }: { avatars: Avatar[]; chats?: Chat[] }) 
                         <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                       </div>
                       <div className='flex items-center gap-3 flex-shrink-0'>
-                        {(avatar.chats?.length || 0) > 0 ? (
-                            <Link to={`/chats/${avatar.chats?.[0].id}`}>
-                              <Button.Root size='sm' className='px-5'>
-                                Continue Chat
-                              </Button.Root>
-                            </Link>
-                          ) : (
-                            <AvatarScenarioModal avatar={avatar} chats={chats}>
-                              <Button.Root size='sm' className='px-5'>
-                                Chat
-                              </Button.Root>
-                            </AvatarScenarioModal>
-                          )}
+                        <AvatarScenarioModal avatar={avatar} chats={chats}>
+                          <Button.Root size='sm' className='px-5'>
+                            Chat
+                          </Button.Root>
+                        </AvatarScenarioModal>
                       </div>
                     </div>
                   </div>

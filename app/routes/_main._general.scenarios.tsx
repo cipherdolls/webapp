@@ -339,7 +339,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                     <div className='flex items-center gap-3'>
                       <ScenarioAvatarModal scenario={scenario}>
                         <Button.Root size='sm' className='px-5'>
-                          {scenario.chats && scenario.chats.length > 0 ? 'Continue Chat' : 'Chat'}
+                          Chat
                         </Button.Root>
                       </ScenarioAvatarModal>
                     </div>
