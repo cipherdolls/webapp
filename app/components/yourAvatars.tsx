@@ -80,7 +80,7 @@ const YourAvatars = ({ avatars, chats }: { avatars: Avatar[]; chats?: Chat[] }) 
                           ) : (
                             <AvatarScenarioModal avatar={avatar} chats={chats}>
                               <Button.Root size='sm' className='px-5'>
-                                {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
+                                Chat
                               </Button.Root>
                             </AvatarScenarioModal>
                           )}
