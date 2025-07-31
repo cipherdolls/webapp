@@ -51,7 +51,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
   // const fetcher = useFetcher();
   // const [copied, setCopied] = useState(false);
-  const [showAll, setShowAll] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scenarios = avatar.scenarios ? avatar.scenarios : [];
@@ -75,10 +74,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
   //   const timeoutId = setTimeout(() => setCopied(false), 2000);
   //   copyTimeoutRef.current = timeoutId;
   // };
-
-  const handleShowAll = () => {
-    setShowAll(!showAll);
-  };
 
   const getTextAfterThe = (text: string): string => {
     const words = text.split(' ');
@@ -197,7 +192,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 <div className='flex flex-col gap-5'>
                   <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2'>
                     {sortedScenarios.map((scenario, index) => (
-                      <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                      <div className={'transition-all duration-500 ease-out'} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
                             to={`/scenarios/${scenario.id}`}
@@ -246,17 +241,6 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                       </div>
                     ))}
                   </div>
-                  {scenarios.length > 4 && (
-                    <div className='mx-auto -mt-2'>
-                      <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
-                        {showAll ? 'Collapse' : 'Show all'}
-                        <Button.Icon
-                          as={Icons.chevronDown}
-                          className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`}
-                        />
-                      </Button.Root>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
