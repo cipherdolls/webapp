@@ -59,6 +59,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
       lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
     }
   }, []);
+  
 
   return (
     <div className='flex-1 flex overflow-auto shrink-0'>

@@ -57,6 +57,10 @@ const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
       const response = await fetchWithAuth(`messages/${messageId}`);
       if (response.ok) {
         const message = await response.json();
+        
+        if(message.fileName) {
+          message.content = '🎤  Processing audio...'
+        }
         setMessages((prev) => [...prev, message]);
       }
     } catch (error) {
@@ -64,6 +68,15 @@ const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
       setError('Failed to add new message');
     }
   };
+
+  const updateMessage = (messageId: string, newContent: string) => {
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === messageId ? { ...message, content: newContent } : message
+      )
+    );
+  };
+
 
   const deleteMessage = (messageId: string) =>  {
     setMessages((prev) => prev.filter((message) => message.id !== messageId));
@@ -77,6 +90,7 @@ const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
     loadMessages,
     loadMoreMessages,
     newMessage,
+    updateMessage,
     deleteMessage,
   };
 };
