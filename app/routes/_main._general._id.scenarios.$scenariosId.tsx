@@ -59,6 +59,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     setShowAll(!showAll);
   };
 
+
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
@@ -208,14 +209,13 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                             </div>
                             <div className='flex items-center gap-3'>
                               {avatar?.chats && avatar?.chats.length > 0 ? (
-                                <Link to={`/chats/${avatar.chats[0].id}`}>
-                                  <Button.Root size='sm' className='px-5'>
-                                    Continue Chat
-                                  </Button.Root>
-                                </Link>
+                                <Button.Root size='sm' className='px-5' asChild>
+                                  <Link to={`/chats/${avatar.chats[0].id}`}>Continue Chat</Link>
+                                </Button.Root>
                               ) : (
                                 <Form method='POST' action='/chats'>
-                                  <input hidden name='scenarioId' id='scenarioId' value={avatar.id} readOnly />
+                                  <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
+                                  <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
                                   <Button.Root type='submit' size='sm' className='px-5'>
                                     Chat
                                   </Button.Root>
