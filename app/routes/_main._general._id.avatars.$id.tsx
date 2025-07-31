@@ -234,6 +234,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                               ) : (
                                 <Form method='POST' action='/chats'>
                                   <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
+                                  <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
                                   <Button.Root type='submit' size='sm' className='px-5'>
                                     Chat
                                   </Button.Root>
