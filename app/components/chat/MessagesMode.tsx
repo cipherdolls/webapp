@@ -27,7 +27,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
     }))
   );
 
-  const { messages, loadMessages, loadMoreMessages, newMessage, deleteMessage, isLoading, hasMore } = useChat(chat.id);
+  const { messages, loadMessages, loadMoreMessages, newMessage, deleteMessage, updateMessage, isLoading, hasMore } = useChat(chat.id);
 
   useEffect(() => {
     stop();
@@ -40,11 +40,20 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   useChatEvents(chat.id, {
     onProcessEvent: (event) => {
-      if (event.resourceName === 'Message' && event.jobStatus === 'completed') {
-        if (event.jobName === 'created') {
-          newMessage(event.resourceId);
-        } else if (event.jobName === 'deleted') {
-          deleteMessage(event.resourceId);
+      if (event.resourceName === 'Message') {
+        switch (event.jobName) {
+          case 'created':
+            if (event.jobStatus === 'completed') newMessage(event.resourceId);
+            break;
+          case 'updated':
+            const messageContent = event?.resourceAttributes?.content;
+            if (!messageContent) return;
+            updateMessage(event.resourceId, messageContent);
+            break;
+          case 'deleted':
+            deleteMessage(event.resourceId);
+            break;
+          default:
         }
       }
     },
@@ -80,12 +89,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       {/* chat header */}
       <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
-      <ChatBody
-        messages={messages}
-        loadMoreMessages={loadMoreMessages}
-        isLoading={isLoading}
-        hasMore={hasMore}
-      />
+      <ChatBody messages={messages} loadMoreMessages={loadMoreMessages} isLoading={isLoading} hasMore={hasMore} />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

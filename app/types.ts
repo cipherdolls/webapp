@@ -347,4 +347,5 @@ export interface ProcessEvent {
   jobName: string;
   jobId: number;
   jobStatus: 'active' | 'completed' | 'failed' | 'retrying';
+  resourceAttributes?: any;
 }
