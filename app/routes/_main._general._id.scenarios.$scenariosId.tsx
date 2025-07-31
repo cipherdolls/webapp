@@ -176,7 +176,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 <div className='flex flex-col gap-5'>
                   <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2'>
                     {avatars.map((avatar, index) => (
-                      <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                      <div className={'transition-all duration-500 ease-out'} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
                             to={`/scenarios/${scenario.id}`}
@@ -227,17 +227,6 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                       </div>
                     ))}
                   </div>
-                  {avatars.length > 4 && (
-                    <div className='mx-auto -mt-2'>
-                      <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
-                        {showAll ? 'Collapse' : 'Show all'}
-                        <Button.Icon
-                          as={Icons.chevronDown}
-                          className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`}
-                        />
-                      </Button.Root>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
