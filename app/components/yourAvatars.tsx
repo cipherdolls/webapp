@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import type { Avatar, Chat } from '~/types';
+import type { Chat } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
 import AvatarScenarioModal from './AvatarScenarioModal';
+import { useMyAvatars } from '~/hooks/queries';
 
-const YourAvatars = ({ avatars, chats }: { avatars: Avatar[]; chats?: Chat[] }) => {
+const YourAvatars = ({  chats }: {  chats?: Chat[] }) => {
+  const { data: avatarsPaginated, isLoading: avatarsLoading } = useMyAvatars();
+
+  const avatars = avatarsPaginated?.data || [];
+
   const [showAll, setShowAll] = useState(false);
   const hasAvatars = avatars.length > 0;
 

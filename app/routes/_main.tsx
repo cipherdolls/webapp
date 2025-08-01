@@ -10,6 +10,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
 import UserEventsToast from '~/components/UserEventsToast';
+import { useUser } from '~/hooks/queries';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -21,6 +22,10 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
   const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
   const navigate = useNavigate();
+
+  useUser({
+    initialData: loaderData?.user,
+  });
 
   // Initialize provider
   useEffect(() => {

@@ -1,24 +1,25 @@
 import { formatEther } from 'ethers';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
 import DetailRow from '~/components/ui/detail/detail-row';
-import type { TokenPermit } from '~/types';
-import type { FetcherWithComponents } from 'react-router';
 import * as Accordion from '@radix-ui/react-accordion';
 import { Icons } from '~/components/ui/icons';
 import moment from 'moment';
 import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
-import React from 'react';
+import { useCreateTokenPermit, useTokenPermits } from '~/hooks/queries';
+import type { User } from '~/types';
 
 interface TokenPermitsListProps {
-  permits: TokenPermit[];
-  fetcher: FetcherWithComponents<any>;
-  tokenBalance: string | number;
-  allowance?: string;
+  user: User;
 }
 
-const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPermitsListProps) => {
+const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
+  const createTokenPermitMutation = useCreateTokenPermit();
+  const { data: tokenPermitsPaginated, isLoading: tokenPermitsLoading } = useTokenPermits();
+
+  const permits = tokenPermitsPaginated?.data || [];
+
   const handlePermitSigned = async (permit: {
     owner: string;
     spender: string;
@@ -29,22 +30,16 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
     r: string;
     s: string;
   }) => {
-    fetcher.submit(
-      {
-        actionType: 'createTokenPermit',
-        owner: permit.owner,
-        spender: permit.spender,
-        value: permit.value,
-        nonce: permit.nonce,
-        deadline: permit.deadline.toString(),
-        v: permit.v.toString(),
-        r: permit.r,
-        s: permit.s,
-      },
-      {
-        method: 'POST',
-      }
-    );
+    createTokenPermitMutation.mutate({
+      owner: permit.owner,
+      spender: permit.spender,
+      value: permit.value,
+      nonce: permit.nonce,
+      deadline: permit.deadline.toString(),
+      v: permit.v.toString(),
+      r: permit.r,
+      s: permit.s,
+    });
   };
 
   const formatPermitAmount = (value: string): string => {
@@ -68,6 +63,8 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  const isLoading = tokenPermitsLoading;
+
   return (
     <div className='flex flex-col gap-5 sm:pl-4'>
       <div className='flex items-center justify-between'>
@@ -85,7 +82,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {permits.length !== 0 && (
           <div className='flex justify-between py-4 px-4'>
-            <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+            <CreateTokenAllowanceModal tokenBalance={user.tokenBalance} onPermitSigned={handlePermitSigned}>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -114,7 +111,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
               <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
               <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
 
-              <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+              <CreateTokenAllowanceModal tokenBalance={user.tokenBalance} onPermitSigned={handlePermitSigned}>
                 <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
               </CreateTokenAllowanceModal>
             </div>
@@ -169,7 +166,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
               <h4 className='text-heading-h4 text-base-black'>No Token Allowances</h4>
               <p className='text-body-md text-neutral-01'>
                 You don't have any allowances.
-                <CreateTokenAllowanceModal tokenBalance={tokenBalance} onPermitSigned={handlePermitSigned}>
+                <CreateTokenAllowanceModal tokenBalance={user.tokenBalance} onPermitSigned={handlePermitSigned}>
                   <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
                 </CreateTokenAllowanceModal>
               </p>
@@ -179,7 +176,7 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
 
         {sortedPermits.length > 0 && (
           <span className='text-body-sm text-neutral-01 font-medium text-right mt-2'>
-            Allowance left: <span className='text-base-black font-semibold'>{allowance}</span>
+            Allowance left: <span className='text-base-black font-semibold'>{user.tokenAllowance || '0'}</span>
           </span>
         )}
       </div>

@@ -1,21 +1,25 @@
-import { useRouteLoaderData, useFetcher } from 'react-router';
+import { useRouteLoaderData } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general._index';
-import type { Chat, Doll, User, TokenPermitsPaginated, AvatarsPaginated, ScenariosPaginated } from '~/types';
+import type { User } from '~/types';
 import YourAvatars from '~/components/yourAvatars';
 import YourDolls from '~/components/yourDolls';
-import { fetchWithAuthAndType, fetchWithAuth } from '~/utils/fetchWithAuth';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
 import UserEditModal from '~/components/UserEditModal';
 import TokenBalance from '~/components/TokenBalance';
 import TokenPermitsList from '~/components/TokenPermitsList';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import { switchToOptimismNetwork } from '~/utils/networkUtils';
 import { toast } from 'sonner';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
+import {
+  useChats,
+  useUser,
+} from '~/hooks/queries';
+import { useRealtimeSync } from '~/hooks/useRealtimeSync';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -57,72 +61,26 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Dashboard' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  const formData = await request.formData();
-  const actionType = formData.get('actionType');
-
-  if (actionType === 'createTokenPermit') {
-    // Handle token permit creation
-    const jsonData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      if (key !== 'actionType') {
-        jsonData[key] = value;
-      }
-    });
-    const res = await fetchWithAuth('token-permits', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jsonData),
-    });
-    return await res.json();
-  } else {
-    // Handle user updates
-    const userId = formData.get('userId');
-    const jsonData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      jsonData[key] = value;
-    });
-    const res = await fetchWithAuth(`users/${userId}`, {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jsonData),
-    });
-    return await res.json();
-  }
-}
-
-export async function clientLoader() {
-  const dolls = await fetchWithAuthAndType<Doll[]>('dolls');
-  const avatarsPaginated = await fetchWithAuthAndType<AvatarsPaginated>('avatars?mine=true');
-  const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits?limit=1&page=1');
-  const scenariosPaginated = await fetchWithAuthAndType<ScenariosPaginated>('scenarios');
-  const chats = await fetchWithAuthAndType<Chat[]>('chats');
-  return { dolls, avatarsPaginated, tokenPermitsPaginated, scenariosPaginated, chats };
-}
-
-export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { avatarsPaginated, dolls, chats, scenariosPaginated, tokenPermitsPaginated } = loaderData;
-  const avatars = avatarsPaginated.data;
-  const scenarios = scenariosPaginated.data;
-  const tokenPermits = tokenPermitsPaginated.data;
-
+export default function Dashboard() {
   const me = useRouteLoaderData('routes/_main') as User;
-  const fetcher = useFetcher();
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  // TanStack Query hooks
+  const { data: user, isLoading: userLoading } = useUser();
+  const { data: chats, isLoading: chatsLoading } = useChats();
+
+  // Mutations
+
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
 
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
+  const currentUser = user || me;
 
-      return () => clearTimeout(timer);
-    }
-  }, [loaderData]);
+  // Enable real-time sync
+  useRealtimeSync({ userId: user?.id });
+
+  // Loading state
+  const isLoading = userLoading || chatsLoading;
 
   const handleSwitchNetwork = async () => {
     setIsSwitchingNetwork(true);
@@ -138,20 +96,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const handleRefreshBalance = () => {
-    const formData = new FormData();
-    formData.append('userId', me.id);
-    formData.append('signerAddress', me.signerAddress);
-    formData.append('action', 'RefreshTokenBalance');
-
-    fetcher.submit(formData, { method: 'PATCH' });
-  };
-
-  const isRefreshingBalance = fetcher.state === 'submitting' && fetcher.formData?.get('action') === 'RefreshTokenBalance';
-
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
-
-  console.log(avatars);
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
@@ -162,7 +107,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         </div>
 
         <DashboardBanner
-          username={me.name}
+          username={currentUser.name}
           variant='welcome'
           description={shouldShowNetworkWarning ? null : 'What do you want to start from?'}
           showEditLink={true}
@@ -171,7 +116,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
         {shouldShowNetworkWarning && <NetworkWarningBanner onSwitchNetwork={handleSwitchNetwork} isLoading={isSwitchingNetwork} />}
       </div>
-      {!hasInitiallyLoaded || !loaderData ? (
+      {isLoading ? (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
           <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
             <LeftSkeleton />
@@ -183,24 +128,19 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       ) : (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
           <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
-            <YourChats chats={chats} />
-            <YourAvatars avatars={avatars} chats={chats} />
-            <YourScenarios scenarios={scenarios} />
+            <YourChats chats={chats || []} />
+            <YourAvatars chats={chats || []} />
+            <YourScenarios />
           </div>
           <div className='flex flex-col gap-5'>
-            <TokenBalance balance={me.tokenBalance || '0'} onRefresh={handleRefreshBalance} isRefreshing={isRefreshingBalance} />
-            <TokenPermitsList
-              permits={tokenPermits}
-              fetcher={fetcher}
-              tokenBalance={me.tokenBalance || '0'}
-              allowance={me.tokenAllowance}
-            />
-            <YourDolls dolls={dolls} />
+            <TokenBalance user={currentUser} />
+            <TokenPermitsList user={currentUser} />
+            <YourDolls />
           </div>
         </div>
       )}
 
-      <UserEditModal me={me} fetcher={fetcher} open={isUserEditModalOpen} onOpenChange={setIsUserEditModalOpen} />
+      <UserEditModal me={currentUser} open={isUserEditModalOpen} onOpenChange={setIsUserEditModalOpen} />
     </div>
   );
 }

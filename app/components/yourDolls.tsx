@@ -2,11 +2,13 @@ import { Card } from '~/components/card';
 import HowToAddDollModal from '~/components/howToAddDollModal';
 import DollCard from './dollCard';
 import { cn } from '~/utils/cn';
-import type { Doll } from '~/types';
-import { Icons } from './ui/icons';
 import { InformationBadge } from './ui/InformationBadge';
+import { useDolls } from '~/hooks/queries';
 
-const YourDolls = ({ dolls }: { dolls: Doll[] }) => {
+const YourDolls = () => {
+  const { data: dollsPaginated, isLoading: dollsLoading } = useDolls();
+  const dolls = dollsPaginated || [];
+
   return (
     <Card.Root className='sm:pl-4 sm:max-w-[352px]'>
       <div className='flex items-center justify-between'>

@@ -14,21 +14,30 @@ import * as Modal from '~/components/ui/new-modal';
 import { useFetcher, useRouteLoaderData } from 'react-router';
 
 import type { Avatar, Gender, Scenario, TtsVoice, User } from '~/types';
+import { useAvatar, useScenarios, useTtsVoices } from '~/hooks/queries';
 
 interface AvatarEditModalProps {
   avatar?: Avatar;
-  ttsVoices: TtsVoice[];
-  scenarios: Scenario[];
-  method: 'PATCH' | 'POST';
-  onClose: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  isPending: boolean;
+  onClose: () => void;  
+  errors?: string;
 }
 
-const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: AvatarEditModalProps) => {
-  const fetcher = useFetcher();
+const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
+
   const me = useRouteLoaderData('routes/_main') as User;
+  
+  
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios();
+  const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
+
+  const scenarios = scenariosPaginated?.data || [];
+  const voices = ttsVoices || []
+
 
   const [avatarData, setAvatarData] = useState({
-    ttsVoice: avatar?.ttsVoice || (ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null),
+    ttsVoice: avatar?.ttsVoice || (voices && voices.length > 0 ? voices[0] : null),
     picture: avatar?.picture ?? null,
     scenarios: Array.isArray(avatar?.scenarios) ? avatar.scenarios : [],
     published: avatar?.published || false,
@@ -38,8 +47,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const errors = fetcher.data?.errors;
-  const isNew = method === 'POST';
+  const isNew = !!avatar;
 
   const updateAvatarData = (field: keyof typeof avatarData, value: any) => {
     setAvatarData((prev) => ({ ...prev, [field]: value }));
@@ -85,6 +93,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
     onClose && onClose();
   };
 
+
   return (
     <Modal.Root
       defaultOpen
@@ -110,7 +119,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
           </button>
         </div>
         <Modal.Description className='sr-only'>{avatar ? 'Edit avatar' : 'Create new avatar'}</Modal.Description>
-        <fetcher.Form method={method} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
+        <form onSubmit={onSubmit} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
           <Modal.Body
             className={cn(
               'flex gap-4 md:gap-6 flex-1 overflow-auto scrollbar-medium -mx-8 px-8 [scrollbar-gutter:stable]',
@@ -267,7 +276,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
                 <Input.Label htmlFor='voice'>Voice</Input.Label>
                 <div className='flex items-center justify-between mb-3'>
                   <span className='text-sm text-gray-500'>Select a voice for the avatar</span>
-                  <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={avatarData.ttsVoice} onVoiceChange={handleVoiceChange} />
+                  <SelectVoiceModal ttsVoices={voices} selectedVoice={avatarData.ttsVoice} onVoiceChange={handleVoiceChange} />
                 </div>
                 {avatarData.ttsVoice && (
                   <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
@@ -347,7 +356,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
           </Modal.Footer>
 
           <input type='hidden' name='published' value={avatarData.published ? 'true' : 'false'} />
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

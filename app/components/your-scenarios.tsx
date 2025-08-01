@@ -6,8 +6,13 @@ import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
 import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
+import { useScenarios } from '~/hooks/queries';
 
-const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Chat[] }) => {
+const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios();
+
+  const scenarios = scenariosPaginated?.data || [];
+
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
 

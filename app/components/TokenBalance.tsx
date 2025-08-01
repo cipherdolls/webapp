@@ -1,16 +1,24 @@
+import { useRouteLoaderData } from 'react-router';
 import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
 import * as Button from '~/components/ui/button/button';
-import React from 'react';
+import { useRefreshTokenBalance } from '~/hooks/queries';
+import type { User } from '~/types';
 
-interface TokenBalanceProps {
-  balance: string | number;
-  className?: string;
-  onRefresh?: () => void;
-  isRefreshing?: boolean;
-}
+const TokenBalance = ({ user }: { user: User }) => {
+  const balance = user.tokenBalance || '0';
 
-const TokenBalance = ({ balance, onRefresh, isRefreshing }: TokenBalanceProps) => {
+  const refreshTokenBalanceMutation = useRefreshTokenBalance();
+
+  const handleRefreshBalance = () => {
+    refreshTokenBalanceMutation.mutate({
+      userId: user.id,
+      signerAddress: user.signerAddress,
+    });
+  };
+
+  const isRefreshingBalance = refreshTokenBalanceMutation.isPending;
+
   const numberValue = typeof balance === 'string' ? parseFloat(balance) : balance;
   const roundedValue = Number(numberValue.toFixed(3));
 
@@ -26,16 +34,14 @@ const TokenBalance = ({ balance, onRefresh, isRefreshing }: TokenBalanceProps) =
     <div className='flex flex-col gap-5 sm:pl-4'>
       <div className='flex items-center justify-between'>
         <h3 className='text-heading-h3 text-base-black'>Your Balance</h3>
-        {onRefresh && (
-          <button
-            onClick={onRefresh}
-            disabled={isRefreshing}
-            className='p-2 rounded-lg text-[#350D2A]/40 hover:text-[#350D2A] transition-all disabled:opacity-50'
-            title='Refresh token balance'
-          >
-            <Icons.refresh className={`w-5 h-5  ${isRefreshing ? 'animate-spin' : ''}`} />
-          </button>
-        )}
+        <button
+          onClick={handleRefreshBalance}
+          disabled={isRefreshingBalance}
+          className='p-2 rounded-lg text-[#350D2A]/40 hover:text-[#350D2A] transition-all disabled:opacity-50'
+          title='Refresh token balance'
+        >
+          <Icons.refresh className={`w-5 h-5  ${isRefreshingBalance ? 'animate-spin' : ''}`} />
+        </button>
       </div>
       <div className='grid grid-cols-1'>
         <div className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
