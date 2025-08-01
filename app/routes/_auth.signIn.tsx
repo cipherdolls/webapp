@@ -255,7 +255,7 @@ export default function SignInRoute() {
                 <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:h-32 md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>💶</h3>
-                    <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>Get €3</h3>
+                    <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>1 LOV</h3>
                   </div>
 
                   <span className='text-body-sm text-center text-neutral-01'>For monthly usage</span>
