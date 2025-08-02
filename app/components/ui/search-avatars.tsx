@@ -1,36 +1,30 @@
 import React from 'react';
 import * as Input from '~/components/ui/input/input';
 import { Icons } from '~/components/ui/icons';
-import { useSearchParams, useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { useEffect, useState, useCallback } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 const SearchAvatars = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState(searchParams.get('name') || '');
   const [debouncedSearchValue] = useDebounceValue(searchValue, 300);
 
-  // Update local state when URL changes
   useEffect(() => {
     setSearchValue(searchParams.get('name') || '');
   }, [searchParams]);
 
-  // Update URL when debounced value changes
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
+    
     if (debouncedSearchValue.trim()) {
       newSearchParams.set('name', debouncedSearchValue.trim());
     } else {
       newSearchParams.delete('name');
     }
     
-    // Only navigate if the debounced value is different from current URL param
-    const currentName = searchParams.get('name') || '';
-    if (debouncedSearchValue.trim() !== currentName) {
-      navigate(`/avatars?${newSearchParams.toString()}`);
-    }
-  }, [debouncedSearchValue, searchParams, navigate]);
+    setSearchParams(newSearchParams);
+  }, [debouncedSearchValue, searchParams, setSearchParams]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

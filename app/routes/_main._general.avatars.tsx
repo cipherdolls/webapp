@@ -40,7 +40,6 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
-
 export default function AvatarsShow() {
   const [searchParams, setSearchParams] = useSearchParams({ published: 'true' });
   const me = useRouteLoaderData('routes/_main') as User;
@@ -48,14 +47,11 @@ export default function AvatarsShow() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
- 
-  
 
   const { data: avatars, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteAvatars(rawParams);
 
-
   const filteredAndSortedAvatars = useMemo(() => {
-    return avatars?.pages.flatMap(page => page.data) || [];
+    return avatars?.pages.flatMap((page) => page.data) || [];
   }, [avatars]);
 
   // Intersection observer for infinite scroll
@@ -76,14 +72,11 @@ export default function AvatarsShow() {
 
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
- 
-  
 
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
 
   const hasActiveFilters = showMyAvatars || genderFilter !== 'All';
-
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -111,19 +104,10 @@ export default function AvatarsShow() {
     setSearchParams(newSearchParams);
     setPopoverOpen(false);
   };
-  
+
   const handleClearFilters = () => {
     setSearchParams({ published: 'true' });
   };
-
-  if (isLoading) {
-    return (
-      <>
-        <AvatarSkeleton />
-        <Outlet />
-      </>
-    );
-  }
 
   return (
     <div className='w-full'>
@@ -203,86 +187,92 @@ export default function AvatarsShow() {
           )}
         </div>
 
-        <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
-          {filteredAndSortedAvatars.length === 0 ? (
-            <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
-              {showMyAvatars ? 'No avatars found.' : 'No published avatars found.'}
-            </p>
-          ) : (
-            filteredAndSortedAvatars.map((avatar) => (
-              <div className='transition-all duration-500 ease-out' key={avatar.id}>
-                <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                  <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
-                    <img
-                      src={getPicture(avatar, 'avatars', false)}
-                      srcSet={getPicture(avatar, 'avatars', true)}
-                      alt={`${avatar.name} picture`}
-                      className='object-cover size-full'
-                    />
-                    {!showMyAvatars && me.id === avatar.userId && (
-                      <div className='absolute top-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                          🌐
-                          <span>By you</span>
+        {isLoading ? (
+          <AvatarSkeleton />
+        ) : (
+          <>
+            <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
+              {filteredAndSortedAvatars.length === 0 ? (
+                <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
+                  {showMyAvatars ? 'No avatars found.' : 'No published avatars found.'}
+                </p>
+              ) : (
+                filteredAndSortedAvatars.map((avatar) => (
+                  <div className='transition-all duration-500 ease-out' key={avatar.id}>
+                    <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                      <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                        <img
+                          src={getPicture(avatar, 'avatars', false)}
+                          srcSet={getPicture(avatar, 'avatars', true)}
+                          alt={`${avatar.name} picture`}
+                          className='object-cover size-full'
+                        />
+                        {!showMyAvatars && me.id === avatar.userId && (
+                          <div className='absolute top-2 left-2 z-10'>
+                            <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                              🌐
+                              <span>By you</span>
+                            </div>
+                          </div>
+                        )}
+                        {avatar.gender === 'Female' ? (
+                          <div className='absolute bottom-2 left-2 z-10'>
+                            <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                              👩🏻
+                              <span>Female</span>
+                            </div>
+                          </div>
+                        ) : avatar.gender === 'Male' ? (
+                          <div className='absolute bottom-2 left-2 z-10'>
+                            <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                              🧔🏻‍♂️
+                              <span>Male</span>
+                            </div>
+                          </div>
+                        ) : null}
+                      </Link>
+                      <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
+                        <div className='flex flex-col gap-1'>
+                          <div className='flex items-center gap-2'>
+                            <h4 className='text-heading-h4 text-base-black'>{avatar.name}</h4>
+                            <RecommendedBadge recommended={avatar.recommended} tooltipText='Recommended' className='pt-1' />
+                          </div>
+                          <p className='text-body-md text-neutral-01 line-clamp-1'>{avatar.shortDesc}</p>
                         </div>
-                      </div>
-                    )}
-                    {avatar.gender === 'Female' ? (
-                      <div className='absolute bottom-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                          👩🏻
-                          <span>Female</span>
-                        </div>
-                      </div>
-                    ) : avatar.gender === 'Male' ? (
-                      <div className='absolute bottom-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                          🧔🏻‍♂️
-                          <span>Male</span>
-                        </div>
-                      </div>
-                    ) : null}
-                  </Link>
-                  <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
-                    <div className='flex flex-col gap-1'>
-                      <div className='flex items-center gap-2'>
-                        <h4 className='text-heading-h4 text-base-black'>{avatar.name}</h4>
-                        <RecommendedBadge recommended={avatar.recommended} tooltipText='Recommended' className='pt-1' />
-                      </div>
-                      <p className='text-body-md text-neutral-01 line-clamp-1'>{avatar.shortDesc}</p>
-                    </div>
-                    <div className='flex items-center gap-3'>
-                      <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                        <div className='flex items-center gap-3'>
+                          <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
 
-                      <AvatarScenarioModal avatar={avatar}>
-                        <Button.Root size='sm' className='px-5'>
-                          Chat
-                        </Button.Root>
-                      </AvatarScenarioModal>
+                          <AvatarScenarioModal avatar={avatar}>
+                            <Button.Root size='sm' className='px-5'>
+                              Chat
+                            </Button.Root>
+                          </AvatarScenarioModal>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                ))
+              )}
+            </div>
+
+            {isError && (
+              <div className='text-center text-red-500 py-4'>
+                <p>Failed to load avatars: {isError}</p>
+              </div>
+            )}
+
+            {isFetchingNextPage && (
+              <div className='text-center py-4'>
+                <div className='inline-flex items-center gap-2'>
+                  <Icons.loading className='size-4 animate-spin' />
+                  <span className='text-neutral-01'>Loading more avatars...</span>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            )}
 
-        {isError && (
-          <div className='text-center text-red-500 py-4'>
-            <p>Failed to load avatars: {isError}</p>
-          </div>
+            {hasNextPage && !isFetchingNextPage && <div ref={triggerRef} className='h-4' />}
+          </>
         )}
-
-        {isFetchingNextPage && (
-          <div className='text-center py-4'>
-            <div className='inline-flex items-center gap-2'>
-              <Icons.loading className='size-4 animate-spin' />
-              <span className='text-neutral-01'>Loading more avatars...</span>
-            </div>
-          </div>
-        )}
-
-        {hasNextPage && !isFetchingNextPage && <div ref={triggerRef} className='h-4' />}
 
         <Outlet />
       </div>
