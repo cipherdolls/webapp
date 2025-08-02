@@ -1,18 +1,17 @@
-import { Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
-import type { AvatarsPaginated, User } from '~/types';
+import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
+import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import { fetchPaginatedData } from '~/utils/fetchWithAuth';
 import SearchAvatars from '~/components/ui/search-avatars';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import * as Popover from '~/components/ui/popover';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
+import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -41,83 +40,50 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
 
-  // Default to published=true if no filter params provided
-  if (!searchParams.has('mine') && !searchParams.has('published')) {
-    searchParams.set('published', 'true');
-  }
-
-  // Ensure gender parameter is properly capitalized for API compatibility
-  if (searchParams.has('gender')) {
-    const gender = searchParams.get('gender');
-    if (gender && gender !== 'All') {
-      const capitalizedGender = gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
-      searchParams.set('gender', capitalizedGender);
-    }
-  }
-
-  // Add server-side sorting
-  searchParams.set('sortBy', 'updatedAt');
-  searchParams.set('sortOrder', 'desc');
-
-  const avatarsPaginated = await fetchPaginatedData<AvatarsPaginated>('avatars', searchParams, 1, 10);
-
-  return {
-    avatarsPaginated,
-    searchParams: Object.fromEntries(searchParams.entries()),
-  };
-}
-
-export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const { avatarsPaginated, searchParams: initialSearchParams } = loaderData;
-
+export default function AvatarsShow() {
+  const [searchParams, setSearchParams] = useSearchParams({ published: 'true' });
   const me = useRouteLoaderData('routes/_main') as User;
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const rawParams = Object.fromEntries(searchParams.entries());
+ 
+  
+
+  const { data: avatars, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteAvatars(rawParams);
+
+
+  const filteredAndSortedAvatars = useMemo(() => {
+    return avatars?.pages.flatMap(page => page.data) || [];
+  }, [avatars]);
+
+  // Intersection observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (triggerRef.current) {
+      observer.observe(triggerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+ 
+  
 
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
-  const searchQuery = searchParams.get('name') || '';
 
-  // Check if there are any active filters (excluding the default published=true)
-  const hasActiveFilters = showMyAvatars || genderFilter !== 'All' || searchQuery.length > 0;
+  const hasActiveFilters = showMyAvatars || genderFilter !== 'All';
 
-  const fetchMoreWithParams = async (page: number) => {
-    // Use the initial search params from the loader which include all defaults and normalization
-    const currentSearchParams = new URLSearchParams(initialSearchParams);
-
-    // Override with any current URL changes (like search input)
-    for (const [key, value] of searchParams.entries()) {
-      currentSearchParams.set(key, value);
-    }
-
-    // Ensure gender parameter is properly capitalized for API compatibility
-    if (currentSearchParams.has('gender')) {
-      const gender = currentSearchParams.get('gender');
-      if (gender && gender !== 'All') {
-        const capitalizedGender = gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
-        currentSearchParams.set('gender', capitalizedGender);
-      }
-    }
-
-    // Add server-side sorting
-    currentSearchParams.set('sortBy', 'updatedAt');
-    currentSearchParams.set('sortOrder', 'desc');
-
-    return fetchPaginatedData<AvatarsPaginated>('avatars', currentSearchParams, page, 10);
-  };
-
-  const infiniteScroll = useInfiniteScroll({
-    initialData: avatarsPaginated.data,
-    initialMeta: avatarsPaginated.meta,
-    fetchMore: fetchMoreWithParams,
-    enabled: hasInitiallyLoaded,
-  });
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -130,7 +96,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       newSearchParams.set('mine', 'true');
     }
 
-    navigate(`/avatars?${newSearchParams.toString()}`);
+    setSearchParams(newSearchParams);
   };
 
   const handleFilterChange = (filter: GenderFilter) => {
@@ -142,29 +108,15 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
       newSearchParams.set('gender', filter);
     }
 
-    navigate(`/avatars?${newSearchParams.toString()}`);
+    setSearchParams(newSearchParams);
     setPopoverOpen(false);
   };
-
+  
   const handleClearFilters = () => {
-    // Navigate to default state (public avatars only)
-    navigate('/avatars?published=true');
+    setSearchParams({ published: 'true' });
   };
 
-  const filteredAndSortedAvatars = useMemo(() => {
-    return infiniteScroll.data;
-  }, [infiniteScroll.data]);
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [loaderData]);
-
-  if (!hasInitiallyLoaded || !loaderData) {
+  if (isLoading) {
     return (
       <>
         <AvatarSkeleton />
@@ -284,7 +236,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
                       </div>
                     ) : avatar.gender === 'Male' ? (
                       <div className='absolute bottom-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-[#85D2FF] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                        <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
                           🧔🏻‍♂️
                           <span>Male</span>
                         </div>
@@ -315,13 +267,13 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
           )}
         </div>
 
-        {infiniteScroll.error && (
+        {isError && (
           <div className='text-center text-red-500 py-4'>
-            <p>Failed to load avatars: {infiniteScroll.error}</p>
+            <p>Failed to load avatars: {isError}</p>
           </div>
         )}
 
-        {infiniteScroll.loading && (
+        {isFetchingNextPage && (
           <div className='text-center py-4'>
             <div className='inline-flex items-center gap-2'>
               <Icons.loading className='size-4 animate-spin' />
@@ -330,7 +282,7 @@ export default function AiProvidersIndex({ loaderData }: Route.ComponentProps) {
           </div>
         )}
 
-        {infiniteScroll.hasMore && !infiniteScroll.loading && <div ref={infiniteScroll.triggerRef} className='h-4' />}
+        {hasNextPage && !isFetchingNextPage && <div ref={triggerRef} className='h-4' />}
 
         <Outlet />
       </div>
