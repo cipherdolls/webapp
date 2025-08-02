@@ -1,7 +1,6 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import SearchAvatars from '~/components/ui/search-avatars';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
@@ -12,6 +11,7 @@ import * as Popover from '~/components/ui/popover';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
+import SearchInput from '~/components/ui/search-input';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -131,7 +131,7 @@ export default function AvatarsShow() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchAvatars />
+        <SearchInput searchParamName='name' placeholder='Search avatars by name' />
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-3'>
             <button

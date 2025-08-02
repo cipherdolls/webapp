@@ -6,21 +6,15 @@ import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
 import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
-import { useScenarios } from '~/hooks/queries';
+import { useScenarios } from '~/hooks/queries/scenarioQueries';
 
 const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
-  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios();
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true' });
 
   const scenarios = scenariosPaginated?.data || [];
 
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
-
-  const sortedScenarios = useMemo(() => {
-    return [...scenarios].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [scenarios]);
 
   const handleShowAll = () => {
     setShowAll(!showAll);
@@ -51,7 +45,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
               </Link>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              {sortedScenarios.map((scenario, index) => (
+              {scenarios.map((scenario, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                   <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                     <Link

@@ -5,22 +5,22 @@ import { useSearchParams } from 'react-router';
 import { useEffect, useState, useCallback } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-const SearchAvatars = () => {
+const SearchInput = ({ searchParamName, placeholder }: { searchParamName: string, placeholder: string }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchValue, setSearchValue] = useState(searchParams.get('name') || '');
+  const [searchValue, setSearchValue] = useState(searchParams.get(searchParamName) || '');
   const [debouncedSearchValue] = useDebounceValue(searchValue, 300);
 
   useEffect(() => {
-    setSearchValue(searchParams.get('name') || '');
+    setSearchValue(searchParams.get(searchParamName) || '');
   }, [searchParams]);
 
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
     
     if (debouncedSearchValue.trim()) {
-      newSearchParams.set('name', debouncedSearchValue.trim());
+      newSearchParams.set(searchParamName, debouncedSearchValue.trim());
     } else {
-      newSearchParams.delete('name');
+      newSearchParams.delete(searchParamName);
     }
     
     setSearchParams(newSearchParams);
@@ -34,10 +34,10 @@ const SearchAvatars = () => {
   return (
     <Input.Root>
       <Input.Input
-        id='name'
-        name='name'
+        id={searchParamName}
+        name={searchParamName}
         type='text'
-        placeholder='Search avatars by name'
+        placeholder={placeholder}
         className='py-3.5 pl-[52px]'
         value={searchValue}
         onChange={handleInputChange}
@@ -48,4 +48,4 @@ const SearchAvatars = () => {
   );
 };
 
-export default SearchAvatars;
+export default SearchInput;

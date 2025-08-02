@@ -21,7 +21,7 @@ export function useAvatar(avatarId: string) {
 }
 
 interface AvatarsQueryParams {
-  mine?: string;
+  mine?: boolean;
   chat?: string;
   published?: string;
   name?: string;
@@ -30,7 +30,7 @@ interface AvatarsQueryParams {
   limit?: string;
 }
 
-export function useAvatars(params: AvatarsQueryParams) {
+export function useAvatars(params?: AvatarsQueryParams) {
   return useQuery({
     queryKey: ['avatars', params],
     queryFn: () => fetchResource<AvatarsPaginated>(`avatars?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -44,7 +44,15 @@ export function useInfiniteAvatars(params: Omit<AvatarsQueryParams, 'page'>) {
     queryKey: ['avatars', params],
     initialPageParam: 1,
     queryFn: async ({ pageParam }) => {
-      const searchParams = new URLSearchParams({ ...params, page: pageParam.toString() });
+      const paramsWithPage = { ...params, page: pageParam.toString() };
+      const searchParams = new URLSearchParams();
+      
+      Object.entries(paramsWithPage).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.set(key, String(value));
+        }
+      });
+      
       const response = await fetchWithAuth(`avatars?${searchParams}`);
       if (!response.ok) throw new Error('Failed to fetch avatars');
       return response.json() as Promise<AvatarsPaginated>;

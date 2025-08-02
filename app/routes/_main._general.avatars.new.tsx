@@ -17,13 +17,11 @@ export default function AvatarNew() {
     mutate: createAvatar,
     isPending: createAvatarIsPending,
     error: createAvatarError,
-    isSuccess: createAvatarIsSuccess,
   } = useCreateAvatar();
 
   const handleSubmit = (formData: FormData) => {
     createAvatar(formData, {
       onSuccess: (newAvatarData) => {
-        console.log('newAvatarData', newAvatarData);
         navigate(`/avatars/${newAvatarData.id}`);
       },
     });

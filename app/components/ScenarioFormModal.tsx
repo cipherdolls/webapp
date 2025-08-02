@@ -8,21 +8,32 @@ import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
 import Multiselect from '~/components/ui/input/multiselect';
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { formatModelName } from '~/utils/formatModelName';
 import * as Modal from '~/components/ui/new-modal';
 import { InformationBadge } from '~/components/ui/InformationBadge';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 
 interface ScenarioFormModalProps {
   scenario?: Scenario;
-  aiProviders: AiProvider[];
-  avatars: Avatar[];
-  method: 'PATCH' | 'POST';
   onClose: () => void;
+  onSubmit: (formData: FormData) => void;
+  errors?: Error | null;
 }
 
+interface Option {
+  label: string;
+  value: string;
+  recommended: boolean;
+}
+
+interface OptionGroup {
+  groupName: string;
+  options: Option[];
+}
 
 // Default scenario params for new scenarios
 const defaultScenarioData = {
@@ -34,9 +45,14 @@ const defaultScenarioData = {
   presencePenalty: 0,
 };
 
-const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: ScenarioFormModalProps) => {
+const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors }: ScenarioFormModalProps) => {
+  const { data: avatarsData } = useAvatars();
+  const { data: aiProvidersData } = useAiProviders();
+
+  const avatars = useMemo(() => avatarsData?.data || [], [avatarsData]);
+  const aiProviders = useMemo(() => aiProvidersData?.data || [], [aiProvidersData]);
+
   const me = useRouteLoaderData('routes/_main') as User;
-  const fetcher = useFetcher();
   const [selectedImage, setSelectedImage] = useState<string | null>(scenario?.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
@@ -60,22 +76,10 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
       ? (scenario.avatars.map((scenarioAvatar) => avatars.find((avatar) => avatar.id === scenarioAvatar.id)).filter(Boolean) as Avatar[])
       : [],
   });
-  const [validationError, setValidationError] = useState<string[]>([]);
-  const isNew = method === 'POST';
+  const isNew = !scenario;
 
   const updateScenarioData = (field: keyof typeof scenarioData, value: any) => {
     setScenarioData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const errors = [...(fetcher.data?.errors || []), ...validationError];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    if (scenarioData.avatars.length === 0) {
-      e.preventDefault();
-      setValidationError(['Please select at least one avatar for this scenario.']);
-      return;
-    }
-    setValidationError([]);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,17 +114,6 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
     onClose?.();
   };
 
-  interface Option {
-    label: string;
-    value: string;
-    recommended: boolean;
-  }
-
-  interface OptionGroup {
-    groupName: string;
-    options: Option[];
-  }
-
   const getOptions = (forModel: 'chatModel' | 'embeddingModel' | 'reasoningModel'): OptionGroup[] => {
     let res: OptionGroup[] = [];
     if (!aiProviders) return res;
@@ -149,6 +142,12 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
     return res;
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    onSubmit(formData);
+  };
+
   return (
     <Modal.Root
       defaultOpen
@@ -174,12 +173,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
           </button>
         </div>
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
-        <fetcher.Form
-          method={method}
-          encType='multipart/form-data'
-          className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'
-          onSubmit={handleSubmit}
-        >
+        <form encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8' onSubmit={handleSubmit}>
           <input type='hidden' name='temperature' value={scenarioData.temperature} />
           <input type='hidden' name='topP' value={scenarioData.topP} />
           <input type='hidden' name='frequencyPenalty' value={scenarioData.frequencyPenalty} />
@@ -751,7 +745,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
               </Input.Root>
             </div>
           </Modal.Body>
-          <ErrorsBox errors={errors.slice(0, 3)} className='mt-3' />
+          <ErrorsBox errors={errors} className='mt-3' />
           <Modal.Footer className={cn('flex-shrink-0 pt-7')}>
             <Modal.Close asChild>
               <Button.Root variant='secondary' aria-label='Close' className='w-full'>
@@ -762,7 +756,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
               {isNew ? 'Create Scenario' : 'Save'}
             </Button.Root>
           </Modal.Footer>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

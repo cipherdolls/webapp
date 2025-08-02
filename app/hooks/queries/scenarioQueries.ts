@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Scenario, ScenariosPaginated } from '~/types';
+import type { AvatarsPaginated, Scenario, ScenariosPaginated } from '~/types';
 
 // Generic fetch function
 async function fetchResource<T>(endpoint: string): Promise<T> {
@@ -11,14 +11,15 @@ async function fetchResource<T>(endpoint: string): Promise<T> {
   return response.json();
 }
 
-
-type UseScenariosParams = {
-  page?: number;
-  limit?: number;
-  published?: boolean;
-  mine?: boolean;
-};
-
+interface ScenariosQueryParams {
+  mine?: string;
+  chat?: string;
+  published?: string;
+  name?: string;
+  gender?: string;
+  page?: string;
+  limit?: string;
+}
 
 // Scenario queries
 export function useScenario(scenarioId: string) {
@@ -29,24 +30,34 @@ export function useScenario(scenarioId: string) {
   });
 }
 
-export function useScenarios(params: UseScenariosParams = {}) {
-  const { page = 1, limit = 20, published, mine } = params;
-
-  const query: Record<string, any> = { page, limit };
-  if (published !== undefined) query.published = published;
-  if (mine !== undefined) query.mine = mine;
-
-  const key = ['scenarios', query];
-
-  const search = new URLSearchParams(
-    Object.entries(query).reduce(
-      (acc, [k, v]) => ({ ...acc, [k]: String(v) }),
-      {}
-    )
-  ).toString();
-
+export function useScenarios(params?: ScenariosQueryParams) {
   return useQuery({
-    queryKey: key,
-    queryFn: () => fetchResource<ScenariosPaginated>(`scenarios?${search}`),
+    queryKey: ['scenarios', params],
+    queryFn: () => fetchResource<ScenariosPaginated>(`scenarios?${new URLSearchParams(params as Record<string, string>).toString()}`),
+  });
+}
+
+export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>) {
+  return useInfiniteQuery({
+    queryKey: ['scenarios', params],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const searchParams = new URLSearchParams({ ...params, page: pageParam.toString() });
+      const response = await fetchWithAuth(`scenarios?${searchParams}`);
+      if (!response.ok) throw new Error('Failed to fetch scenarios');
+      return response.json() as Promise<ScenariosPaginated>;
+    },
+    getNextPageParam: (lastPage: ScenariosPaginated) => {
+      if (lastPage.meta.page < lastPage.meta.totalPages) {
+        return lastPage.meta.page + 1;
+      }
+      return undefined;
+    },
+    getPreviousPageParam: (firstPage: ScenariosPaginated) => {
+      if (firstPage.meta.page > 1) {
+        return firstPage.meta.page - 1;
+      }
+      return undefined;
+    },
   });
 }

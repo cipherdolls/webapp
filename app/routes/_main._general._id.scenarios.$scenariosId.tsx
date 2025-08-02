@@ -1,13 +1,12 @@
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { Form, Link, Outlet, useFetcher, useRouteLoaderData } from 'react-router';
+import { Form, Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import { getPicture } from '~/utils/getPicture';
-import type { Avatar, Scenario, User } from '~/types';
+import type { User } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
-import ScenarioDestroy from './scenarios.$scenariosId.destroy';
 import { formatModelName } from '~/utils/formatModelName';
 import DetailCard from '~/components/ui/detail/detail-card';
 import DetailRow from '~/components/ui/detail/detail-row';
@@ -18,39 +17,34 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 import Tooltip from '~/components/ui/tooltip';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useScenario } from '~/hooks/queries/scenarioQueries';
+import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const scenarioId = params.scenariosId;
-
-  const [scenarioIdRes, mineAvatarsRes] = await Promise.all([fetchWithAuth(`scenarios/${scenarioId}`), fetchWithAuth('avatars?mine=true')]);
-
-  const scenario = await scenarioIdRes.json();
-  const mineAvatars = await mineAvatarsRes.json();
-
-  return { scenario, mineAvatars };
-}
-
-export default function ScenariosId({ loaderData }: Route.ComponentProps) {
-  const {
-    scenario,
-    mineAvatars,
-  }: {
-    scenario: Scenario;
-    mineAvatars: Avatar[] | { data: Avatar[]; meta: any };
-  } = loaderData;
-
-  const fetcher = useFetcher();
+export default function ScenariosId({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+  const { data: mineAvatarsData } = useAvatars({ mine: true });
+  const { data: scenarioData, isLoading } = useScenario(params.scenariosId);
+  const { mutate: deleteScenario } = useDeleteScenario();
+
+  const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
+  const scenario = useMemo(() => scenarioData || null, [scenarioData]);
+
   const [showAll, setShowAll] = useState(false);
 
-  const mineAvatarsList = Array.isArray(mineAvatars) ? mineAvatars : mineAvatars.data;
+  const mineAvatarsList = mineAvatars;
   const avatars = scenario?.avatars ? scenario.avatars : [];
   const hasAvatars = avatars.length > 0;
+
+  if (isLoading || !scenario) {
+    return null;
+  }
 
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
@@ -59,6 +53,13 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     setShowAll(!showAll);
   };
 
+  const handleDeleteScenario = () => {
+    deleteScenario(scenario.id, {
+      onSuccess: () => {
+        navigate(`/scenarios?mine=true`);
+      },
+    });
+  };
 
   return (
     <>
@@ -109,7 +110,9 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                   </Button.Root>
                 </Link>
                 <DeleteModal title={`Delete scenario ${scenario.name}?`} description='You will not be able to restore the data.'>
-                  <ScenarioDestroy />
+                  <Button.Root type='button' variant='danger' className='w-full' onClick={handleDeleteScenario}>
+                    Yes, delete
+                  </Button.Root>
                 </DeleteModal>
               </>
             )}
@@ -156,7 +159,9 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                       title={`Delete scenario ${scenario.name}?`}
                       description='You will not be able to restore the data.'
                     >
-                      <ScenarioDestroy />
+                      <Button.Root type='button' variant='danger' className='w-full' onClick={handleDeleteScenario}>
+                        Yes, delete
+                      </Button.Root>
                     </DeleteModal>
                   ),
                   visible: me.id === scenario.userId,
@@ -176,7 +181,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 <div className='flex flex-col gap-5'>
                   <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2'>
                     {avatars.map((avatar, index) => (
-                      <div className={'transition-all duration-500 ease-out'} key={index}>
+                      <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
                             to={`/scenarios/${scenario.id}`}
@@ -227,6 +232,17 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                       </div>
                     ))}
                   </div>
+                  {avatars.length > 4 && (
+                    <div className='mx-auto -mt-2'>
+                      <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
+                        {showAll ? 'Collapse' : 'Show all'}
+                        <Button.Icon
+                          as={Icons.chevronDown}
+                          className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`}
+                        />
+                      </Button.Root>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
