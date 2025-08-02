@@ -1,20 +1,13 @@
-import { Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
-import type { Chat, User } from '~/types';
+import { Outlet, redirect } from 'react-router';
+import type { Chat } from '~/types';
 import type { Route } from './+types/_main.chats';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import ChatsSidebar from '~/components/ChatsSidebar';
+import { useChats } from '~/hooks/queries/chatQueries';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
-}
-
-export async function clientLoader() {
-  const [chats, avatars] = await Promise.all([
-    fetchWithAuth('chats').then((res) => res.json()),
-    fetchWithAuth('avatars').then((res) => res.json()),
-  ]);
-
-  return { chats, avatars };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -69,10 +62,12 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
-  const me = useRouteLoaderData('routes/_main') as User;
-  // console.log('me in ChatsIndex', me);
+  const { data: avatarsData } = useAvatars();
+  const { data: chatsData, isLoading: chatsLoading } = useChats();
 
-  const { chats, avatars } = loaderData;
+  const avatars = avatarsData?.data || [];
+  const chats = chatsData || [];
+
   return (
     <>
       <main className='flex flex-1 sm:py-2 sm:pr-2 overflow-hidden'>

@@ -37,7 +37,7 @@ export function useScenarios(params?: ScenariosQueryParams) {
   });
 }
 
-export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>) {
+export function useInfiniteScenarios(params?: Omit<ScenariosQueryParams, 'page'>) {
   return useInfiniteQuery({
     queryKey: ['scenarios', params],
     initialPageParam: 1,
