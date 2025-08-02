@@ -14,9 +14,7 @@ export function useDoll(dollId: string) {
       
       return res.json();
     },
-    // Гарантуємо що дані завжди свіжі
-    staleTime: 5 * 60 * 1000, // 5 хвилин
-    // Не показуємо кешовані дані під час refetch
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 } 

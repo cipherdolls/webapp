@@ -15,12 +15,6 @@ const YourAvatars = ({  chats }: {  chats?: Chat[] }) => {
   const [showAll, setShowAll] = useState(false);
   const hasAvatars = avatars.length > 0;
 
-  const sortedAvatars = useMemo(() => {
-    return [...avatars].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [avatars]);
-
   const handleShowAll = () => {
     setShowAll(!showAll);
   };
@@ -50,7 +44,7 @@ const YourAvatars = ({  chats }: {  chats?: Chat[] }) => {
               </Link>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              {sortedAvatars.map((avatar, index) => (
+              {avatars.map((avatar, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                   <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                     <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'>
