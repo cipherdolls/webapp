@@ -168,20 +168,30 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               </div>
 
               <Card.Main>
-                <div className='p-4 bg-neutral-04 rounded-xl'>
-                  <div className='flex items-center justify-between'>
+                <div className='m-1 mb-0.5 block h-[200px] sm:h-[152px] rounded-xl relative'>
+                  {chat.scenario.picture ? (
+                    <div className='size-full'>
+                      <img
+                        src={getPicture(chat.scenario, 'scenarios', false)}
+                        srcSet={getPicture(chat.scenario, 'scenarios', true)}
+                        alt={chat.scenario.name}
+                        className='size-full object-cover rounded-xl'
+                      />
+                    </div>
+                  ) : (
+                    <div className='flex items-center justify-center size-full'>
+                      <Icons.fileUploadIcon />
+                    </div>
+                  )}
+                </div>
+
+                <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
+                  <div className='p-4 flex gap-2 items-center justify-between'>
                     <div>
                       <h4 className='text-body-md font-semibold text-base-black'>{chat.scenario.name}</h4>
                       <p className='text-body-sm text-neutral-01'>Current scenario</p>
                     </div>
                     <div className='text-xs text-neutral-01 bg-neutral-05 px-3 py-1 rounded-full'>Active</div>
-                  </div>
-                </div>
-
-                <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
-                  <div className='p-4 flex gap-2 items-center justify-between'>
-                    <span className='text-body-sm'>Chat Model:</span>
-                    <span className='text-body-sm font-semibold'>{chat.scenario.chatModel.providerModelName}</span>
                   </div>
 
                   <div className='w-full  border border-neutral-04' />
@@ -344,31 +354,31 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
 
             {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
             {/* Doll */}
-            <Card.Root className='sm:h-auto'>
-              <div className='flex items-center justify-between'>
-                <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>
-              </div>
-              <Card.Main>
-                <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>
-                  <div className='text-4xl'>🤷‍♀️</div>
-                  <div className='flex flex-col flex-start gap-1 text-left'>
-                    <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>
-                    <button
-                      className='text-body-md text-neutral-01 text-left underline'
-                      onClick={() =>
-                        alert({
-                          icon: '👩 📱',
-                          title: 'How to Add a Doll',
-                          body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',
-                        })
-                      }
-                    >
-                      How to Add a Doll
-                    </button>
-                  </div>
-                </div>
-              </Card.Main>
-            </Card.Root>
+            {/*<Card.Root className='sm:h-auto'>*/}
+            {/*  <div className='flex items-center justify-between'>*/}
+            {/*    <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>*/}
+            {/*  </div>*/}
+            {/*  <Card.Main>*/}
+            {/*    <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>*/}
+            {/*      <div className='text-4xl'>🤷‍♀️</div>*/}
+            {/*      <div className='flex flex-col flex-start gap-1 text-left'>*/}
+            {/*        <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>*/}
+            {/*        <button*/}
+            {/*          className='text-body-md text-neutral-01 text-left underline'*/}
+            {/*          onClick={() =>*/}
+            {/*            alert({*/}
+            {/*              icon: '👩 📱',*/}
+            {/*              title: 'How to Add a Doll',*/}
+            {/*              body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',*/}
+            {/*            })*/}
+            {/*          }*/}
+            {/*        >*/}
+            {/*          How to Add a Doll*/}
+            {/*        </button>*/}
+            {/*      </div>*/}
+            {/*    </div>*/}
+            {/*  </Card.Main>*/}
+            {/*</Card.Root>*/}
 
             <div className='pt-10 mt-auto'>
               <ChatDestroy />
