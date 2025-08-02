@@ -41,14 +41,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function AvatarsShow() {
-  const [searchParams, setSearchParams] = useSearchParams({ published: 'true' });
+  const [searchParams, setSearchParams] = useSearchParams();
   const me = useRouteLoaderData('routes/_main') as User;
   const [popoverOpen, setPopoverOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
+  const defaultParams = Object.keys(rawParams).length > 0 ? rawParams : { published: 'true' }
 
-  const { data: avatars, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteAvatars(rawParams);
+  const {
+    data: avatars,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteAvatars(defaultParams);
 
   const filteredAndSortedAvatars = useMemo(() => {
     return avatars?.pages.flatMap((page) => page.data) || [];
