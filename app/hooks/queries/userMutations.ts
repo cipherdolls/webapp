@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { User } from '~/types';
 
 // Refresh token balance mutation
 export function useRefreshTokenBalance() {

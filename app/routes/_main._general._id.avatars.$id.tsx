@@ -1,79 +1,39 @@
-import { Form, Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
-import type { Avatar, User } from '~/types';
+import { Form, Link, Outlet } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS } from '~/constants';
-import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import { ViewMore } from '~/view-more';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
+import { useAvatar } from '~/hooks/queries/avatarQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const avatarId = params.id;
-  const res = await fetchWithAuth(`avatars/${avatarId}`);
-  return await res.json();
-}
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const avatarId = formData.get('avatarId');
+export default function AvatarShow({ params }: Route.ComponentProps) {
+  const { data: avatar } = useAvatar(params.id);
+  const { data: user } = useUser();
 
-    const res = await fetchWithAuth(`avatars/${avatarId}`, {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      return await res.json();
-    }
-
-    const avatar: Avatar = await res.json();
-    return redirect(`/avatars/${avatar.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function AvatarShow({ loaderData }: Route.ComponentProps) {
-  const avatar: Avatar = loaderData;
-  const me = useRouteLoaderData('routes/_main') as User;
-  // const fetcher = useFetcher();
-  // const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const scenarios = avatar.scenarios ? avatar.scenarios : [];
+  const scenarios = avatar?.scenarios ? avatar.scenarios : [];
   const hasScenarios = scenarios.length > 0;
-  const isPublished = avatar.published;
+  const isPublished = avatar?.published;
 
   const sortedScenarios = useMemo(() => {
     return [...scenarios].sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
   }, [scenarios]);
-
-  // const handleCopyToClipboard = () => {
-  //   navigator.clipboard.writeText(avatar.character);
-  //   setCopied(true);
-  //
-  //   if (copyTimeoutRef.current) {
-  //     clearTimeout(copyTimeoutRef.current);
-  //   }
-  //
-  //   const timeoutId = setTimeout(() => setCopied(false), 2000);
-  //   copyTimeoutRef.current = timeoutId;
-  // };
 
   const getTextAfterThe = (text: string): string => {
     const words = text.split(' ');
@@ -93,11 +53,13 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
     };
   }, []);
 
+  if (!avatar || !user) return null;
+
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`${avatar.userId === me.id ? '/avatars?mine=true' : '/avatars'}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${avatar.userId === user.id ? '/avatars?mine=true' : '/avatars'}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft />
             <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{avatar.name}</h3>
@@ -124,14 +86,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             {/*    Duplicate*/}
             {/*  </Button.Root>*/}
             {/*</fetcher.Form>*/}
-            {avatar.userId === me.id && (
+            {avatar.userId === user.id && (
               <>
                 <Link to={`/avatars/${avatar.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
                     Edit
                   </Button.Root>
                 </Link>
-                <DeleteAvatarModal />
+               <DeleteAvatarModal avatarId={avatar.id} />
               </>
             )}
           </div>
@@ -143,7 +105,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   type: 'link',
                   text: 'Edit',
                   href: `/avatars/${avatar.id}/edit`,
-                  visible: me.id === avatar.userId,
+                  visible: user.id === avatar.userId,
                 },
                 {
                   type: 'component',
@@ -173,8 +135,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   type: 'component',
                   text: 'Delete',
                   isDelete: true,
-                  component: <DeleteAvatarModal dropdown />,
-                  visible: me.id === avatar.userId,
+                  component: <DeleteAvatarModal dropdown avatarId={avatar.id} />,
+                  visible: user.id === avatar.userId,
                 },
               ]}
             />
@@ -301,7 +263,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                     {isPublished ? 'Published' : 'Your Special'}
                   </p>
                   <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
-                    {me.id === avatar.userId ? 'Made by you' : avatar.userId}
+                    {user.id === avatar.userId ? 'Made by you' : avatar.userId}
                   </span>
                 </div>
               </div>

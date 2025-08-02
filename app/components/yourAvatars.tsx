@@ -5,12 +5,12 @@ import type { Chat } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
 import AvatarScenarioModal from './AvatarScenarioModal';
-import { useMyAvatars } from '~/hooks/queries';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
 
 const YourAvatars = ({  chats }: {  chats?: Chat[] }) => {
-  const { data: avatarsPaginated, isLoading: avatarsLoading } = useMyAvatars();
+  const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: true });
 
-  const avatars = avatarsPaginated?.data || [];
+  const avatars = myAvatars?.data || [];
 
   const [showAll, setShowAll] = useState(false);
   const hasAvatars = avatars.length > 0;

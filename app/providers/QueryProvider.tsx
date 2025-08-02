@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, Suspense, lazy } from 'react';
-
 // Lazy load devtools only in development
 const ReactQueryDevtools = import.meta.env.DEV
   ? lazy(() =>
@@ -23,6 +22,12 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             staleTime: 5 * 60 * 1000,
             // Cache for 10 minutes
             gcTime: 10 * 60 * 1000,
+          },
+          mutations: {
+            // Comment out global error handling to let components handle their own errors
+            // onError: (error) => {
+            //   // Global error handling disabled - handle in components
+            // },
           },
         },
       })

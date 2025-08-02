@@ -1,73 +1,48 @@
-import { redirect, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id.edit';
-import type { Avatar, ScenariosPaginated, TtsVoice } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import AvatarFormModal from '~/components/AvatarFormModal';
-
+import { useUpdateAvatar } from '~/hooks/queries/avatarMutations';
+import { useAvatar } from '~/hooks/queries/avatarQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatar edit' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const avatarId = params.id;
-  const [avatarRes, ttsVoicesRes, scenariosRes, publicScenariosRes] = await Promise.all([
-    fetchWithAuth(`avatars/${avatarId}`),
-    fetchWithAuth('tts-voices'),
-    fetchWithAuth('scenarios'),
-    fetchWithAuth('scenarios?published=true'),
-  ]);
+export default function AvatarEdit({ params }: Route.ComponentProps) {
+  const { data: avatar } = useAvatar(params.id);
 
-  const avatar: Avatar = await avatarRes.json();
-  const ttsVoices: TtsVoice[] = await ttsVoicesRes.json();
-  const mineScenarios: ScenariosPaginated = await scenariosRes.json();
-  const publicScenarios: ScenariosPaginated = await publicScenariosRes.json();
+  const {
+    mutate: updateAvatar,
+    isPending: updateAvatarIsPending,
+    error: updateAvatarError,
+    isSuccess: updateAvatarIsSuccess,
+  } = useUpdateAvatar();
 
-  const scenarios = [...mineScenarios.data, ...publicScenarios.data];
-
-  return { avatar, ttsVoices, scenarios };
-}
-
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const avatarId = formData.get('avatarId');
-
-    const res = await fetchWithAuth(`avatars/${avatarId}`, {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    const avatar: Avatar = await res.json();
-    return redirect(`/avatars/${avatar.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function AvatarEdit({ loaderData }: Route.ComponentProps) {
-  const { avatar, ttsVoices, scenarios } = loaderData;
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/avatars/${avatar.id}`);
+    navigate(`/avatars/${params.id}`);
   };
 
+  const handleSubmit = (formData: FormData) => {
+    updateAvatar(
+      { avatarId: params.id, formData },
+      {
+        onSuccess: (updatedAvatar) => {
+          navigate(`/avatars/${updatedAvatar.id}`);
+        },
+      }
+    );
+  };
+
+  if (!avatar) return null;
   return (
     <AvatarFormModal
       avatar={avatar}
-      ttsVoices={ttsVoices}
-      scenarios={scenarios}
-      method='PATCH'
+      onSubmit={handleSubmit}
+      isPending={updateAvatarIsPending}
       onClose={handleClose}
+      errors={updateAvatarError}
     />
   );
 }

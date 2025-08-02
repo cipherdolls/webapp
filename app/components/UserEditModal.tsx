@@ -2,12 +2,12 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
-import type { User } from '~/types';
+import type { Gender, User } from '~/types';
 import { useEffect, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { cn } from '~/utils/cn';
 import { useUpdateUser } from '~/hooks/queries';
-
+  
 interface UserEditModalProps {
   me: User;
   open?: boolean;
@@ -17,7 +17,7 @@ interface UserEditModalProps {
 const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   const updateUserMutation = useUpdateUser();
   const [internalOpen, setInternalOpen] = useState(false);
-  const [gender, setGender] = useState<'Male' | 'Female' | null>(me.gender || null);
+  const [gender, setGender] = useState<Gender | null>(me.gender || null);
   
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
@@ -123,7 +123,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
                       🧔🏻‍♂ Male
                     </button>
                   </div>
-                  <input type='hidden' name='gender' value={gender} />
+                  <input type='hidden' name='gender' value={gender || ''} />
                 </Input.Root>
 
                 <Textarea.Root>

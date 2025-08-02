@@ -1,22 +1,7 @@
-import { redirect, useFetcher, useNavigate, useParams, useRouteLoaderData } from 'react-router';
-
+import { redirect, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.scenarios.new';
-import * as Button from '~/components/ui/button/button';
-
-import { Icons } from '~/components/ui/icons';
-import * as Input from '~/components/ui/input/input';
-import { Fragment, useRef, useState } from 'react';
-import type { AiProvider, AiProvidersPaginated, Gender, Avatar, AvatarsPaginated, User } from '~/types';
-import * as Textarea from '~/components/ui/input/textarea';
-import * as Select from '~/components/ui/input/select';
-import * as Slider from '~/components/ui/slider';
-import Multiselect from '~/components/ui/input/multiselect';
-import ErrorsBox from '~/components/ui/input/errorsBox';
-import { formatModelName } from '~/utils/formatModelName';
-import * as Modal from '~/components/ui/new-modal';
-import { InformationBadge } from '~/components/ui/InformationBadge';
-import { cn } from '~/utils/cn';
+import type { AiProvider, AiProvidersPaginated, Avatar, AvatarsPaginated } from '~/types';
 import ScenarioFormModal from '~/components/ScenarioFormModal';
 
 interface Option {

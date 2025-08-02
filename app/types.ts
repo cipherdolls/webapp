@@ -21,6 +21,7 @@ export interface User {
   signerAddress: string;
   walletAddress: string;
   apikey: string;
+  gender: Gender | null;
   role: string;
   character: string;
   tokenBalance?: number;

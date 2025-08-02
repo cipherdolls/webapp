@@ -18,10 +18,10 @@ import { useAvatar, useScenarios, useTtsVoices } from '~/hooks/queries';
 
 interface AvatarEditModalProps {
   avatar?: Avatar;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (formData: FormData) => void;
   isPending: boolean;
   onClose: () => void;  
-  errors?: string;
+  errors?: Error | null;
 }
 
 const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
@@ -47,7 +47,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const isNew = !!avatar;
+  const isNew = !avatar;
 
   const updateAvatarData = (field: keyof typeof avatarData, value: any) => {
     setAvatarData((prev) => ({ ...prev, [field]: value }));
@@ -93,6 +93,12 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     onClose && onClose();
   };
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    onSubmit(formData);
+  }
+
 
   return (
     <Modal.Root
@@ -119,7 +125,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
           </button>
         </div>
         <Modal.Description className='sr-only'>{avatar ? 'Edit avatar' : 'Create new avatar'}</Modal.Description>
-        <form onSubmit={onSubmit} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
+        <form onSubmit={handleSubmit} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
           <Modal.Body
             className={cn(
               'flex gap-4 md:gap-6 flex-1 overflow-auto scrollbar-medium -mx-8 px-8 [scrollbar-gutter:stable]',

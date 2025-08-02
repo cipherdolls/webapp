@@ -20,23 +20,17 @@ export function useAvatar(avatarId: string) {
   });
 }
 
-export function useAvatars(page = 1, limit = 20) {
+interface AvatarsQueryParams {
+  page?: number;
+  limit?: number;
+  mine?: boolean;
+  published?: boolean;
+}
+
+export function useAvatars(params: AvatarsQueryParams) {
   return useQuery({
-    queryKey: ['avatars', page, limit],
-    queryFn: () => fetchResource<AvatarsPaginated>(`avatars?page=${page}&limit=${limit}`),
+    queryKey: ['avatars', params],
+    queryFn: () => fetchResource<AvatarsPaginated>(`avatars?${new URLSearchParams(params as Record<string, string>).toString()}`),
   });
 }
 
-export function useMyAvatars() {
-  return useQuery({
-    queryKey: ['avatars', 'mine'],
-    queryFn: () => fetchResource<AvatarsPaginated>('avatars?mine=true'),
-  });
-}
-
-export function usePublicAvatars(page = 1, limit = 20) {
-  return useQuery({
-    queryKey: ['avatars', 'public', page, limit],
-    queryFn: () => fetchResource<AvatarsPaginated>(`avatars?published=true&page=${page}&limit=${limit}`),
-  });
-}
