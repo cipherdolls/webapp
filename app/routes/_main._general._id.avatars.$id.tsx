@@ -205,12 +205,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                               className='object-cover size-full'
                             />
 
-                            <div className='absolute top-2 left-2 z-10'>
-                              <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                                🌐
-                                <span>By you</span>
+                            {avatar.userId === me.id && (
+                              <div className='absolute top-2 left-2 z-10'>
+                                <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                                  🌐
+                                  <span>By you</span>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </Link>
 
                           <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
