@@ -35,10 +35,10 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
   const [othersPage, setOthersPage] = useState(1);
   const [hasMoreOthers, setHasMoreOthers] = useState(true);
   const fetchingRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const searchCacheRef = useRef<Map<string, { data: (Avatar | Scenario)[]; hasMore: boolean }>>(new Map());
 
-  const allRecommendedItems = type === 'avatar' 
-    ? (avatar?.scenarios || []) as Scenario[]
-    : (scenario?.avatars || []) as Avatar[];
+  const allRecommendedItems = type === 'avatar' ? ((avatar?.scenarios || []) as Scenario[]) : ((scenario?.avatars || []) as Avatar[]);
 
   const [displayedRecommendedItems, setDisplayedRecommendedItems] = useState<(Avatar | Scenario)[]>([]);
   const [recommendedPage, setRecommendedPage] = useState(1);
@@ -56,6 +56,11 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
       setDisplayedRecommendedItems([]);
       setRecommendedPage(1);
       fetchingRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      searchCacheRef.current.clear();
     }
   }, [isOpen]);
 
@@ -67,6 +72,25 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
       if (!isLoadMore && loading) return;
       if (fetchingRef.current) return;
 
+      const searchTerm = debouncedSearchValue.trim();
+      const cacheKey = `${type}-${searchTerm}-page-${isLoadMore ? othersPage + 1 : 1}`;
+
+      // Check cache for exact same request
+      if (!isLoadMore && searchCacheRef.current.has(cacheKey)) {
+        const cached = searchCacheRef.current.get(cacheKey)!;
+        setOthersData(cached.data);
+        setHasMoreOthers(cached.hasMore);
+        setOthersPage(1);
+        return;
+      }
+
+      // Cancel previous request if it exists
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Create new abort controller
+      abortControllerRef.current = new AbortController();
       fetchingRef.current = true;
 
       if (isLoadMore) {
@@ -79,8 +103,8 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
         const endpoint = type === 'avatar' ? 'scenarios' : 'avatars';
         const params = new URLSearchParams();
         params.set('published', 'true');
-        if (debouncedSearchValue.trim()) {
-          params.set('name', debouncedSearchValue.trim());
+        if (searchTerm) {
+          params.set('name', searchTerm);
         }
 
         const pageToFetch = isLoadMore ? othersPage + 1 : 1;
@@ -91,20 +115,33 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
           ITEMS_PER_PAGE
         );
 
-        if (isLoadMore) {
-          setOthersData((prev) => [...prev, ...(data.data || [])] as typeof prev);
-          setOthersPage(pageToFetch);
-        } else {
-          setOthersData((data.data || []) as Avatar[] | Scenario[]);
-          setOthersPage(1);
+        // Check if request was aborted
+        if (abortControllerRef.current?.signal.aborted) {
+          return;
         }
 
-        setHasMoreOthers(pageToFetch < data.meta.totalPages);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        if (!isLoadMore) setOthersData([]);
+        const hasMore = pageToFetch < data.meta.totalPages;
+
+        if (isLoadMore) {
+          setOthersData((prev) => [...prev, ...(data.data || [])]);
+          setOthersPage(pageToFetch);
+        } else {
+          setOthersData(data.data || []);
+          setOthersPage(1);
+          // Cache the search result only for first page
+          searchCacheRef.current.set(cacheKey, { data: data.data || [], hasMore });
+        }
+
+        setHasMoreOthers(hasMore);
+      } catch (error: any) {
+        // Don't log aborted requests as errors
+        if (error.name !== 'AbortError' && !abortControllerRef.current?.signal.aborted) {
+          console.error('Error fetching data:', error);
+          if (!isLoadMore) setOthersData([]);
+        }
       } finally {
         fetchingRef.current = false;
+        abortControllerRef.current = null;
         if (isLoadMore) {
           setLoadingMore(false);
         } else {
@@ -112,7 +149,7 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
         }
       }
     },
-    [type, debouncedSearchValue, hasMoreOthers, othersPage, loading, loadingMore]
+    [type, debouncedSearchValue, hasMoreOthers, othersPage, loading, loadingMore, activeTab]
   );
 
   const loadMoreRecommendedItems = useCallback(() => {
@@ -146,6 +183,12 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
 
   useEffect(() => {
     if (activeTab === 'others' && !loading && !fetchingRef.current) {
+      // Cancel any ongoing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+
       setOthersData([]);
       setOthersPage(1);
       setHasMoreOthers(true);
@@ -163,18 +206,18 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
     setSelectedItem(itemId === selectedItem ? null : itemId);
   };
 
-  const selectedItemData = useMemo(() => 
-    selectedItem ? [...allRecommendedItems, ...othersData].find((item) => item.id === selectedItem) : null,
+  const selectedItemData = useMemo(
+    () => (selectedItem ? [...allRecommendedItems, ...othersData].find((item) => item.id === selectedItem) : null),
     [selectedItem, allRecommendedItems, othersData]
   );
 
-  const headerScenario = useMemo(() => 
-    type === 'avatar' ? (selectedItemData as Scenario) || scenario : scenario,
+  const headerScenario = useMemo(
+    () => (type === 'avatar' ? (selectedItemData as Scenario) || scenario : scenario),
     [type, selectedItemData, scenario]
   );
 
-  const headerAvatar = useMemo(() => 
-    type === 'scenario' ? (selectedItemData as Avatar) || avatar : avatar,
+  const headerAvatar = useMemo(
+    () => (type === 'scenario' ? (selectedItemData as Avatar) || avatar : avatar),
     [type, selectedItemData, avatar]
   );
 
@@ -203,46 +246,45 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
   );
 
   const isAvatar = (item: Avatar | Scenario): item is Avatar => 'character' in item;
-  
-  const renderItem = useCallback((item: Avatar | Scenario) => {
-    const isSelected = selectedItem === item.id;
-    const itemType = isAvatar(item) ? 'avatar' : 'scenario';
 
-    return (
-      <button
-        key={item.id}
-        onClick={() => handleItemSelect(item.id)}
-        className={cn(
-          'flex items-start gap-3 p-3 rounded-xl border transition-all text-left w-full',
-          isSelected ? 'border-blue-500 bg-blue-50' : 'border-neutral-04 hover:border-neutral-03 hover:bg-neutral-05'
-        )}
-      >
-        <div className='relative'>
-          <img
-            src={getPicture(item, itemType === 'avatar' ? 'avatars' : 'scenarios', false)}
-            srcSet={getPicture(item, itemType === 'avatar' ? 'avatars' : 'scenarios', true)}
-            alt={item.name}
-            className='w-12 h-12 rounded-full object-cover'
-          />
-          {isSelected && (
-            <div className='absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center'>
-              <Icons.check className='w-3 h-3 text-white' />
-            </div>
-          )}
-        </div>
+  const renderItem = useCallback(
+    (item: Avatar | Scenario) => {
+      const isSelected = selectedItem === item.id;
+      const itemType = isAvatar(item) ? 'avatar' : 'scenario';
 
-        <div className='flex-1 min-w-0'>
-          <h4 className='font-semibold text-base-black truncate'>{item.name}</h4>
-          {isAvatar(item) && item.shortDesc && (
-            <p className='text-sm text-neutral-01 line-clamp-2'>{item.shortDesc}</p>
+      return (
+        <button
+          key={item.id}
+          onClick={() => handleItemSelect(item.id)}
+          className={cn(
+            'flex items-start gap-3 p-3 rounded-xl border transition-all text-left w-full',
+            isSelected ? 'border-blue-500 bg-blue-50' : 'border-neutral-04 hover:border-neutral-03 hover:bg-neutral-05'
           )}
-          {!isAvatar(item) && item.introduction && (
-            <p className='text-sm text-neutral-01 line-clamp-2'>{item.introduction}</p>
-          )}
-        </div>
-      </button>
-    );
-  }, [selectedItem, handleItemSelect]);
+        >
+          <div className='relative'>
+            <img
+              src={getPicture(item, itemType === 'avatar' ? 'avatars' : 'scenarios', false)}
+              srcSet={getPicture(item, itemType === 'avatar' ? 'avatars' : 'scenarios', true)}
+              alt={item.name}
+              className='w-12 h-12 rounded-full object-cover'
+            />
+            {isSelected && (
+              <div className='absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center'>
+                <Icons.check className='w-3 h-3 text-white' />
+              </div>
+            )}
+          </div>
+
+          <div className='flex-1 min-w-0'>
+            <h4 className='font-semibold text-base-black truncate'>{item.name}</h4>
+            {isAvatar(item) && item.shortDesc && <p className='text-sm text-neutral-01 line-clamp-2'>{item.shortDesc}</p>}
+            {!isAvatar(item) && item.introduction && <p className='text-sm text-neutral-01 line-clamp-2'>{item.introduction}</p>}
+          </div>
+        </button>
+      );
+    },
+    [selectedItem, handleItemSelect]
+  );
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -340,14 +382,14 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
                       onChange={(e) => setSearchValue(e.target.value)}
                       autoComplete='off'
                     />
-                    <Input.Icon as={Icons.search} className='[&_svg]:size-4' />
+                    <Input.Icon as={Icons.search} className='[&_svg]:size-4 peer-focus:bg-transparent!' />
                   </Input.Root>
                 )}
 
                 {othersData.length > 0 || loading ? (
                   <div className='flex flex-col gap-3 max-h-96 overflow-y-auto'>
                     {othersData.map((item) => renderItem(item))}
-                    
+
                     {loading && (
                       <>
                         {Array.from({ length: ITEMS_PER_PAGE }, (_, index) => (
@@ -355,16 +397,10 @@ const SelectionModal: React.FC<SelectionModalProps> = ({ type, scenario, avatar,
                         ))}
                       </>
                     )}
-                    
+
                     {othersData.length > 0 && hasMoreOthers && !loading && (
                       <div className='flex justify-center py-3'>
-                        <Button.Root 
-                          variant='secondary' 
-                          size='sm'
-                          className='px-6'
-                          onClick={loadMoreOthers}
-                          disabled={loadingMore}
-                        >
+                        <Button.Root variant='secondary' size='sm' className='px-6' onClick={loadMoreOthers} disabled={loadingMore}>
                           {loadingMore ? 'Loading...' : 'Load More'}
                         </Button.Root>
                       </div>
