@@ -182,7 +182,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
         </div>
 
         <div className='flex md:flex-row flex-col-reverse gap-5 sm:flex-1 divide-neutral-04 rounded-xl pb-2.5 sm:backdrop-blur-none sm:bg-none sm:rounded-none md:gap-0 md:divide-x'>
-          <div className='flex gap-4 flex-col md:pr-4'>
+          <div className='flex gap-4 flex-col md:pr-4 w-full'>
             <div className='flex w-full h-fit flex-col gap-4'>
               <AvatarCharacterPreview message={<ReactMarkdown>{avatar.character}</ReactMarkdown>} />
             </div>
@@ -261,7 +261,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px]'>
+          <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px] w-full'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
                 {avatar.picture ? (
