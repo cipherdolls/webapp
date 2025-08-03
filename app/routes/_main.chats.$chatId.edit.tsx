@@ -3,12 +3,10 @@ import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { useAlert } from '~/providers/AlertDialogProvider';
-// ScenarioToggle removed - scenario switching disabled in running chats
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import ChatDestroy from './chats.$id.edit.destroy';
-import type { AiProvider, AiProvidersPaginated, Avatar, Chat, SttProvider, User } from '~/types';
+import type { AiProvider, AiProvidersPaginated, SttProvider, User } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -16,8 +14,11 @@ import * as Accordion from '@radix-ui/react-accordion';
 import DetailRow from '~/components/ui/detail/detail-row';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import Tooltip from '~/components/ui/tooltip';
-import React from 'react';
 import EditScenarioModal from '~/components/editScenarioModal';
+import { useDeleteChat } from '~/hooks/queries/chatMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useChat } from '~/hooks/queries/chatQueries';
+import { useUpdateChat } from '~/hooks/queries/chatMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
@@ -34,38 +35,21 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return { sttProviders, aiProviders };
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const scenarioId = formData.get('scenarioId');
-
-    const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    return { success: true };
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function ChatEdit({ loaderData }: Route.ComponentProps) {
+export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
   const { sttProviders, aiProviders } = loaderData as { sttProviders: SttProvider[]; aiProviders: AiProvider[] };
-  const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
+  const { data: chatData } = useChat(params.chatId);
+  const chat = chatData;
+
   const me = useRouteLoaderData('routes/_main') as User;
 
-  const submit = useSubmit();
+  if (!chat) return null;
+
+  const { mutate: updateChat, isPending: isUpdatingChat, error: errorUpdateChat } = useUpdateChat();
+  const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
+  
   const navigate = useNavigate();
   const alert = useAlert();
+  const confirm = useConfirm();
 
   const { silentMode, toggleSilentMode } = useChatStore(
     useShallow((state) => ({
@@ -79,18 +63,30 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleSttProviderChange = (sttProvider: SttProvider) => {
-    submit(
-      { 
+    updateChat({
+      chatId: chat.id,
+      data: {
         sttProviderId: sttProvider.id,
         avatarId: chat.avatar.id,
         scenarioId: chat.scenario.id,
       },
-      {
-        method: 'PATCH',
-        action: `/chats/${chat.id}`,
-        navigate: false,
-      }
-    );
+    });
+  };
+  
+  const handleDeleteChat = async () => {
+    const confirmResult = await confirm({
+      icon: '🗑️',
+      title: 'Delete the Chats?',
+      body: 'You will no able to restore the data',
+      actionButton: 'Yes, Delete',
+    });
+    if (!confirmResult) return;
+
+    deleteChat(chat.id, {
+      onSuccess: () => {
+        navigate(`/chats`);
+      },
+    });
   };
 
   return (
@@ -371,7 +367,9 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
             </Card.Root>
 
             <div className='pt-10 mt-auto'>
-              <ChatDestroy />
+              <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
+                Delete Chat
+              </Button.Root>
             </div>
           </div>
         </div>

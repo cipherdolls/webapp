@@ -13,11 +13,13 @@ import { useAudioPlayerContext } from 'react-use-audio-player';
 
 interface MessageRecordingButtonProps {
   chat: Chat;
+  onSubmit: (formData: FormData) => void;
 }
 
 
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
-  chat
+  chat,
+  onSubmit
 }) => {
   const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(useShallow(state => ({
     currentChatState: state.currentChatState,
@@ -80,11 +82,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
     const formData = new FormData();
     formData.append('file', file);
     formData.append('chatId', chat.id);
-    fetcher.submit(formData, {
-      method: 'post',
-      action: '/messages/new',
-      encType: 'multipart/form-data',
-    });
+    onSubmit(formData);
   };
 
   const cleanUp = () => {

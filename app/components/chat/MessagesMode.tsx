@@ -11,6 +11,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import useChat from '~/hooks/useChat';
+import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MessagesModeProps {
   chat: Chat;
@@ -19,6 +21,7 @@ interface MessagesModeProps {
 
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
+  const queryClient = useQueryClient();
   const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
@@ -27,12 +30,9 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
     }))
   );
 
-  const { messages, loadMessages, loadMoreMessages, newMessage, deleteMessage, updateMessage, isLoading, hasMore } = useChat(chat.id);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } = useInfiniteMessages(chat.id);
 
-  useEffect(() => {
-    stop();
-    loadMessages();
-  }, [chat.id]);
+  const messages = data?.pages.flatMap((page) => page.data).reverse() ?? [];
 
   useUnmount(() => {
     stop();
@@ -43,15 +43,12 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       if (event.resourceName === 'Message') {
         switch (event.jobName) {
           case 'created':
-            if (event.jobStatus === 'completed') newMessage(event.resourceId);
+            if (event.jobStatus === 'completed') queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
             break;
           case 'updated':
             const messageContent = event?.resourceAttributes?.content;
             if (!messageContent) return;
-            updateMessage(event.resourceId, messageContent);
-            break;
-          case 'deleted':
-            deleteMessage(event.resourceId);
+            queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
             break;
           default:
         }
@@ -89,7 +86,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       {/* chat header */}
       <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
-      <ChatBody messages={messages} loadMoreMessages={loadMoreMessages} isLoading={isLoading} hasMore={hasMore} />
+      <ChatBody messages={messages} loadMoreMessages={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

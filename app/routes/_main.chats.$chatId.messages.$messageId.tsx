@@ -10,6 +10,7 @@ import ChatCompletionJobCard from '~/components/job-cards/ChatCompletionJobCard'
 import ChatSTTJobCard from '~/components/job-cards/ChatSTTJobCard';
 import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
 import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -21,10 +22,11 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return await res.json();
 }
 
-export default function ChatMessage({ loaderData }: Route.ComponentProps) {
+export default function ChatMessage({ loaderData , params}: Route.ComponentProps) {
   const message: Message = loaderData;
   const navigate = useNavigate();
   const confirm = useConfirm();
+  const { mutate: deleteMessage } = useDeleteMessage(message.chatId);
 
   const handleMessageClose = () => {
     navigate(`/chats/${message.chatId}`);
@@ -39,14 +41,11 @@ export default function ChatMessage({ loaderData }: Route.ComponentProps) {
     });
 
     if (confirmResult) {
-      try {
-        await fetchWithAuth(`messages/${message.id}`, {
-          method: 'DELETE',
-        });
-        navigate(`/chats/${message.chatId}`, { replace: true });
-      } catch (error) {
-        console.error('Failed to delete message:', error);
-      }
+      deleteMessage(message.id, {
+        onSuccess: () => {
+          navigate(`/chats/${message.chatId}`, { replace: true });
+        },
+      });
     }
   };
 

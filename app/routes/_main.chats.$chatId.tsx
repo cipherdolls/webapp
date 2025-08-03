@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import type { Avatar, Chat, ProcessEvent } from '~/types';
+import type { ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useEffect, useState } from 'react';
@@ -10,27 +10,10 @@ import TalkMode from '~/components/chat/TalkMode';
 import ChatJobErrors from '~/components/chat/ChatJobErrors';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { ChatJob, type ChatJobType } from '~/components/chat/types/chatState';
+import { useChat } from '~/hooks/queries/chatQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
-}
-
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const { chatId } = params;
-  const chatRes = await fetchWithAuth(`chats/${chatId}`);
-  if (!chatRes.ok) {
-    throw new Error('Failed to fetch chats and messages');
-  }
-  const chat: Chat = await chatRes.json();
-
-  // fetch avatar
-  const avatarRes = await fetchWithAuth(`avatars/${chat.avatar.id}`);
-  if (!avatarRes.ok) {
-    throw new Error('Failed to fetch avatar');
-  }
-  const avatar: Avatar = await avatarRes.json();
-
-  return { chat, avatar };
 }
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
@@ -62,8 +45,11 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   }
 }
 
-export default function ChatShow({ loaderData }: Route.ComponentProps) {
-  const { chat, avatar } = loaderData;
+export default function ChatShow({ params }: Route.ComponentProps) {
+  const { data: chatData, isLoading: isLoadingChat } = useChat(params.chatId);
+
+  const chat = chatData;
+
   const [jobError, setJobError] = useState<ProcessEvent | null>(null);
 
   const { talkMode, initChatStore, setCurrentJob } = useChatStore(
@@ -76,9 +62,10 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     initChatStore();
-  }, [chat.id]);
+  }, [chatData]);
 
-  useChatEvents(chat.id, {
+
+  useChatEvents(chatData?.id || '', {
     onProcessEvent: async (event) => {
       if (event.jobStatus === 'failed') setJobError(event as ProcessEvent);
       const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
@@ -86,11 +73,14 @@ export default function ChatShow({ loaderData }: Route.ComponentProps) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
+    enabled: !!chatData?.id, 
   });
+
+  if (!chat) return null;
 
   return (
     <>
-      {talkMode ? <TalkMode chat={chat} avatar={avatar} /> : <MessagesMode chat={chat} avatar={avatar} />}
+      {talkMode ? <TalkMode chat={chat} avatar={chat.avatar} /> : <MessagesMode chat={chat} avatar={chat.avatar} />}
       <Outlet />
       <ChatJobErrors chat={chat} jobError={jobError} />
     </>

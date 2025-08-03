@@ -20,12 +20,9 @@ export function useCreateChat() {
       }
       return response.json();
     },
-    onError: (error) => {
-      console.error('Error creating chat:', error);
-    },
     onSuccess: (newChat) => {
       queryClient.invalidateQueries({ queryKey: ['chats'] });
-      queryClient.setQueryData(['chat', newChat.id], newChat);
+      queryClient.invalidateQueries({ queryKey: ['chat', newChat.id] });
     },
   });
 }
@@ -35,10 +32,11 @@ export function useUpdateChat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ chatId, formData }: { chatId: string; formData: FormData }) => {
+    mutationFn: async ({ chatId, data }: { chatId: string; data: Record<string, any> }) => {
       const response = await fetchWithAuth(`chats/${chatId}`, {
         method: 'PATCH',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -48,7 +46,7 @@ export function useUpdateChat() {
       return response.json();
     },
     onSuccess: (updatedChat) => {
-      queryClient.setQueryData(['chat', updatedChat.id], updatedChat);
+      queryClient.invalidateQueries({ queryKey: ['chat', updatedChat.id] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
     },
   });

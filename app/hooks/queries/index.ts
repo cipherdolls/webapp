@@ -4,6 +4,7 @@ export * from './userMutations';
 
 // Message queries  
 export * from './messageQueries';
+export * from './messageMutations';
 
 // Chat queries
 export * from './chatQueries';

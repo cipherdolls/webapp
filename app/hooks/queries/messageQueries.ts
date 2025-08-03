@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Message, MessagesPaginated } from '~/types';
+import type { Message, MessagesPaginated, MessagesPaginatedCursor } from '~/types';
 
 // Generic fetch function
 async function fetchResource<T>(endpoint: string): Promise<T> {
@@ -20,18 +20,17 @@ export function useMessage(messageId: string) {
   });
 }
 
-export function useMessages(chatId: string, limit = 20) {
-  return useInfiniteQuery({
+// Infinite messages query with cursor-based pagination
+export function useInfiniteMessages(chatId: string, limit = 20) {
+  return useInfiniteQuery<MessagesPaginatedCursor, Error>({
     queryKey: ['messages', chatId],
-    queryFn: ({ pageParam = 1 }) =>
-      fetchResource<MessagesPaginated>(`chats/${chatId}/messages?page=${pageParam}&limit=${limit}`),
-    getNextPageParam: (lastPage) => {
-      if (lastPage.meta.page < lastPage.meta.totalPages) {
-        return lastPage.meta.page + 1;
-      }
-      return undefined;
-    },
+    initialPageParam: undefined as string | undefined, // Start with no cursor
     enabled: !!chatId,
-    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      let url = `messages?chatId=${chatId}&limit=${limit}&direction=next&order=desc`;
+      if (pageParam) url += `&cursor=${pageParam}`;
+      return fetchResource<MessagesPaginatedCursor>(url);
+    },
+    getNextPageParam: (lastPage) => lastPage.meta?.nextCursor ?? undefined,
   });
 }

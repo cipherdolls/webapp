@@ -7,6 +7,18 @@ export interface meta {
   totalPages: number;
 }
 
+export interface CursorMeta {
+  nextCursor?: string;
+  hasMore: boolean;
+  total: number;
+  limit: number;
+}
+
+export interface MessagesPaginatedCursor {
+  data: Message[];
+  meta: CursorMeta;
+}
+
 export interface ApiError {
   error: string;
   message: Array<string>;
