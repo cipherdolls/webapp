@@ -2,7 +2,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { Form, Link, Outlet, useFetcher, useRouteLoaderData } from 'react-router';
+import { Form, Link, Outlet, useRouteLoaderData } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import { getPicture } from '~/utils/getPicture';
 import type { Avatar, Scenario, User } from '~/types';
@@ -18,7 +18,8 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 import Tooltip from '~/components/ui/tooltip';
-import React, { useState } from 'react';
+import { useUserEvents } from '~/hooks/useUserEvents';
+import React from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -35,6 +36,35 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return { scenario, mineAvatars };
 }
 
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
+  try {
+    const formData = await request.formData();
+    const scenarioId = params.scenariosId;
+    const action = formData.get('action');
+
+    if (action === 'RefreshIntroduction') {
+      const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
+        method: 'PATCH',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const responseData = await res.json();
+        return {
+          errors: responseData.message || 'Request failed',
+        };
+      }
+
+      return await res.json();
+    }
+
+    return null;
+  } catch (error: any) {
+    console.error(error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
+}
+
 export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const {
     scenario,
@@ -44,9 +74,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
     mineAvatars: Avatar[] | { data: Avatar[]; meta: any };
   } = loaderData;
 
-  const fetcher = useFetcher();
   const me = useRouteLoaderData('routes/_main') as User;
-  const [showAll, setShowAll] = useState(false);
 
   const mineAvatarsList = Array.isArray(mineAvatars) ? mineAvatars : mineAvatars.data;
   const avatars = scenario?.avatars ? scenario.avatars : [];
@@ -55,9 +83,17 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
 
-  const handleShowAll = () => {
-    setShowAll(!showAll);
-  };
+
+  useUserEvents(me.id, {
+    onProcessEvent: (processEvent) => {
+      if (processEvent.resourceName === 'Scenario' && 
+          processEvent.resourceId === scenario.id && 
+          processEvent.jobName === 'updated' && 
+          processEvent.jobStatus === 'completed') {
+        window.location.reload();
+      }
+    }
+  });
 
 
   return (
@@ -87,20 +123,6 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 }
               />
             )}
-
-            {/*<fetcher.Form method='POST' action='/scenarios/new'>*/}
-            {/*  <input hidden readOnly name='name' defaultValue={`${scenario.name} copy`} />*/}
-            {/*  <input hidden readOnly name='systemMessage' defaultValue={scenario.systemMessage} />*/}
-            {/*  <input hidden readOnly name='chatModelId' defaultValue={scenario.chatModel.id} />*/}
-            {/*  <input hidden readOnly name='embeddingModelId' defaultValue={scenario.embeddingModel.id} />*/}
-            {/*  <input hidden readOnly name='temperature' defaultValue={scenario.temperature} />*/}
-            {/*  <input hidden readOnly name='topP' defaultValue={scenario.topP} />*/}
-            {/*  <input hidden readOnly name='frequencyPenalty' defaultValue={scenario.frequencyPenalty} />*/}
-            {/*  <input hidden readOnly name='presencePenalty' defaultValue={scenario.presencePenalty} />*/}
-            {/*  <Button.Root variant='secondary' className='w-[130px]' type='submit'>*/}
-            {/*    Duplicate*/}
-            {/*  </Button.Root>*/}
-            {/*</fetcher.Form>*/}
             {me.id === scenario.userId && (
               <>
                 <Link to={`/scenarios/${scenario.id}/edit`}>
@@ -118,22 +140,6 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             <ViewMore
               userId={scenario.userId}
               popoverItems={[
-                // {
-                //   type: 'form',
-                //   text: 'Duplicate',
-                //   action: '/scenarios/new',
-                //   method: 'POST',
-                //   formData: {
-                //     name: `${scenario.name} copy`,
-                //     systemMessage: scenario.systemMessage,
-                //     chatModelId: scenario.chatModel.id,
-                //     embeddingModelId: scenario.embeddingModel.id,
-                //     temperature: scenario.temperature.toString(),
-                //     topP: scenario.topP.toString(),
-                //     frequencyPenalty: scenario.frequencyPenalty.toString(),
-                //     presencePenalty: scenario.presencePenalty.toString(),
-                //   },
-                // },
                 {
                   type: 'link',
                   text: 'Edit',
