@@ -274,7 +274,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                     />
                   </div>
                 ) : (
-                  <div className='flex items-center justify-center size-full'>
+                  <div className='flex items-center justify-center size-full min-w-[294px]'>
                     <Icons.fileUploadIcon />
                   </div>
                 )}
