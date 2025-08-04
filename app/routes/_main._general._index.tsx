@@ -66,8 +66,7 @@ export default function Dashboard() {
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
   // TanStack Query hooks
-  const { data: user, isLoading: userLoading } = useUser();
-  const { data: chats, isLoading: chatsLoading } = useChats();
+  const { data: user, isLoading: userLoading } = useUser()
 
   // Mutations
 
@@ -80,7 +79,7 @@ export default function Dashboard() {
   useRealtimeSync({ userId: user?.id });
 
   // Loading state
-  const isLoading = userLoading || chatsLoading;
+  const isLoading = userLoading;
 
   const handleSwitchNetwork = async () => {
     setIsSwitchingNetwork(true);
@@ -128,8 +127,8 @@ export default function Dashboard() {
       ) : (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
           <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
-            <YourChats chats={chats || []} />
-            <YourAvatars chats={chats || []} />
+            <YourChats />
+            <YourAvatars />
             <YourScenarios />
           </div>
           <div className='flex flex-col gap-5'>

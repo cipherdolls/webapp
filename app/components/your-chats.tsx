@@ -1,20 +1,17 @@
-import { useState, useMemo } from 'react';
-import type { Chat } from '~/types';
+import { useState } from 'react';
 import AvatarPicture from './AvatarPicture';
 import { cn } from '~/utils/cn';
 import { Link } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from './ui/icons';
+import { useChats } from '~/hooks/queries/chatQueries';
 
-const YourChats = ({ chats }: { chats: Chat[] }) => {
+const YourChats = () => {
+  const { data: chatsData } = useChats();
   const [showAll, setShowAll] = useState(false);
   let isNew = false;
 
-  const sortedChats = useMemo(() => {
-    return [...chats].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [chats]);
+  const chats = chatsData || [];
 
   const handleShowAll = () => {
     setShowAll(!showAll);
@@ -24,14 +21,14 @@ const YourChats = ({ chats }: { chats: Chat[] }) => {
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Chats</h3>
       <div className='grid md:grid-cols-2 grid-cols-1 gap-2'>
-        {sortedChats.length > 0 ? (
-          sortedChats.map((chat, index) => (
+        {chats.length > 0 ? (
+          chats.map((chat, index) => (
             <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
               <Link
                 to={`/chats/${chat.id}`}
                 className={cn(
                   'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all',
-                  sortedChats.length === 1 && 'col-span-2'
+                  chats.length === 1 && 'col-span-2'
                 )}
               >
                 <AvatarPicture avatar={chat.avatar} className='size-14' />

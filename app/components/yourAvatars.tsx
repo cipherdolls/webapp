@@ -7,7 +7,7 @@ import { getPicture } from '~/utils/getPicture';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 
-const YourAvatars = ({  chats }: {  chats?: Chat[] }) => {
+const YourAvatars = () => {
   const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: true });
 
   const avatars = myAvatars?.data || [];
@@ -70,7 +70,7 @@ const YourAvatars = ({  chats }: {  chats?: Chat[] }) => {
                         <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                       </div>
                       <div className='flex items-center gap-3 flex-shrink-0'>
-                        <AvatarScenarioModal avatar={avatar} chats={chats}>
+                        <AvatarScenarioModal avatar={avatar}>
                           <Button.Root size='sm' className='px-5'>
                             Chat
                           </Button.Root>

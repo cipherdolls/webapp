@@ -57,34 +57,47 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
 
   const isPending = isPendingCreateChat || isDeletingChat;
 
-
   //  TODO: Move this logic to the backend!!
   const handleCreateChat = async () => {
-    const confirmResult = await confirm({
-      icon: '🗑️',
-      title: 'Delete Previous Chat?',
-      body: 'If you create a new chat with this scenario, your previous chat will be permanently deleted and cannot be restored. Do you want to continue?',
-      actionButton: 'Yes, Create New',
-    });
-
-    if (!confirmResult) return;
-
     if (selectedScenario) {
-      const chatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario);
-      deleteChat(chatWithSameScenario.id, {
-        onSuccess: () => {
-          createChat(
-            { avatarId: avatar.id, scenarioId: selectedScenario },
-            {
-              onSuccess: (newChat) => {
-                setIsOpen(false);
-                setSelectedScenario(null);
-                navigate(`/chats/${newChat.id}`);
-              },
-            }
-          );
-        },
-      });
+      const chatWithSameScenario = avatar.chats?.find((chat) => chat.scenario.id === selectedScenario);
+
+      if (chatWithSameScenario) {
+        const confirmResult = await confirm({
+          icon: '🗑️',
+          title: 'Delete Previous Chat?',
+          body: 'If you create a new chat with this scenario, your previous chat will be permanently deleted and cannot be restored. Do you want to continue?',
+          actionButton: 'Yes, Create New',
+        });
+
+        if (!confirmResult) return;
+
+        deleteChat(chatWithSameScenario.id, {
+          onSuccess: () => {
+            createChat(
+              { avatarId: avatar.id, scenarioId: selectedScenario },
+              {
+                onSuccess: (newChat) => {
+                  setIsOpen(false);
+                  setSelectedScenario(null);
+                  navigate(`/chats/${newChat.id}`);
+                },
+              }
+            );
+          },
+        });
+      } else {
+        createChat(
+          { avatarId: avatar.id, scenarioId: selectedScenario },
+          {
+            onSuccess: (newChat) => {
+              setIsOpen(false);
+              setSelectedScenario(null);
+              navigate(`/chats/${newChat.id}`);
+            },
+          }
+        );
+      }
     }
   };
 
