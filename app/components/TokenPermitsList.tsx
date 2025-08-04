@@ -1,15 +1,13 @@
 import { formatEther } from 'ethers';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
-import DetailRow from '~/components/ui/detail/detail-row';
 import type { TokenPermit } from '~/types';
 import type { FetcherWithComponents } from 'react-router';
-import * as Accordion from '@radix-ui/react-accordion';
 import { Icons } from '~/components/ui/icons';
 import moment from 'moment';
 import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
-import React from 'react';
+import * as Button from '~/components/ui/button/button';
 
 interface TokenPermitsListProps {
   permits: TokenPermit[];
@@ -125,42 +123,30 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
               <button className='sm:size-10 size-8 flex text-2xl items-center justify-center bg-black/5 backdrop-blur-48 rounded-full relative shrink-0'>
                 💰
               </button>
-              <div>
-                <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
-                <div className='flex items-center justify-between'>
-                  <p className='text-sm text-neutral-01'>{formatPermitAmount(sortedPermits[0].value)} LOV approved for spending</p>
+              <div className='flex-1'>
+                <div className='flex items-center justify-between mb-2'>
+                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
                   {isExpired(sortedPermits[0].deadline) && (
                     <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>
                   )}
                 </div>
+
+                <div className='space-y-2'>
+                  <div className='w-full bg-neutral-04 rounded-full h-2'>
+                    <div
+                      className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300'
+                      style={{
+                        width: `${
+                          allowance && sortedPermits[0].value
+                            ? Math.min((parseFloat(allowance) / parseFloat(formatPermitAmount(sortedPermits[0].value))) * 100, 100)
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-
-            <Accordion.Root type='single' collapsible className='w-full'>
-              <Accordion.Item value='details'>
-                <Accordion.Trigger className='flex items-center justify-center w-full py-2 text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
-                  <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
-                  <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
-                  <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-                </Accordion.Trigger>
-                <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
-                  <div className='flex flex-col gap-4 pt-[18px]'>
-                    <DetailRow title='Status' value={isExpired(sortedPermits[0].deadline) ? 'Expired' : 'Active'} />
-                    <DetailRow title='Expires' value={formatDeadline(sortedPermits[0].deadline)} />
-                    <DetailRow title='Created' value={moment(sortedPermits[0].createdAt).format('MMM DD, YYYY HH:mm')} />
-                    <DetailRow title='Permit ID' value={sortedPermits[0].id} />
-                    <DetailRow title='Owner' value={sortedPermits[0].owner} />
-                    <DetailRow title='Spender' value={sortedPermits[0].spender} />
-                    <DetailRow title='Nonce' value={sortedPermits[0].nonce} />
-                    <DetailRow title='Deadline (Unix)' value={sortedPermits[0].deadline.toString()} />
-                    <DetailRow title='Signature V' value={sortedPermits[0].v.toString()} />
-                    <DetailRow title='Signature R' value={sortedPermits[0].r} />
-                    <DetailRow title='Signature S' value={sortedPermits[0].s} />
-                    {sortedPermits[0].txHash && <DetailRow title='Transaction Hash' value={sortedPermits[0].txHash} />}
-                  </div>
-                </Accordion.Content>
-              </Accordion.Item>
-            </Accordion.Root>
           </div>
         ) : (
           <div className='py-6 px-6 flex flex-col items-center gap-2'>
@@ -178,11 +164,25 @@ const TokenPermitsList = ({ permits, fetcher, tokenBalance, allowance }: TokenPe
         )}
 
         {sortedPermits.length > 0 && (
-          <span className='text-body-sm text-neutral-01 font-medium text-right mt-2'>
-            Allowance left: <span className='text-base-black font-semibold'>{allowance}</span>
-          </span>
+          <div className='text-body-sm text-neutral-01 font-medium text-right mt-2 flex items-center justify-between gap-1'>
+            <div>
+              Remaining: <span className='text-base-black font-semibold'>{allowance ? parseFloat(allowance).toFixed(2) : '0.00'} LOV</span>
+            </div>
+            <div>
+              Total: <span className='text-base-black font-semibold'>{formatPermitAmount(sortedPermits[0].value)} LOV</span>
+            </div>
+          </div>
         )}
       </div>
+
+      <a
+        href={'https://app.uniswap.org/explore/pools/optimism/0x6d0f116c3c01fa4e20f1b122124927587e9e56d092513f444aba98811e59063d'}
+        target={'_blank'}
+      >
+        <Button.Root variant='primary' className='w-full'>
+          Get LOV Token
+        </Button.Root>
+      </a>
     </div>
   );
 };
