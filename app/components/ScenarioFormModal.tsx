@@ -23,7 +23,6 @@ interface ScenarioFormModalProps {
   onClose: () => void;
 }
 
-
 // Default scenario params for new scenarios
 const defaultScenarioData = {
   userGender: 'Male' as Gender,
@@ -56,6 +55,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
     chatModelId: scenario?.chatModel?.id ?? '',
     embeddingModelId: scenario?.embeddingModel?.id ?? '',
     reasoningModelId: scenario?.reasoningModel?.id ?? '',
+    refreshIntroduction: false,
     avatars: scenario?.avatars
       ? (scenario.avatars.map((scenarioAvatar) => avatars.find((avatar) => avatar.id === scenarioAvatar.id)).filter(Boolean) as Avatar[])
       : [],
@@ -184,6 +184,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
           <input type='hidden' name='topP' value={scenarioData.topP} />
           <input type='hidden' name='frequencyPenalty' value={scenarioData.frequencyPenalty} />
           <input type='hidden' name='presencePenalty' value={scenarioData.presencePenalty} />
+          {scenarioData.refreshIntroduction && <input type='hidden' name='action' value='RefreshIntroduction' />}
           <Modal.Body
             className={cn(
               'flex gap-4 md:gap-6 flex-1 overflow-auto scrollbar-medium -mx-8 px-8 [scrollbar-gutter:stable]',
@@ -195,7 +196,23 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
             {isExpanded && (
               <div className='flex-1 flex flex-col pb-0.5'>
                 <Input.Root className='h-full'>
-                  <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
+                  <div className='flex items-center justify-between gap-3'>
+                    <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
+                    {!isNew && (
+                      <div className='flex items-center gap-2'>
+                        <input
+                          type='checkbox'
+                          id='refreshIntroduction'
+                          checked={scenarioData.refreshIntroduction}
+                          onChange={(e) => updateScenarioData('refreshIntroduction', e.target.checked)}
+                          className='h-4 w-4'
+                        />
+                        <label htmlFor='refreshIntroduction' className='text-xs text-neutral-01 cursor-pointer'>
+                          Refresh introduction
+                        </label>
+                      </div>
+                    )}
+                  </div>
                   <Textarea.Textarea
                     id='systemMessage'
                     name='systemMessage'
@@ -386,7 +403,23 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
 
               {!isExpanded && (
                 <Input.Root>
-                  <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
+                  <div className='flex items-center justify-between gap-3'>
+                    <Input.Label htmlFor='systemMessage'>System Message</Input.Label>
+                    {!isNew && (
+                      <div className='flex items-center gap-2'>
+                        <input
+                          type='checkbox'
+                          id='refreshIntroduction'
+                          checked={scenarioData.refreshIntroduction}
+                          onChange={(e) => updateScenarioData('refreshIntroduction', e.target.checked)}
+                          className='h-4 w-4'
+                        />
+                        <label htmlFor='refreshIntroduction' className='text-xs text-neutral-01 cursor-pointer'>
+                          Refresh introduction
+                        </label>
+                      </div>
+                    )}
+                  </div>
                   <Textarea.Textarea
                     id='systemMessage'
                     name='systemMessage'
