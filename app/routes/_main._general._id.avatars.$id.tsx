@@ -144,7 +144,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
         </div>
 
         <div className='flex md:flex-row flex-col-reverse gap-5 sm:flex-1 divide-neutral-04 rounded-xl pb-2.5 sm:backdrop-blur-none sm:bg-none sm:rounded-none md:gap-0 md:divide-x'>
-          <div className='flex gap-4 flex-col md:pr-4'>
+          <div className='flex gap-4 flex-col md:pr-4 w-full'>
             <div className='flex w-full h-fit flex-col gap-4'>
               <AvatarCharacterPreview message={<ReactMarkdown>{avatar.character}</ReactMarkdown>} />
             </div>
@@ -167,12 +167,14 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                               className='object-cover size-full'
                             />
 
-                            <div className='absolute top-2 left-2 z-10'>
-                              <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                                🌐
-                                <span>By you</span>
+                            {avatar.userId === user.id && (
+                              <div className='absolute top-2 left-2 z-10'>
+                                <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                                  🌐
+                                  <span>By you</span>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </Link>
 
                           <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
@@ -221,7 +223,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px]'>
+          <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px] w-full'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
                 {avatar.picture ? (
@@ -234,7 +236,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                     />
                   </div>
                 ) : (
-                  <div className='flex items-center justify-center size-full'>
+                  <div className='flex items-center justify-center size-full min-w-[294px]'>
                     <Icons.fileUploadIcon />
                   </div>
                 )}

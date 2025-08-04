@@ -94,13 +94,13 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
                 className='flex items-center gap-3 cursor-pointer hover:bg-neutral-05 rounded-xl mb-2'
                 onClick={() => handleAvatarClick(group.avatar.id)}
               >
-                <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1'>
+                <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
                   <AvatarCard.Avatar className='size-8' />
                   <AvatarCard.Content className='flex-1'>
                     <AvatarCard.Name className='text-body-sm font-semibold' />
                   </AvatarCard.Content>
                 </AvatarCard>
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 pr-2'>
                   {group.chats.length > 1 && (
                     <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
                   )}
@@ -135,7 +135,7 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
                   ))}
 
                   <div className='pt-2'>
-                    <AvatarScenarioModal avatar={group.avatar} chats={chats}>
+                    <AvatarScenarioModal avatar={group.avatar}>
                       <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
                         <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
                           <Icons.chat className='size-4' />

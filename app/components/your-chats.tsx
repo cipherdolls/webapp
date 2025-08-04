@@ -1,56 +1,129 @@
-import { useState } from 'react';
-import AvatarPicture from './AvatarPicture';
+import { useState, useMemo } from 'react';
+import type { Avatar, Chat, GroupedChatsByAvatar, meta } from '~/types';
 import { cn } from '~/utils/cn';
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from './ui/icons';
-import { useChats } from '~/hooks/queries/chatQueries';
+import AvatarCard from '~/components/AvatarCardReusable';
+import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 
-const YourChats = () => {
-  const { data: chatsData } = useChats();
+interface YourChatsProps {
+  chats: Chat[];
+  avatars: Avatar[] | { data: Avatar[]; meta: meta };
+}
+
+const YourChats = ({ chats, avatars }: YourChatsProps) => {
   const [showAll, setShowAll] = useState(false);
+  const [expandedAvatars, setExpandedAvatars] = useState<Set<string>>(new Set());
+
+  const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
   let isNew = false;
 
-  const chats = chatsData || [];
+  const groupedChats: GroupedChatsByAvatar[] = useMemo(() => {
+    const avatarChatMap = new Map<string, Chat[]>();
+
+    chats.forEach((chat) => {
+      const avatarId = chat.avatar.id;
+      if (!avatarChatMap.has(avatarId)) {
+        avatarChatMap.set(avatarId, []);
+      }
+      avatarChatMap.get(avatarId)!.push(chat);
+    });
+
+    return Array.from(avatarChatMap.entries())
+      .map(([avatarId, avatarChats]) => {
+        const avatar = avatarsList.find((avatar) => avatar.id === avatarId) || chats.find((chat) => chat.avatar.id === avatarId)?.avatar!;
+        const sortedChats = avatarChats.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        return { avatar, chats: sortedChats };
+      })
+      .sort((a, b) => {
+        const aLatest = Math.max(...a.chats.map((chat) => new Date(chat.updatedAt).getTime()));
+        const bLatest = Math.max(...b.chats.map((chat) => new Date(chat.updatedAt).getTime()));
+        return bLatest - aLatest;
+      });
+  }, [chats, avatarsList]);
 
   const handleShowAll = () => {
     setShowAll(!showAll);
+  };
+
+  const handleAvatarClick = (avatarId: string) => {
+    setExpandedAvatars((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(avatarId)) {
+        newSet.delete(avatarId);
+      } else {
+        newSet.add(avatarId);
+      }
+      return newSet;
+    });
   };
 
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Chats</h3>
       <div className='grid md:grid-cols-2 grid-cols-1 gap-2'>
-        {chats.length > 0 ? (
-          chats.map((chat, index) => (
+        {groupedChats.length > 0 ? (
+          groupedChats.map((group, index) => (
             <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-              <Link
-                to={`/chats/${chat.id}`}
-                className={cn(
-                  'bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all',
-                  chats.length === 1 && 'col-span-2'
-                )}
-              >
-                <AvatarPicture avatar={chat.avatar} className='size-14' />
-                <div className='flex flex-col gap-1 overflow-hidden'>
-                  <span className='text-body-sm font-semibold text-base-black'>{chat.avatar.name}</span>
-                  <div className='flex items-center gap-2'>
-                    {/* TODO  */}
-                    <p
-                      className={cn('truncate break-words text-body-sm font-semibold  max-w-max', isNew ? 'text-black' : 'text-neutral-01')}
-                    >
-                      Sounds exciting, let's make it a memo...
-                    </p>
-                    {isNew && (
-                      <div className='size-3 rounded-full bg-specials-success relative shrink-0'>
-                        <div className='size-1 rounded-ful absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full'></div>
-                      </div>
+            <div
+              className='flex items-center gap-3 cursor-pointer bg-base-white hover:bg-white/80 rounded-xl'
+              onClick={() => handleAvatarClick(group.avatar.id)}
+                >
+                  <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
+                    <AvatarCard.Avatar className='size-8' />
+                    <AvatarCard.Content className='flex-1'>
+                      <AvatarCard.Name className='text-body-sm font-semibold' />
+                    </AvatarCard.Content>
+                  </AvatarCard>
+                  <div className='flex items-center gap-2 pr-2'>
+                    {group.chats.length > 1 && (
+                      <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
+                    )}
+                    {group.chats.length > 1 && (
+                      <Icons.chevronDown
+                        className={cn('size-4 text-neutral-01 transition-transform', {
+                          'rotate-180': expandedAvatars.has(group.avatar.id),
+                        })}
+                      />
                     )}
                   </div>
                 </div>
-              </Link>
-            </div>
-          ))
+
+                {expandedAvatars.has(group.avatar.id) && (
+                  <div className='ml-4 space-y-1 border-l border-neutral-04 pl-3 pt-2'>
+                    {group.chats.map((chat) => (
+                      <NavLink
+                        key={chat.id}
+                        to={`/chats/${chat.id}`}
+                        className={({ isActive }) =>
+                          cn('block rounded-lg p-3 group transition-colors', {
+                            'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
+                            'hover:bg-white/80 ': !isActive,
+                          })
+                        }
+                      >
+                        <div className='flex items-center gap-3'>
+                          <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
+                        </div>
+                        <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
+                      </NavLink>
+                    ))}
+
+                    <div className='pt-2'>
+                      <AvatarScenarioModal avatar={group.avatar}>
+                        <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
+                          <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
+                            <Icons.chat className='size-4' />
+                            <span className='text-body-sm font-medium'>New chat</span>
+                          </div>
+                        </button>
+                      </AvatarScenarioModal>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
         ) : (
           <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
             <h1 className='text-heading-h2'>💬</h1>

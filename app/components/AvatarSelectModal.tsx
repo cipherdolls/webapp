@@ -15,7 +15,6 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
 
-  // Filter out avatars that already have chats (unless we want to show them for new scenarios)
   const availableAvatars = avatars.filter((avatar) => (avatar.chats?.length || 0) === 0 || (avatar.scenarios?.length || 0) > 1);
 
   const handleAvatarSelect = (avatar: Avatar) => {

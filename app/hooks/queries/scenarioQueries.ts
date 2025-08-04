@@ -19,6 +19,8 @@ interface ScenariosQueryParams {
   gender?: string;
   page?: string;
   limit?: string;
+  recommended?: string;
+  avatarId?: string;
 }
 
 // Scenario queries

@@ -1,22 +1,40 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useState, useRef, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 
 const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
   const [showFull, setShowFull] = useState(false);
+  const [isContentTooSmall, setIsContentTooSmall] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const contentHeight = contentRef.current.scrollHeight;
+      const maxHeight = 415;
+      setIsContentTooSmall(contentHeight <= maxHeight);
+    }
+  }, [message]);
+
+  const handleClick = () => {
+    if (!isContentTooSmall) {
+      setShowFull((prev) => !prev);
+    }
+  };
 
   return (
     <div className='relative'>
       <div
+        ref={contentRef}
         className={cn(
-          'bg-gradient-1 select-none p-5 flex flex-col gap-5 flex-1 max-h-max text-body-md text-base-black min-h-[415px] h-[415px] rounded-xl overflow-hidden backdrop-blur-48 cursor-pointer',
-          showFull && 'h-auto'
+          'bg-gradient-1 select-none p-5 flex flex-col gap-5 flex-1 text-body-md text-base-black rounded-xl overflow-hidden backdrop-blur-48',
+          showFull ? 'h-auto' : 'max-h-[415px]',
+          !isContentTooSmall && 'cursor-pointer'
         )}
-        onClick={() => setShowFull((prev) => !prev)}
+        onClick={handleClick}
       >
         <div
           className={cn(
             'absolute inset-0 top-5 z-20 bg-linear-to-t from-[rgba(254,253,248,0.9)] to-[rgba(255,255,255,0)]',
-            showFull && 'hidden'
+            (showFull || isContentTooSmall) && 'hidden'
           )}
         ></div>
         {/*<div className='flex items-center justify-between'>*/}

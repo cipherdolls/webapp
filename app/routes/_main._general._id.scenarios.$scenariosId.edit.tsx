@@ -1,6 +1,6 @@
-import { redirect, useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
+import { redirect, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, AiProvidersPaginated, Scenario, Gender, Avatar, AvatarsPaginated, User } from '~/types';
+import type { AiProvider, AiProvidersPaginated, Scenario, Avatar, AvatarsPaginated } from '~/types';
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId.edit';
 import ScenarioFormModal from '~/components/ScenarioFormModal';
 import { useUpdateScenario } from '~/hooks/queries/scenarioMutations';

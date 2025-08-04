@@ -1,4 +1,3 @@
-
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -17,10 +16,12 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 import Tooltip from '~/components/ui/tooltip';
+
 import React, { useMemo, useState } from 'react';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
 import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
+import { useUserEvents } from '~/hooks/useUserEvents';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -42,6 +43,19 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const avatars = scenario?.avatars ? scenario.avatars : [];
   const hasAvatars = avatars.length > 0;
 
+  useUserEvents(me.id, {
+    onProcessEvent: (processEvent) => {
+      if (
+        processEvent.resourceName === 'Scenario' &&
+        processEvent.resourceId === scenario?.id &&
+        processEvent.jobName === 'updated' &&
+        processEvent.jobStatus === 'completed'
+      ) {
+        window.location.reload();
+      }
+    },
+  });
+
   if (isLoading || !scenario) {
     return null;
   }
@@ -49,16 +63,16 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
 
-  const handleShowAll = () => {
-    setShowAll(!showAll);
-  };
-
   const handleDeleteScenario = () => {
     deleteScenario(scenario.id, {
       onSuccess: () => {
         navigate(`/scenarios?mine=true`);
       },
     });
+  };
+
+  const handleShowAll = () => {
+    setShowAll(!showAll);
   };
 
   return (
@@ -88,20 +102,6 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 }
               />
             )}
-
-            {/*<fetcher.Form method='POST' action='/scenarios/new'>*/}
-            {/*  <input hidden readOnly name='name' defaultValue={`${scenario.name} copy`} />*/}
-            {/*  <input hidden readOnly name='systemMessage' defaultValue={scenario.systemMessage} />*/}
-            {/*  <input hidden readOnly name='chatModelId' defaultValue={scenario.chatModel.id} />*/}
-            {/*  <input hidden readOnly name='embeddingModelId' defaultValue={scenario.embeddingModel.id} />*/}
-            {/*  <input hidden readOnly name='temperature' defaultValue={scenario.temperature} />*/}
-            {/*  <input hidden readOnly name='topP' defaultValue={scenario.topP} />*/}
-            {/*  <input hidden readOnly name='frequencyPenalty' defaultValue={scenario.frequencyPenalty} />*/}
-            {/*  <input hidden readOnly name='presencePenalty' defaultValue={scenario.presencePenalty} />*/}
-            {/*  <Button.Root variant='secondary' className='w-[130px]' type='submit'>*/}
-            {/*    Duplicate*/}
-            {/*  </Button.Root>*/}
-            {/*</fetcher.Form>*/}
             {me.id === scenario.userId && (
               <>
                 <Link to={`/scenarios/${scenario.id}/edit`}>
@@ -121,22 +121,6 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
             <ViewMore
               userId={scenario.userId}
               popoverItems={[
-                // {
-                //   type: 'form',
-                //   text: 'Duplicate',
-                //   action: '/scenarios/new',
-                //   method: 'POST',
-                //   formData: {
-                //     name: `${scenario.name} copy`,
-                //     systemMessage: scenario.systemMessage,
-                //     chatModelId: scenario.chatModel.id,
-                //     embeddingModelId: scenario.embeddingModel.id,
-                //     temperature: scenario.temperature.toString(),
-                //     topP: scenario.topP.toString(),
-                //     frequencyPenalty: scenario.frequencyPenalty.toString(),
-                //     presencePenalty: scenario.presencePenalty.toString(),
-                //   },
-                // },
                 {
                   type: 'link',
                   text: 'Edit',

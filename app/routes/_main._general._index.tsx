@@ -15,10 +15,7 @@ import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import { switchToOptimismNetwork } from '~/utils/networkUtils';
 import { toast } from 'sonner';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
-import {
-  useChats,
-  useUser,
-} from '~/hooks/queries';
+import { useChats, useAvatars, useUser } from '~/hooks/queries';
 import { useRealtimeSync } from '~/hooks/useRealtimeSync';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
@@ -66,8 +63,10 @@ export default function Dashboard() {
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
   // TanStack Query hooks
-  const { data: user, isLoading: userLoading } = useUser()
-
+  const { data: user, isLoading: userLoading } = useUser();
+  const { data: chatsData } = useChats();
+  const { data: avatarsData } = useAvatars();
+  
   // Mutations
 
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
@@ -127,7 +126,7 @@ export default function Dashboard() {
       ) : (
         <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
           <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
-            <YourChats />
+            <YourChats chats={chatsData || []} avatars={avatarsData || []} />
             <YourAvatars />
             <YourScenarios />
           </div>
