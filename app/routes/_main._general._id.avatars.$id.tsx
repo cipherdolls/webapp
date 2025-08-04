@@ -1,4 +1,4 @@
-import { Form, Link, Outlet } from 'react-router';
+import { Form, Link, Outlet, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useMemo, useRef } from 'react';
@@ -13,15 +13,17 @@ import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useCreateChat } from '~/hooks/queries/chatMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
-
 export default function AvatarShow({ params }: Route.ComponentProps) {
+  const navigate = useNavigate();
   const { data: avatar } = useAvatar(params.id);
   const { data: user } = useUser();
+  const { mutate: createChat } = useCreateChat();
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -54,6 +56,20 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   }, []);
 
   if (!avatar || !user) return null;
+
+  const handleCreateChat = (scenarioId: string) => {
+    createChat(
+      {
+        avatarId: avatar.id,
+        scenarioId: scenarioId,
+      },
+      {
+        onSuccess: (newChat) => {
+          navigate(`/chats/${newChat.id}`);
+        },
+      }
+    );
+  };
 
   return (
     <>
@@ -93,7 +109,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                     Edit
                   </Button.Root>
                 </Link>
-               <DeleteAvatarModal avatarId={avatar.id} />
+                <DeleteAvatarModal avatarId={avatar.id} />
               </>
             )}
           </div>
@@ -191,13 +207,9 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                                   </Button.Root>
                                 </Link>
                               ) : (
-                                <Form method='POST' action='/chats'>
-                                  <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
-                                  <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                                  <Button.Root type='submit' size='sm' className='px-5'>
-                                    Chat
-                                  </Button.Root>
-                                </Form>
+                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(scenario.id)}>
+                                  Chat
+                                </Button.Root>
                               )}
                             </div>
                           </div>

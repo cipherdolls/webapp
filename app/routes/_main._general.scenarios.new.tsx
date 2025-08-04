@@ -18,6 +18,7 @@ export default function ScenarioNew({ loaderData }: Route.ComponentProps) {
   const handleSubmit = (formData: FormData) => {
     createScenario(formData, {
       onSuccess: (newScenarioData) => {
+        console.log(newScenarioData);
         navigate(`/scenarios/${newScenarioData.id}`);
       },
     });

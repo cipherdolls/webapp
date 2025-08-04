@@ -22,6 +22,7 @@ import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
 import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 import { useUserEvents } from '~/hooks/useUserEvents';
+import { useCreateChat } from '~/hooks/queries/chatMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -33,6 +34,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const { data: mineAvatarsData } = useAvatars({ mine: true });
   const { data: scenarioData, isLoading } = useScenario(params.scenariosId);
   const { mutate: deleteScenario } = useDeleteScenario();
+  const { mutate: createChat } = useCreateChat();
 
   const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
   const scenario = useMemo(() => scenarioData || null, [scenarioData]);
@@ -73,6 +75,20 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
 
   const handleShowAll = () => {
     setShowAll(!showAll);
+  };
+
+  const handleCreateChat = (avatarId: string) => {
+    createChat(
+      {
+        avatarId: avatarId,
+        scenarioId: scenario.id,
+      },
+      {
+        onSuccess: (newChat) => {
+          navigate(`/chats/${newChat.id}`);
+        },
+      }
+    );
   };
 
   return (
@@ -202,13 +218,9 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                                   <Link to={`/chats/${avatar.chats[0].id}`}>Continue Chat</Link>
                                 </Button.Root>
                               ) : (
-                                <Form method='POST' action='/chats'>
-                                  <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
-                                  <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                                  <Button.Root type='submit' size='sm' className='px-5'>
-                                    Chat
-                                  </Button.Root>
-                                </Form>
+                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(avatar.id)}>
+                                  Chat
+                                </Button.Root>
                               )}
                             </div>
                           </div>
@@ -267,20 +279,20 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
             <DetailCard isScenario title='Chat Model' className='pb-3'>
               <div className='flex flex-col'>
                 <div className='flex flex-col gap-4 pb-[18px]'>
-                  <DetailRow title='Name' value={formatModelName(scenario.chatModel.providerModelName)} />
-                  <DetailRow title='AI Provider Name' value={formatModelName(scenario.chatModel.aiProvider?.name)} />
-                  <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel.contextWindow)} token`} />
-                  <DetailRow title='Censored' value={scenario.chatModel.censored ? 'Yes' : 'No'} />
+                  <DetailRow title='Name' value={formatModelName(scenario.chatModel?.providerModelName || 'N/A')} />
+                  <DetailRow title='AI Provider Name' value={formatModelName(scenario.chatModel?.aiProvider?.name || 'N/A')} />
+                  <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel?.contextWindow || 0)} token`} />
+                  <DetailRow title='Censored' value={scenario.chatModel?.censored ? 'Yes' : 'No'} />
                   <DetailRow
                     title='Input Token Cost'
-                    value={`$${scientificNumConvert(scenario.chatModel.dollarPerInputToken * 1000000)}`}
+                    value={`$${scientificNumConvert((scenario.chatModel?.dollarPerInputToken || 0) * 1000000)}`}
                   />
                   <DetailRow
                     title='Output Token Cost'
-                    value={`$${scientificNumConvert(scenario.chatModel.dollarPerOutputToken * 1000000)}`}
+                    value={`$${scientificNumConvert((scenario.chatModel?.dollarPerOutputToken || 0) * 1000000)}`}
                   />
 
-                  {scenario.chatModel.error && (
+                  {scenario.chatModel?.error && (
                     <div className='flex gap-1 overflow-hidden'>
                       <DetailRow title='Embedding Error' value={''} />
                       <Tooltip
@@ -314,18 +326,18 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
             </DetailCard>
             <DetailCard isScenario title='Embedding Model'>
               <div className='flex flex-col gap-4'>
-                <DetailRow title='Name' value={formatModelName(scenario.embeddingModel.providerModelName)} />
-                <DetailRow title='AI Provider Name' value={formatModelName(scenario.embeddingModel.aiProvider?.name)} />
+                <DetailRow title='Name' value={formatModelName(scenario.embeddingModel?.providerModelName || 'N/A')} />
+                <DetailRow title='AI Provider Name' value={formatModelName(scenario.embeddingModel?.aiProvider?.name || 'N/A')} />
                 <DetailRow
                   title='Input Token Cost'
-                  value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerInputToken * 1000000)}`}
+                  value={`$${scientificNumConvert((scenario.embeddingModel?.dollarPerInputToken || 0) * 1000000)}`}
                 />
                 <DetailRow
                   title='Output Token Cost'
-                  value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerOutputToken * 1000000)}`}
+                  value={`$${scientificNumConvert((scenario.embeddingModel?.dollarPerOutputToken || 0) * 1000000)}`}
                 />
 
-                {scenario.embeddingModel.error && (
+                {scenario.embeddingModel?.error && (
                   <div className='flex justify-between w-full gap-1 overflow-hidden'>
                     <DetailRow title='Embedding Error' value={''} />
 
