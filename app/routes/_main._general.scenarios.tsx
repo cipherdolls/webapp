@@ -66,7 +66,7 @@ export default function ScenariosIndex() {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && !isLoading) {
           fetchNextPage();
         }
       },

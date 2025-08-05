@@ -45,18 +45,18 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const avatars = scenario?.avatars ? scenario.avatars : [];
   const hasAvatars = avatars.length > 0;
 
-  useUserEvents(me.id, {
-    onProcessEvent: (processEvent) => {
-      if (
-        processEvent.resourceName === 'Scenario' &&
-        processEvent.resourceId === scenario?.id &&
-        processEvent.jobName === 'updated' &&
-        processEvent.jobStatus === 'completed'
-      ) {
-        window.location.reload();
-      }
-    },
-  });
+  // useUserEvents(me.id, {
+  //   onProcessEvent: (processEvent) => {
+  //     if (
+  //       processEvent.resourceName === 'Scenario' &&
+  //       processEvent.resourceId === scenario?.id &&
+  //       processEvent.jobName === 'updated' &&
+  //       processEvent.jobStatus === 'completed'
+  //     ) {
+  //       window.location.reload();
+  //     }
+  //   },
+  // });
 
   if (isLoading || !scenario) {
     return null;

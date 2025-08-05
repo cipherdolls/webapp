@@ -21,6 +21,7 @@ interface ScenarioFormModalProps {
   scenario?: Scenario;
   onClose: () => void;
   onSubmit: (formData: FormData) => void;
+  isLoading?: boolean;
   errors?: Error | null;
 }
 
@@ -45,7 +46,7 @@ const defaultScenarioData = {
   presencePenalty: 0,
 };
 
-const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors }: ScenarioFormModalProps) => {
+const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: ScenarioFormModalProps) => {
   const { data: avatarsData } = useAvatars({ mine: 'true', published: 'true', limit: '100' });
   const { data: aiProvidersData } = useAiProviders();
 
@@ -786,7 +787,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors }: ScenarioForm
                 Cancel
               </Button.Root>
             </Modal.Close>
-            <Button.Root type='submit' className='w-full'>
+            <Button.Root type='submit' className='w-full' disabled={isLoading}>
               {isNew ? 'Create Scenario' : 'Save'}
             </Button.Root>
           </Modal.Footer>

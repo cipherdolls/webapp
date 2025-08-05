@@ -48,6 +48,11 @@ export default function AvatarsShow() {
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
+  // Filter out undefined values from rawParams
+  const cleanRawParams = Object.fromEntries(
+    Object.entries(rawParams).filter(([_, value]) => value !== undefined && value !== null)
+  );
+
   const {
     data: avatars,
     isLoading,
@@ -56,8 +61,8 @@ export default function AvatarsShow() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteAvatars({
-    ...rawParams,
-    ...(rawParams.mine === 'true' ? {} : { published: 'true' }),
+    ...cleanRawParams,
+    ...(cleanRawParams.mine === 'true' ? {} : { published: 'true' }),
   });
 
   const filteredAndSortedAvatars = useMemo(() => {
@@ -69,7 +74,7 @@ export default function AvatarsShow() {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && !isLoading) {
           fetchNextPage();
         }
       },

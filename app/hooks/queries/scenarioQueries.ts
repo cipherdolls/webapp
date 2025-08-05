@@ -39,24 +39,34 @@ export function useScenarios(params?: ScenariosQueryParams) {
   });
 }
 
-export function useInfiniteScenarios(params?: Omit<ScenariosQueryParams, 'page'>) {
+function serializeParams(params: ScenariosQueryParams) {
+  return JSON.stringify(params || {}, Object.keys(params || {}).sort());
+}
+
+export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>) {
   return useInfiniteQuery({
-    queryKey: ['scenarios', params],
+    queryKey: ['scenarios', serializeParams(params)],
     initialPageParam: 1,
-    queryFn: async ({ pageParam }) => {
-      const searchParams = new URLSearchParams({ ...params, page: pageParam.toString() });
+    queryFn: async ({ pageParam = 1 }) => {
+      const allParams = { ...(params || {}), page: pageParam.toString() };
+      const searchParams = new URLSearchParams(allParams);
+
       const response = await fetchWithAuth(`scenarios?${searchParams}`);
       if (!response.ok) throw new Error('Failed to fetch scenarios');
-      return response.json() as Promise<ScenariosPaginated>;
+      return await response.json(); // ScenariosPaginated
     },
-    getNextPageParam: (lastPage: ScenariosPaginated) => {
-      if (lastPage.meta.page < lastPage.meta.totalPages) {
+    getNextPageParam: (lastPage) => {
+      if (
+        lastPage?.meta?.page &&
+        lastPage?.meta?.totalPages &&
+        lastPage.meta.page < lastPage.meta.totalPages
+      ) {
         return lastPage.meta.page + 1;
       }
       return undefined;
     },
-    getPreviousPageParam: (firstPage: ScenariosPaginated) => {
-      if (firstPage.meta.page > 1) {
+    getPreviousPageParam: (firstPage) => {
+      if (firstPage?.meta?.page && firstPage.meta.page > 1) {
         return firstPage.meta.page - 1;
       }
       return undefined;

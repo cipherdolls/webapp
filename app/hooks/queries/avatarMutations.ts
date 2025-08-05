@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { handleApiError } from '~/utils/handleApiError';
-import type { Avatar } from '~/types';
 
 // Create avatar mutation
 export function useCreateAvatar() {
@@ -31,13 +30,10 @@ export function useUpdateAvatar() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Avatar) => {
-      const response = await fetchWithAuth(`avatars/${data.id}`, {
+    mutationFn: async ({avatarId, formData}: {avatarId: string, formData: FormData}) => {
+      const response = await fetchWithAuth(`avatars/${avatarId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (!response.ok) {

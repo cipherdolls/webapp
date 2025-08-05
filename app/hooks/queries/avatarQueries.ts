@@ -37,34 +37,38 @@ export function useAvatars(params?: AvatarsQueryParams) {
   });
 }
 
-
+function serializeParams(params: AvatarsQueryParams) {
+  return JSON.stringify(params, Object.keys(params).sort());
+}
 
 export function useInfiniteAvatars(params: Omit<AvatarsQueryParams, 'page'>) {
   return useInfiniteQuery({
-    queryKey: ['avatars', params],
+    queryKey: ['avatars', serializeParams(params)],
     initialPageParam: 1,
-    queryFn: async ({ pageParam }) => {
-      const paramsWithPage = { ...params, page: pageParam.toString() };
-      const searchParams = new URLSearchParams();
-      
-      Object.entries(paramsWithPage).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.set(key, String(value));
-        }
-      });
-      
+    queryFn: async ({ pageParam = 1 }) => {
+      // Merge params and page
+      const allParams = { ...params, page: pageParam.toString() };
+      const searchParams = new URLSearchParams(allParams);
+
       const response = await fetchWithAuth(`avatars?${searchParams}`);
       if (!response.ok) throw new Error('Failed to fetch avatars');
-      return response.json() as Promise<AvatarsPaginated>;
+
+      // No need for type assertion here, just await .json()
+      return await response.json(); // AvatarsPaginated
     },
-    getNextPageParam: (lastPage: AvatarsPaginated) => {
-      if (lastPage.meta.page < lastPage.meta.totalPages) {
+    getNextPageParam: (lastPage) => {
+      // Defensive check, works with your backend response!
+      if (
+        lastPage?.meta?.page &&
+        lastPage?.meta?.totalPages &&
+        lastPage.meta.page < lastPage.meta.totalPages
+      ) {
         return lastPage.meta.page + 1;
       }
       return undefined;
     },
-    getPreviousPageParam: (firstPage: AvatarsPaginated) => {
-      if (firstPage.meta.page > 1) {
+    getPreviousPageParam: (firstPage) => {
+      if (firstPage?.meta?.page && firstPage.meta.page > 1) {
         return firstPage.meta.page - 1;
       }
       return undefined;

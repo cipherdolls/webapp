@@ -42,8 +42,6 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
   const me = useRouteLoaderData('routes/_main') as User;
 
-  if (!chat) return null;
-
   const { mutate: updateChat, isPending: isUpdatingChat, error: errorUpdateChat } = useUpdateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
 
@@ -57,6 +55,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
       toggleSilentMode: state.toggleSilentMode,
     }))
   );
+
+  if (!chat) return null;
 
   const handleEditChatClose = () => {
     navigate(`/chats/${chat.id}`);
@@ -84,10 +84,11 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
     deleteChat(chat.id, {
       onSuccess: () => {
-        navigate(`/chats`);
+        navigate(`/chats`, { replace: true });
       },
     });
   };
+  
 
   return (
     <>

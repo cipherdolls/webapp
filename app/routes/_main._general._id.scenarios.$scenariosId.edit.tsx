@@ -1,6 +1,5 @@
-import { redirect, useNavigate } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AiProvider, AiProvidersPaginated, Scenario, Avatar, AvatarsPaginated } from '~/types';
+import { useNavigate } from 'react-router';
+
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId.edit';
 import ScenarioFormModal from '~/components/ScenarioFormModal';
 import { useUpdateScenario } from '~/hooks/queries/scenarioMutations';
@@ -12,7 +11,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function ScenarioEdit({ params }: Route.ComponentProps) {
   const { data: scenarioData } = useScenario(params.scenariosId);
-  const { mutate: updateScenario, error: updateScenarioError } = useUpdateScenario();
+  const { mutate: updateScenario, error: updateScenarioError, isPending: updateScenarioIsPending } = useUpdateScenario();
   const navigate = useNavigate();
 
   if (!scenarioData) {
@@ -36,5 +35,5 @@ export default function ScenarioEdit({ params }: Route.ComponentProps) {
     );
   };
 
-  return <ScenarioFormModal scenario={scenario} onClose={handleClose} onSubmit={handleSubmit} errors={updateScenarioError} />;
+  return <ScenarioFormModal scenario={scenario} onClose={handleClose} onSubmit={handleSubmit} isLoading={updateScenarioIsPending} errors={updateScenarioError} />;
 }
