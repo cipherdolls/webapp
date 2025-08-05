@@ -125,9 +125,6 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
               <div className='flex-1'>
                 <div className='flex items-center justify-between mb-2'>
                   <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
-                  {isExpired(permits[0].deadline) && (
-                    <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>
-                  )}
                 </div>
 
                 <div className='space-y-2'>
