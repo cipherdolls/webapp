@@ -47,7 +47,7 @@ const defaultScenarioData = {
 };
 
 const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors }: ScenarioFormModalProps) => {
-  const { data: avatarsData } = useAvatars({mine: 'true', limit: '100'});
+  const { data: avatarsData } = useAvatars({mine: 'true', published: 'true', limit: '100'});
   const { data: aiProvidersData } = useAiProviders();
 
   const avatars = useMemo(() => avatarsData?.data || [], [avatarsData]);

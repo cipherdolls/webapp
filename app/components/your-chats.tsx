@@ -139,7 +139,7 @@ const YourChats = ({ chats, avatars }: YourChatsProps) => {
           </div>
         )}
       </div>
-      {chats.length > 4 && (
+      {groupedChats.length > 4 && (
         <div className='mx-auto -mt-2'>
           <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
             {showAll ? 'Collapse' : 'Show all'}

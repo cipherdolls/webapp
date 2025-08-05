@@ -62,10 +62,6 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
     return moment.unix(deadline).format('MMM DD, YYYY HH:mm');
   };
 
-  const sortedPermits = [...permits].sort((a, b) => {
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
-
   const isLoading = tokenPermitsLoading;
 
   return (
@@ -119,7 +115,7 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
               </CreateTokenAllowanceModal>
             </div>
           </div>
-        ) : sortedPermits.length > 0 ? (
+        ) : permits.length > 0 ? (
           <div className='p-3 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
             <div className='flex items-center gap-3'>
               <button className='sm:size-10 size-8 flex text-2xl items-center justify-center bg-black/5 backdrop-blur-48 rounded-full relative shrink-0'>
@@ -128,7 +124,7 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
               <div className='flex-1'>
                 <div className='flex items-center justify-between mb-2'>
                   <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
-                  {isExpired(sortedPermits[0].deadline) && (
+                  {isExpired(permits[0].deadline) && (
                     <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>
                   )}
                 </div>
@@ -139,8 +135,8 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
                       className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300'
                       style={{
                         width: `${
-                          allowance && sortedPermits[0].value
-                            ? Math.min((parseFloat(allowance) / parseFloat(formatPermitAmount(sortedPermits[0].value))) * 100, 100)
+                          allowance && permits[0].value
+                            ? Math.min((parseFloat(allowance) / parseFloat(formatPermitAmount(permits[0].value))) * 100, 100)
                             : 0
                         }%`,
                       }}
@@ -165,13 +161,13 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
           </div>
         )}
 
-        {sortedPermits.length > 0 && (
+        {permits.length > 0 && (
           <div className='text-body-sm text-neutral-01 font-medium text-right mt-2 flex items-center justify-between gap-1'>
             <div>
               Remaining: <span className='text-base-black font-semibold'>{allowance ? parseFloat(allowance).toFixed(2) : '0.00'} LOV</span>
             </div>
             <div>
-              Total: <span className='text-base-black font-semibold'>{formatPermitAmount(sortedPermits[0].value)} LOV</span>
+              Total: <span className='text-base-black font-semibold'>{formatPermitAmount(permits[0].value)} LOV</span>
             </div>
           </div>
         )}
