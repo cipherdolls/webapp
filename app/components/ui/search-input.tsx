@@ -1,36 +1,30 @@
 import React from 'react';
 import * as Input from '~/components/ui/input/input';
 import { Icons } from '~/components/ui/icons';
-import { useSearchParams, useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { useEffect, useState, useCallback } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-const SearchScenarios = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [searchValue, setSearchValue] = useState(searchParams.get('name') || '');
+const SearchInput = ({ searchParamName, placeholder }: { searchParamName: string, placeholder: string }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState(searchParams.get(searchParamName) || '');
   const [debouncedSearchValue] = useDebounceValue(searchValue, 300);
 
-  // Update local state when URL changes
   useEffect(() => {
-    setSearchValue(searchParams.get('name') || '');
+    setSearchValue(searchParams.get(searchParamName) || '');
   }, [searchParams]);
 
-  // Update URL when debounced value changes
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
+    
     if (debouncedSearchValue.trim()) {
-      newSearchParams.set('name', debouncedSearchValue.trim());
+      newSearchParams.set(searchParamName, debouncedSearchValue.trim());
     } else {
-      newSearchParams.delete('name');
+      newSearchParams.delete(searchParamName);
     }
     
-    // Only navigate if the debounced value is different from current URL param
-    const currentName = searchParams.get('name') || '';
-    if (debouncedSearchValue.trim() !== currentName) {
-      navigate(`/scenarios?${newSearchParams.toString()}`);
-    }
-  }, [debouncedSearchValue, searchParams, navigate]);
+    setSearchParams(newSearchParams);
+  }, [debouncedSearchValue, searchParams, setSearchParams]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -40,10 +34,10 @@ const SearchScenarios = () => {
   return (
     <Input.Root>
       <Input.Input
-        id='name'
-        name='name'
+        id={searchParamName}
+        name={searchParamName}
         type='text'
-        placeholder='Search scenarios by name'
+        placeholder={placeholder}
         className='py-3.5 pl-[52px]'
         value={searchValue}
         onChange={handleInputChange}
@@ -54,4 +48,4 @@ const SearchScenarios = () => {
   );
 };
 
-export default SearchScenarios;
+export default SearchInput;

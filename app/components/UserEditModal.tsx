@@ -2,32 +2,49 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
-import { type FetcherWithComponents } from 'react-router';
-import type { User } from '~/types';
+import type { Gender, User } from '~/types';
 import { useEffect, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { cn } from '~/utils/cn';
-
+import { useUpdateUser } from '~/hooks/queries/userMutations';
+  
 interface UserEditModalProps {
   me: User;
-  fetcher: FetcherWithComponents<any>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) => {
+const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
+  const updateUserMutation = useUpdateUser();
   const [internalOpen, setInternalOpen] = useState(false);
-  const [gender, setGender] = useState<'Male' | 'Female'>('Male');
-
+  const [gender, setGender] = useState<Gender | null>(me.gender || null);
+  
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
   const setOpenState = isControlled ? onOpenChange! : setInternalOpen;
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data && !fetcher.data?.message) {
+    if (updateUserMutation.isSuccess && !updateUserMutation.error) {
       setOpenState(false);
     }
-  }, [fetcher.state, fetcher.data, setOpenState]);
+  }, [updateUserMutation.isSuccess, updateUserMutation.error, setOpenState]);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    const data = Object.fromEntries(formData.entries());
+
+    const updateData = {
+      userId: me.id,
+      signerAddress: me.signerAddress,
+      name: data.name,
+      character: data.character,
+      gender: gender,
+    };
+
+    updateUserMutation.mutate(updateData);
+  };
 
   return (
     <Dialog.Root open={openState} onOpenChange={setOpenState}>
@@ -60,12 +77,9 @@ const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) 
               </Dialog.Description>
             </div>
 
-            <fetcher.Form method='PATCH' className='sm:mt-[22px] mt-4.5'>
-              <input name='userId' value={me.id} hidden readOnly />
-              <input name='signerAddress' value={me.signerAddress} hidden readOnly />
-
+            <form onSubmit={handleSubmit} className='sm:mt-[22px] mt-4.5'>
               <div className='flex flex-col gap-4'>
-                {fetcher.data?.message && <ErrorsBox errors={fetcher.data.message} className='mb-2' />}
+                {updateUserMutation.error && <ErrorsBox errors={[updateUserMutation.error.message]} className='mb-2' />}
 
                 <Input.Root>
                   <Input.Label id='name' htmlFor='name'>
@@ -105,7 +119,7 @@ const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) 
                       🧔🏻‍♂ Male
                     </button>
                   </div>
-                  <input type='hidden' name='gender' value={gender} />
+                  <input type='hidden' name='gender' value={gender || ''} />
                 </Input.Root>
 
                 <Textarea.Root>
@@ -127,12 +141,12 @@ const UserEditModal = ({ me, fetcher, open, onOpenChange }: UserEditModalProps) 
                       Cancel
                     </Button.Root>
                   </Dialog.Close>
-                  <Button.Root type='submit' disabled={fetcher.state === 'submitting'}>
-                    {fetcher.state === 'submitting' ? 'Saving...' : 'Save Changes'}
+                  <Button.Root type='submit' disabled={updateUserMutation.isPending}>
+                    {updateUserMutation.isPending ? 'Saving...' : 'Save Changes'}
                   </Button.Root>
                 </div>
               </div>
-            </fetcher.Form>
+            </form>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

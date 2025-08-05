@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { cn } from '~/utils/cn';
+import { cn, cnExt } from '~/utils/cn';
 
 const ModalRoot = DialogPrimitive.Root;
 const ModalTrigger = DialogPrimitive.Trigger;
@@ -83,7 +83,7 @@ function ModalBody({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>)
 ModalBody.displayName = 'ModalBody';
 
 function ModalFooter({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex items-center gap-3 pt-10', className)} {...rest} />;
+  return <div className={cnExt('flex items-center gap-3 pt-10', className)} {...rest} />;
 }
 
 ModalFooter.displayName = 'ModalFooter';

@@ -9,7 +9,8 @@ import ChatTTSJobCard from '~/components/job-cards/ChatTTSJobCard';
 import ChatCompletionJobCard from '~/components/job-cards/ChatCompletionJobCard';
 import ChatSTTJobCard from '~/components/job-cards/ChatSTTJobCard';
 import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
-import DestroyMessageButton from './_main.chats.$chatId.messages.$messageId.destroy';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -21,12 +22,31 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return await res.json();
 }
 
-export default function ChatMessage({ loaderData }: Route.ComponentProps) {
+export default function ChatMessage({ loaderData , params}: Route.ComponentProps) {
   const message: Message = loaderData;
   const navigate = useNavigate();
+  const confirm = useConfirm();
+  const { mutate: deleteMessage } = useDeleteMessage(message.chatId);
 
   const handleMessageClose = () => {
     navigate(`/chats/${message.chatId}`);
+  };
+
+  const handleMessageDelete = async () => {
+    const confirmResult = await confirm({
+      icon: '🗑️',
+      title: 'Delete the Message?',
+      body: 'All followed messages will be deleted as well',
+      actionButton: 'Yes, Delete',
+    });
+
+    if (confirmResult) {
+      deleteMessage(message.id, {
+        onSuccess: () => {
+          navigate(`/chats/${message.chatId}`, { replace: true });
+        },
+      });
+    }
   };
 
   return (
@@ -60,7 +80,9 @@ export default function ChatMessage({ loaderData }: Route.ComponentProps) {
             {message.chatCompletionJob && <ChatCompletionJobCard message={message} />}
 
             <div className='mt-auto pt-10'>
-              <DestroyMessageButton />
+              <Button.Root type='button' variant='danger' className='w-full px-10' onClick={handleMessageDelete}>
+                Delete Message
+              </Button.Root>
             </div>
           </div>
         </div>

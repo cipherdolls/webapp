@@ -31,8 +31,8 @@ const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
             audioSrc={PATHS.ttsVoice(avatar.ttsVoiceId)}
           />
 
-          {avatar.chats.length > 0 ? (
-            <Link to={`/chats/${avatar.chats[0].id}`}>
+          {(avatar.chats?.length || 0) > 0 ? (
+            <Link to={`/chats/${avatar.chats?.[0]?.id}`}>
               <Button.Root size='sm' className='px-5'>
                 Chat
               </Button.Root>

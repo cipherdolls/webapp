@@ -11,16 +11,17 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import useChat from '~/hooks/useChat';
+import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MessagesModeProps {
   chat: Chat;
   avatar: Avatar;
 }
 
-const MESSAGES_LIMIT = 50;
-
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
+  const queryClient = useQueryClient();
   const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
@@ -29,13 +30,9 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
     }))
   );
 
-  const { messages, loadMessages, loadMoreMessages, isLoading, hasMore } = useChat(chat.id, { limit: MESSAGES_LIMIT });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } = useInfiniteMessages(chat.id);
 
-  useEffect(() => {
-    stop();
-    setCurrentChatState(ChatState.Idle);
-    loadMessages();
-  }, [chat.id, chat._count.messages]);
+  const messages = data?.pages.flatMap((page) => page.data).reverse() ?? [];
 
   useUnmount(() => {
     stop();
@@ -43,7 +40,19 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   useChatEvents(chat.id, {
     onProcessEvent: (event) => {
-      if (event.resourceName === 'Message' && event.jobStatus === 'completed') loadMessages();
+      if (event.resourceName === 'Message') {
+        switch (event.jobName) {
+          case 'created':
+            if (event.jobStatus === 'completed') queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+            break;
+          case 'updated':
+            const messageContent = event?.resourceAttributes?.content;
+            if (!messageContent) return;
+            queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+            break;
+          default:
+        }
+      }
     },
     onActionEvent: (event) => {
       if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
@@ -75,15 +84,9 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   return (
     <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
       {/* chat header */}
-      <ChatTopBar chat={chat} avatar={avatar} />
+      <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
-      <ChatBody
-        messages={messages}
-        loadMoreMessages={loadMoreMessages}
-        isLoading={isLoading}
-        hasMore={hasMore}
-        messagesLimit={MESSAGES_LIMIT}
-      />
+      <ChatBody messages={messages} loadMoreMessages={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

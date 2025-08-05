@@ -32,25 +32,25 @@ export const useMqttSubscription = (
   useEffect(() => {
     // Clean up existing subscription first
     if (unsubscribeRef.current) {
-      devLog(`[useMqttSubscription] Cleaning up existing subscription for topic: ${topic}`);
+      // devLog(`[useMqttSubscription] Cleaning up existing subscription for topic: ${topic}`);
       unsubscribeRef.current();
       unsubscribeRef.current = null;
     }
 
     // Check if we should establish a new subscription
     if (!enabled || !topic || !connectionState.isConnected) {
-      devLog(`[useMqttSubscription] Skipping subscription - enabled: ${enabled}, topic: ${topic}, connected: ${connectionState.isConnected}`);
+      // devLog(`[useMqttSubscription] Skipping subscription - enabled: ${enabled}, topic: ${topic}, connected: ${connectionState.isConnected}`);
       return;
     }
 
     // Establish new subscription
-    devLog(`[useMqttSubscription] Setting up subscription for topic: ${topic}`);
+    // devLog(`[useMqttSubscription] Setting up subscription for topic: ${topic}`);
     unsubscribeRef.current = subscribe(topic, stableCallback);
 
     // Cleanup function
     return () => {
       if (unsubscribeRef.current) {
-        devLog(`[useMqttSubscription] Cleaning up subscription for topic: ${topic}`);
+        // devLog(`[useMqttSubscription] Cleaning up subscription for topic: ${topic}`);
         unsubscribeRef.current();
         unsubscribeRef.current = null;
       }

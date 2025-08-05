@@ -1,20 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import type { Scenario } from '~/types';
-import { InformationBadge } from './ui/InformationBadge';
-import { cn } from '~/utils/cn';
+import type { Chat, Scenario } from '~/types';
 import * as Button from '~/components/ui/button/button';
+import { getPicture } from '~/utils/getPicture';
+import ScenarioAvatarModal from './ScenarioAvatarModal';
+import { cn } from '~/utils/cn';
+import { useScenarios } from '~/hooks/queries/scenarioQueries';
 
-const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
+const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true' });
+
+  const scenarios = scenariosPaginated?.data || [];
+
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
-
-  const sortedScenarios = useMemo(() => {
-    return [...scenarios].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [scenarios]);
 
   const handleShowAll = () => {
     setShowAll(!showAll);
@@ -23,7 +23,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Scenarios</h3>
-      <div className={cn('bg-gradient-1 rounded-xl flex flex-col', hasScenarios ? 'p-0' : ' p-2 pt-0')}>
+      <div className={cn('bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col', hasScenarios && '!pt-0')}>
         {hasScenarios ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
@@ -44,34 +44,47 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                 </div>
               </Link>
             </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-              {sortedScenarios.map((scenario, index) => (
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+              {scenarios.map((scenario, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <Link
-                    to={`/scenarios/${scenario.id}`}
-                    className={cn(
-                      'bg-white rounded-xl p-5 flex flex-col gap-3 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all group h-full',
-                      sortedScenarios.length === 1 && 'col-span-2'
-                    )}
-                  >
-                    <div className='flex items-center gap-2'>
-                      <span className='text-body-md text-base-black font-semibold break-all line-clamp-1'>{scenario.name}</span>
-                      <InformationBadge
-                        className='size-4 text-neutral-02'
-                        popoverClassName='!w-full'
-                        tooltipText={
-                          <div className='flex flex-col gap-1 text-body-sm text-base-black'>
-                            <span>Frequency Penalty: {scenario.frequencyPenalty}</span>
-                            <span>Presence Penalty: {scenario.presencePenalty}</span>
-                            <span>Temperature: {scenario.temperature}</span>
-                            <span>Top P: {scenario.topP}</span>
-                          </div>
-                        }
+                  <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                    <Link
+                      to={`/scenarios/${scenario.id}`}
+                      className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
+                    >
+                      <img
+                        src={getPicture(scenario, 'scenarios', false)}
+                        srcSet={getPicture(scenario, 'scenarios', true)}
+                        alt={`${scenario.name} picture`}
+                        className='object-cover size-full'
                       />
+
+                      <div className='absolute top-2 left-2 z-10'>
+                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                          🌐
+                          <span>By you</span>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
+                      <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                        <div className='flex items-center gap-2'>
+                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+                        </div>
+                        {scenario.introduction && (
+                          <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
+                        )}
+                      </div>
+                      <div className='flex items-center gap-3'>
+                        <ScenarioAvatarModal scenario={scenario} chats={chats}>
+                          <Button.Root size='sm' className='px-5'>
+                            Chat
+                          </Button.Root>
+                        </ScenarioAvatarModal>
+                      </div>
                     </div>
-                    <p className='text-neutral-02 text-body-sm'>{scenario.chatModel.providerModelName}</p>
-                    <p className='text-base-black line-clamp-2 text-body-sm break-all'>{scenario.systemMessage}</p>
-                  </Link>
+                  </div>
                 </div>
               ))}
             </div>
@@ -82,7 +95,7 @@ const YourScenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
               <Link
-                to='/scenarios/new'
+                to='/scenarios'
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new scenario

@@ -26,8 +26,8 @@ export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
         </div>
       </div>
 
-      {chats.length > 0 ? (
-        <Link to={`/chats/${avatar.chats[0].id}`}>
+      {(chats?.length || 0) > 0 ? (
+        <Link to={`/chats/${avatar.chats?.[0]?.id}`}>
           <Button.Root size='sm' className='px-5'>
             Continue Chats
           </Button.Root>

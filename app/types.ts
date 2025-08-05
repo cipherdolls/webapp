@@ -7,6 +7,18 @@ export interface meta {
   totalPages: number;
 }
 
+export interface CursorMeta {
+  nextCursor?: string;
+  hasMore: boolean;
+  total: number;
+  limit: number;
+}
+
+export interface MessagesPaginatedCursor {
+  data: Message[];
+  meta: CursorMeta;
+}
+
 export interface ApiError {
   error: string;
   message: Array<string>;
@@ -21,8 +33,11 @@ export interface User {
   signerAddress: string;
   walletAddress: string;
   apikey: string;
+  gender: Gender | null;
   role: string;
   character: string;
+  tokenBalance?: number;
+  tokenAllowance?: string;
 }
 
 export interface TokenPermitsPaginated {
@@ -154,9 +169,12 @@ export interface Scenario {
   reasoningModel?: ChatModel;
   userId: string;
   chats: Chat[];
+  avatars?: Avatar[];
   recommended: boolean;
   introduction?: string;
   published?: boolean;
+  userGender?: Gender;
+  avatarGender?: Gender;
 }
 
 export interface Chat {
@@ -242,6 +260,7 @@ export interface EmbeddingJob {
   usdCost: number;
   timeTakenMs: number;
   embeddingModel: EmbeddingModel;
+  paymentJob: PaymentJob;
 }
 
 export interface ChatCompletionJob {
@@ -284,7 +303,10 @@ export interface PaymentJob {
   timeTakenMs: number;
 }
 
-type Gender = 'Female' | 'Male';
+export type Gender = 'Female' | 'Male' | 'Other';
+
+export type GenderFilter = 'All' | 'Male' | 'Female' | 'Other';
+
 export interface AvatarsPaginated {
   data: Avatar[];
   meta: meta;
@@ -301,16 +323,29 @@ export interface Avatar {
   createdAt: Date;
   updatedAt: Date;
   editable: boolean;
+  recommended: boolean;
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
-  chats: Chat[];
+  chats?: [{
+    id: string;
+    scenarioId: string;
+    sttProviderId: string; 
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string;
+  }];
   language: string;
-  scenarios: Scenario[];
+  scenarios?: Scenario[];
   gender: Gender;
 }
 export interface AvatarCount {
   chats: number;
+}
+
+export interface GroupedChatsByAvatar {
+  avatar: Avatar;
+  chats: Chat[];
 }
 
 export type AudioEvent = {
@@ -332,4 +367,5 @@ export interface ProcessEvent {
   jobName: string;
   jobId: number;
   jobStatus: 'active' | 'completed' | 'failed' | 'retrying';
+  resourceAttributes?: any;
 }

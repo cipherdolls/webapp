@@ -1,27 +1,27 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Message } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
-const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
+const useChat = (chatId: string, { limit = 20 }: { limit?: number } = {}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const cursorRef = useRef<string | undefined>(undefined);
 
-  const loadMessages = async (page: number = 1) => {
+  const loadMessages = async () => {
     if (isLoading) return;
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchWithAuth(`messages?chatId=${chatId}&limit=${limit}&page=${page}&order=desc`);
-     
+      const response = await fetchWithAuth(`messages?chatId=${chatId}&limit=${limit}&direction=next&order=desc`);
+
       if (response.ok) {
         const data = await response.json();
         const messages = data.data.reverse() || [];
+        cursorRef.current = data.meta?.nextCursor;
         setMessages(messages);
-        setCurrentPage(page);
-        setHasMore(currentPage < (data.meta?.totalPages || 1));
+        setHasMore(data.meta?.hasMore || false);
       }
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -36,13 +36,13 @@ const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchWithAuth(`messages?chatId=${chatId}&limit=${limit}&page=${currentPage + 1}&order=desc`);
+      const response = await fetchWithAuth(`messages?chatId=${chatId}&cursor=${cursorRef.current}&limit=${limit}&direction=next&order=desc`);
       if (response.ok) {
         const data = await response.json();
         const messages = data.data.reverse() || [];
         setMessages((prev) => [...messages, ...prev]);
-        setCurrentPage(currentPage + 1);
-        setHasMore(currentPage < (data.meta?.totalPages || 1));
+        cursorRef.current = data.meta?.nextCursor;
+        setHasMore(data.meta?.hasMore || false);
       }
     } catch (error) {
       console.error('Failed to load more messages:', error);
@@ -52,6 +52,36 @@ const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
     }
   };
 
+  const newMessage = async (messageId: string) => {
+    try {
+      const response = await fetchWithAuth(`messages/${messageId}`);
+      if (response.ok) {
+        const message = await response.json();
+        
+        if(message.fileName) {
+          message.content = '🎤  Processing audio...'
+        }
+        setMessages((prev) => [...prev, message]);
+      }
+    } catch (error) {
+      console.error('Failed to add new message:', error);
+      setError('Failed to add new message');
+    }
+  };
+
+  const updateMessage = (messageId: string, newContent: string) => {
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === messageId ? { ...message, content: newContent } : message
+      )
+    );
+  };
+
+
+  const deleteMessage = (messageId: string) =>  {
+    setMessages((prev) => prev.filter((message) => message.id !== messageId));
+  }
+
   return {
     messages,
     isLoading,
@@ -59,6 +89,9 @@ const useChat = (chatId: string, { limit = 50 }: { limit?: number } = {}) => {
     error,
     loadMessages,
     loadMoreMessages,
+    newMessage,
+    updateMessage,
+    deleteMessage,
   };
 };
 

@@ -93,8 +93,8 @@ export function AlertDialogProvider({ children }: { children: React.ReactNode })
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className='bg-neutral-02 fixed inset-0 z-40' />
-          <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl  pb-9 sm:py-8 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-50'>
+          <Dialog.Overlay className='bg-neutral-02 fixed inset-0 z-[80]' />
+          <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl  pb-9 sm:py-8 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-90'>
             <div className='mx-auto bg-neutral-03 rounded-full w-16 h-1 sm:hidden mt-3 mb-5' aria-hidden='true' />
             <form
               onSubmit={(event) => {

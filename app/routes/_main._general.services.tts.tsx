@@ -124,16 +124,16 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
                     <div className='hidden items-center gap-2 text-body-sm sm:flex'>
                       <span className='text-base-black font-normal'>$/Character</span>
                       <span className='text-neutral-01 font-normal'>-</span>
-                      <span className='font-semibold text-base-black'>$0</span>
+                      <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
                     </div>
                     <ViewButton
                       popoverItems={[
                         { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
 
-                        { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&name=${ttsProvider.name}` },
+                        { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&modelName=${ttsProvider.name}` },
                         {
                           text: 'Delete',
-                          href: `/services/tts/providers/delete?id=${ttsProvider.id}&name=${ttsProvider.name}`,
+                          href: `/services/tts/providers/delete?id=${ttsProvider.id}&modelName=${ttsProvider.name}`,
                           isDelete: true,
                         },
                       ]}

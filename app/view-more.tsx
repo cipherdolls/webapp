@@ -3,6 +3,7 @@ import { Link, useFetcher } from 'react-router';
 import * as Popover from '~/components/ui/popover';
 import { cn } from '~/utils/cn';
 import type { ReactNode } from 'react';
+import React from 'react';
 import { Icons } from './components/ui/icons';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 import type { Avatar, Scenario } from '~/types';
@@ -77,10 +78,10 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
     } bg-white transition-colors text-body-md font-semibold rounded-[10px] ${withIcon ? 'flex items-center gap-2' : ''}`;
 
     const renderContent = (text: string) => (
-      <div key={index}>
+      <React.Fragment key={index}>
         {withIcon && item.icon && <item.icon className={cn('w-6 h-6', iconClassName)} />}
         {text}
-      </div>
+      </React.Fragment>
     );
 
     switch (item.type) {
@@ -113,6 +114,7 @@ export const ViewMore = ({ userId, popoverItems, className, isDataCard, visible,
       case 'addToChat':
         return (
           <SelectAvatarModal
+            key={index}
             avatars={item.avatars}
             scenario={item.scenario}
             triggerContent={

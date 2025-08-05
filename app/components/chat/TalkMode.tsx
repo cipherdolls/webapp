@@ -5,7 +5,6 @@ import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useFetcher } from 'react-router';
 import VoiceVisualizer from '~/components/chat/VoiceVisualizer';
 import { useState, useEffect } from 'react';
 import AvatarVoiceVisualizer from '~/components/chat/AvatarVoiceVisualizer';
@@ -13,6 +12,7 @@ import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
+import { useCreateMessage } from '~/hooks/queries/messageMutations';
 
 interface TalkModeProps {
   chat: Chat;
@@ -20,7 +20,6 @@ interface TalkModeProps {
 }
 
 const TalkMode = ({ chat, avatar }: TalkModeProps) => {
-  const fetcher = useFetcher();
   const [jobsDone, setJobsDone] = useState({
     stt: false,
     chat: false,
@@ -36,6 +35,8 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     }))
   );
 
+  const { mutate: createMessage, error: createMessageError } = useCreateMessage();
+
   const recorder = useVoiceRecorder({
     listening: currentChatState === ChatState.userSpeaking,
     onRecordingComplete: async (blob: Blob) => {
@@ -44,11 +45,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('chatId', chat.id);
-        fetcher.submit(formData, {
-          method: 'post',
-          action: '/messages/new',
-          encType: 'multipart/form-data',
-        });
+        createMessage({ chatId: chat.id, formData });
       }
       setCurrentChatState(ChatState.Idle);
     },

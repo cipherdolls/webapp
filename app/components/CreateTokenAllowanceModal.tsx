@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 interface CreateTokenAllowanceModalProps {
   children: ReactNode;
-  tokenBalance: string | number; // User's LOV token balance
+  tokenBalance?: string | number; // Optional - not used anymore
   onPermitSigned: (permit: {
     owner: string;
     spender: string;
@@ -23,12 +23,10 @@ interface CreateTokenAllowanceModalProps {
 const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: CreateTokenAllowanceModalProps) => {
   const [open, setOpen] = useState(false);
 
-  // Convert token balance to number and set reasonable defaults
-  const maxBalance = typeof tokenBalance === 'string' ? parseFloat(tokenBalance) : tokenBalance;
-  const safeMaxBalance = isNaN(maxBalance) ? 10 : Math.max(maxBalance, 0.1);
-  const defaultAmount = Math.min(0.2, safeMaxBalance);
-
-  const [amount, setAmount] = useState(defaultAmount);
+  // Fibonacci sequence for fixed amounts
+  const fibonacciAmounts = [1, 2, 3, 5, 8, 13, 21, 34, 55];
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const amount = fibonacciAmounts[selectedIndex];
 
   const handlePermitSigned = (permit: any) => {
     onPermitSigned(permit);
@@ -57,17 +55,16 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
 
                 <div className='px-2'>
                   <Slider.Root
-                    value={[amount]}
-                    onValueChange={(value) => setAmount(value[0])}
-                    min={0.1}
-                    max={safeMaxBalance}
-                    step={0.1}
+                    value={[selectedIndex]}
+                    onValueChange={(value) => setSelectedIndex(value[0])}
+                    min={0}
+                    max={fibonacciAmounts.length - 1}
+                    step={1}
                     className='w-full'
                   >
                     <Slider.Thumb />
                   </Slider.Root>
                 </div>
-                <div className='text-xs text-neutral-01 text-center'>Available balance: {safeMaxBalance.toFixed(2)} LOV</div>
               </div>
 
               <div className='grid grid-cols-2 gap-3'>

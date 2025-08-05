@@ -35,14 +35,14 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
             },
           ]}
         />
-        <DataCard.Divider />
-        <DataCard.ItemLabel className='pb-4'>Payment Job</DataCard.ItemLabel>
+        {/*<DataCard.Divider />*/}
+        {/*<DataCard.ItemLabel className='pb-4'>Payment Job</DataCard.ItemLabel>*/}
         <DataCard.ItemDataGrid
           variant='secondary'
           data={[
             {
               label: 'Cost',
-              value: `${formatEther(ttsJob.paymentJob?.weiCost || 0)} Ether`,
+              value: `${formatEther(ttsJob.paymentJob?.weiCost || 0)} LOV`,
             },
             {
               label: 'txHash',
@@ -58,7 +58,7 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
                   </a>
                 </>
               ) : (
-              'N/A'
+                'N/A'
               ),
             },
           ]}
