@@ -3,7 +3,7 @@ import HowToAddDollModal from '~/components/howToAddDollModal';
 import DollCard from './dollCard';
 import { cn } from '~/utils/cn';
 import { InformationBadge } from './ui/InformationBadge';
-import { useDolls } from '~/hooks/queries';
+import { useDolls } from '~/hooks/queries/dollQueries';
 
 const YourDolls = () => {
   const { data: dollsPaginated, isLoading: dollsLoading } = useDolls();

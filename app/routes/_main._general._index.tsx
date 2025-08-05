@@ -15,7 +15,9 @@ import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import { switchToOptimismNetwork } from '~/utils/networkUtils';
 import { toast } from 'sonner';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
-import { useChats, useAvatars, useUser } from '~/hooks/queries';
+import { useChats } from '~/hooks/queries/chatQueries';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 import { useRealtimeSync } from '~/hooks/useRealtimeSync';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {

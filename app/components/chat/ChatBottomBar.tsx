@@ -51,6 +51,11 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
     );
   };
 
+  const handleVoiceMessageSubmit = (formData: FormData) => {
+    unlockAudio();
+    createMessage({ chatId: chat.id, formData });
+  };
+
   const handleLiveTalk = () => {
     unlockAudio();
     if (!hasMicAccess) {
@@ -102,7 +107,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
                 <Button.Icon as={isCreatingMessage ? Icons.loading : Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton chat={chat} onSubmit={handleSubmit} />
+              <MessageRecordingButton chat={chat} onSubmit={handleVoiceMessageSubmit} />
             )}
             <Button.Root
               size='icon'

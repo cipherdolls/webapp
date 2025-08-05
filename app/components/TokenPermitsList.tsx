@@ -7,7 +7,8 @@ import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
 
-import { useCreateTokenPermit, useTokenPermits } from '~/hooks/queries';
+import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
+import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import type { User } from '~/types';
 
 import * as Button from '~/components/ui/button/button';

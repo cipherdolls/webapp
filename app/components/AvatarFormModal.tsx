@@ -14,7 +14,8 @@ import * as Modal from '~/components/ui/new-modal';
 import { useRouteLoaderData } from 'react-router';
 
 import type { Avatar, Gender, Scenario, TtsVoice, User } from '~/types';
-import { useScenarios, useTtsVoices } from '~/hooks/queries';
+import { useTtsVoices } from '~/hooks/queries/ttsQueries';
+import { useScenarios } from '~/hooks/queries/scenarioQueries';
 
 // TODO: Create all the scenarios or create a page with a new ui. 
 

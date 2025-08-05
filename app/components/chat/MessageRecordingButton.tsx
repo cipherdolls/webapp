@@ -51,6 +51,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
           icon: "🎤 ❌",
           title: 'Microphone access required',
           body: 'Please allow access to your microphone in your browser settings for voice messages',
+          actionButton: undefined,
         });
         return
       };  

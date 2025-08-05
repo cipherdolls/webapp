@@ -10,7 +10,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
 import UserEventsToast from '~/components/UserEventsToast';
-import { useUser } from '~/hooks/queries';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);

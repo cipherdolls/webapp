@@ -327,7 +327,14 @@ export interface Avatar {
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
-  chats?: Chat[];
+  chats?: [{
+    id: string;
+    scenarioId: string;
+    sttProviderId: string; 
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string;
+  }];
   language: string;
   scenarios?: Scenario[];
   gender: Gender;

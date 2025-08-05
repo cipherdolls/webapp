@@ -52,6 +52,8 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
     if (selectedAvatar) {
       const hasChatWithSameScenario = selectedAvatar.chats?.find((chat) => chat.scenarioId === scenario.id);
 
+      console.log(hasChatWithSameScenario);
+
       if (hasChatWithSameScenario) {
         const confirmResult = await confirm({
           icon: '🗑️',
@@ -70,6 +72,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
                 onSuccess: (newChat) => {
                   setSelectedAvatar(null);
                   navigate(`/chats/${newChat.id}`);
+                  setIsOpen(false);
                 },
               }
             );
@@ -82,6 +85,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
             onSuccess: (newChat) => {
               setSelectedAvatar(null);
               navigate(`/chats/${newChat.id}`);
+              setIsOpen(false);
             },
           }
         );

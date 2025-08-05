@@ -1,6 +1,6 @@
 import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
-import { useRefreshTokenBalance } from '~/hooks/queries';
+import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
 import type { User } from '~/types';
 
 const TokenBalance = ({ user }: { user: User }) => {

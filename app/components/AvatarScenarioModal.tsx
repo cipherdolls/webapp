@@ -46,11 +46,11 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
   }, []);
 
   //  TODO: Move this logic to the backend of the delete avatar!!
-
   const handleCreateChat = async () => {
     if (selectedScenario) {
       const hasChatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario.id);
 
+      
       if (hasChatWithSameScenario) {
         const confirmResult = await confirm({
           icon: '🗑️',
@@ -69,6 +69,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
                 onSuccess: (newChat) => {
                   setSelectedScenario(null);
                   navigate(`/chats/${newChat.id}`);
+                  setIsOpen(false);
                 },
               }
             );
@@ -81,6 +82,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
             onSuccess: (newChat) => {
               setSelectedScenario(null);
               navigate(`/chats/${newChat.id}`);
+              setIsOpen(false);
             },
           }
         );

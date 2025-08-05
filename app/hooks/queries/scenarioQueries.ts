@@ -53,7 +53,7 @@ export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>)
 
       const response = await fetchWithAuth(`scenarios?${searchParams}`);
       if (!response.ok) throw new Error('Failed to fetch scenarios');
-      return await response.json(); // ScenariosPaginated
+      return await response.json();
     },
     getNextPageParam: (lastPage) => {
       if (
