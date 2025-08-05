@@ -1,6 +1,6 @@
-import { useFetcher, useRouteLoaderData } from 'react-router';
+import { useRouteLoaderData } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import type { AiProvider, Scenario, Gender, Avatar, User } from '~/types';
+import type { Scenario, Gender, Avatar, User } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
@@ -35,7 +35,6 @@ interface OptionGroup {
   options: Option[];
 }
 
-
 // Default scenario params for new scenarios
 const defaultScenarioData = {
   userGender: 'Male' as Gender,
@@ -47,7 +46,7 @@ const defaultScenarioData = {
 };
 
 const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors }: ScenarioFormModalProps) => {
-  const { data: avatarsData } = useAvatars({mine: 'true', published: 'true', limit: '100'});
+  const { data: avatarsData } = useAvatars({ mine: 'true', published: 'true', limit: '100' });
   const { data: aiProvidersData } = useAiProviders();
 
   const avatars = useMemo(() => avatarsData?.data || [], [avatarsData]);
