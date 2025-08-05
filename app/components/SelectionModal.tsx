@@ -86,22 +86,20 @@ export function SelectionModal<T>({
                 className='w-full h-full object-cover'
               />
             ) : (
-              <div className='w-full h-full bg-gradient-1 bg-neutral-05 opacity-30' />
+              <div className='w-full h-full bg-gradient-1 bg-neutral-03' />
             )}
           </div>
 
-          {selectedAvatar?.picture && (
-            <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2'>
+          <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2'>
               <div className='w-24 h-24 rounded-full border-4 border-white bg-white overflow-hidden shadow-lg'>
                 <img
                   src={getPicture(selectedAvatar, 'avatars', false)}
                   srcSet={getPicture(selectedAvatar, 'avatars', true)}
-                  alt={selectedAvatar.name}
+                  alt={selectedAvatar?.name ?? 'Avatar picture'}
                   className='w-full h-full object-cover'
                 />
               </div>
             </div>
-          )}
         </div>
 
         <Modal.Title className='text-center mt-14'>{`Select ${isAvatar ? 'Avatar' : 'Scenario'}`}</Modal.Title>

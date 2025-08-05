@@ -46,7 +46,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
   const { mutate: updateChat, isPending: isUpdatingChat, error: errorUpdateChat } = useUpdateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
-  
+
   const navigate = useNavigate();
   const alert = useAlert();
   const confirm = useConfirm();
@@ -72,7 +72,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
       },
     });
   };
-  
+
   const handleDeleteChat = async () => {
     const confirmResult = await confirm({
       icon: '🗑️',
@@ -378,7 +378,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
             <div className='pt-10 mt-auto'>
               <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
-                Delete Chat
+                {isDeletingChat ? <Icons.loading className='size-4' /> : 'Delete Chat'}
               </Button.Root>
             </div>
           </div>

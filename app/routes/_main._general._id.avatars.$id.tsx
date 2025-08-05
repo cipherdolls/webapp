@@ -1,4 +1,4 @@
-import { Form, Link, Outlet, useNavigate } from 'react-router';
+import { Link, Outlet, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import { useEffect, useMemo, useRef } from 'react';
