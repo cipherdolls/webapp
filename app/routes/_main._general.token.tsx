@@ -1,6 +1,5 @@
 import { useFetcher, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.account';
-import type { User } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { PermitButton } from '~/components/buttons/PermitButton';
 

@@ -1,7 +1,6 @@
-import { useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
+import {  useNavigate } from 'react-router';
 import SelectionModal from './SelectionModal';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Avatar, Chat, Scenario, User } from '~/types';
+import type { Avatar, Chat, Scenario } from '~/types';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';

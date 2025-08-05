@@ -1,7 +1,5 @@
-import { useRouteLoaderData } from 'react-router';
 import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
-import * as Button from '~/components/ui/button/button';
 import { useRefreshTokenBalance } from '~/hooks/queries';
 import type { User } from '~/types';
 

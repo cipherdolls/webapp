@@ -4,7 +4,6 @@ import { Icons } from '~/components/ui/icons';
 import { ChatState } from '~/components/chat/types/chatState';
 import AnimationRecording from '~/components/ui/AnimationRecording';
 import { cn } from '~/utils/cn';
-import { useFetcher } from 'react-router';
 import type { Chat } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
@@ -30,7 +29,6 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   
   const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null); 
-  const fetcher = useFetcher();
   const { stop } = useAudioPlayerContext();
   const alert = useAlert();
 
