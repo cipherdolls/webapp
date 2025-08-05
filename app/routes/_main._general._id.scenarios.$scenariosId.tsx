@@ -31,7 +31,7 @@ export function meta({}: Route.MetaArgs) {
 export default function ScenariosId({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
-  const { data: mineAvatarsData } = useAvatars({ mine: true });
+  const { data: mineAvatarsData } = useAvatars({ mine: 'true' });
   const { data: scenarioData, isLoading } = useScenario(params.scenariosId);
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();

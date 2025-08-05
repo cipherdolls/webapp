@@ -21,7 +21,7 @@ export function useAvatar(avatarId: string) {
 }
 
 interface AvatarsQueryParams {
-  mine?: boolean;
+  mine?: string;
   chat?: string;
   published?: string;
   name?: string;

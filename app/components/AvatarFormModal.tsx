@@ -11,10 +11,12 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
-import { useFetcher, useRouteLoaderData } from 'react-router';
+import { useRouteLoaderData } from 'react-router';
 
 import type { Avatar, Gender, Scenario, TtsVoice, User } from '~/types';
-import { useAvatar, useScenarios, useTtsVoices } from '~/hooks/queries';
+import { useScenarios, useTtsVoices } from '~/hooks/queries';
+
+// TODO: Create all the scenarios or create a page with a new ui. 
 
 interface AvatarEditModalProps {
   avatar?: Avatar;
@@ -28,8 +30,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
 
   const me = useRouteLoaderData('routes/_main') as User;
   
-  
-  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios();
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({mine: 'true', published: 'true', limit: '100'});
   const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
 
   const scenarios = scenariosPaginated?.data || [];

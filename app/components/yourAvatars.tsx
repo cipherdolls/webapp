@@ -8,7 +8,7 @@ import AvatarScenarioModal from './AvatarScenarioModal';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 
 const YourAvatars = () => {
-  const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: true });
+  const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: 'true' });
 
   const avatars = myAvatars?.data || [];
 
