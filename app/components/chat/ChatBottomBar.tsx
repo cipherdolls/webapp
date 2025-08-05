@@ -30,7 +30,9 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   const [newMessage, setNewMessage] = useState('');
   const { unlockAudio } = useAudioUnlock();
 
-  const handleSubmit = (formData: FormData) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     unlockAudio();
     createMessage(
       { chatId: chat.id, formData },
@@ -65,7 +67,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   return (
     <div className='shrink-0 bg-white'>
       <div className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'>
-        <form key={chat.id} className='flex items-end gap-5' onSubmit={(e) => handleSubmit(new FormData(e.currentTarget))}>
+        <form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
           {/* eye status of the current chat state */}
           <EyeStatus />
           <div className='flex flex-1 items-center min-h-10 gap-4'>
