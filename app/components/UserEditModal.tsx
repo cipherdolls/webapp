@@ -6,7 +6,7 @@ import type { Gender, User } from '~/types';
 import { useEffect, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { cn } from '~/utils/cn';
-import { useUpdateUser } from '~/hooks/queries';
+import { useUpdateUser } from '~/hooks/queries/userMutations';
   
 interface UserEditModalProps {
   me: User;
@@ -43,11 +43,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
       gender: gender,
     };
 
-    updateUserMutation.mutate({
-      userId: me.id,
-      data: updateData,
-      method: 'PATCH',
-    });
+    updateUserMutation.mutate(updateData);
   };
 
   return (

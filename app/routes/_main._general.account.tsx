@@ -1,6 +1,4 @@
-import {  useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general.account';
-import type { User } from '~/types';
 import { Icons } from '~/components/ui/icons';
 import YourInfo from '~/components/yourInfo';
 import AccountInfoCard from '~/components/account-info-card';
