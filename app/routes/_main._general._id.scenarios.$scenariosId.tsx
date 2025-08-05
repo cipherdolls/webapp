@@ -31,7 +31,7 @@ export function meta({}: Route.MetaArgs) {
 export default function ScenariosId({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
-  const { data: mineAvatarsData } = useAvatars({ mine: 'true' });
+  const { data: mineAvatarsData, isLoading: isLoadingMineAvatars } = useAvatars({ mine: 'true' });
   const { data: scenarioData, isLoading } = useScenario(params.scenariosId);
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();
@@ -107,7 +107,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
           </Link>
 
           <div className='md:flex hidden items-center gap-3'>
-            {mineAvatarsList.length > 0 && (
+            {!isLoadingMineAvatars && mineAvatarsList.length > 0 && (
               <SelectAvatarModal
                 avatars={mineAvatarsList}
                 scenario={scenario}

@@ -44,7 +44,6 @@ export default function ScenariosIndex() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
-  const defaultParams = Object.keys(rawParams).length > 0 ? rawParams : { published: 'true' }
 
   const {
     data: scenarios,
@@ -53,7 +52,10 @@ export default function ScenariosIndex() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteScenarios(defaultParams);
+  } = useInfiniteScenarios({
+    ...rawParams,
+    ...(rawParams.mine === 'true' ? {} : { published: 'true' }),
+  });
 
   const filteredAndSortedScenarios = useMemo(() => {
     return scenarios?.pages.flatMap((page) => page.data) || [];
@@ -237,7 +239,10 @@ export default function ScenariosIndex() {
                 filteredAndSortedScenarios.map((scenario) => (
                   <div className='transition-all duration-500 ease-out' key={scenario.id}>
                     <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                      <Link to={`/scenarios/${scenario.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                      <Link
+                        to={`/scenarios/${scenario.id}`}
+                        className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'
+                      >
                         <img
                           src={getPicture(scenario, 'scenarios', false)}
                           srcSet={getPicture(scenario, 'scenarios', true)}

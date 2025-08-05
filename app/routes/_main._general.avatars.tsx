@@ -47,7 +47,6 @@ export default function AvatarsShow() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
-  const defaultParams = Object.keys(rawParams).length > 0 ? rawParams : { published: 'true' }
 
   const {
     data: avatars,
@@ -56,7 +55,10 @@ export default function AvatarsShow() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteAvatars(defaultParams);
+  } = useInfiniteAvatars({
+    ...rawParams,
+    ...(rawParams.mine === 'true' ? {} : { published: 'true' }),
+  });
 
   const filteredAndSortedAvatars = useMemo(() => {
     return avatars?.pages.flatMap((page) => page.data) || [];
@@ -114,7 +116,7 @@ export default function AvatarsShow() {
   };
 
   const handleClearFilters = () => {
-    setSearchParams({ published: 'true' });
+    setSearchParams({});
   };
 
   return (

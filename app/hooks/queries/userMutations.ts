@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from '~/types';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { handleApiError } from '~/utils/handleApiError';
 

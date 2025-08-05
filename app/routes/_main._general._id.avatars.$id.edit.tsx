@@ -25,14 +25,20 @@ export default function AvatarEdit({ params }: Route.ComponentProps) {
   };
 
   const handleSubmit = (formData: FormData) => {
-    updateAvatar(
-      { avatarId: params.id, formData },
-      {
-        onSuccess: (updatedAvatar) => {
-          navigate(`/avatars/${updatedAvatar.id}`);
-        },
-      }
-    );
+    const updatedAvatarData = Object.fromEntries(formData.entries());
+
+    if (!avatar) return;
+
+    const newAvatarData = {
+      ...avatar,
+      ...updatedAvatarData,
+    };
+
+    updateAvatar(newAvatarData, {
+      onSuccess: (updatedAvatar) => {
+        navigate(`/avatars/${updatedAvatar.id}`);
+      },
+    });
   };
 
   if (!avatar) return null;

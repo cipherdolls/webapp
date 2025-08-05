@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router';
 import type { ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useEffect, useState } from 'react';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -14,35 +13,6 @@ import { useChat } from '~/hooks/queries/chatQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
-}
-
-export async function clientAction({ request, params }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-
-    const body: Record<string, unknown> = {};
-    for (const [key, value] of formData.entries()) {
-      if (formData.getAll(key).length > 1) {
-        body[key] = formData.getAll(key);
-      } else {
-        body[key] = value;
-      }
-    }
-
-    const res = await fetchWithAuth(`chats/${params.chatId}`, {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || `Failed to ${request.method} chat`);
-    }
-  } catch (error) {
-    console.error('Failed to update chat:', error);
-    throw error; // Re-throw to see the actual error
-  }
 }
 
 export default function ChatShow({ params }: Route.ComponentProps) {
@@ -64,7 +34,6 @@ export default function ChatShow({ params }: Route.ComponentProps) {
     initChatStore();
   }, [chatData]);
 
-
   useChatEvents(chatData?.id || '', {
     onProcessEvent: async (event) => {
       if (event.jobStatus === 'failed') setJobError(event as ProcessEvent);
@@ -73,7 +42,7 @@ export default function ChatShow({ params }: Route.ComponentProps) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    enabled: !!chatData?.id, 
+    enabled: !!chatData?.id,
   });
 
   if (!chat) return null;
