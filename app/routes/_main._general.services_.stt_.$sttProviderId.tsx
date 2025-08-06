@@ -1,30 +1,63 @@
-import { Link, Outlet, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { SttProvider, User } from '~/types';
-import type { Route } from './+types/_main._general.stt-providers.$sttProvider';
+import type { Route } from './+types/_main._general.services_.stt_.$sttProviderId';
 import { getPicture } from '~/utils/getPicture';
-import DeleteModal from '~/components/ui/deleteModal';
-import SttProviderDestroy from './stt-providers.$sttProvider.destroy';
 import { formatDate } from '~/utils/date.utils';
 import { ViewMore } from '~/view-more';
+import { useSttProvider } from '~/hooks/queries/sttQueries';
+import { useDeleteSttProvider } from '~/hooks/queries/sttMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import ModalSttProviderEdit from '~/components/ModalSttProviderEdit';
+import { useState } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Provider' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const res = await fetchWithAuth(`stt-providers/${params.sttProvider}`);
-  return await res.json();
-}
+export default function SttProviderId({ params }: Route.ComponentProps) {
+  const { data: sttProviderData, isLoading, error } = useSttProvider(params.sttProviderId);
+  const { mutate: deleteSttProvider, isPending: isDeletingSttProvider } = useDeleteSttProvider();
 
-export default function SttProviderId({ loaderData }: Route.ComponentProps) {
-  const sttProvider: SttProvider = loaderData;
+  
   const me = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+  const confirm = useConfirm();
 
+  const [editSttProvider, setEditSttProvider] = useState<SttProvider | null>(null);
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!sttProviderData) {
+    return <div>Provider not found</div>;
+  }
+
+  const sttProvider = sttProviderData;
   const createdDate = formatDate(sttProvider.createdAt);
   const updatedDate = formatDate(sttProvider.updatedAt);
+
+  const handleDeleteSttProvider = async (sttProvider: SttProvider) => {
+    const confirmResult = await confirm({
+      title: `Delete provider ${sttProvider.name}?`,
+      body: 'By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!confirmResult) return
+
+    deleteSttProvider(sttProvider.id, {
+      onSuccess: () => {
+        navigate('/services/stt', { replace: true });
+      },
+    });
+  };
+
+  const handleShowEditModal = (provider: SttProvider) => setEditSttProvider(provider);
+  const handleCloseEditModal = () => setEditSttProvider(null);
 
   return (
     <>
@@ -42,17 +75,16 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
           </Link>
           {me.role === 'ADMIN' && (
             <div className='md:flex hidden items-center gap-3'>
-              <Link to={`/stt-providers/${sttProvider.id}/edit`}>
-                <Button.Root variant='secondary' className='w-[130px]'>
-                  Edit
-                </Button.Root>
-              </Link>
-              <DeleteModal
-                title={`Delete provider ${sttProvider.name}?`}
-                description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
+              <Button.Root variant='secondary' className='w-[130px]' onClick={() => handleShowEditModal(sttProvider)}>
+                Edit
+              </Button.Root>
+              <Button.Root
+                type='button'
+                variant='danger'
+                onClick={() => handleDeleteSttProvider(sttProvider)}
               >
-                <SttProviderDestroy />
-              </DeleteModal>
+                <Icons.trash className='w-12' />
+              </Button.Root>
             </div>
           )}
 
@@ -61,23 +93,15 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
               <ViewMore
                 popoverItems={[
                   {
-                    type: 'link',
+                    type: 'onClick',
                     text: 'Edit',
-                    href: `/stt-providers/${sttProvider.id}/edit`,
+                    onClick: () => handleShowEditModal(sttProvider),
                   },
                   {
-                    type: 'component',
+                    type: 'onClick',
                     text: 'Delete',
                     isDelete: true,
-                    component: (
-                      <DeleteModal
-                        title={`Delete provider ${sttProvider.name}?`}
-                        description='By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.'
-                        dropdown
-                      >
-                        <SttProviderDestroy />
-                      </DeleteModal>
-                    ),
+                    onClick: () => handleDeleteSttProvider(sttProvider),
                   },
                 ]}
               />
@@ -148,7 +172,7 @@ export default function SttProviderId({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
       </div>
-      <Outlet />
+      <ModalSttProviderEdit sttProvider={editSttProvider} onClose={handleCloseEditModal} />
     </>
   );
 }

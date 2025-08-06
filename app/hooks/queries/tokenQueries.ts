@@ -26,19 +26,3 @@ export function useTokenPermits(page = 1, limit = 20) {
     queryFn: () => fetchResource<TokenPermitsPaginated>(`token-permits?page=${page}&limit=${limit}`),
   });
 }
-
-// Payment Job queries
-export function usePaymentJob(paymentJobId: string) {
-  return useQuery({
-    queryKey: ['paymentJob', paymentJobId],
-    queryFn: () => fetchResource<PaymentJob>(`payment-jobs/${paymentJobId}`),
-    enabled: !!paymentJobId,
-  });
-}
-
-export function usePaymentJobs(page = 1, limit = 20) {
-  return useQuery({
-    queryKey: ['paymentJobs', page, limit],
-    queryFn: () => fetchResource<any>(`payment-jobs?page=${page}&limit=${limit}`),
-  });
-}

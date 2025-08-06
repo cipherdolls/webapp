@@ -19,24 +19,25 @@ import { useDeleteChat } from '~/hooks/queries/chatMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
+import { useSttProviders } from '~/hooks/queries/sttQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const [sttProvidersRes, aiProvidersRes] = await Promise.all([fetchWithAuth(`stt-providers`), fetchWithAuth('ai-providers')]);
+  const [ aiProvidersRes] = await Promise.all([fetchWithAuth('ai-providers')]);
 
   const { data }: AiProvidersPaginated = await aiProvidersRes.json();
-  const sttProviders = await sttProvidersRes.json();
 
   const aiProviders = data;
 
-  return { sttProviders, aiProviders };
+  return { aiProviders };
 }
 
 export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
-  const { sttProviders, aiProviders } = loaderData as { sttProviders: SttProvider[]; aiProviders: AiProvider[] };
+  const { data: sttProviders, isLoading } = useSttProviders();
+  const { aiProviders } = loaderData as { aiProviders: AiProvider[] };
   const { data: chatData } = useChat(params.chatId);
   const chat = chatData;
 
@@ -299,7 +300,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               <Card.Label className='sm:text-heading-h4'>STT Provider</Card.Label>
               <Card.Main>
                 <div className='grid grid-cols-2 gap-1  p-1 min-w-[200px]'>
-                  {sttProviders.map((sttProvider) => (
+                  {sttProviders?.map((sttProvider) => (
                     <button
                       key={sttProvider.id}
                       onClick={() => handleSttProviderChange(sttProvider)}

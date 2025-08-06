@@ -4,15 +4,16 @@ import { Icons } from './ui/icons';
 import * as Popover from '~/components/ui/popover';
 import { cn } from '~/utils/cn';
 
-type PopoverLinkItem = {
+type PopoverItem = {
   text: string;
-  href: string;
+  href?: string;
+  onClick?: () => void;
   isDelete?: boolean;
 };
 
 type ViewButtonProps = {
   userId?: string;
-  popoverItems: PopoverLinkItem[];
+  popoverItems: PopoverItem[];
   className?: string;
   isDataCard?: boolean;
 };
@@ -28,17 +29,25 @@ export const ViewButton = ({ userId, popoverItems, className, isDataCard }: View
         <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
       </Popover.Trigger>
       <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude'>
-        {popoverItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.href}
-            className={`cursor-pointer w-full py-3.5 px-3 navigation-exclude ${
-              item.isDelete ? 'hover:bg-specials-danger/10 text-specials-danger' : 'hover:bg-neutral-05 text-base-black'
-            } bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
-          >
-            {item.text}
-          </Link>
-        ))}
+        {popoverItems.map((item, index) => {
+          const className = `cursor-pointer w-full py-3.5 px-3 navigation-exclude text-left ${
+            item.isDelete ? 'hover:bg-specials-danger/10 text-specials-danger' : 'hover:bg-neutral-05 text-base-black'
+          } bg-white transition-colors text-body-md font-semibold rounded-[10px]`;
+          
+          if (item.href) {
+            return (
+              <Link key={index} to={item.href} className={className}>
+                {item.text}
+              </Link>
+            );
+          }
+          
+          return (
+            <button key={index} onClick={item.onClick} className={className}>
+              {item.text}
+            </button>
+          );
+        })}
       </Popover.Content>
     </Popover.Root>
   );
