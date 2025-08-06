@@ -1,4 +1,4 @@
-import { Link, Outlet, useParams } from 'react-router';
+import { Link, Outlet, useNavigate, useParams } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
@@ -11,8 +11,10 @@ import type { Route } from './+types/_main._general.tts-providers.$ttsProvider';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import DeleteModal from '~/components/ui/deleteModal';
-import TtsProviderDestroy from './tts-providers.$ttsProvider.destroy';
 import { ViewMore } from '~/view-more';
+import { useTtsProvider } from '~/hooks/queries/ttsQueries';
+import { useDeleteTtsProvider } from '~/hooks/queries/ttsMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
 
 const ttsVoiceColumns: Array<TTableColumn<TtsVoice>> = [
   {
@@ -62,15 +64,14 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const ttsProviderId = params.ttsProvider;
-  const res = await fetchWithAuth(`tts-providers/${ttsProviderId}`);
-  return await res.json();
-}
+export default function ttsProviderShow({ params }: Route.ComponentProps) {
+  const confirm = useConfirm();
+  const navigate = useNavigate();
 
-export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
-  const ttsProvider: TtsProvider = loaderData;
-  const { ttsVoices } = ttsProvider;
+  const { data: ttsProvider, isLoading } = useTtsProvider(params.ttsProvider);
+  const { mutate: deleteTtsProvider, isPending: isDeletingTtsProvider } = useDeleteTtsProvider();
+  
+  const ttsVoices = ttsProvider?.ttsVoices || [];
   const AddVoiceIcon = ({ to }: { to: string }) => {
     return (
       <Link to={to}>
@@ -78,6 +79,27 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
       </Link>
     );
   };
+
+  const handleDeleteTtsProvider = async () => {
+    if (!ttsProvider) return;
+
+    const confirmResult = await confirm({
+      title: `Delete provider ${ttsProvider.name}?`,
+      body: 'By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!confirmResult) return;
+
+    deleteTtsProvider(ttsProvider.id, {
+      onSuccess: () => {
+        navigate('/services/tts');
+      },
+    });
+  };
+
+  if (!ttsProvider) return <p className='text-body-md text-neutral-01 font-semibold text-center py-5'>TTS provider not found</p>;
 
   return (
     <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
@@ -104,12 +126,9 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
               Edit
             </Button.Root>
           </Link>
-          <DeleteModal
-            title={`Delete provider ${ttsProvider.name}?`}
-            description='By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.'
-          >
-            <TtsProviderDestroy />
-          </DeleteModal>
+          <Button.Root variant='danger'  onClick={handleDeleteTtsProvider}>
+            <Icons.trash className='w-12' />
+          </Button.Root>
         </div>
         <div className='md:hidden flex text-base-black'>
           <ViewMore
@@ -120,18 +139,10 @@ export default function ttsProviderShow({ loaderData }: Route.ComponentProps) {
                 href: `/tts-providers/${ttsProvider.id}/edit`,
               },
               {
-                type: 'component',
+                type: 'onClick',
                 text: 'Delete',
                 isDelete: true,
-                component: (
-                  <DeleteModal
-                    title={`Delete provider ${ttsProvider.name}?`}
-                    description='By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.'
-                    dropdown
-                  >
-                    <TtsProviderDestroy />
-                  </DeleteModal>
-                ),
+                onClick: handleDeleteTtsProvider,
               },
             ]}
           />

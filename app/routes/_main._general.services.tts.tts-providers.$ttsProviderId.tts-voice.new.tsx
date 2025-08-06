@@ -1,57 +1,39 @@
-import { redirect, useFetcher, useNavigate, useSearchParams } from 'react-router';
-import type { TtsVoice } from '~/types';
+import { useNavigate } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
-import type { Route } from './+types/_main._general.services.tts.tts-voice.new';
+import type { Route } from './+types/_main._general.services.tts.tts-providers.$ttsProviderId.tts-voice.new';
+import { useCreateTtsVoice } from '~/hooks/queries/ttsMutations';
+import { useTtsProvider } from '~/hooks/queries/ttsQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const jsonData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      jsonData[key] = value;
-    });
-
-    const res = await fetchWithAuth('tts-voices', {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jsonData),
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    const ttsVoice: TtsVoice = await res.json();
-    return redirect(`/services/tts`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function NewTtsVoice() {
-  const [searchParams] = useSearchParams();
-  const ttsProviderId = searchParams.get('id') || '';
-  const providerName = searchParams.get('modelName') || '';
-  const fetcher = useFetcher<{ errors?: string }>();
+export default function NewTtsVoice({ params }: Route.ComponentProps) {
+  const { ttsProviderId } = params;
+  const { data: ttsProvider } = useTtsProvider(ttsProviderId);
+  const { mutate: createTtsVoice, isPending: isCreatingTtsVoice, error: errorCreateTtsVoice } = useCreateTtsVoice();
+  const providerName = ttsProvider?.name || '';
   const navigate = useNavigate();
-  const errors = fetcher.data?.errors;
 
   const handleClose = () => {
     navigate(`/services/tts`, { replace: true });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const jsonData = Object.fromEntries(formData.entries());
+    createTtsVoice(
+      { ttsProviderId, jsonData },
+      {
+        onSuccess: handleClose,
+      }
+    );
   };
 
   return (
@@ -64,9 +46,9 @@ export default function NewTtsVoice() {
       <Modal.Content>
         <Modal.Title>{ttsProviderId ? `Add TTS Voice for ${providerName}` : 'Add New TTS Voice'}</Modal.Title>
         <Modal.Description className='sr-only'>Create a new TTS voice</Modal.Description>
-        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
+        <form className='w-full flex flex-col mt-[18px]' onSubmit={handleSubmit}>
           <Modal.Body className='flex flex-col gap-5'>
-            <ErrorsBox errors={errors} />
+            <ErrorsBox errors={errorCreateTtsVoice} />
             <input type='hidden' name='ttsProviderId' value={ttsProviderId} />
 
             <Input.Root>
@@ -120,7 +102,7 @@ export default function NewTtsVoice() {
               Save
             </Button.Root>
           </Modal.Footer>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

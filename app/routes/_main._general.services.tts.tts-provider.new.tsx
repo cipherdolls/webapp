@@ -1,5 +1,4 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { useNavigate } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -7,45 +6,24 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import type { TtsProvider } from '~/types';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import type { Route } from './+types/_main._general.services.tts.tts-provider.new';
+import { useCreateTtsProvider } from '~/hooks/queries/ttsMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Provider' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const res = await fetchWithAuth('tts-providers', {
-      method: request.method,
-      body: formData,
-    });
 
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    const ttsProvider: TtsProvider = await res.json();
-    return redirect(`/tts-providers/${ttsProvider.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
 
 export default function TtsProviderNew() {
-  const fetcher = useFetcher();
+  const { mutate: createTtsProvider, isPending: isCreatingTtsProvider, error: errorCreateTtsProvider } = useCreateTtsProvider();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
-  const errors = fetcher.data?.errors;
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -79,6 +57,17 @@ export default function TtsProviderNew() {
     navigate(`/services/tts`);
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+
+    createTtsProvider(formData, {
+      onSuccess: () => {
+        navigate(`/services/tts/`);
+      },
+    });
+  };
+
   return (
     <Drawer.Root
       defaultOpen
@@ -88,9 +77,9 @@ export default function TtsProviderNew() {
     >
       <Drawer.Content>
         <Drawer.Title>Create TTS Provider</Drawer.Title>
-        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
+        <form onSubmit={handleSubmit} method='post' encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
-            <ErrorsBox errors={errors} />
+            <ErrorsBox errors={errorCreateTtsProvider} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -187,7 +176,7 @@ export default function TtsProviderNew() {
               Save
             </Button.Root>
           </Drawer.Footer>
-        </fetcher.Form>
+        </form>
         <Dialog.Close asChild>
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'

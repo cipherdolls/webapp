@@ -6,12 +6,13 @@ import type { TTableColumn } from '~/components/Table';
 import Table from '~/components/Table';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
-import { useEffect, useState } from 'react';
+import { useTtsProviders } from '~/hooks/queries/ttsQueries';
+import { useDeleteTtsProvider, useDeleteTtsVoice } from '~/hooks/queries/ttsMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
 
 interface EnhancedTtsVoice extends TtsVoice {
   providerName: string;
@@ -35,26 +36,13 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'TTS Providers' }];
 }
 
-export async function clientLoader() {
-  const res = await fetchWithAuth(`tts-providers`);
-  return await res.json();
-}
+export default function TtsProvidersIndex() {
+  const confirm = useConfirm();
+  const { data: ttsProviders, isLoading } = useTtsProviders();
+  const { mutate: deleteTtsProvider, isPending: isDeletingTtsProvider } = useDeleteTtsProvider();
+  const { mutate: deleteTtsVoice, isPending: isDeletingTtsVoice } = useDeleteTtsVoice();
 
-export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const ttsProviders: TtsProvider[] = loaderData;
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
-
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [loaderData]);
-
-  if (!hasInitiallyLoaded || !loaderData) {
+  if (isLoading) {
     return (
       <>
         <TTSSkeleton />
@@ -62,6 +50,32 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
       </>
     );
   }
+
+  const handleDeleteTtsProvider = async (ttsProvider: TtsProvider) => {
+    const confirmResult = await confirm({
+      title: `Delete provider ${ttsProvider.name}?`,
+      body: 'By deleting an TTS provider all related data will be deleted as well. You will not be able to restore the data.',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!confirmResult) return;
+
+    deleteTtsProvider(ttsProvider.id);
+  };
+
+  const handleDeleteTtsVoice = async (ttsVoice: TtsVoice) => {
+    const confirmResult = await confirm({
+      title: `Delete voice ${ttsVoice.name}?`,
+      body: 'By deleting an TTS voice all related data will be deleted as well. You will not be able to restore the data.',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!confirmResult) return;
+
+    deleteTtsVoice(ttsVoice.id);
+  };
 
   const columnProperties: Array<TTableColumn<EnhancedTtsVoice>> = [
     {
@@ -93,8 +107,8 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
       render: (data) => (
         <ViewButton
           popoverItems={[
-            { text: 'Edit', href: `/services/tts/tts-voices/${data.id}/edit?providerName=${encodeURIComponent(data.providerName)}` },
-            { text: 'Delete', href: `/services/tts/tts-voices/${data.id}/delete`, isDelete: true },
+            { text: 'Edit', href: `/services/tts/tts-providers/${data.providerId}/tts-voices/${data.id}/edit` },
+            { text: 'Delete', onClick: () => handleDeleteTtsVoice(data), isDelete: true },
           ]}
           className='flex items-center justify-center'
           isDataCard={true}
@@ -108,75 +122,82 @@ export default function TtsProvidersIndex({ loaderData }: Route.ComponentProps) 
   return (
     <>
       <div className='space-y-10 pb-5'>
-        {ttsProviders.map((ttsProvider) => {
-          const enhancedTtsVoices = ttsProvider.ttsVoices.map((voice) => ({
-            ...voice,
-            providerName: ttsProvider.name,
-            providerId: ttsProvider.id,
-          }));
+        {ttsProviders && ttsProviders.length > 0 ? (
+          ttsProviders.map((ttsProvider) => {
+            const enhancedTtsVoices = ttsProvider.ttsVoices.map((voice) => ({
+              ...voice,
+              providerName: ttsProvider.name,
+              providerId: ttsProvider.id,
+            }));
 
-          return (
-            <DataCard.Root key={ttsProvider.id}>
-              <DataCard.Label
-                className='text-2xl font-semibold flex gap-2 sm:items-center'
-                extra={
-                  <div className='flex items-center gap-6'>
-                    <div className='hidden items-center gap-2 text-body-sm sm:flex'>
-                      <span className='text-base-black font-normal'>$/Character</span>
-                      <span className='text-neutral-01 font-normal'>-</span>
-                      <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
+            return (
+              <DataCard.Root key={ttsProvider.id}>
+                <DataCard.Label
+                  className='text-2xl font-semibold flex gap-2 sm:items-center'
+                  extra={
+                    <div className='flex items-center gap-6'>
+                      <div className='hidden items-center gap-2 text-body-sm sm:flex'>
+                        <span className='text-base-black font-normal'>$/Character</span>
+                        <span className='text-neutral-01 font-normal'>-</span>
+                        <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
+                      </div>
+                      <ViewButton
+                        popoverItems={[
+                          { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
+
+                          {
+                            text: 'Add TTS Voice',
+                            href: `/services/tts/tts-providers/${ttsProvider.id}/tts-voice/new`,
+                          },
+                          {
+                            text: 'Delete',
+                            onClick: () => handleDeleteTtsProvider(ttsProvider),
+                            isDelete: true,
+                          },
+                        ]}
+                      />
                     </div>
-                    <ViewButton
-                      popoverItems={[
-                        { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
-
-                        { text: 'Add TTS Voice', href: `/services/tts/tts-voice/new?id=${ttsProvider.id}&modelName=${ttsProvider.name}` },
-                        {
-                          text: 'Delete',
-                          href: `/services/tts/providers/delete?id=${ttsProvider.id}&modelName=${ttsProvider.name}`,
-                          isDelete: true,
-                        },
-                      ]}
+                  }
+                >
+                  <div className='size-6'>
+                    <img
+                      src={getPicture(ttsProvider, 'tts-providers', false)}
+                      srcSet={getPicture(ttsProvider, 'tts-providers', true)}
+                      alt={ttsProvider.name}
+                      className='size-full object-cover rounded-lg'
                     />
                   </div>
-                }
-              >
-                <div className='size-6'>
-                  <img
-                    src={getPicture(ttsProvider, 'tts-providers', false)}
-                    srcSet={getPicture(ttsProvider, 'tts-providers', true)}
-                    alt={ttsProvider.name}
-                    className='size-full object-cover rounded-lg'
-                  />
-                </div>
-                <div className='flex flex-col gap-2'>
-                  <div className='flex items-center gap-1'>
-                    {ttsProvider.name}
-                    <InformationBadge
-                      tooltipText='Real-time AI voice synthesis for apps and assistants'
-                      side={{
-                        default: 'top',
-                        lg: 'right',
-                      }}
-                    />
-                  </div>
+                  <div className='flex flex-col gap-2'>
+                    <div className='flex items-center gap-1'>
+                      {ttsProvider.name}
+                      <InformationBadge
+                        tooltipText='Real-time AI voice synthesis for apps and assistants'
+                        side={{
+                          default: 'top',
+                          lg: 'right',
+                        }}
+                      />
+                    </div>
 
-                  <div className='flex items-center gap-2 text-body-sm sm:hidden'>
-                    <span className='text-neutral-01 font-normal'>$/Character</span>
-                    <span className='font-semibold text-base-black'>$0</span>
+                    <div className='flex items-center gap-2 text-body-sm sm:hidden'>
+                      <span className='text-neutral-01 font-normal'>$/Character</span>
+                      <span className='font-semibold text-base-black'>$0</span>
+                    </div>
                   </div>
-                </div>
-              </DataCard.Label>
-              <DataCard.Wrapper>
-                {enhancedTtsVoices.length > 0 ? (
-                  <Table hideHeader={true} columns={columnProperties} data={enhancedTtsVoices} />
-                ) : (
-                  <DataCard.Text>No TTS Voices found</DataCard.Text>
-                )}
-              </DataCard.Wrapper>
-            </DataCard.Root>
-          );
-        })}
+                </DataCard.Label>
+                <DataCard.Wrapper>
+                  {enhancedTtsVoices.length > 0 ? (
+                    <Table hideHeader={true} columns={columnProperties} data={enhancedTtsVoices} />
+                  ) : (
+                    <DataCard.Text>No TTS Voices found</DataCard.Text>
+                  )}
+                </DataCard.Wrapper>
+              </DataCard.Root>
+            );
+          })
+        ) : (
+          <p className='text-body-md text-neutral-01 font-semibold text-center py-5'>No TTS Providers</p>
+        )}
       </div>
       <Outlet />
     </>
