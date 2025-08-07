@@ -1,15 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Avatar, AvatarsPaginated } from '~/types';
-
-// Generic fetch function
-async function fetchResource<T>(endpoint: string): Promise<T> {
-  const response = await fetchWithAuth(endpoint);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
-  }
-  return response.json();
-}
+import { fetchResource } from './utils/fetchResource';
 
 // Avatar queries
 export function useAvatar(avatarId: string) {
@@ -46,15 +37,11 @@ export function useInfiniteAvatars(params: Omit<AvatarsQueryParams, 'page'>) {
     queryKey: ['avatars', serializeParams(params)],
     initialPageParam: 1,
     queryFn: async ({ pageParam = 1 }) => {
-      // Merge params and page
       const allParams = { ...params, page: pageParam.toString() };
       const searchParams = new URLSearchParams(allParams);
 
-      const response = await fetchWithAuth(`avatars?${searchParams}`);
-      if (!response.ok) throw new Error('Failed to fetch avatars');
-
-      // No need for type assertion here, just await .json()
-      return await response.json(); // AvatarsPaginated
+      const response = await fetchResource<AvatarsPaginated>(`avatars?${searchParams}`);
+      return response;
     },
     getNextPageParam: (lastPage) => {
       // Defensive check, works with your backend response!

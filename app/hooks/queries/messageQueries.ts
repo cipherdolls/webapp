@@ -1,15 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Message, MessagesPaginated, MessagesPaginatedCursor } from '~/types';
-
-// Generic fetch function
-async function fetchResource<T>(endpoint: string): Promise<T> {
-  const response = await fetchWithAuth(endpoint);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
-  }
-  return response.json();
-}
+import type { Message, MessagesPaginatedCursor } from '~/types';
+import { fetchResource } from './utils/fetchResource';
 
 // Message queries
 export function useMessage(messageId: string) {

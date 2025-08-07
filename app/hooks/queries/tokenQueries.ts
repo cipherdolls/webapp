@@ -1,15 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { TokenPermit, TokenPermitsPaginated, PaymentJob } from '~/types';
-
-// Generic fetch function
-async function fetchResource<T>(endpoint: string): Promise<T> {
-  const response = await fetchWithAuth(endpoint);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
-  }
-  return response.json();
-}
+import type { TokenPermit, TokenPermitsPaginated } from '~/types';
+import { fetchResource } from './utils/fetchResource';
 
 // Token Permit queries
 export function useTokenPermit(tokenPermitId: string) {

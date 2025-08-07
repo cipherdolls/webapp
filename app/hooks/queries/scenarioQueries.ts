@@ -1,15 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { AvatarsPaginated, Scenario, ScenariosPaginated } from '~/types';
-
-// Generic fetch function
-async function fetchResource<T>(endpoint: string): Promise<T> {
-  const response = await fetchWithAuth(endpoint);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
-  }
-  return response.json();
-}
+import type { Scenario, ScenariosPaginated } from '~/types';
+import { fetchResource } from './utils/fetchResource';
 
 interface ScenariosQueryParams {
   mine?: string;
@@ -51,9 +42,8 @@ export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>)
       const allParams = { ...(params || {}), page: pageParam.toString() };
       const searchParams = new URLSearchParams(allParams);
 
-      const response = await fetchWithAuth(`scenarios?${searchParams}`);
-      if (!response.ok) throw new Error('Failed to fetch scenarios');
-      return await response.json();
+      const response = await fetchResource<ScenariosPaginated>(`scenarios?${searchParams}`);
+      return response;
     },
     getNextPageParam: (lastPage) => {
       if (
