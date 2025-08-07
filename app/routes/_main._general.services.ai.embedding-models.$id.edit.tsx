@@ -27,7 +27,7 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    const jsonData: Record<string, any> = Object.fromEntries(formData);
+    const jsonData = Object.fromEntries(formData);
     updateEmbeddingModel(
       { embeddingModelId: params.id, jsonData },
       {
