@@ -1,10 +1,11 @@
-import { useNavigate, useFetcher } from 'react-router';
+import { useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { EmbeddingModel } from '~/types';
 import type { Route } from './+types/_main._general.services.ai.embedding-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Modal from '~/components/ui/new-modal';
 import { formatModelName } from '~/utils/formatModelName';
+import { useDeleteEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
+import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Delete Embedding Model' }];
@@ -16,14 +17,23 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return await res.json();
 }
 
-export default function EmbeddingModelDelete({ loaderData }: Route.ComponentProps) {
-  const embeddingModel: EmbeddingModel = loaderData;
-  const fetcher = useFetcher();
+export default function EmbeddingModelDelete({ params }: Route.ComponentProps) {
+  const { data: embeddingModel } = useEmbeddingModel(params.id);
+  const { mutate: deleteEmbeddingModel, isPending: isDeletingEmbeddingModel, error: deleteEmbeddingModelError } = useDeleteEmbeddingModel();
   const navigate = useNavigate();
 
   const handleClose = () => {
     navigate(`/services/ai`);
   };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    deleteEmbeddingModel(params.id, {
+      onSuccess: () => handleClose(),
+    });
+  };
+
+  if (!embeddingModel) return null;
 
   return (
     <Modal.Root
@@ -35,9 +45,9 @@ export default function EmbeddingModelDelete({ loaderData }: Route.ComponentProp
       <Modal.Content>
         <Modal.Title className='sr-only'>Delete Embedding Model</Modal.Title>
         <Modal.Description className='sr-only'>Delete Embedding Model</Modal.Description>
-        <fetcher.Form
-          action={`/embedding-models/${embeddingModel.id}/destroy`}
-          method='DELETE'
+        <form
+          onSubmit={handleSubmit}
+          encType='multipart/form-data'
           className='size-full flex flex-col items-center justify-center'
         >
           <Modal.Body className='flex flex-col gap-3.5'>
@@ -60,7 +70,7 @@ export default function EmbeddingModelDelete({ loaderData }: Route.ComponentProp
               </Button.Root>
             </Modal.Close>
           </Modal.Footer>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

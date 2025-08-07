@@ -8,50 +8,33 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { useCreateEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Embedding Model' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const jsonData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      jsonData[key] = value;
-    });
-
-    const res = await fetchWithAuth('embedding-models', {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jsonData),
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-    const embeddingModel: EmbeddingModel = await res.json();
-    return redirect(`/embedding-models/${embeddingModel.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
 
 export default function NewEmbeddingModel() {
   const [searchParams] = useSearchParams();
+  const { mutate: createEmbeddingModel, isPending: isCreatingEmbeddingModel, error: createEmbeddingModelError } = useCreateEmbeddingModel();
   const aiProviderId = searchParams.get('id') || '';
   const name = searchParams.get('modelName') || '';
-  const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const errors = fetcher.data?.errors;
+  const errors = createEmbeddingModelError;
 
   const handleClose = () => {
     navigate(`/services/ai`, { replace: true });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const jsonData: Record<string, any> = Object.fromEntries(formData);
+    createEmbeddingModel(jsonData, {
+      onSuccess: () => handleClose(),
+    });
   };
 
   return (
@@ -64,7 +47,7 @@ export default function NewEmbeddingModel() {
       <Modal.Content>
         <Modal.Title>Add Embedding Model for {name}</Modal.Title>
         <Modal.Description className='sr-only'>Add Embedding Model for {name}</Modal.Description>
-        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
+        <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
@@ -159,7 +142,7 @@ export default function NewEmbeddingModel() {
               Save
             </Button.Root>
           </Modal.Footer>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

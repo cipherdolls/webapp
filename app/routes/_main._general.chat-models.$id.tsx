@@ -1,29 +1,32 @@
-import { Link, Outlet, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { ChatModel, User } from '~/types';
+import type { User } from '~/types';
 import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
 import { getPicture } from '~/utils/getPicture';
-import DeleteModal from '~/components/ui/deleteModal';
-import ChatModelDestroy from './chat-models.$id.destroy';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatModelName } from '~/utils/formatModelName';
 import { ViewMore } from '~/view-more';
+import { useChatModel } from '~/hooks/queries/aiProviderQueries';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useDeleteChatModel } from '~/hooks/queries/aiProviderMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Model' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const res = await fetchWithAuth(`chat-models/${params.id}`);
-  return await res.json();
-}
 
-export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
-  const chatModel: ChatModel = loaderData;
+export default function aiProviderShow({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
+  const confirm = useConfirm();
+  const navigate = useNavigate();
+
+  const { data: chatModel } = useChatModel(params.id!);
+  const { mutate: deleteChatModel, isPending: isDeletingChatModel, error: deleteChatModelError } = useDeleteChatModel();
+
+
+  if (!chatModel) return null;
 
   const createdDate = formatDate(chatModel.createdAt);
   const updatedDate = formatDate(chatModel.updatedAt);
@@ -31,6 +34,23 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
   const formatResponseTime = (time: number | null | undefined) => {
     if (!time && time !== 0) return 'N/A';
     return `${time} ms`;
+  };
+
+  const handleDeleteChatModel = async () => {
+    const result = await confirm({
+      title: `Delete chat model ${formatModelName(chatModel.providerModelName)}?`,
+      body: 'By deleting a chat model a chat will be deleted as well. You will no able to restore the data',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!result) return;
+
+    deleteChatModel(chatModel.id, {
+      onSuccess: () => {
+        navigate('/services/ai');
+      },
+    });
   };
 
   return (
@@ -54,12 +74,14 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   Edit
                 </Button.Root>
               </Link>
-              <DeleteModal
-                title={`Delete chat model ${formatModelName(chatModel.providerModelName)}?`}
-                description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
+              <Button.Root
+                type='button'
+                variant='danger'
+                className=''
+                onClick={handleDeleteChatModel}
               >
-                <ChatModelDestroy />
-              </DeleteModal>
+                <Icons.trash className='w-12' />
+              </Button.Root>
             </div>
           )}
           <div className='md:hidden flex text-base-black'>
@@ -72,18 +94,10 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     href: `/chat-models/${chatModel.id}/edit`,
                   },
                   {
-                    type: 'component',
+                    type: 'onClick',
                     text: 'Delete',
                     isDelete: true,
-                    component: (
-                      <DeleteModal
-                        title={`Delete chat model ${formatModelName(chatModel.providerModelName)}?`}
-                        description='By deleting a chat model a chat will be deleted as well. You will no able to restore the data'
-                        dropdown
-                      >
-                        <ChatModelDestroy />
-                      </DeleteModal>
-                    ),
+                    onClick: handleDeleteChatModel,
                   },
                 ]}
               />
