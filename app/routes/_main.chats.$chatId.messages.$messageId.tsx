@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router';
-import type { Message } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId.messages.$messageId';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import ChatEmbeddingJobCard from '~/components/job-cards/ChatEmbeddingJobCard';
@@ -17,7 +15,7 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
 }
 
-export default function ChatMessage({ loaderData, params }: Route.ComponentProps) {
+export default function ChatMessage({ params }: Route.ComponentProps) {
   const { messageId, chatId } = params;
   const { data: message } = useMessage(messageId);
   const navigate = useNavigate();

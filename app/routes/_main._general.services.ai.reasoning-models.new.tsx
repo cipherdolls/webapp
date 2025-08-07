@@ -1,11 +1,9 @@
-import { redirect, useNavigate, useSearchParams } from 'react-router';
-import type { ChatModel } from '~/types';
+import { useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/_main._general.services.ai.reasoning-models.new';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useCreateReasoningModel } from '~/hooks/queries/aiProviderMutations';

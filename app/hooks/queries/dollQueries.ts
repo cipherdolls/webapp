@@ -39,6 +39,6 @@ export function useDollBody(dollBodyId: string) {
 export function useDollBodies(page = 1, limit = 20) {
   return useQuery({
     queryKey: ['dollBodies', page, limit],
-    queryFn: () => fetchResource<any>(`doll-bodies?page=${page}&limit=${limit}`),
+    queryFn: () => fetchResource<DollBody[]>(`doll-bodies?page=${page}&limit=${limit}`),
   });
 }

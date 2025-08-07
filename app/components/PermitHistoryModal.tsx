@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { formatEther } from 'ethers';
 import { formatNumberWithCommas } from '~/utils/formatNumberWithCommas';
 import { Modal } from '~/components/ui/Modal';
 import DetailRow from '~/components/ui/detail/detail-row';
-import type { TokenPermit, TokenPermitsPaginated } from '~/types';
+import type { TokenPermit } from '~/types';
 import * as Accordion from '@radix-ui/react-accordion';
 import { Icons } from '~/components/ui/icons';
 import moment from 'moment';
-import { fetchWithAuthAndType } from '~/utils/fetchWithAuth';
+import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 
 interface PermitHistoryModalProps {
   permits: TokenPermit[];
@@ -16,30 +16,8 @@ interface PermitHistoryModalProps {
 
 const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
   const [open, setOpen] = useState(false);
-  const [allPermits, setAllPermits] = useState<TokenPermit[]>(permits);
-  const [isLoadingAllPermits, setIsLoadingAllPermits] = useState(false);
+  const { data: tokenPermits, isLoading: isLoadingTokenPermits } = useTokenPermits();
 
-  const fetchAllPermits = async () => {
-    if (isLoadingAllPermits || allPermits.length > permits.length) return;
-    
-    setIsLoadingAllPermits(true);
-    try {
-      const tokenPermitsPaginated = await fetchWithAuthAndType<TokenPermitsPaginated>('token-permits');
-      setAllPermits(tokenPermitsPaginated.data);
-    } catch (error) {
-      console.error('Failed to fetch all permits:', error);
-      // Fallback to the permits passed as props
-      setAllPermits(permits);
-    } finally {
-      setIsLoadingAllPermits(false);
-    }
-  };
-
-  useEffect(() => {
-    if (open) {
-      fetchAllPermits();
-    }
-  }, [open]);
 
   const formatPermitAmount = (value: string): string => {
     try {
@@ -58,23 +36,20 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
     return moment.unix(deadline).format('MMM DD, YYYY HH:mm');
   };
 
-  const sortedPermits = [...allPermits].sort((a, b) => {
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
       <Modal.Content title='Permit History' className='pr-1'>
         <div className='flex flex-col gap-3 divide-y divide-neutral-04 overflow-y-auto scrollbar-medium'>
-          {isLoadingAllPermits ? (
+          {isLoadingTokenPermits ? (
             <div className='flex items-center justify-center py-8'>
               <div className='flex items-center gap-2'>
                 <Icons.loading className='animate-spin h-5 w-5 text-neutral-01' />
                 <span className='text-sm text-neutral-01'>Loading permit history...</span>
               </div>
             </div>
-          ) : sortedPermits.length === 0 ? (
+          ) : tokenPermits?.data.length === 0 ? (
             <div className='flex flex-col items-center justify-center py-8 gap-2'>
               <h1 className='text-2xl'>🔐</h1>
               <div className='text-center'>
@@ -83,7 +58,7 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
               </div>
             </div>
           ) : (
-            sortedPermits.map((permit) => (
+            tokenPermits?.data.map((permit) => (
             <div key={permit.id} className={`p-3 hover:opacity-70 transition-opacity`}>
               <div className='flex items-center gap-3'>
                 <button className='sm:size-14 size-10 flex text-3xl items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>

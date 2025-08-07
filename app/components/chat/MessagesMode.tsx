@@ -10,7 +10,6 @@ import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
-import useChat from '~/hooks/useChat';
 import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
 import { useQueryClient } from '@tanstack/react-query';
 

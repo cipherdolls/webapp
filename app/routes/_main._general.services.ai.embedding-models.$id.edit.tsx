@@ -1,6 +1,4 @@
-import { redirect, useNavigate, useFetcher } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { EmbeddingModel } from '~/types';
+import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.services.ai.embedding-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';

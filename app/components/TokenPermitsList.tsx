@@ -63,7 +63,6 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
     return moment.unix(deadline).format('MMM DD, YYYY HH:mm');
   };
 
-  const isLoading = tokenPermitsLoading;
 
   return (
     <div className='flex flex-col gap-5 sm:pl-4'>

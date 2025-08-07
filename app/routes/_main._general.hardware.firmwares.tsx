@@ -2,11 +2,9 @@ import type { Firmware } from '~/types';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.hardware.firmwares';
 import { InstallButton } from '~/components/buttons/InstallButton';
 import { apiUrl } from '~/constants';
-import { useEffect, useState } from 'react';
 import { useFirmwares } from '~/hooks/queries/filmwareQuries';
 
 function FirmwareSkeleton({ count = 2 }: { count?: number }) {

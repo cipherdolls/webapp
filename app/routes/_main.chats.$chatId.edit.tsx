@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouteLoaderData, useSubmit } from 'react-router';
+import { Link, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -6,8 +6,7 @@ import { useAlert } from '~/providers/AlertDialogProvider';
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import type { AiProvider, AiProvidersPaginated, SttProvider, User } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { SttProvider, User } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import * as Accordion from '@radix-ui/react-accordion';

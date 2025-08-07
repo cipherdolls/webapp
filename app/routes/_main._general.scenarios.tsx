@@ -11,6 +11,7 @@ import Tooltip from '~/components/ui/tooltip';
 import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import SearchInput from '~/components/ui/search-input';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 
 function ScenarioSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -41,7 +42,6 @@ export default function ScenariosIndex() {
   const [searchParams, setSearchParams] = useSearchParams();
   const me = useRouteLoaderData('routes/_main') as User;
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
@@ -61,24 +61,12 @@ export default function ScenariosIndex() {
     return scenarios?.pages.flatMap((page) => page.data) || [];
   }, [scenarios]);
 
-  // Intersection observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && !isLoading) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (triggerRef.current) {
-      observer.observe(triggerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const [infiniteRef] = useInfiniteScroll({
+    loading: isFetchingNextPage,
+    hasNextPage: hasNextPage,
+    onLoadMore: fetchNextPage,
+    disabled: !!isError,
+  });
 
   const showMyScenarios = searchParams.has('mine');
   const searchQuery = searchParams.get('name') || '';
@@ -341,7 +329,7 @@ export default function ScenariosIndex() {
               </div>
             )}
 
-            {hasNextPage && !isFetchingNextPage && <div ref={triggerRef} className='h-4' />}
+            {hasNextPage && !isFetchingNextPage && <div ref={infiniteRef} className='h-4' />}
           </>
         )}
 
