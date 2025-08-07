@@ -26,3 +26,19 @@ export function useTtsVoices() {
     queryFn: () => fetchResource<TtsVoice[]>(`tts-voices`),
   });
 }
+
+
+export function useTtsProvider(ttsProviderId: string) {
+  return useQuery({
+    queryKey: ['ttsProvider', ttsProviderId],
+    queryFn: () => fetchResource<TtsProvider>(`tts-providers/${ttsProviderId}`),
+    enabled: !!ttsProviderId,
+  });
+}
+
+export function useTtsProviders() {
+  return useQuery({
+    queryKey: ['ttsProviders'],
+    queryFn: () => fetchResource<TtsProvider[]>(`tts-providers`),
+  });
+}

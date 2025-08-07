@@ -1,5 +1,4 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.services.ai.ai-provider.new';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -8,43 +7,21 @@ import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import type { AiProvider } from '~/types';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { useCreateAiProvider } from '~/hooks/queries/aiProviderMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New AI Provider' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const res = await fetchWithAuth('ai-providers', {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    const aiProvider: AiProvider = await res.json();
-    return redirect(`/services/ai`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
 
 export default function ApiProviderNew() {
-  const fetcher = useFetcher();
+  const { mutate: createAiProvider, isPending: isCreatingAiProvider, error: createAiProviderError } = useCreateAiProvider();
+
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
-  const errors = fetcher.data?.errors;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -78,6 +55,16 @@ export default function ApiProviderNew() {
     navigate(`/services/ai`);
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    createAiProvider(formData, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
+  };
+
   return (
     <Drawer.Root
       defaultOpen
@@ -87,9 +74,9 @@ export default function ApiProviderNew() {
     >
       <Drawer.Content>
         <Drawer.Title>Create AI Provider</Drawer.Title>
-        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
+        <form onSubmit={handleSubmit} encType='multipart/form-data' className='size-full flex flex-col'>
           <Drawer.Body className='flex flex-col gap-3'>
-            <ErrorsBox errors={errors} />
+            <ErrorsBox errors={createAiProviderError} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -173,7 +160,7 @@ export default function ApiProviderNew() {
               Save
             </Button.Root>
           </Drawer.Footer>
-        </fetcher.Form>
+        </form>
         <Dialog.Close asChild>
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'

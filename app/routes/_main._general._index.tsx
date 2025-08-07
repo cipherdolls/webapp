@@ -18,7 +18,6 @@ import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
-import { useRealtimeSync } from '~/hooks/useRealtimeSync';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -76,8 +75,6 @@ export default function Dashboard() {
 
   const currentUser = user || me;
 
-  // Enable real-time sync
-  useRealtimeSync({ userId: user?.id });
 
   // Loading state
   const isLoading = userLoading;

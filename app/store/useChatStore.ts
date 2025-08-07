@@ -3,8 +3,6 @@ import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware'; // Add persist middleware
 import type { ChatJobType, ChatStateType } from '~/components/chat/types/chatState';
 import { ChatState } from '~/components/chat/types/chatState';
-import type { Chat, Message } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 interface ChatStore {
   silentMode: boolean;

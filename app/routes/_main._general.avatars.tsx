@@ -12,6 +12,7 @@ import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -44,7 +45,6 @@ export default function AvatarsShow() {
   const [searchParams, setSearchParams] = useSearchParams();
   const me = useRouteLoaderData('routes/_main') as User;
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
@@ -69,24 +69,12 @@ export default function AvatarsShow() {
     return avatars?.pages.flatMap((page) => page.data) || [];
   }, [avatars]);
 
-  // Intersection observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && !isLoading) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (triggerRef.current) {
-      observer.observe(triggerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const [infiniteRef] = useInfiniteScroll({
+    loading: isFetchingNextPage,
+    hasNextPage: hasNextPage,
+    onLoadMore: fetchNextPage,
+    disabled: !!isError,
+  });
 
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
@@ -285,7 +273,7 @@ export default function AvatarsShow() {
               </div>
             )}
 
-            {hasNextPage && !isFetchingNextPage && <div ref={triggerRef} className='h-4' />}
+            {hasNextPage && !isFetchingNextPage && <div ref={infiniteRef} className='h-4' />}
           </>
         )}
 

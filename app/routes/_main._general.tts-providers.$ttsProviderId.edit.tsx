@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import type { Route } from './+types/_main._general.services.ai.ai-providers.$aiProviderId.edit';
+import type { Route } from './+types/_main._general.tts-providers.$ttsProviderId.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Drawer from '~/components/ui/drawer';
@@ -9,21 +9,22 @@ import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
-import { useUpdateAiProvider } from '~/hooks/queries/aiProviderMutations';
-import { useAiProvider } from '~/hooks/queries/aiProviderQueries';
+import { useTtsProvider } from '~/hooks/queries/ttsQueries';
+import { useUpdateTtsProvider } from '~/hooks/queries/ttsMutations';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Ai Providers' }];
+  return [{ title: 'Edit TTS Provider' }];
 }
 
-export default function aiProviderShow({ params }: Route.ComponentProps) {
-  const { data: aiProvider, isLoading: isLoadingAiProvider } = useAiProvider(params.aiProviderId);
+export default function TtsProviderEdit({ params }: Route.ComponentProps) {
+  const { data: ttsProvider, isLoading } = useTtsProvider(params.ttsProviderId);
+  const { mutate: updateTtsProvider, isPending: isUpdatingTtsProvider, error: errorUpdateTtsProvider } = useUpdateTtsProvider();
 
-  const { mutate: updateAiProvider, isPending: isUpdatingAiProvider, error: updateAiProviderError } = useUpdateAiProvider();
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState<string | null>(aiProvider?.picture ?? null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(ttsProvider?.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -54,17 +55,20 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(-1);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    updateAiProvider({ aiProviderId: aiProvider!.id, formData }, {
-      onSuccess: () => {
-        handleClose();
-      },
-    });
+    updateTtsProvider(
+      { ttsProviderId: params.ttsProviderId, formatData: formData },
+      {
+        onSuccess: () => {
+          navigate(`/services/tts`);
+        },
+      }
+    );
   };
 
   return (
@@ -75,12 +79,12 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
       }}
     >
       <Drawer.Content>
-        <Drawer.Title>Edit AI Provider</Drawer.Title>
-        {aiProvider ? (
-          <form onSubmit={handleSubmit} encType='multipart/form-data' className='size-full flex flex-col'>
+        <Drawer.Title>Edit TTS Provider</Drawer.Title>
+        {ttsProvider ? (
+          <form onSubmit={handleSubmit} method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
             <Drawer.Body className='flex flex-col gap-3'>
-              <ErrorsBox errors={updateAiProviderError} />
-              <input type='hidden' name='aiProviderId' value={aiProvider.id} />
+              <ErrorsBox errors={errorUpdateTtsProvider} />
+              <input type='hidden' name='ttsProviderId' value={ttsProvider.id} />
               <div className='flex flex-col items-center justify-center mb-10'>
                 <div className='relative'>
                   <label
@@ -91,9 +95,9 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                     {selectedImage !== null ? (
                       <div className='size-full'>
                         <img
-                          src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(aiProvider, 'ai-providers', false)}
-                          srcSet={!selectedImage.startsWith('blob:') ? getPicture(aiProvider, 'ai-providers', true) : undefined}
-                          alt={aiProvider.name}
+                          src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(ttsProvider, 'tts-providers', false)}
+                          srcSet={!selectedImage.startsWith('blob:') ? getPicture(ttsProvider, 'tts-providers', true) : undefined}
+                          alt={ttsProvider.name}
                           className='size-full object-cover rounded-lg'
                         />
                       </div>
@@ -108,7 +112,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                       <div
                         className={cn(
                           'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                          (selectedImage || aiProvider.picture) && 'divide-x divide-neutral-04 gap-4'
+                          (selectedImage || ttsProvider.picture) && 'divide-x divide-neutral-04 gap-4'
                         )}
                       >
                         {selectedImage !== null && (
@@ -131,7 +135,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                   id='name'
                   name='name'
                   type='text'
-                  defaultValue={aiProvider.name}
+                  defaultValue={ttsProvider.name}
                 />
               </Input.Root>
               <Input.Root>
@@ -143,20 +147,33 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                   id='apiKey'
                   name='apiKey'
                   type='text'
-                  placeholder='API Key'
-                  defaultValue={aiProvider.apiKey}
+                  placeholder='Enter new API key if you want to change it'
                 />
+                <input type='hidden' name='originalApiKey' value={ttsProvider.apiKey} />
               </Input.Root>
               <Input.Root>
-                <Input.Label id='basePath' htmlFor='basePath'>
-                  Base Path
+                <Input.Label id='dollarPerCharacter' htmlFor='dollarPerCharacter'>
+                  Dollar per character
                 </Input.Label>
                 <Input.Input
                   className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='basePath'
-                  name='basePath'
+                  id='dollarPerCharacter'
+                  name='dollarPerCharacter'
+                  type='number'
+                  step='0.0000001'
+                  defaultValue={ttsProvider.dollarPerCharacter}
+                />
+              </Input.Root>
+              <Input.Root>
+                <Input.Label id='hostname' htmlFor='hostname'>
+                  Hostname
+                </Input.Label>
+                <Input.Input
+                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  id='hostname'
+                  name='hostname'
                   type='text'
-                  defaultValue={aiProvider.basePath}
+                  defaultValue={ttsProvider.hostname}
                 />
               </Input.Root>
             </Drawer.Body>
@@ -172,12 +189,13 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
             </Drawer.Footer>
           </form>
         ) : (
-          <p className='text-body-md text-neutral-01 text-center'>AI Provider not found</p>
+          <p className='text-body-md text-neutral-01 font-semibold text-center py-5'>Tts provider not found</p>
         )}
         <Dialog.Close asChild>
           <button
             className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
             aria-label='Close'
+            onClick={handleClose}
           >
             <Icons.close className='text-base-black' />
           </button>

@@ -1,8 +1,8 @@
 import { Outlet, useNavigate } from 'react-router';
 import Sidebar from '~/components/sidebar';
 import type { Route } from './+types/_main';
-import type { ProcessEvent, User } from '~/types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import type { User } from '~/types';
+import { useEffect, useMemo, useState } from 'react';
 import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';

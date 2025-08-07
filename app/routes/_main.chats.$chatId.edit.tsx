@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouteLoaderData, useSubmit } from 'react-router';
+import { Link, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -6,8 +6,7 @@ import { useAlert } from '~/providers/AlertDialogProvider';
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import type { AiProvider, AiProvidersPaginated, SttProvider, User } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { SttProvider, User } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import * as Accordion from '@radix-ui/react-accordion';
@@ -20,24 +19,16 @@ import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
+import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const [ aiProvidersRes] = await Promise.all([fetchWithAuth('ai-providers')]);
-
-  const { data }: AiProvidersPaginated = await aiProvidersRes.json();
-
-  const aiProviders = data;
-
-  return { aiProviders };
-}
-
+  
 export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
+  const { data: aiProviders } = useAiProviders();
   const { data: sttProviders, isLoading } = useSttProviders();
-  const { aiProviders } = loaderData as { aiProviders: AiProvider[] };
   const { data: chatData } = useChat(params.chatId);
   const chat = chatData;
 
@@ -138,7 +129,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  {me.id === chat.scenario.userId && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders} />}
+                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} />}
 
                   <button
                     onClick={() => {
