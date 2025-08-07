@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.services.ai.embedding-models.$id.edit';
 import * as Button from '~/components/ui/button/button';
 import * as Modal from '~/components/ui/new-modal';
@@ -11,11 +10,6 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Delete Embedding Model' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const embeddingModelId = params.id;
-  const res = await fetchWithAuth(`embedding-models/${embeddingModelId}`);
-  return await res.json();
-}
 
 export default function EmbeddingModelDelete({ params }: Route.ComponentProps) {
   const { data: embeddingModel } = useEmbeddingModel(params.id);

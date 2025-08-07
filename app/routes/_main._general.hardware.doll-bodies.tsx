@@ -7,6 +7,7 @@ import type { Route } from './+types/_main._general.hardware.doll-bodies';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { formatDate } from '~/utils/date.utils';
 import { useEffect, useState } from 'react';
+import { useDollBodies } from '~/hooks/queries/dollQueries';
 
 function HardwareSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -25,34 +26,9 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Bodies' }];
 }
 
-export async function clientLoader() {
-  const res = await fetchWithAuth(`doll-bodies`);
-  return await res.json();
-}
+export default function DollBodiesIndex() {
+  const { data: dollBodies, isLoading: isLoadingDollBodies } = useDollBodies();
 
-export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
-  const dollBodies: DollBody[] = loaderData;
-
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
-
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [loaderData]);
-
-  if (!hasInitiallyLoaded || !loaderData) {
-    return (
-      <>
-        <HardwareSkeleton />
-        <Outlet />
-      </>
-    );
-  }
 
   const columnProperties: Array<TTableColumn<DollBody>> = [
     {
@@ -70,45 +46,61 @@ export default function DollBodiesIndex({ loaderData }: Route.ComponentProps) {
     },
   ];
 
+
+  if (isLoadingDollBodies) {
+    return (
+      <>
+        <HardwareSkeleton />
+        <Outlet />
+      </>
+    );
+  }
+
   return (
     <>
       <div className='space-y-10 pb-5'>
-        {dollBodies.map((dollBody) => (
-          <DataCard.Root key={dollBody.id}>
-            <DataCard.Label
-              extra={
-                <ViewButton
-                  popoverItems={[
-                    { text: 'Add Chat Model', href: '/chat-model/new' },
-                    { text: 'Add Embedding Model', href: '/embedding-model/new' },
-                    { text: 'Delete', href: '/delete-item', isDelete: true },
-                  ]}
-                />
-              }
-            >
-              {dollBody.name}
-            </DataCard.Label>
-            <DataCard.Wrapper>
-              <Table columns={columnProperties} data={[dollBody]} wrapperClassName='hidden md:block' />
+        {dollBodies ? (
+          <>
+            {dollBodies.map((dollBody) => (
+              <DataCard.Root key={dollBody.id}>
+                <DataCard.Label
+                  extra={
+                    <ViewButton
+                      popoverItems={[
+                        { text: 'Add Chat Model', href: '/chat-model/new' },
+                        { text: 'Add Embedding Model', href: '/embedding-model/new' },
+                        { text: 'Delete', href: '/delete-item', isDelete: true },
+                      ]}
+                    />
+                  }
+                >
+                  {dollBody.name}
+                </DataCard.Label>
+                <DataCard.Wrapper>
+                  <Table columns={columnProperties} data={[dollBody]} wrapperClassName='hidden md:block' />
 
-              <DataCard.Item collapsible className='md:hidden'>
-                <DataCard.ItemLabel>{dollBody.name}</DataCard.ItemLabel>
-                <DataCard.ItemCollapsibleContent>
-                  <DataCard.ItemDataGrid
-                    variant='secondary'
-                    data={columnProperties.map((column) => {
-                      return {
-                        label: column.label,
-                        value: column.render(dollBody),
-                      };
-                    })}
-                  />
-                </DataCard.ItemCollapsibleContent>
-              </DataCard.Item>
-              <DataCard.Text>{dollBody.description}</DataCard.Text>
-            </DataCard.Wrapper>
-          </DataCard.Root>
-        ))}
+                  <DataCard.Item collapsible className='md:hidden'>
+                    <DataCard.ItemLabel>{dollBody.name}</DataCard.ItemLabel>
+                    <DataCard.ItemCollapsibleContent>
+                      <DataCard.ItemDataGrid
+                        variant='secondary'
+                        data={columnProperties.map((column) => {
+                          return {
+                            label: column.label,
+                            value: column.render(dollBody),
+                          };
+                        })}
+                      />
+                    </DataCard.ItemCollapsibleContent>
+                  </DataCard.Item>
+                  <DataCard.Text>{dollBody.description}</DataCard.Text>
+                </DataCard.Wrapper>
+              </DataCard.Root>
+            ))}
+          </>
+        ) : (
+          <p className='text-body-lg text-base-black text-center'>No doll bodies found</p>
+        )}
       </div>
       <Outlet />
     </>

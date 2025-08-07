@@ -7,6 +7,7 @@ import type { Route } from './+types/_main._general.hardware.firmwares';
 import { InstallButton } from '~/components/buttons/InstallButton';
 import { apiUrl } from '~/constants';
 import { useEffect, useState } from 'react';
+import { useFirmwares } from '~/hooks/queries/filmwareQuries';
 
 function FirmwareSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -25,27 +26,10 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Firmwares' }];
 }
 
-export async function clientLoader() {
-  const res = await fetchWithAuth(`firmwares`);
-  return await res.json();
-}
+export default function FirmwaresIndex() {
+  const { data: firmwares, isLoading: isLoadingFirmwares } = useFirmwares();
 
-export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
-  const firmwares: Firmware[] = loaderData;
-
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
-
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [loaderData]);
-
-  if (!hasInitiallyLoaded || !loaderData) {
+  if (isLoadingFirmwares) {
     return (
       <>
         <FirmwareSkeleton />
@@ -100,63 +84,75 @@ export default function FirmwaresIndex({ loaderData }: Route.ComponentProps) {
       <DataCard.Root>
         <DataCard.Label>Current</DataCard.Label>
         <DataCard.Wrapper>
-          <Table wrapperClassName='hidden md:block' columns={columnProperties} data={firmwares} />
-          <div className='block md:hidden'>
-            {firmwares.map((firmware, index) => (
-              <Fragment key={firmware.id}>
-                <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemLabel>
-                    <div>
-                      {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
-                    </div>
+          {firmwares ? (
+            <>
+              <Table wrapperClassName='hidden md:block' columns={columnProperties} data={firmwares} />
+              <div className='block md:hidden'>
+                {firmwares.map((firmware, index) => (
+                  <Fragment key={firmware.id}>
+                    <DataCard.Item key={firmware.id}>
+                      <DataCard.ItemLabel>
+                        <div>
+                          {firmware.version} <span className='ml-3 text-specials-success font-semibold'>New</span>
+                        </div>
 
-                    <span className='font-normal'>{firmware.createdAt.toString()}</span>
-                  </DataCard.ItemLabel>
+                        <span className='font-normal'>{firmware.createdAt.toString()}</span>
+                      </DataCard.ItemLabel>
 
-                  <DataCard.ItemDataGrid
-                    variant={'mobile'}
-                    data={[
-                      {
-                        label: '',
-                        value: (
-                          <InstallButton
-                            className='w-full'
-                            manifest={`${apiUrl}/firmwares/${firmware.id}/manifest.json`}
-                            label='Flash Device'
-                          />
-                        ),
-                      },
-                    ]}
-                  />
-                </DataCard.Item>
-                {firmwares.length - 1 !== index && <DataCard.Divider />}
-              </Fragment>
-            ))}
-          </div>
+                      <DataCard.ItemDataGrid
+                        variant={'mobile'}
+                        data={[
+                          {
+                            label: '',
+                            value: (
+                              <InstallButton
+                                className='w-full'
+                                manifest={`${apiUrl}/firmwares/${firmware.id}/manifest.json`}
+                                label='Flash Device'
+                              />
+                            ),
+                          },
+                        ]}
+                      />
+                    </DataCard.Item>
+                    {firmwares.length - 1 !== index && <DataCard.Divider />}
+                  </Fragment>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className='text-body-lg text-base-black text-center'>No firmwares found</p>
+          )}
         </DataCard.Wrapper>
       </DataCard.Root>
 
       <DataCard.Root>
         <DataCard.Label>History</DataCard.Label>
         <DataCard.Wrapper className='bg-white/0 bg-gradient-1'>
-          <Table wrapperClassName='hidden md:block' columns={columnHistoryProperties} data={firmwares} />
-          <div className='block md:hidden bg-white/0 bg-gradient-1'>
-            {firmwares.map((firmware, index) => (
-              <Fragment key={firmware.id}>
-                <DataCard.Item key={firmware.id}>
-                  <DataCard.ItemDataGrid
-                    data={[
-                      {
-                        label: <span className='font-semibold text-base-black'>{firmware.version}</span>,
-                        value: <span className='font-normal'>{firmware.createdAt.toString()}</span>,
-                      },
-                    ]}
-                  />
-                </DataCard.Item>
-                {firmwares.length - 1 !== index && <DataCard.Divider />}
-              </Fragment>
-            ))}
-          </div>
+          {firmwares ? (
+            <>
+              <Table wrapperClassName='hidden md:block' columns={columnHistoryProperties} data={firmwares} />
+              <div className='block md:hidden bg-white/0 bg-gradient-1'>
+                {firmwares.map((firmware, index) => (
+                  <Fragment key={firmware.id}>
+                    <DataCard.Item key={firmware.id}>
+                      <DataCard.ItemDataGrid
+                        data={[
+                          {
+                            label: <span className='font-semibold text-base-black'>{firmware.version}</span>,
+                            value: <span className='font-normal'>{firmware.createdAt.toString()}</span>,
+                          },
+                        ]}
+                      />
+                    </DataCard.Item>
+                    {firmwares.length - 1 !== index && <DataCard.Divider />}
+                  </Fragment>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className='text-body-lg text-base-black text-center'>No firmwares found</p>
+          )}
         </DataCard.Wrapper>
       </DataCard.Root>
     </>

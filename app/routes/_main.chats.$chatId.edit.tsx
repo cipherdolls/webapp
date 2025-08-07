@@ -20,24 +20,16 @@ import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
+import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const [ aiProvidersRes] = await Promise.all([fetchWithAuth('ai-providers')]);
-
-  const { data }: AiProvidersPaginated = await aiProvidersRes.json();
-
-  const aiProviders = data;
-
-  return { aiProviders };
-}
-
+  
 export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
+  const { data: aiProviders } = useAiProviders();
   const { data: sttProviders, isLoading } = useSttProviders();
-  const { aiProviders } = loaderData as { aiProviders: AiProvider[] };
   const { data: chatData } = useChat(params.chatId);
   const chat = chatData;
 
@@ -138,7 +130,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  {me.id === chat.scenario.userId && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders} />}
+                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} />}
 
                   <button
                     onClick={() => {

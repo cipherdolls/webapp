@@ -12,15 +12,12 @@ import type { Avatar } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Doll Body' }];
 }
 
-export async function clientLoader() {
-  const res = await fetchWithAuth('avatars');
-  return await res.json();
-}
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
@@ -45,8 +42,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
-export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
-  const avatars = loaderData as Avatar[];
+export default function DollBodyNew() {
+  const { data: avatars, isLoading: isLoadingAvatars } = useAvatars();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -168,7 +165,7 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
                 className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
                 <option value=''>Select an avatar</option>
-                {avatars.map((avatar) => (
+                {avatars?.data.map((avatar) => (
                   <option key={avatar.id} value={avatar.id}>
                     {avatar.name}
                   </option>
