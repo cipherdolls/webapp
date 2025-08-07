@@ -28,12 +28,9 @@ export default function NewTtsVoice({ params }: Route.ComponentProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const jsonData = Object.fromEntries(formData.entries());
-    createTtsVoice(
-      { ttsProviderId, jsonData },
-      {
-        onSuccess: handleClose,
-      }
-    );
+    createTtsVoice(jsonData, {
+      onSuccess: handleClose,
+    });
   };
 
   return (

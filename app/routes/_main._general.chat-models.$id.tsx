@@ -2,7 +2,7 @@ import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import type { User } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
+import type { Route } from './+types/_main._general.chat-models.$id';
 import { getPicture } from '~/utils/getPicture';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';

@@ -7,7 +7,7 @@ import type { TtsProvider, TtsVoice } from '~/types';
 import Table from '~/components/Table';
 import type { TTableColumn } from '~/components/Table';
 import { DataCard } from '~/components/DataCard';
-import type { Route } from './+types/_main._general.tts-providers.$ttsProvider';
+import type { Route } from './+types/_main._general.tts-providers.$ttsProviderId';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
 import DeleteModal from '~/components/ui/deleteModal';
@@ -49,7 +49,7 @@ const ttsVoiceColumns: Array<TTableColumn<TtsVoice>> = [
       return (
         <div className='flex items-center gap-4'>
           <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />
-          <Link to={`/tts-providers/${params.ttsProvider}/ttsVoice/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
+          <Link to={`/tts-providers/${params.ttsProviderId}/ttsVoice/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
             <Icons.pen />
           </Link>
         </div>
@@ -68,7 +68,7 @@ export default function ttsProviderShow({ params }: Route.ComponentProps) {
   const confirm = useConfirm();
   const navigate = useNavigate();
 
-  const { data: ttsProvider, isLoading } = useTtsProvider(params.ttsProvider);
+  const { data: ttsProvider, isLoading } = useTtsProvider(params.ttsProviderId);
   const { mutate: deleteTtsProvider, isPending: isDeletingTtsProvider } = useDeleteTtsProvider();
   
   const ttsVoices = ttsProvider?.ttsVoices || [];
@@ -81,10 +81,8 @@ export default function ttsProviderShow({ params }: Route.ComponentProps) {
   };
 
   const handleDeleteTtsProvider = async () => {
-    if (!ttsProvider) return;
-
     const confirmResult = await confirm({
-      title: `Delete provider ${ttsProvider.name}?`,
+      title: `Delete provider ${ttsProvider?.name}?`,
       body: 'By deleting a TTS provider all related TTS voices will be deleted as well. You will not be able to restore the data.',
       actionButton: 'Yes, Delete',
       cancelButton: 'No, Leave',
@@ -92,7 +90,7 @@ export default function ttsProviderShow({ params }: Route.ComponentProps) {
 
     if (!confirmResult) return;
 
-    deleteTtsProvider(ttsProvider.id, {
+    deleteTtsProvider(params.ttsProviderId, {
       onSuccess: () => {
         navigate('/services/tts');
       },

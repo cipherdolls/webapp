@@ -66,7 +66,7 @@ export function useCreateTtsVoice() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ttsProviderId, jsonData}: {ttsProviderId: string, jsonData: Record<string, any>}) => {
+    mutationFn: async (jsonData: Record<string, any>) => {
       const res = await fetchWithAuth('tts-voices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,9 +77,10 @@ export function useCreateTtsVoice() {
       }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['ttsVoices'] });
       queryClient.invalidateQueries({ queryKey: ['ttsProviders'] });
+      queryClient.invalidateQueries({ queryKey: ['ttsProvider', data.ttsProviderId] });
     },
   });
 }
@@ -103,6 +104,7 @@ export function useUpdateTtsVoice() {
       queryClient.setQueryData(['ttsVoice', ttsVoiceId], updatedData);
       queryClient.invalidateQueries({ queryKey: ['ttsVoices'] });
       queryClient.invalidateQueries({ queryKey: ['ttsProviders'] });
+      queryClient.invalidateQueries({ queryKey: ['ttsProvider', updatedData.ttsProviderId] });
     },
   });
 }

@@ -62,8 +62,8 @@ export default function TtsProviderNew() {
     const formData = new FormData(e.target as HTMLFormElement);
 
     createTtsProvider(formData, {
-      onSuccess: () => {
-        navigate(`/services/tts/`);
+      onSuccess: (data) => {
+        navigate(`/tts-providers/${data.id}`);
       },
     });
   };

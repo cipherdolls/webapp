@@ -1,9 +1,8 @@
 import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { EmbeddingModel, User } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
+import type { User } from '~/types';
+import type { Route } from './+types/_main._general.embedding-models.$id';
 import { getPicture } from '~/utils/getPicture';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
