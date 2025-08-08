@@ -1,21 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { ChatJob, type ChatJobType } from '~/components/chat/types/chatState';
+import React, { useRef } from 'react';
+import { ChatJob } from '~/components/chat/types/chatState';
 import type { Chat, ProcessEvent } from '~/types';
 import { API_ENDPOINTS } from '~/constants';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useNavigate } from 'react-router';
+import { useChatEvents } from '~/hooks/useChatEvents';
 
-const ChatJobErrors = ({ jobError, chat }: { jobError: ProcessEvent | null, chat: Chat }) => {
+const ChatJobErrors = ({ chat }: { chat: Chat }) => {
   const alert = useAlert();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (jobError) {
-      handleJobError(jobError);
-    }
-  }, [jobError]);
+  const countsRef = useRef(new Map<string, number>());
 
+  const shouldAlert = (e: ProcessEvent) => {
+    const key = `${e.resourceName}:${e.resourceId}`;
+    const n = (countsRef.current.get(key) ?? 0) + 1;
+    countsRef.current.set(key, n);
+    if (n < 3) return false; // only alert on 3rd failure
+    countsRef.current.delete(key); // reset after alert (optional)
+    return true;
+  };
+
+  useChatEvents(chat.id || '', {
+    onProcessEvent: async (event) => {
+      
+      if (event.jobStatus === 'failed') {
+        console.log('event', event);
+        if (shouldAlert(event)) {
+          console.log('shouldAlert', event);
+          void handleJobError(event);
+        }
+      }
+    },
+    enabled: !!chat.id,
+  });
 
   const handleJobError = async (event: ProcessEvent) => {
     const cfg: {
