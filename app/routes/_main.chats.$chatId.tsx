@@ -20,8 +20,6 @@ export default function ChatShow({ params }: Route.ComponentProps) {
 
   const chat = chatData;
 
-  const [jobError, setJobError] = useState<ProcessEvent | null>(null);
-
   const { talkMode, initChatStore, setCurrentJob } = useChatStore(
     useShallow((state) => ({
       talkMode: state.talkMode,
@@ -36,13 +34,12 @@ export default function ChatShow({ params }: Route.ComponentProps) {
 
   useChatEvents(chatData?.id || '', {
     onProcessEvent: async (event) => {
-      if (event.jobStatus === 'failed') setJobError(event as ProcessEvent);
       const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
       if (isValidJob(event.resourceName)) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    enabled: !!chatData?.id,
+    enabled: !!chatData?.id,  
   });
 
   if (!chat) return null;
@@ -51,7 +48,7 @@ export default function ChatShow({ params }: Route.ComponentProps) {
     <>
       {talkMode ? <TalkMode chat={chat} avatar={chat.avatar} /> : <MessagesMode chat={chat} avatar={chat.avatar} />}
       <Outlet />
-      <ChatJobErrors chat={chat} jobError={jobError} />
+      <ChatJobErrors chat={chat} />
     </>
   );
 }
