@@ -36,15 +36,15 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
   return (
     <Modal.Root>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
-      <Modal.Content title={selectedAvatar ? `${selectedAvatar.name} - Choose Scenario` : 'Choose Avatar'}>
+      <Modal.Content className='max-sm:p-6' title={selectedAvatar ? `${selectedAvatar.name} - Choose Scenario` : 'Choose Avatar'}>
         {!selectedAvatar ? (
           <>
             {availableAvatars.map((avatar) => (
-              <AvatarCard key={avatar.id} avatar={avatar} className='max-sm:!px-0'>
+              <AvatarCard key={avatar.id} avatar={avatar} className='flex flex-wrap max-sm:!px-0 sm:flex-nowrap'>
                 <Link to={`/avatars/${avatar.id}`}>
                   <AvatarCard.Avatar />
                 </Link>
-                <AvatarCard.Content>
+                <AvatarCard.Content className='min-w-[60px] sm:min-w-auto'>
                   <AvatarCard.Name />
                   <AvatarCard.Description>{avatar.shortDesc}</AvatarCard.Description>
                   <div className='text-xs text-neutral-01 mt-1'>
