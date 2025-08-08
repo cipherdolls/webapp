@@ -217,7 +217,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                                 side={'top'}
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={chat.scenario.chatModel.error}
-                                popoverClassName='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                                className='max-w-[350px]'
                               />
                               <DetailRow title='Chat Model Error' value={chat.scenario.chatModel.error} />
                             </div>
@@ -242,7 +243,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                                 side={'top'}
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={chat.scenario.embeddingModel.error}
-                                popoverClassName='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                                className='max-w-[350px]'
                               />
 
                               <DetailRow title='Embedding Error' value={chat.scenario.embeddingModel.error} />
@@ -270,7 +272,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                                     side={'top'}
                                     trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                     content={chat.scenario.reasoningModel.error}
-                                    popoverClassName='max-w-[350px]'
+                                    popoverClassName='max-w-[320px]'
+                                    className='max-w-[350px]'
                                   />
 
                                   <DetailRow title='Reasoning Error' value={chat.scenario.reasoningModel.error} />
