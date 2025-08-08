@@ -132,7 +132,7 @@ export default function Dashboard() {
           <div className='flex flex-col gap-5'>
             <TokenBalance user={currentUser} />
             <TokenPermitsList user={currentUser} />
-            <YourDolls />
+            {/*<YourDolls />*/}
           </div>
         </div>
       )}
