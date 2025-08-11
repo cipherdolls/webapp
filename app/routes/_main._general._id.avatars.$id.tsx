@@ -15,6 +15,7 @@ import { useAvatar } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import { formatModelName } from '~/utils/formatModelName';
+import { cn } from '~/utils/cn';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -78,12 +79,18 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
           <Link to={`${avatar.userId === user.id ? '/avatars?mine=true' : '/avatars'}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full'/>
-            <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
+            <div className='flex sm:items-center sm:flex-row flex-col flex-wrap sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap hover:underline transition-all duration-200'>
                 {formatModelName(avatar.name)}
               </h3>
               <span className='text-neutral-01 text-body-lg sm:block hidden'>•</span>
-              <span className='text-neutral-01 text-body-sm truncate max-w-72 sm:text-body-lg'>{getTextAfterThe(avatar.shortDesc)}</span>
+              <span
+                className={cn('text-neutral-01 text-body-sm truncate max-w-60 sm:text-body-lg',
+                  avatar.userId !== user.id && 'max-w-72'
+                )}
+              >
+                {getTextAfterThe(avatar.shortDesc)}
+              </span>
             </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
