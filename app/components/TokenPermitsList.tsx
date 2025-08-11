@@ -65,7 +65,7 @@ const TokenPermitsList = ({ user }: TokenPermitsListProps) => {
 
 
   return (
-    <div className='flex flex-col gap-5 sm:pl-4'>
+    <div className='flex flex-col gap-5'>
       <div className='flex items-center justify-between'>
         <h3 className='text-heading-h3 text-base-black'>Token Permits</h3>
         <div className='flex items-center gap-2'>
