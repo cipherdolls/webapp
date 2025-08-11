@@ -118,7 +118,14 @@ export default function SttProvidersIndex() {
     <>
       <DataCard.Root>
         <DataCard.Label className='flex gap-1 items-center'>
-          STT Providers <InformationBadge tooltipText='Services for converting speech to text.' />
+          STT Providers
+          <InformationBadge
+            tooltipText='Services for converting speech to text.'
+            side={{
+              default: 'top',
+              lg: 'right',
+            }}
+          />
         </DataCard.Label>
         <DataCard.Wrapper>
           {/* DESKTOP */}

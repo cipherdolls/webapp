@@ -29,7 +29,7 @@ const TokenBalance = ({ user }: { user: User }) => {
       : '0';
 
   return (
-    <div className='flex flex-col gap-5 sm:pl-4'>
+    <div className='flex flex-col gap-5'>
       <div className='flex items-center justify-between'>
         <h3 className='text-heading-h3 text-base-black'>Your Balance</h3>
         <button

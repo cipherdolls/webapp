@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
@@ -13,6 +13,7 @@ import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import Tooltip from '~/components/ui/tooltip';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -127,7 +128,7 @@ export default function AvatarsShow() {
 
       <div className='flex flex-col gap-5'>
         <SearchInput searchParamName='name' placeholder='Search avatars by name' />
-        <div className='flex items-center justify-between'>
+        <div className='flex flex-wrap gap-3 items-center justify-between'>
           <div className='flex items-center gap-3'>
             <button
               onClick={handleToggle}
@@ -235,15 +236,17 @@ export default function AvatarsShow() {
                         ) : null}
                       </Link>
                       <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
-                        <div className='flex flex-col gap-1'>
+                        <div className='flex flex-col gap-1 flex-1 min-w-0'>
                           <div className='flex items-center gap-2'>
-                            <h4 className='text-heading-h4 text-base-black'>{avatar.name}</h4>
+                            <h4 className='truncate text-heading-h4 text-base-black'>{avatar.name}</h4>
                             <RecommendedBadge recommended={avatar.recommended} tooltipText='Recommended' className='pt-1' />
                           </div>
-                          <p className='text-body-md text-neutral-01 line-clamp-1'>{avatar.shortDesc}</p>
+                          <p className='text-body-md text-neutral-01 line-clamp-1 truncate'>{avatar.shortDesc}</p>
                         </div>
                         <div className='flex items-center gap-3'>
-                          <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                          {avatar.introductionAudio && (
+                            <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                          )}
 
                           <AvatarScenarioModal avatar={avatar}>
                             <Button.Root size='sm' className='px-5'>

@@ -31,10 +31,10 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
           <h2 className='text-2xl font-semibold'>AI Services</h2>
 
           {/* View Mode Toggle */}
-          <div className='flex items-center gap-2 bg-neutral-05 rounded-lg p-1'>
+          <div className='flex items-center gap-2 bg-neutral-05 rounded-xl p-1'>
             <button
               onClick={() => handleViewModeChange('providers')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 viewMode === 'providers' ? 'bg-white text-base-black shadow-sm' : 'text-neutral-01 hover:text-base-black'
               }`}
             >
@@ -42,7 +42,7 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
             </button>
             <button
               onClick={() => handleViewModeChange('models')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 viewMode === 'models' ? 'bg-white text-base-black shadow-sm' : 'text-neutral-01 hover:text-base-black'
               }`}
             >

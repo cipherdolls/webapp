@@ -181,7 +181,7 @@ export default function TtsProvidersIndex() {
 
                     <div className='flex items-center gap-2 text-body-sm sm:hidden'>
                       <span className='text-neutral-01 font-normal'>$/Character</span>
-                      <span className='font-semibold text-base-black'>$0</span>
+                      <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
                     </div>
                   </div>
                 </DataCard.Label>

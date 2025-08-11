@@ -327,6 +327,7 @@ export interface Avatar {
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
+  introductionAudio: string
   chats?: [{
     id: string;
     scenarioId: string;
