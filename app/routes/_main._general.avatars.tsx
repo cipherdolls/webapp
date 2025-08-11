@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
@@ -13,6 +13,7 @@ import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import Tooltip from '~/components/ui/tooltip';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -243,7 +244,9 @@ export default function AvatarsShow() {
                           <p className='text-body-md text-neutral-01 line-clamp-1 truncate'>{avatar.shortDesc}</p>
                         </div>
                         <div className='flex items-center gap-3'>
-                          <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                          {avatar.introductionAudio && (
+                            <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                          )}
 
                           <AvatarScenarioModal avatar={avatar}>
                             <Button.Root size='sm' className='px-5'>

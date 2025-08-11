@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS } from '~/constants';
 import * as Button from '~/components/ui/button/button';
@@ -264,7 +264,9 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                 )}
               </label>
               <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
-                <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                {avatar.introductionAudio && (
+                  <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                )}
               </div>
             </div>
             {avatar.gender && (
