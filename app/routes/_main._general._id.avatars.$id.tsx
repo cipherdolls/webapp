@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import React, { useEffect, useMemo, useRef } from 'react';
@@ -12,19 +12,20 @@ import { ViewMore } from '~/view-more';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
-import { useUser } from '~/hooks/queries/userQueries';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import { formatModelName } from '~/utils/formatModelName';
 import { cn } from '~/utils/cn';
+import ErrorPage from '~/components/ErrorPage';
+import type { User } from '~/types';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
 export default function AvatarShow({ params }: Route.ComponentProps) {
+  const user = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
-  const { data: avatar } = useAvatar(params.id);
-  const { data: user } = useUser();
+  const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
   const { mutate: createChat } = useCreateChat();
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -57,7 +58,16 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     };
   }, []);
 
-  if (!avatar || !user) return null;
+
+  if(avatarLoading) {
+    return null;
+  }
+
+  if (avatarError || !avatar) {
+    return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
+  }
+
+
 
   const handleCreateChat = (scenarioId: string) => {
     createChat(
