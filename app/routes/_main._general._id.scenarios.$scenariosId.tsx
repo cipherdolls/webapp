@@ -184,7 +184,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                       <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
-                            to={`/scenarios/${scenario.id}`}
+                            to={`/avatars/${avatar.id}`}
                             className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
                           >
                             <img
@@ -194,16 +194,16 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                               className='object-cover size-full'
                             />
 
-                            <div className='absolute top-2 left-2 z-10'>
-                              <div className='flex items-center gap-2'>
-                                {avatar.userId === me.id && (
-                                  <span className='text-xs bg-neutral-04 text-neutral-01 px-2 py-1 rounded-full'>👤</span>
-                                )}
-                                {avatar.published && (
-                                  <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Published</span>
-                                )}
-                              </div>
-                            </div>
+                            {/*<div className='absolute top-2 left-2 z-10'>*/}
+                            {/*  <div className='flex items-center gap-2'>*/}
+                            {/*    {avatar.userId === me.id && (*/}
+                            {/*      <span className='text-xs bg-neutral-04 text-neutral-01 px-2 py-1 rounded-full'>👤</span>*/}
+                            {/*    )}*/}
+                            {/*    {avatar.published && (*/}
+                            {/*      <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Published</span>*/}
+                            {/*    )}*/}
+                            {/*  </div>*/}
+                            {/*</div>*/}
                           </Link>
 
                           <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
