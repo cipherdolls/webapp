@@ -35,7 +35,7 @@ const STATUS: Record<ProcessEvent['jobStatus'], { icon: React.ReactNode; duratio
 
 // USER TOASTS
 const handleUserToasts = (processEvent: ProcessEvent) => {
-  // if (processEvent.resourceName === 'User') return;
+  if (processEvent.resourceName === 'User') return;
 
   const { resourceName, resourceId, jobName, jobStatus } = processEvent;
 
