@@ -21,18 +21,19 @@ import React, { useMemo, useState } from 'react';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
 import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
-import { useUserEvents } from '~/hooks/useUserEvents';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
+import ErrorPage from '~/components/ErrorPage';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
 }
 
+
 export default function ScenariosId({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
   const { data: mineAvatarsData, isLoading: isLoadingMineAvatars } = useAvatars({ mine: 'true' });
-  const { data: scenarioData, isLoading } = useScenario(params.scenariosId);
+  const { data: scenarioData, isLoading, error: scenarioError } = useScenario(params.scenariosId);
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();
 
@@ -58,10 +59,13 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   //   },
   // });
 
-  if (isLoading || !scenario) {
+  if (isLoading) {
     return null;
   }
 
+  if (scenarioError || !scenario) {
+    return <ErrorPage code={scenarioError?.code} message={scenarioError?.message} />;
+  }
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
 

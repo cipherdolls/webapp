@@ -1,9 +1,14 @@
-import { fetchWithAuth } from "~/utils/fetchWithAuth";
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
 export async function fetchResource<T>(endpoint: string): Promise<T> {
   const response = await fetchWithAuth(endpoint);
   if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
+    const errData = await response.json();
+    const error = new Error(errData.message || 'Something went wrong') as Error & {
+      code?: number;
+    };
+    error.code = response.status;
+    throw error;
   }
   return response.json();
 }

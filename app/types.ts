@@ -370,3 +370,10 @@ export interface ProcessEvent {
   jobStatus: 'active' | 'completed' | 'failed' | 'retrying';
   resourceAttributes?: any;
 }
+
+
+export interface HttpError extends Error {
+  statusCode?: number;
+  code?: number | string;
+  data?: any;
+}
