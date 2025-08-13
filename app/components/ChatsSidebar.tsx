@@ -87,7 +87,7 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
         )}
       </div>
       <div className='flex-1 sm:px-2 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none'>
-        <div className='flex flex-col'>
+        <div className='flex flex-col select-none'>
           {groupedChats.map((group) => (
             <div key={group.avatar.id} className='mb-2'>
               <div
@@ -115,7 +115,7 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
               </div>
 
               {expandedAvatars.has(group.avatar.id) && (
-                <div className='ml-4 space-y-1 border-l border-neutral-04 pl-3'>
+                <div className='ml-4 space-y-1 border-l border-neutral-04 pl-3 animate-chat-toggle'>
                   {group.chats.map((chat) => (
                     <NavLink
                       key={chat.id}
