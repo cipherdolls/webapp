@@ -1,6 +1,6 @@
 import { useUserEvents } from '~/hooks/useUserEvents';
-import { useQueryClient } from '@tanstack/react-query';
-import type { ProcessEvent, User } from '~/types';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import type { Message, ProcessEvent, User } from '~/types';
 import { showToast } from '~/components/ui/toast';
 import { Icons } from '~/components/ui/icons';
 
@@ -10,14 +10,8 @@ const GlobalSubscriber = ({ userId }: { userId: string }) => {
   useUserEvents(userId, {
     onProcessEvent: (processEvent) => {
       handleUserToasts(processEvent);
-
-      const { resourceName, resourceId, jobName, jobStatus, resourceAttributes } = processEvent;
-     
-      if (resourceName === 'User' && resourceAttributes && jobStatus !== 'failed') {
-        queryClient.setQueryData<User | undefined>(['user'], (old) =>
-          old ? { ...old, ...resourceAttributes } : (resourceAttributes as User)
-        );
-      }
+      handleUserEvent(queryClient, processEvent);
+      handleMessageEvent(queryClient, processEvent);
     },
   });
 
@@ -35,7 +29,7 @@ const STATUS: Record<ProcessEvent['jobStatus'], { icon: React.ReactNode; duratio
 
 // USER TOASTS
 const handleUserToasts = (processEvent: ProcessEvent) => {
-  if (processEvent.resourceName === 'User') return;
+  if (processEvent.resourceName === 'User' || processEvent.resourceName === 'Message') return;
 
   const { resourceName, resourceId, jobName, jobStatus } = processEvent;
 
@@ -70,5 +64,38 @@ const handleUserToasts = (processEvent: ProcessEvent) => {
     actionLink,
     actionText: actionLink ? 'View' : undefined,
     duration,
+  });
+};
+
+const handleUserEvent = (queryClient: QueryClient, processEvent: ProcessEvent) => {
+  if (processEvent.resourceName === 'User' && processEvent.resourceAttributes && processEvent.jobStatus !== 'failed') {
+    queryClient.setQueryData<User | undefined>(['user'], (old) =>
+      old ? { ...old, ...processEvent.resourceAttributes } : (processEvent.resourceAttributes as User)
+    );
+  }
+};
+
+const handleMessageEvent = (qc: QueryClient, e: ProcessEvent) => {
+  if (e.resourceName !== 'Message' || !e.resourceAttributes) return;
+
+  const msg = e.resourceAttributes as Message;
+  const { id: messageId, chatId } = msg || {};
+  if (!messageId || !chatId) return;
+
+  qc.setQueryData<Message | undefined>(['message', messageId], msg);
+
+  qc.setQueryData(['messages', chatId], (old: any) => {
+    if (!old?.pages?.length) return old;
+
+    const first = old.pages[0];
+    const firstData: Message[] = Array.isArray(first?.data) ? first.data : [];
+
+    return {
+      ...old,
+      pages: [
+        { ...first, data: [msg, ...firstData] },
+        ...old.pages.slice(1),
+      ],
+    };
   });
 };

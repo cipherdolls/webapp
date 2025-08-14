@@ -38,21 +38,21 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   });
 
   useChatEvents(chat.id, {
-    onProcessEvent: (event) => {
-      if (event.resourceName === 'Message') {
-        switch (event.jobName) {
-          case 'created':
-            if (event.jobStatus === 'completed') queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
-            break;
-          case 'updated':
-            const messageContent = event?.resourceAttributes?.content;
-            if (!messageContent) return;
-            queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
-            break;
-          default:
-        }
-      }
-    },
+    // onProcessEvent: (event) => {
+    //   if (event.resourceName === 'Message') {
+    //     switch (event.jobName) {
+    //       case 'created':
+    //         if (event.jobStatus === 'completed') queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+    //         break;
+    //       case 'updated':
+    //         const messageContent = event?.resourceAttributes?.content;
+    //         if (!messageContent) return;
+    //         queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+    //         break;
+    //       default:
+    //     }
+    //   }
+    // },
     onActionEvent: (event) => {
       if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
     },
