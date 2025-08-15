@@ -103,8 +103,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
                 className={({ isActive }) =>
                   cn(
                     'relative text-body-lg text-neutral-01 px-1 pb-1.5',
-                    isActive &&
-                      'text-base-black after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-neutral-01 after:rounded-t-[3px]'
+                    isActive && 'text-base-black after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-neutral-01 after:rounded-t-[3px]'
                   )
                 }
               >
