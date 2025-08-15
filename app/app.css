@@ -112,7 +112,7 @@
 
   --animate-chat-toggle: chat-toggle 0.5s ease;
   --animate-popover-toggle: popover-toggle 0.4s ease;
-  --animate-tooltip: tooltip 0.4s ease;
+  --animate-tooltip-toggle: tooltip-toggle 0.4s ease;
   --animate-show-all: show-all 0.3s ease;
 
   @keyframes eye {
@@ -188,7 +188,7 @@
     }
   }
 
-  @keyframes tooltip {
+  @keyframes tooltip-toggle {
     0% {
       opacity: 0;
       scale: 0.9;
