@@ -34,7 +34,7 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
           <div className='flex items-center gap-2 bg-neutral-05 rounded-xl p-1'>
             <button
               onClick={() => handleViewModeChange('providers')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg duration-500 transition-colors ${
                 viewMode === 'providers' ? 'bg-white text-base-black shadow-sm' : 'text-neutral-01 hover:text-base-black'
               }`}
             >
