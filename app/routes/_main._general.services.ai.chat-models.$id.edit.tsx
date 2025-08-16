@@ -89,7 +89,7 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(chatModel.dollarPerInputToken)}
+                      defaultValue={scientificNumConvert(chatModel.dollarPerInputToken  * 1000000)}
                     />
                   </Input.Root>
 
@@ -104,7 +104,7 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(chatModel.dollarPerOutputToken)}
+                      defaultValue={scientificNumConvert(chatModel.dollarPerOutputToken  * 1000000)}
                     />
                   </Input.Root>
                 </div>

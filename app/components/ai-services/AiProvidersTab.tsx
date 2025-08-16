@@ -185,11 +185,11 @@ const AiProvidersTab = () => {
                                     data={[
                                       {
                                         label: '$/Input',
-                                        value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                        value: <>${scientificNumConvert(chatModel.dollarPerInputToken  * 1000000)}</>,
                                       },
                                       {
                                         label: '$/Output',
-                                        value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
+                                        value: <>${scientificNumConvert(chatModel.dollarPerOutputToken  * 1000000)}</>,
                                       },
                                     ]}
                                   />
@@ -251,11 +251,11 @@ const AiProvidersTab = () => {
                                     data={[
                                       {
                                         label: '$/Input',
-                                        value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                        value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken  * 1000000)}</>,
                                       },
                                       {
                                         label: '$/Output',
-                                        value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
+                                        value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken  * 1000000)}</>,
                                       },
                                     ]}
                                   />
@@ -322,11 +322,11 @@ const AiProvidersTab = () => {
                                     data={[
                                       {
                                         label: '$/Input',
-                                        value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
+                                        value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken * 1000000)}</>,
                                       },
                                       {
                                         label: '$/Output',
-                                        value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken)}</>,
+                                        value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken * 1000000)}</>,
                                       },
                                     ]}
                                   />
