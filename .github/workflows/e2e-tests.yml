@@ -56,7 +56,7 @@ jobs:
         run: HEADLESS=true npm run test:cache
 
       - name: Run MetaMask tests
-        run: npm run test:all-metamask
+        run: HEADLESS=true npm run test:all-metamask
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
