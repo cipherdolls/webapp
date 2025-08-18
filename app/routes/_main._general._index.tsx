@@ -18,6 +18,7 @@ import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
+import { YourReferrals } from '~/components/your-referrals';
 
 function DashboardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -132,6 +133,7 @@ export default function Dashboard() {
           <div className='flex flex-col gap-5'>
             <TokenBalance user={currentUser} />
             <TokenPermitsList user={currentUser} />
+            <YourReferrals user={currentUser}/>
             {/*<YourDolls />*/}
           </div>
         </div>

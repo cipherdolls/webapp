@@ -80,6 +80,13 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   // 1) Check localStorage for a token
   const localToken = localStorage.getItem('token')?.replaceAll('"', '');
   if (!localToken) {
+    const params = new URLSearchParams(window.location.search);
+    const referral = params.get('referral');
+    if (referral) {
+      localStorage.setItem('referralId', referral);
+      throw redirect(`/signin?invitedBy=${referral}`);
+    }
+
     const currentUrl = window.location.pathname + window.location.search;
     localStorage.setItem('redirectAfterSignIn', currentUrl);
     throw redirect('/signin');

@@ -10,7 +10,7 @@ const YourDolls = () => {
   const dolls = dollsPaginated || [];
 
   return (
-    <Card.Root className='sm:pl-4 sm:max-w-[352px]'>
+    <Card.Root className='sm:max-w-[352px]'>
       <div className='flex items-center justify-between'>
         <Card.Label>Your Dolls</Card.Label>
         <InformationBadge className='size-6' side='top' tooltipText='Your personal dolls' popoverClassName='ml-auto' />
