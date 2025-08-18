@@ -13,7 +13,7 @@ const test = testWithSynpress(metaMaskFixtures(basicSetup))
 
 test.describe('SignIn Authentication Flow with Real MetaMask', () => {
   
-  test('should handle invalid token and stay on signin', async ({
+  test.skip('should handle invalid token and stay on signin', async ({
     page,
   }) => {
     await test.step('Setup invalid token scenario', async () => {

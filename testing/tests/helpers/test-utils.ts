@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 // Common UI texts used across the application
 export const UI_TEXTS = {
   // Sign in page texts
-  WALLET_REQUIRED: 'A connected crypto wallet in your browser is required',
+  WALLET_REQUIRED: 'Please connect your wallet to continue',
   WALLET_CONNECT_NEW: 'Please connect your wallet to continue',
   SIGN_IN_BUTTON: 'Sign In',
   HOW_IT_WORKS: 'How It Works',
