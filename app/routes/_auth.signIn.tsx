@@ -36,7 +36,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const timestamp = new Date().toISOString();
     const url = new URL(request.url);
     const domain = url.hostname;
-    
+
     const message = `
 ${domain} wants you to sign in with your Ethereum account:
 ${address}
@@ -104,7 +104,7 @@ export default function SignInRoute() {
 
   useEffect(() => {
     checkConnection();
-    
+
     // Listen for account changes
     if (window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
@@ -115,7 +115,7 @@ export default function SignInRoute() {
           setConnected(true);
         }
       };
-      
+
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       return () => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
@@ -145,11 +145,11 @@ export default function SignInRoute() {
         setConnected(false);
         return;
       }
-      
+
       // Use eth_accounts instead of provider.listAccounts()
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
       console.log('DEBUG: Found accounts via eth_accounts:', accounts.length);
-      
+
       if (accounts.length === 0) {
         setConnected(false);
       } else {
@@ -216,7 +216,7 @@ export default function SignInRoute() {
 
                 <div className='px-4 py-6 flex flex-col gap-8 lg:py-10 lg:px-8 md:px-6 md:py-8'>
                   <p className='text-black text-body-md md:text-body-lg'>
-                    Please connect your wallet to continue
+                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine)
                   </p>
                   <div className='flex flex-col gap-4'>
                     {!isLoading && !hasEthereum ? (
