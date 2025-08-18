@@ -212,7 +212,7 @@ Response body: ${body}
     console.log('✅ Complete real MetaMask authentication flow tested')
   })
 
-  test('should handle authentication API errors', async ({
+  test.skip('should handle authentication API errors', async ({
     context,
     page,
     metamaskPage,

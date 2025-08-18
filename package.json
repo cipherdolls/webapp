@@ -8,9 +8,9 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "test:cache": "npx synpress ./testing/setup",
-    "test:metamask": "npm run test:cache && npx playwright test testing/tests/metamask-docs.test.ts",
-    "test:conditions": "npm run test:cache && npx playwright test testing/tests/metamask-signin-conditions.test.ts", 
-    "test:auth": "npm run test:cache && npx playwright test testing/tests/metamask-auth-flow.test.ts",
+    "test:docs": "npm run test:cache && npx playwright test testing/tests/metamask-docs.test.ts",
+    "test:signin-conditions": "npm run test:cache && npx playwright test testing/tests/metamask-signin-conditions.test.ts", 
+    "test:auth-flow": "npm run test:cache && npx playwright test testing/tests/metamask-auth-flow.test.ts",
     "test:browser": "npx playwright test testing/tests/browser-compatibility.test.ts",
     "test:all-metamask": "npm run test:cache && npx playwright test testing/tests/metamask-*.test.ts",
     "test:all": "npm run test:cache && npx playwright test testing/tests/metamask-*.test.ts && npx playwright test testing/tests/browser-compatibility.test.ts"
