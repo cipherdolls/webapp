@@ -66,6 +66,7 @@ Issued At: ${timestamp}
     return { token };
   } catch (error) {
     console.error('Error:', error);
+    return { error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
@@ -103,6 +104,23 @@ export default function SignInRoute() {
 
   useEffect(() => {
     checkConnection();
+    
+    // Listen for account changes
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        console.log('DEBUG: accountsChanged event:', accounts.length);
+        if (accounts.length === 0) {
+          setConnected(false);
+        } else {
+          setConnected(true);
+        }
+      };
+      
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -112,20 +130,34 @@ export default function SignInRoute() {
   }, [token]);
 
   useEffect(() => {
+    console.log('DEBUG: connected =', connected, 'token =', token ? 'exists' : 'undefined');
     if (connected === true && token !== undefined) {
-      console.log('Connected and token is set');
+      console.log('Connected and token is set - triggering redirect');
       handleSuccessfulAuth();
     }
     // eslint-disable-next-line
   }, [connected, token]);
 
   const checkConnection = async () => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const accounts = await provider.listAccounts();
-    if (accounts.length === 0) {
+    try {
+      if (!window.ethereum) {
+        console.log('DEBUG: No ethereum object');
+        setConnected(false);
+        return;
+      }
+      
+      // Use eth_accounts instead of provider.listAccounts()
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      console.log('DEBUG: Found accounts via eth_accounts:', accounts.length);
+      
+      if (accounts.length === 0) {
+        setConnected(false);
+      } else {
+        setConnected(true);
+      }
+    } catch (error) {
+      console.log('DEBUG: checkConnection error:', error);
       setConnected(false);
-    } else {
-      setConnected(true);
     }
   };
 

@@ -6,7 +6,14 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "test:cache": "npx synpress ./testing/cache/wallet-setup",
+    "test:metamask": "npm run test:cache && npx playwright test testing/tests/metamask-docs.test.ts",
+    "test:conditions": "npm run test:cache && npx playwright test testing/tests/metamask-signin-conditions.test.ts", 
+    "test:auth": "npm run test:cache && npx playwright test testing/tests/metamask-auth-flow.test.ts",
+    "test:browser": "npx playwright test testing/tests/browser-compatibility.test.ts",
+    "test:all-metamask": "npm run test:cache && npx playwright test testing/tests/metamask-*.test.ts",
+    "test:all": "npm run test:cache && npx playwright test testing/tests/metamask-*.test.ts && npx playwright test testing/tests/browser-compatibility.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
@@ -47,7 +54,9 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.48.2",
     "@react-router/dev": "^7.2.0",
+    "@synthetixio/synpress": "^4.1.0",
     "@tailwindcss/vite": "^4.0.0",
     "@tanstack/react-query-devtools": "^5.84.0",
     "@types/node": "^20",
