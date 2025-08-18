@@ -47,6 +47,7 @@ jobs:
 
       - name: Install xvfb
         run: sudo apt-get install -y xvfb
+
       - name: Start development server
         run: npm run dev &
 
@@ -59,6 +60,17 @@ jobs:
 
       - name: Run MetaMask tests
         run: xvfb-run -a npm run test:all-metamask
+
+      - name: Format test results
+        if: failure()
+        run: |
+          echo "## ❌ MetaMask Tests Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Failed Tests:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          # Extract only failed test names and errors
+          grep -E "(✕|Error:|Expected:|Received:|at .*\.test\.ts)" test-results/results.txt 2>/dev/null || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -119,4 +131,19 @@ jobs:
       - name: Test Summary
         run: |
           echo "## Test Results 🧪" >> $GITHUB_STEP_SUMMARY
-          echo "E2E tests completed. Check artifacts for detailed results." >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.test-metamask.result }}" = "failure" ]; then
+            echo "### ❌ MetaMask Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "Check the MetaMask test logs for details" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test-metamask.result }}" = "success" ]; then
+            echo "### ✅ MetaMask Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.test-browser.result }}" = "failure" ]; then
+            echo "### ❌ Browser Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test-browser.result }}" = "success" ]; then
+            echo "### ✅ Browser Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 View detailed reports in the artifacts section" >> $GITHUB_STEP_SUMMARY

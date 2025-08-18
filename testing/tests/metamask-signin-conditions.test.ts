@@ -1,6 +1,14 @@
 import { testWithSynpress } from '@synthetixio/synpress'
 import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright'
 import basicSetup from '../setup/basic.setup'
+import { 
+  UI_TEXTS, 
+  SELECTORS, 
+  expectTextVisible, 
+  expectElementVisible, 
+  expectButtonState,
+  connectWallet 
+} from './helpers/test-utils'
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup))
 const { expect } = test
@@ -10,53 +18,146 @@ test.describe('SignIn Page with Real MetaMask - Conditional Logic', () => {
   test('should show active form when MetaMask is available', async ({
     page,
   }) => {
-    
-    await page.goto('/signin')
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(600)
+    await test.step('Navigate to signin page', async () => {
+      await page.goto('/signin')
+      await page.waitForLoadState('networkidle')
+      await page.waitForTimeout(600)
+    })
 
-    // Should NOT show the warning message since MetaMask is available
-    await expect(page.getByText('Your browser isn\'t supported')).not.toBeVisible()
+    await test.step('Verify browser warning is NOT shown', async () => {
+      const warningElement = page.getByText(UI_TEXTS.BROWSER_NOT_SUPPORTED)
+      const isVisible = await warningElement.isVisible()
+      if (isVisible) {
+        throw new Error(`
+❌ UNEXPECTED WARNING SHOWN
+
+❓ Browser warning should NOT be visible when MetaMask is available
+📊 MetaMask status: Available ✅
+⚠️  Warning shown: ${isVisible ? 'Yes ❌' : 'No ✅'}
+
+💡 This might indicate:
+   1. MetaMask detection logic is broken
+   2. Loading state is not working properly
+   3. hasEthereum state is not updating
+
+📍 Check: app/routes/_auth.signIn.tsx (lines 192-199)
+        `)
+      }
+    })
     
-    // Should show active Sign In button inside a form
-    const signInForm = page.locator('form')
-    await expect(signInForm).toBeVisible()
-    
-    const signInButton = signInForm.getByRole('button', { name: 'Sign In' })
-    await expect(signInButton).toBeVisible()
-    // Button should be enabled when MetaMask is available
-    await expect(signInButton).toBeEnabled()
-    await expect(signInButton).toHaveAttribute('type', 'submit')
+    await test.step('Verify Sign In form and button', async () => {
+      await expectElementVisible(page, SELECTORS.SIGNIN_FORM, 'Sign In Form')
+      await expectButtonState(page, UI_TEXTS.SIGN_IN_BUTTON, 'enabled', {
+        selector: SELECTORS.SIGNIN_BUTTON
+      })
+      
+      // Verify button attributes
+      const signInButton = page.locator(SELECTORS.SIGNIN_BUTTON)
+      const buttonType = await signInButton.getAttribute('type')
+      if (buttonType !== 'submit') {
+        throw new Error(`
+❌ BUTTON TYPE INCORRECT
+
+Expected: type="submit"
+Actual: type="${buttonType}"
+
+📍 Check: Sign In button configuration
+        `)
+      }
+    })
   })
 
   test('should display proper page elements with MetaMask', async ({
     page,
   }) => {
-    await page.goto('/signin')
-    await page.waitForLoadState('networkidle')
+    await test.step('Navigate to signin page', async () => {
+      await page.goto('/signin')
+      await page.waitForLoadState('networkidle')
+    })
 
-    // Check main elements are present
-    await expect(page.getByRole('img', { name: 'Cipherdolls' }).first()).toBeVisible()
-    await expect(page.locator('iframe[title="YouTube video player"]')).toBeVisible()
-    await expect(page.getByText('A connected crypto wallet in your browser is required')).toBeVisible()
+    await test.step('Check main UI elements', async () => {
+      // Logo
+      await expectElementVisible(
+        page, 
+        'img[alt="Cipherdolls"]', 
+        'CipherDolls Logo'
+      )
+      
+      // Video iframe
+      await expectElementVisible(
+        page,
+        SELECTORS.VIDEO_IFRAME,
+        'YouTube Tutorial Video'
+      )
+    })
     
-    // Check modal buttons
-    await expect(page.getByRole('button', { name: 'How It Works' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Terms of Service' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Privacy Policy' })).toBeVisible()
+    await test.step('Verify wallet connection message', async () => {
+      await expectTextVisible(page, UI_TEXTS.WALLET_REQUIRED, {
+        testName: 'Wallet Required Message Check',
+        timeout: 5000
+      })
+    })
+    
+    await test.step('Check modal buttons', async () => {
+      const modalButtons = [
+        { name: UI_TEXTS.HOW_IT_WORKS, description: 'How It Works modal button' },
+        { name: UI_TEXTS.TERMS_OF_SERVICE, description: 'Terms of Service modal button' },
+        { name: UI_TEXTS.PRIVACY_POLICY, description: 'Privacy Policy modal button' }
+      ]
+      
+      for (const button of modalButtons) {
+        const buttonElement = page.getByRole('button', { name: button.name })
+        const isVisible = await buttonElement.isVisible()
+        if (!isVisible) {
+          throw new Error(`
+❌ MODAL BUTTON NOT FOUND: ${button.description}
 
-    // Check pricing info
-    await expect(page.getByText('Free')).toBeVisible()
-    await expect(page.getByText('Registration and usage')).toBeVisible()
-    await expect(page.getByText('1 LOV')).toBeVisible()
-    await expect(page.getByText('For monthly usage')).toBeVisible()
+Expected button text: "${button.name}"
+Found: Not visible
 
-    // Check partner logos
-    await expect(page.getByRole('img', { name: 'Mixedbread' })).toBeVisible()
-    await expect(page.getByRole('img', { name: 'Openrouter' })).toBeVisible()
-    await expect(page.getByRole('img', { name: 'Groq' })).toBeVisible()
-    await expect(page.getByRole('img', { name: 'Elevenlabs' })).toBeVisible()
-    await expect(page.getByRole('img', { name: 'Assembly' })).toBeVisible()
+💡 Check if:
+   1. Button text changed
+   2. Button is conditionally rendered
+   3. Button is hidden by CSS
+
+📍 Location: Bottom of signin form
+          `)
+        }
+      }
+    })
+
+    await test.step('Check pricing information', async () => {
+      await expectTextVisible(page, UI_TEXTS.FREE_TIER, {
+        testName: 'Free Tier Text'
+      })
+      await expectTextVisible(page, UI_TEXTS.REGISTRATION_AND_USAGE, {
+        testName: 'Free Tier Description'
+      })
+      await expectTextVisible(page, UI_TEXTS.PAID_TIER, {
+        testName: 'Paid Tier Price'
+      })
+      await expectTextVisible(page, UI_TEXTS.MONTHLY_USAGE, {
+        testName: 'Paid Tier Description'
+      })
+    })
+
+    await test.step('Check partner logos', async () => {
+      const partnerLogos = [
+        UI_TEXTS.LOGO_MIXEDBREAD,
+        UI_TEXTS.LOGO_OPENROUTER,
+        UI_TEXTS.LOGO_GROQ,
+        UI_TEXTS.LOGO_ELEVENLABS,
+        UI_TEXTS.LOGO_ASSEMBLY
+      ]
+      
+      for (const logo of partnerLogos) {
+        await expectElementVisible(
+          page,
+          `img[alt="${logo}"]`,
+          `${logo} Partner Logo`
+        )
+      }
+    })
     
     console.log('✅ All page elements verified with real MetaMask')
   })
@@ -69,25 +170,32 @@ test.describe('SignIn Page with Real MetaMask - Conditional Logic', () => {
   }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId)
     
-    await page.goto('/signin')
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
+    await test.step('Navigate and verify initial state', async () => {
+      await page.goto('/signin')
+      await page.waitForLoadState('networkidle')
+      await page.waitForTimeout(1000)
 
-    // Initially wallet should not be connected
-    const signInButton = page.locator('form').getByRole('button', { name: 'Sign In' })
-    await expect(signInButton).toBeVisible()
+      // Verify sign in button is visible
+      await expectElementVisible(
+        page,
+        SELECTORS.SIGNIN_BUTTON,
+        'Sign In Button (Initial State)'
+      )
+    })
     
-    // Click to initiate connection
-    await signInButton.click()
-    
-    // Connect wallet through MetaMask
-    await metamask.connectToDapp()
-    
-    // Wait for connection state to update
-    await page.waitForTimeout(2000)
-    
-    // Verify wallet is now connected (button should still be visible for signing)
-    await expect(signInButton).toBeVisible()
+    await test.step('Connect wallet and verify state change', async () => {
+      await connectWallet(page, metamask, 'Wallet Connection State Test')
+      
+      // Wait for state update
+      await page.waitForTimeout(2000)
+      
+      // Button should still be visible for message signing
+      await expectElementVisible(
+        page,
+        SELECTORS.SIGNIN_BUTTON,
+        'Sign In Button (After Connection)'
+      )
+    })
     
     console.log('✅ Wallet connection state changes verified')
   })
@@ -95,15 +203,22 @@ test.describe('SignIn Page with Real MetaMask - Conditional Logic', () => {
   test('should show disabled button during loading state', async ({
     page,
   }) => {
-    await page.goto('/signin')
+    await test.step('Navigate to signin page', async () => {
+      await page.goto('/signin')
+      
+      // Wait for loading to complete (500ms timeout in component)
+      await page.waitForTimeout(600)
+      await page.waitForLoadState('networkidle')
+    })
     
-    // Wait for loading to complete (500ms timeout in component)
-    await page.waitForTimeout(600)
-    await page.waitForLoadState('networkidle')
-    
-    // After loading, with MetaMask available, button should be enabled
-    const activeSignInButton = page.locator('form').getByRole('button', { name: 'Sign In' })
-    await expect(activeSignInButton).toBeEnabled()
+    await test.step('Verify button state after loading', async () => {
+      await expectButtonState(
+        page, 
+        UI_TEXTS.SIGN_IN_BUTTON, 
+        'enabled',
+        { selector: SELECTORS.SIGNIN_BUTTON }
+      )
+    })
     
     console.log('✅ Loading state button behavior verified')
   })

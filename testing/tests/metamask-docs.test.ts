@@ -1,6 +1,10 @@
 import { testWithSynpress } from '@synthetixio/synpress'
 import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright'
 import basicSetup from '../setup/basic.setup'
+import { 
+  SELECTORS,
+  expectElementVisible
+} from './helpers/test-utils'
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup))
 const { expect } = test
@@ -25,49 +29,86 @@ test('should connect wallet and sign in to CipherDolls', async ({
     extensionId
   )
 
-  // Navigate to signin page
-  await page.goto('/signin')
-  
-  // Wait for page to load
-  await page.waitForLoadState('networkidle')
-  
-  // Click Sign In button to initiate wallet connection
-  await page.locator('form button[type="submit"]').click()
-  
-  // Connect to dApp through MetaMask
-  await metamask.connectToDapp()
-  
-  // After connection, trigger a connection check manually
-  await page.evaluate(() => {
-    if (window.ethereum) {
-      // Trigger accountsChanged event to notify the app
-      window.ethereum.emit('accountsChanged', ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266']);
-    }
+  await test.step('Navigate to signin page', async () => {
+    await page.goto('/signin')
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(1000)
   })
   
-  // Wait for wallet connection and click Sign In again to complete authentication
-  await page.waitForTimeout(1000)
+  await test.step('Verify signin form is available', async () => {
+    await expectElementVisible(
+      page,
+      SELECTORS.SIGNIN_FORM,
+      'Sign In Form'
+    )
+  })
   
-  // Monitor network requests for API calls
+  await test.step('Connect wallet', async () => {
+    await page.locator(SELECTORS.SIGNIN_BUTTON).click()
+  
+    // Connect to dApp through MetaMask
+    await metamask.connectToDapp()
+    
+    // After connection, trigger a connection check manually
+    await page.evaluate(() => {
+      if (window.ethereum) {
+        // Trigger accountsChanged event to notify the app
+        window.ethereum.emit('accountsChanged', ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266']);
+      }
+    })
+    
+    // Wait for wallet connection state update
+    await page.waitForTimeout(1000)
+  })
+  
+  // Monitor network requests for API calls outside of step scope
   const responsePromise = page.waitForResponse(response => 
     response.url().includes('/auth/signin')
   ).catch(() => null)
   
-  await page.locator('form button[type="submit"]').click()
+  await test.step('Complete authentication flow', async () => {
+    await page.locator(SELECTORS.SIGNIN_BUTTON).click()
+    
+    // Sign the message in MetaMask popup
+    await metamask.confirmSignature()
+    
+    // Wait for authentication and potential redirect
+    await page.waitForTimeout(3000)
+  })
   
-  // Sign the message in MetaMask popup
-  await metamask.confirmSignature()
-  
-  // Check API response
+  // Check API response after step
   const signinResponse = await responsePromise
-  if (signinResponse) {
-    console.log(`✅ API signin call: ${signinResponse.url()} - Status: ${signinResponse.status()}`)
-    const responseText = await signinResponse.text()
-    console.log(`Response: ${responseText.substring(0, 200)}...`)
+  if (!signinResponse) {
+    throw new Error(`
+❌ API CALL NOT DETECTED
+
+Expected: POST to /auth/signin
+Actual: No API call captured
+
+💡 Possible causes:
+  1. Sign In button didn't trigger action
+  2. MetaMask signature was not confirmed
+  3. API endpoint changed
+
+📍 Check: clientAction function
+    `)
   }
   
-  // Wait for authentication and potential redirect
-  await page.waitForTimeout(8000)
+  const status = signinResponse.status()
+  if (status !== 201) {
+    const responseText = await signinResponse.text()
+    throw new Error(`
+❌ UNEXPECTED API RESPONSE
+
+Expected status: 201
+Actual status: ${status}
+Response: ${responseText}
+
+📍 Check: API signin endpoint
+    `)
+  }
+  
+  console.log(`✅ API signin call: ${signinResponse.url()} - Status: ${status}`)
   
   // Debug: Take screenshot and log page content
   await page.screenshot({ path: 'debug-after-signin.png' })
@@ -135,20 +176,64 @@ test('should connect wallet and sign in to CipherDolls', async ({
     }
   }
   
-  // Final check
-  if (currentUrl.endsWith('/signin')) {
-    console.log('❌ Still on signin page - frontend redirect issue')
-    await expect(page.getByText('A connected crypto wallet in your browser is required')).toBeVisible()
-    console.log('✅ MetaMask + API authentication works, frontend redirect needs fixing')
-  } else if (currentUrl.endsWith('/')) {
-    console.log('✅ Successfully redirected to homepage!')
-    await expect(page).toHaveURL('/')
-    console.log('🎉 FULL MetaMask signin flow completed successfully!')
-    
-    // Wait briefly on homepage  
-    await page.waitForTimeout(2000)
-    console.log('✅ Test completed - homepage reached successfully')
-  } else {
-    console.log(`⚠️ Unexpected page: ${currentUrl}`)
-  }
+  await test.step('Verify final authentication state', async () => {
+    // Final check
+    if (currentUrl.endsWith('/signin')) {
+      console.log('❌ Still on signin page - frontend redirect issue')
+      
+      try {
+        await expectElementVisible(
+          page,
+          'text="A connected crypto wallet in your browser is required"',
+          'Wallet Required Text (Still on Signin)'
+        )
+        console.log('✅ MetaMask + API authentication works, frontend redirect needs fixing')
+      } catch (error) {
+        throw new Error(`
+❌ AUTHENTICATION STATE UNCLEAR
+
+Expected: Either successful redirect OR clear signin state
+Actual: Still on signin but can't verify page state
+
+📍 Check: Token handling and redirect logic
+        `)
+      }
+      
+    } else if (currentUrl.endsWith('/')) {
+      console.log('✅ Successfully redirected to homepage!')
+      
+      try {
+        await expect(page).toHaveURL('/')
+        console.log('🎉 FULL MetaMask signin flow completed successfully!')
+        
+        // Wait briefly on homepage  
+        await page.waitForTimeout(2000)
+        console.log('✅ Test completed - homepage reached successfully')
+      } catch (error) {
+        throw new Error(`
+❌ HOMEPAGE VERIFICATION FAILED
+
+Expected URL: /
+Actual URL: ${currentUrl}
+
+📍 Check: Navigation logic after successful auth
+        `)
+      }
+      
+    } else {
+      throw new Error(`
+❌ UNEXPECTED NAVIGATION RESULT
+
+Expected: Either /signin (with clear state) OR / (homepage)
+Actual: ${currentUrl}
+
+💡 This indicates:
+  1. Authentication flow has unexpected behavior
+  2. Routing logic may be broken
+  3. Redirect configuration issue
+
+📍 Check: Authentication success handling
+      `)
+    }
+  })
 })
