@@ -7,7 +7,7 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "test:cache": "npx synpress ./testing/cache/wallet-setup",
+    "test:cache": "npx synpress ./testing/setup",
     "test:metamask": "npm run test:cache && npx playwright test testing/tests/metamask-docs.test.ts",
     "test:conditions": "npm run test:cache && npx playwright test testing/tests/metamask-signin-conditions.test.ts", 
     "test:auth": "npm run test:cache && npx playwright test testing/tests/metamask-auth-flow.test.ts",

@@ -1,4 +1,4 @@
 export default {
-  walletSetupDir: './testing/cache/wallet-setup',
+  walletSetupDir: './testing/setup',
   cacheDir: './testing/cache'
 }
