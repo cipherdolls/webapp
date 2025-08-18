@@ -24,6 +24,13 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true
 
+      - name: Run TypeScript checks
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npx eslint . --ext .ts,.tsx --max-warnings 0
+        continue-on-error: true
+
   test-metamask:
     needs: security-check
     runs-on: ubuntu-latest
@@ -55,10 +62,25 @@ jobs:
         run: |
           timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+
       - name: Build Synpress cache
         run: xvfb-run -a npm run test:cache
 
-      - name: Run MetaMask tests
+      - name: Run signin tests (if signin changed)
+        if: contains(steps.changed-files.outputs.all_changed_files, 'signIn')
+        run: xvfb-run -a npm run test:signin-conditions
+
+      - name: Run auth tests (if auth changed)
+        if: contains(steps.changed-files.outputs.all_changed_files, 'auth')
+        run: xvfb-run -a npm run test:auth-flow
+
+      - name: Run all tests (if no specific match)
+        if: |
+          !contains(steps.changed-files.outputs.all_changed_files, 'signIn') &&
+          !contains(steps.changed-files.outputs.all_changed_files, 'auth')
         run: xvfb-run -a npm run test:all-metamask
 
       - name: Format test results
