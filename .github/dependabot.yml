@@ -1,0 +1,58 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "cipherdolls"
+    assignees:
+      - "cipherdolls"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+    # Group minor and patch updates
+    groups:
+      playwright-dependencies:
+        patterns:
+          - "@playwright/*"
+          - "@synthetixio/synpress"
+        update-types:
+          - "minor"
+          - "patch"
+      react-dependencies:
+        patterns:
+          - "react*"
+          - "@react-router/*"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "typescript"
+          - "vite*"
+          - "tailwindcss"
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 2
+    reviewers:
+      - "cipherdolls"
+    assignees:
+      - "cipherdolls"
+    commit-message:
+      prefix: "ci"
