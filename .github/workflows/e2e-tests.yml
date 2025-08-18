@@ -24,13 +24,10 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true
 
-  test:
+  test-metamask:
     needs: security-check
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      matrix:
-        test-suite: [metamask, browser]
     
     steps:
       - name: Checkout
@@ -48,9 +45,49 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
-      - name: Build Synpress cache
-        if: matrix.test-suite == 'metamask'
-        run: npm run test:cache
+      - name: Start development server
+        run: npm run dev &
+
+      - name: Wait for server
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
+
+      - name: Build Synpress cache (headless)
+        run: HEADLESS=true npm run test:cache
+
+      - name: Run MetaMask tests
+        run: npm run test:all-metamask
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-metamask
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  test-browser:
+    needs: security-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
 
       - name: Start development server
         run: npm run dev &
@@ -59,34 +96,21 @@ jobs:
         run: |
           timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
 
-      - name: Run MetaMask tests
-        if: matrix.test-suite == 'metamask'
-        run: npm run test:all-metamask
-
       - name: Run browser compatibility tests
-        if: matrix.test-suite == 'browser'
         run: npm run test:browser
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.test-suite }}
+          name: test-results-browser
           path: |
             playwright-report/
             test-results/
           retention-days: 7
 
-      - name: Upload test videos
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-videos-${{ matrix.test-suite }}
-          path: test-results/
-          retention-days: 3
-
   test-summary:
-    needs: test
+    needs: [test-metamask, test-browser]
     runs-on: ubuntu-latest
     if: always()
     steps:
