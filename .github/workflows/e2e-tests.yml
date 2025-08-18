@@ -45,6 +45,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
+      - name: Install xvfb
+        run: sudo apt-get install -y xvfb
+
       - name: Start development server
         run: npm run dev &
 
@@ -52,11 +55,11 @@ jobs:
         run: |
           timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
 
-      - name: Build Synpress cache (headless)
-        run: HEADLESS=true npm run test:cache
+      - name: Build Synpress cache
+        run: xvfb-run -a npm run test:cache
 
       - name: Run MetaMask tests
-        run: HEADLESS=true npm run test:all-metamask
+        run: xvfb-run -a npm run test:all-metamask
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
