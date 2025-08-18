@@ -216,7 +216,7 @@ export default function SignInRoute() {
 
                 <div className='px-4 py-6 flex flex-col gap-8 lg:py-10 lg:px-8 md:px-6 md:py-8'>
                   <p className='text-black text-body-md md:text-body-lg'>
-                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine)
+                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine).
                   </p>
                   <div className='flex flex-col gap-4'>
                     {!isLoading && !hasEthereum ? (
