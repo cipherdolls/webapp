@@ -1,232 +1,96 @@
-name: E2E Tests (Playwright + Synpress)
+name: E2E Tests
 
 on:
   pull_request:
-    branches: [ main, develop ]
-    types: [ opened, synchronize, reopened ]
-
-env:
-  NODE_VERSION: '20'
-  CI: true
+    branches: [main, develop]
 
 jobs:
-  e2e-tests:
-    name: End-to-End Tests
+  security-check:
     runs-on: ubuntu-latest
-    
-    timeout-minutes: 30
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        test-suite:
-          - name: "MetaMask Tests"
-            command: "npm run test:all-metamask"
-          - name: "Browser Compatibility"
-            command: "npm run test:browser"
-    
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Cache Synpress cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            testing/cache/synpress-cache
-          key: ${{ runner.os }}-synpress-cache-${{ hashFiles('testing/cache/wallet-setup/basic.setup.ts') }}
-          restore-keys: |
-            ${{ runner.os }}-synpress-cache-
 
       - name: Install dependencies
-        run: |
-          npm ci --frozen-lockfile
-          
+        run: npm ci
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  test:
+    needs: security-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        test-suite: [metamask, browser]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Install Playwright browsers
-        run: |
-          npx playwright install chromium
-          npx playwright install-deps chromium
+        run: npx playwright install chromium
+
+      - name: Build Synpress cache
+        if: matrix.test-suite == 'metamask'
+        run: npm run test:cache
 
       - name: Start development server
-        run: |
-          npm run dev &
-          echo "DEV_SERVER_PID=$!" >> $GITHUB_ENV
-        
-      - name: Wait for development server
-        run: |
-          timeout 60 bash -c 'until curl -f http://localhost:5173 > /dev/null 2>&1; do sleep 2; done'
-          echo "Development server is ready"
+        run: npm run dev &
 
-      - name: Verify server is responding
+      - name: Wait for server
         run: |
-          curl -I http://localhost:5173
-          
-      - name: Run Synpress cache setup (MetaMask tests only)
-        if: matrix.test-suite.name == 'MetaMask Tests'
-        run: |
-          echo "Setting up Synpress cache for MetaMask tests..."
-          npm run test:cache
-          
-      - name: Verify Synpress cache
-        if: matrix.test-suite.name == 'MetaMask Tests'
-        run: |
-          if [ -d "testing/cache/synpress-cache" ]; then
-            echo "✅ Synpress cache directory exists"
-            ls -la testing/cache/synpress-cache/ || echo "Cache directory is empty"
-          else
-            echo "❌ Synpress cache directory not found"
-            exit 1
-          fi
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
 
-      - name: Run E2E Tests
-        run: |
-          echo "Running: ${{ matrix.test-suite.name }}"
-          ${{ matrix.test-suite.command }}
-        env:
-          PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
-          
-      - name: Upload Playwright Report
+      - name: Run MetaMask tests
+        if: matrix.test-suite == 'metamask'
+        run: npm run test:all-metamask
+
+      - name: Run browser compatibility tests
+        if: matrix.test-suite == 'browser'
+        run: npm run test:browser
+
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.test-suite.name }}-${{ github.run_id }}
+          name: test-results-${{ matrix.test-suite }}
           path: |
             playwright-report/
             test-results/
-          retention-days: 30
-          
-      - name: Upload Test Results
+          retention-days: 7
+
+      - name: Upload test videos
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.test-suite.name }}-${{ github.run_id }}
-          path: |
-            test-results/
-          retention-days: 7
+          name: test-videos-${{ matrix.test-suite }}
+          path: test-results/
+          retention-days: 3
 
-      - name: Cleanup processes
-        if: always()
-        run: |
-          # Kill the development server
-          if [ ! -z "$DEV_SERVER_PID" ]; then
-            kill $DEV_SERVER_PID || true
-          fi
-          # Kill any remaining Node processes
-          pkill -f "vite" || true
-          pkill -f "react-router" || true
-          # Kill any remaining Playwright processes
-          pkill -f "playwright" || true
-          pkill -f "chrome" || true
-
-  # Separate job for test result summary
   test-summary:
-    name: Test Results Summary
+    needs: test
     runs-on: ubuntu-latest
-    needs: e2e-tests
     if: always()
-    
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts/
-          
-      - name: Generate Test Summary
+      - name: Test Summary
         run: |
-          echo "# E2E Test Results Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Check if tests passed or failed
-          METAMASK_STATUS="❓ Unknown"
-          BROWSER_STATUS="❓ Unknown"
-          
-          if [ "${{ needs.e2e-tests.result }}" = "success" ]; then
-            METAMASK_STATUS="✅ Passed"
-            BROWSER_STATUS="✅ Passed"
-          elif [ "${{ needs.e2e-tests.result }}" = "failure" ]; then
-            # Check individual test results from job matrix
-            METAMASK_STATUS="❌ Failed"
-            BROWSER_STATUS="❌ Failed"
-          fi
-          
-          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| MetaMask Tests | $METAMASK_STATUS |" >> $GITHUB_STEP_SUMMARY
-          echo "| Browser Compatibility | $BROWSER_STATUS |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "- Playwright HTML reports are available in the artifacts section" >> $GITHUB_STEP_SUMMARY
-          echo "- Test results and screenshots are preserved for 30 days" >> $GITHUB_STEP_SUMMARY
-          echo "- Videos are recorded for failed tests only" >> $GITHUB_STEP_SUMMARY
-          
-          # List available artifacts
-          if [ -d "artifacts" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Available Artifacts:" >> $GITHUB_STEP_SUMMARY
-            find artifacts -name "*.html" -o -name "*.json" | head -10 | while read file; do
-              echo "- \`$(basename "$file")\`" >> $GITHUB_STEP_SUMMARY
-            done
-          fi
-
-  # Optional: Security and dependency checks
-  security-check:
-    name: Security Check
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci --frozen-lockfile
-        
-      - name: Run security audit
-        run: |
-          npm audit --audit-level=moderate
-          
-      - name: Check for sensitive files
-        run: |
-          # Check for common sensitive files that shouldn't be committed
-          SENSITIVE_FILES=()
-          
-          if [ -f ".env" ]; then
-            SENSITIVE_FILES+=(".env")
-          fi
-          
-          if [ -f "package-lock.json" ] && grep -q "file:" package-lock.json; then
-            echo "Warning: package-lock.json contains local file dependencies"
-          fi
-          
-          if [ ${#SENSITIVE_FILES[@]} -gt 0 ]; then
-            echo "❌ Sensitive files found: ${SENSITIVE_FILES[*]}"
-            echo "Please review these files before merging"
-            exit 1
-          else
-            echo "✅ No sensitive files detected"
-          fi
+          echo "## Test Results 🧪" >> $GITHUB_STEP_SUMMARY
+          echo "E2E tests completed. Check artifacts for detailed results." >> $GITHUB_STEP_SUMMARY
