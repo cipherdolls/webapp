@@ -22,7 +22,7 @@ export const YourReferrals = ({ user }: { user: User }) => {
   };
 
   return (
-    <Card.Root className='sm:max-w-[352px]'>
+    <Card.Root className='lg:max-w-[352px]'>
       <div className='flex items-center justify-between'>
         <Card.Label>Your Referrals</Card.Label>
         <InformationBadge className='size-6' side='top' tooltipText='Your personal referrals in Cipherdolls' popoverClassName='ml-auto' />
@@ -32,7 +32,7 @@ export const YourReferrals = ({ user }: { user: User }) => {
           <div className='sm:py-14'>
             <div className='py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
               <h1 className='sm:text-heading-h1 text-heading-h2'>🤷‍♀️</h1>
-              <div className='flex items-center flex-col sm:gap-2 gap-1'>
+              <div className='flex sm:items-center flex-col sm:gap-2 gap-1'>
                 <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Referrals Yet</h4>
                 <button
                   onClick={handleInviteCopy}
