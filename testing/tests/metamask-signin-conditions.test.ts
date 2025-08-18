@@ -76,11 +76,11 @@ Actual: type="${buttonType}"
     })
 
     await test.step('Check main UI elements', async () => {
-      // Logo
+      // Main logo (first one which is the actual logo)
       await expectElementVisible(
         page, 
-        'img[alt="Cipherdolls"]', 
-        'CipherDolls Logo'
+        'img[alt="Cipherdolls"][src="/logo.svg"]', 
+        'CipherDolls Main Logo'
       )
       
       // Video iframe

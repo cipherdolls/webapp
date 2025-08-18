@@ -32,9 +32,24 @@ test.describe('SignIn Authentication Flow with Real MetaMask', () => {
     })
 
     await test.step('Navigate and verify token is removed', async () => {
-      await page.goto('/signin')
-      await page.waitForLoadState('networkidle')
-      await page.waitForTimeout(1000)
+      try {
+        await page.goto('/signin')
+        await page.waitForLoadState('networkidle', { timeout: 10000 })
+        await page.waitForTimeout(1000)
+      } catch (error: any) {
+        throw new Error(`
+❌ PAGE NAVIGATION FAILED
+
+Error: ${error.message}
+
+💡 Possible causes:
+  1. Page was closed unexpectedly
+  2. Network timeout during navigation
+  3. Invalid token mock caused page to crash
+
+📍 This might be a test setup issue with API mocking
+        `)
+      }
 
       // Should stay on signin page
       const currentUrl = page.url()

@@ -40,12 +40,58 @@ test.describe('Browser Compatibility Tests', () => {
     })
     
     await test.step('Verify Sign In button is disabled', async () => {
-      await expectButtonState(
-        page, 
-        UI_TEXTS.SIGN_IN_BUTTON, 
-        'disabled',
-        { selector: SELECTORS.SIGNIN_BUTTON }
-      )
+      // Button should exist but be disabled when no ethereum
+      try {
+        await expectElementVisible(
+          page,
+          'button:has-text("Sign In")',
+          'Sign In Button (Should be visible but disabled)'
+        )
+        
+        // Now check if it's disabled
+        const signInButton = page.locator('button:has-text("Sign In")').first()
+        const isDisabled = await signInButton.isDisabled()
+        
+        if (!isDisabled) {
+          throw new Error(`
+❌ BUTTON STATE ERROR
+
+Expected: Sign In button should be disabled when no ethereum
+Actual: Button is enabled
+
+💡 This means:
+  1. Button exists ✅
+  2. Button is visible ✅  
+  3. Button should be disabled when no ethereum ❌
+
+📍 Check: Button disabled state logic when hasEthereum is false
+          `)
+        }
+        
+      } catch (error: any) {
+        // If button not found, provide detailed debugging
+        const pageContent = await page.locator('body').innerText()
+        const hasButton = pageContent.includes('Sign In')
+        
+        throw new Error(`
+❌ SIGN IN BUTTON NOT FOUND
+
+Expected: Button should exist but be disabled
+Actual: Button not found in DOM
+
+📊 Debug info:
+  - Page contains "Sign In" text: ${hasButton ? '✅ Yes' : '❌ No'}
+  - Button selector tried: button:has-text("Sign In")
+  
+💡 Possible causes:
+  1. Button is not rendered when ethereum is missing
+  2. Button text is different
+  3. Button selector needs adjustment
+  4. Loading state is still active
+
+📍 Check: Button rendering logic in signin component
+        `)
+      }
     })
 
     await test.step('Verify browser download links are available', async () => {
