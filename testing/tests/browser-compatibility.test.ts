@@ -1,57 +1,40 @@
-import { test, expect } from '@playwright/test'
-import { 
-  UI_TEXTS, 
-  SELECTORS,
-  expectTextVisible,
-  expectElementVisible,
-  expectButtonState
-} from './helpers/test-utils'
+import { test, expect } from '@playwright/test';
+import { UI_TEXTS, SELECTORS, expectTextVisible, expectElementVisible, expectButtonState } from './helpers/test-utils';
 
 test.describe('Browser Compatibility Tests', () => {
-  // Test browsers without Web3 support
-  
   test('should show browser warning when ethereum is not available', async ({ page }) => {
     await test.step('Setup no ethereum environment', async () => {
-      // Mock NO ethereum support
       await page.addInitScript(() => {
-        // Ensure window.ethereum is undefined
         delete (window as any).ethereum;
       });
-    })
-    
+    });
+
     await test.step('Navigate to signin page', async () => {
       await page.goto('/signin');
       await page.waitForLoadState('networkidle');
-      
-      // Wait for loading to complete (500ms timeout in component)
+
       await page.waitForTimeout(600);
-    })
+    });
 
     await test.step('Verify browser warning is shown', async () => {
       await expectTextVisible(page, UI_TEXTS.BROWSER_NOT_SUPPORTED, {
         testName: 'Browser Not Supported Warning',
-        timeout: 5000
-      })
-      
+        timeout: 5000,
+      });
+
       await expectTextVisible(page, 'Use a Web3 browser', {
         testName: 'Web3 Browser Instruction',
-        timeout: 5000  
-      })
-    })
-    
+        timeout: 5000,
+      });
+    });
+
     await test.step('Verify Sign In button is disabled', async () => {
-      // Button should exist but be disabled when no ethereum
       try {
-        await expectElementVisible(
-          page,
-          'button:has-text("Sign In")',
-          'Sign In Button (Should be visible but disabled)'
-        )
-        
-        // Now check if it's disabled
-        const signInButton = page.locator('button:has-text("Sign In")').first()
-        const isDisabled = await signInButton.isDisabled()
-        
+        await expectElementVisible(page, 'button:has-text("Sign In")', 'Sign In Button (Should be visible but disabled)');
+
+        const signInButton = page.locator('button:has-text("Sign In")').first();
+        const isDisabled = await signInButton.isDisabled();
+
         if (!isDisabled) {
           throw new Error(`
 ❌ BUTTON STATE ERROR
@@ -65,14 +48,12 @@ Actual: Button is enabled
   3. Button should be disabled when no ethereum ❌
 
 📍 Check: Button disabled state logic when hasEthereum is false
-          `)
+          `);
         }
-        
       } catch (error: any) {
-        // If button not found, provide detailed debugging
-        const pageContent = await page.locator('body').innerText()
-        const hasButton = pageContent.includes('Sign In')
-        
+        const pageContent = await page.locator('body').innerText();
+        const hasButton = pageContent.includes('Sign In');
+
         throw new Error(`
 ❌ SIGN IN BUTTON NOT FOUND
 
@@ -90,21 +71,21 @@ Actual: Button not found in DOM
   4. Loading state is still active
 
 📍 Check: Button rendering logic in signin component
-        `)
+        `);
       }
-    })
+    });
 
     await test.step('Verify browser download links are available', async () => {
       const browserLinks = [
         { name: 'Brave', description: 'Brave Browser download link' },
-        { name: 'Opera Crypto', description: 'Opera Crypto Browser download link' }, 
-        { name: 'MetaMask extension', description: 'MetaMask extension download link' }
-      ]
-      
+        { name: 'Opera Crypto', description: 'Opera Crypto Browser download link' },
+        { name: 'MetaMask extension', description: 'MetaMask extension download link' },
+      ];
+
       for (const link of browserLinks) {
-        const linkElement = page.getByRole('link', { name: link.name })
-        const isVisible = await linkElement.isVisible()
-        
+        const linkElement = page.getByRole('link', { name: link.name });
+        const isVisible = await linkElement.isVisible();
+
         if (!isVisible) {
           throw new Error(`
 ❌ BROWSER DOWNLOAD LINK MISSING: ${link.description}
@@ -119,11 +100,11 @@ Found: Not visible
   4. CSS hiding the link
 
 📍 Check: Browser warning section in signin component
-          `)
+          `);
         }
       }
-    })
-    
-    console.log('✅ Browser warning test completed - no MetaMask scenario verified')
+    });
+
+    console.log('✅ Browser warning test completed - no MetaMask scenario verified');
   });
-})
+});

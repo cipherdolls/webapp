@@ -6,7 +6,6 @@
 /build/
 .idea/
 
-# Testing & Test Results
 /test-results/
 /playwright-report/
 /playwright/.cache/

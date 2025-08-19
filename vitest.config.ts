@@ -5,28 +5,21 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tsconfigPaths(), // Enable path aliases from tsconfig.json
-  ],
+  plugins: [react(), tsconfigPaths()],
   test: {
-    // Basic test settings
     globals: true,
     environment: 'jsdom',
     setupFiles: './app/setupTests.ts',
-    
-    // Only run tests in app directory
+
     include: ['app/**/*.{test,spec}.{js,ts,tsx}'],
     exclude: ['testing/**/*', 'node_modules/**/*'],
 
-    // CSS handling
     css: {
       modules: {
         classNameStrategy: 'stable',
       },
     },
 
-    // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -41,7 +34,6 @@ export default defineConfig({
       },
     },
 
-    // Performance settings
     pool: 'threads',
     poolOptions: {
       threads: {
@@ -50,7 +42,6 @@ export default defineConfig({
     },
   },
 
-  // Path aliases
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './app'),

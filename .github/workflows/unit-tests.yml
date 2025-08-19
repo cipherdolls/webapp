@@ -29,6 +29,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
       - name: Start dev server
         run: npm run dev &
         

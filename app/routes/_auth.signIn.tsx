@@ -105,7 +105,6 @@ export default function SignInRoute() {
   useEffect(() => {
     checkConnection();
 
-    // Listen for account changes
     if (window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('DEBUG: accountsChanged event:', accounts.length);
@@ -146,7 +145,6 @@ export default function SignInRoute() {
         return;
       }
 
-      // Use eth_accounts instead of provider.listAccounts()
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
       console.log('DEBUG: Found accounts via eth_accounts:', accounts.length);
 
@@ -172,16 +170,15 @@ export default function SignInRoute() {
         },
       });
 
-      // If 200 => token is valid
       if (res.status === 200) {
         return true;
       }
-      // If 401 => token invalid
+
       if (res.status === 401) {
         localStorage.removeItem('token');
         return false;
       }
-      // Otherwise, some other error
+
       return false;
     } catch (err) {
       console.error('Verify token error:', err);

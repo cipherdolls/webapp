@@ -1,95 +1,64 @@
-import { testWithSynpress } from '@synthetixio/synpress'
-import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright'
-import basicSetup from '../setup/basic.setup'
-import { 
-  SELECTORS, 
-  API_ENDPOINTS,
-  expectElementVisible,
-  connectWallet,
-  mockAPIResponse
-} from './helpers/test-utils'
+import { testWithSynpress } from '@synthetixio/synpress';
+import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright';
+import basicSetup from '../setup/basic.setup';
+import { SELECTORS, expectElementVisible, connectWallet } from './helpers/test-utils';
 
-const test = testWithSynpress(metaMaskFixtures(basicSetup))
+const test = testWithSynpress(metaMaskFixtures(basicSetup));
 
 test.describe('SignIn Authentication Flow with Real MetaMask', () => {
-  
-  test('should handle wallet connection and disconnection', async ({
-    context,
-    page,
-    metamaskPage,
-    extensionId,
-  }) => {
-    const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId)
-    
-    await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin')
-      await page.waitForLoadState('networkidle')
-      await page.waitForTimeout(1000)
-    })
-    
-    await test.step('Verify signin form is available', async () => {
-      await expectElementVisible(
-        page,
-        SELECTORS.SIGNIN_FORM,
-        'Sign In Form'
-      )
-    })
-    
-    await test.step('Connect wallet', async () => {
-      await connectWallet(page, metamask, 'Wallet Connection Test')
-      
-      // Wait for connection
-      await page.waitForTimeout(2000)
-      
-      // Log current state
-      const currentUrl = page.url()
-      console.log('After connection, URL:', currentUrl)
-    })
-    
-    console.log('✅ Real MetaMask wallet connection flow verified')
-  })
+  test('should handle wallet connection and disconnection', async ({ context, page, metamaskPage, extensionId }) => {
+    const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
 
-  test('should handle complete authentication flow', async ({
-    context,
-    page,
-    metamaskPage,
-    extensionId,
-  }) => {
-    const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId)
-    
     await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin')
-      await page.waitForLoadState('networkidle')
-      await page.waitForTimeout(600)
-    })
+      await page.goto('/signin');
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(1000);
+    });
+
+    await test.step('Verify signin form is available', async () => {
+      await expectElementVisible(page, SELECTORS.SIGNIN_FORM, 'Sign In Form');
+    });
+
+    await test.step('Connect wallet', async () => {
+      await connectWallet(page, metamask, 'Wallet Connection Test');
+
+      await page.waitForTimeout(2000);
+
+      const currentUrl = page.url();
+      console.log('After connection, URL:', currentUrl);
+    });
+
+    console.log('✅ Real MetaMask wallet connection flow verified');
+  });
+
+  test('should handle complete authentication flow', async ({ context, page, metamaskPage, extensionId }) => {
+    const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
+
+    await test.step('Navigate to signin page', async () => {
+      await page.goto('/signin');
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(600);
+    });
 
     await test.step('Monitor API calls', async () => {
-      // Set up response monitoring
-      const signinResponsePromise = page.waitForResponse(response => 
-        response.url().includes('/auth/signin')
-      ).catch(() => null)
+      const signinResponsePromise = page.waitForResponse((response) => response.url().includes('/auth/signin')).catch(() => null);
 
-      // Connect wallet
-      await page.locator(SELECTORS.SIGNIN_BUTTON).click()
-      await metamask.connectToDapp()
-      
-      // Trigger accountsChanged to ensure connected state
+      await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+      await metamask.connectToDapp();
+
       await page.evaluate(() => {
         if (window.ethereum) {
-          window.ethereum.emit('accountsChanged', ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'])
+          window.ethereum.emit('accountsChanged', ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266']);
         }
-      })
-      
-      await page.waitForTimeout(1000)
-      
-      // Click Sign In again to trigger message signing
-      await page.locator(SELECTORS.SIGNIN_BUTTON).click()
-      
-      // Sign the message
-      await metamask.confirmSignature()
-      
-      // Check API response
-      const signinResponse = await signinResponsePromise
+      });
+
+      await page.waitForTimeout(1000);
+
+      await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+
+      await metamask.confirmSignature();
+
+      const signinResponse = await signinResponsePromise;
       if (!signinResponse) {
         throw new Error(`
 ❌ API CALL NOT DETECTED
@@ -103,14 +72,14 @@ Actual: No API call captured
    3. API endpoint changed
 
 📍 Check: clientAction function (lines 28-71)
-        `)
+        `);
       }
-      
-      const status = signinResponse.status()
-      console.log('✅ API signin successful:', status)
-      
+
+      const status = signinResponse.status();
+      console.log('✅ API signin successful:', status);
+
       if (status !== 201) {
-        const body = await signinResponse.text()
+        const body = await signinResponse.text();
         throw new Error(`
 ❌ UNEXPECTED API RESPONSE
 
@@ -119,21 +88,19 @@ Actual status: ${status}
 Response body: ${body}
 
 📍 Check: API signin endpoint
-        `)
+        `);
       }
-      
-      // Wait for potential redirect
-      await page.waitForTimeout(3000)
-      
-      const finalUrl = page.url()
-      if (finalUrl.endsWith('/')) {
-        console.log('🎉 Complete authentication flow successful - redirected to homepage!')
-      } else {
-        console.log('✅ Authentication API successful, staying on signin page')
-      }
-    })
-    
-    console.log('✅ Complete real MetaMask authentication flow tested')
-  })
 
-})
+      await page.waitForTimeout(3000);
+
+      const finalUrl = page.url();
+      if (finalUrl.endsWith('/')) {
+        console.log('🎉 Complete authentication flow successful - redirected to homepage!');
+      } else {
+        console.log('✅ Authentication API successful, staying on signin page');
+      }
+    });
+
+    console.log('✅ Complete real MetaMask authentication flow tested');
+  });
+});

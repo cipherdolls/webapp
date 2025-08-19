@@ -1,23 +1,20 @@
 import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-// Common UI texts used across the application
 export const UI_TEXTS = {
-  // Sign in page texts
   WALLET_REQUIRED: 'A connected crypto wallet in your browser is required to log in (new or empty wallets are fine).',
   WALLET_CONNECT_NEW: 'Please connect your wallet to continue',
   SIGN_IN_BUTTON: 'Sign In',
   HOW_IT_WORKS: 'How It Works',
-  TERMS_OF_SERVICE: 'Terms of Service', 
+  TERMS_OF_SERVICE: 'Terms of Service',
   PRIVACY_POLICY: 'Privacy Policy',
   FREE_TIER: 'Free',
   REGISTRATION_AND_USAGE: 'Registration and usage',
   PAID_TIER: '1 LOV',
   MONTHLY_USAGE: 'For monthly usage',
   BROWSER_NOT_SUPPORTED: "Your browser isn't supported",
-  BROWSER_WARNING_PREFIX: 'Your browser isn\'t supported. Use a Web3 browser',
-  
-  // Partner logos
+  BROWSER_WARNING_PREFIX: "Your browser isn't supported. Use a Web3 browser",
+
   LOGO_CIPHERDOLLS: 'Cipherdolls',
   LOGO_MIXEDBREAD: 'Mixedbread',
   LOGO_OPENROUTER: 'Openrouter',
@@ -26,7 +23,6 @@ export const UI_TEXTS = {
   LOGO_ASSEMBLY: 'Assembly',
 } as const;
 
-// Common test IDs and selectors
 export const SELECTORS = {
   SIGNIN_FORM: 'form',
   SIGNIN_BUTTON: 'form button[type="submit"]',
@@ -36,7 +32,6 @@ export const SELECTORS = {
   BUTTON_PRIMARY: 'button.primary',
 } as const;
 
-// API endpoints for mocking
 export const API_ENDPOINTS = {
   NONCE: '**/auth/nonce',
   SIGNIN: '**/auth/signin',
@@ -47,24 +42,29 @@ export const API_ENDPOINTS = {
  * Helper function to check text visibility with better error messages
  */
 export async function expectTextVisible(
-  page: Page, 
-  text: string, 
-  options?: { 
-    testName?: string, 
-    timeout?: number,
-    selector?: string 
+  page: Page,
+  text: string,
+  options?: {
+    testName?: string;
+    timeout?: number;
+    selector?: string;
   }
 ) {
   const { testName = 'Text visibility check', timeout = 5000, selector } = options || {};
-  
+
   try {
     const locator = selector ? page.locator(selector).getByText(text) : page.getByText(text);
     await expect(locator).toBeVisible({ timeout });
   } catch (error) {
-    // Get current page text for debugging
-    const pageText = await page.locator('body').innerText().catch(() => 'Could not get page text');
-    const visibleTexts = pageText.split('\n').filter(t => t.trim()).slice(0, 10);
-    
+    const pageText = await page
+      .locator('body')
+      .innerText()
+      .catch(() => 'Could not get page text');
+    const visibleTexts = pageText
+      .split('\n')
+      .filter((t) => t.trim())
+      .slice(0, 10);
+
     throw new Error(`
 ❌ TEST FAILED: ${testName}
 
@@ -72,7 +72,7 @@ export async function expectTextVisible(
 ❓ Text not found on page
 
 📄 Visible texts on page:
-${visibleTexts.map(t => `   - "${t.substring(0, 50)}${t.length > 50 ? '...' : ''}"`).join('\n')}
+${visibleTexts.map((t) => `   - "${t.substring(0, 50)}${t.length > 50 ? '...' : ''}"`).join('\n')}
 
 💡 Possible causes:
    1. Text was changed in the UI
@@ -89,20 +89,15 @@ ${visibleTexts.map(t => `   - "${t.substring(0, 50)}${t.length > 50 ? '...' : ''
 /**
  * Helper function to check element visibility with better error messages
  */
-export async function expectElementVisible(
-  page: Page,
-  selector: string,
-  elementName: string,
-  options?: { timeout?: number }
-) {
+export async function expectElementVisible(page: Page, selector: string, elementName: string, options?: { timeout?: number }) {
   const { timeout = 5000 } = options || {};
-  
+
   try {
     await expect(page.locator(selector)).toBeVisible({ timeout });
   } catch (error) {
-    const exists = await page.locator(selector).count() > 0;
+    const exists = (await page.locator(selector).count()) > 0;
     const isVisible = exists ? await page.locator(selector).isVisible() : false;
-    
+
     throw new Error(`
 ❌ ELEMENT NOT VISIBLE: ${elementName}
 
@@ -134,10 +129,8 @@ export async function expectButtonState(
   options?: { selector?: string }
 ) {
   const { selector } = options || {};
-  const locator = selector 
-    ? page.locator(selector) 
-    : page.getByRole('button', { name: buttonText });
-  
+  const locator = selector ? page.locator(selector) : page.getByRole('button', { name: buttonText });
+
   try {
     if (expectedState === 'enabled') {
       await expect(locator).toBeEnabled();
@@ -145,10 +138,10 @@ export async function expectButtonState(
       await expect(locator).toBeDisabled();
     }
   } catch (error) {
-    const exists = await locator.count() > 0;
+    const exists = (await locator.count()) > 0;
     const isEnabled = exists ? await locator.isEnabled() : null;
     const isVisible = exists ? await locator.isVisible() : false;
-    
+
     throw new Error(`
 ❌ BUTTON STATE MISMATCH: "${buttonText}"
 
@@ -176,19 +169,16 @@ export async function expectButtonState(
  */
 export async function connectWallet(page: Page, metamask: any, testContext: string) {
   try {
-    // Click Sign In button
     await page.locator(SELECTORS.SIGNIN_BUTTON).click();
-    
-    // Connect to dApp
+
     await metamask.connectToDapp();
-    
-    // Trigger account change event
+
     await page.evaluate(() => {
       if (window.ethereum) {
         window.ethereum.emit('accountsChanged', ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266']);
       }
     });
-    
+
     await page.waitForTimeout(1000);
   } catch (error: any) {
     throw new Error(`
@@ -213,12 +203,7 @@ export async function connectWallet(page: Page, metamask: any, testContext: stri
 /**
  * Helper function for API mocking with better error messages
  */
-export async function mockAPIResponse(
-  page: Page,
-  endpoint: string,
-  response: { status: number; body?: any },
-  testContext: string
-) {
+export async function mockAPIResponse(page: Page, endpoint: string, response: { status: number; body?: any }, testContext: string) {
   try {
     await page.route(endpoint, async (route) => {
       await route.fulfill({
@@ -244,15 +229,10 @@ export async function mockAPIResponse(
 /**
  * Helper function to wait for navigation with better error messages
  */
-export async function waitForNavigation(
-  page: Page,
-  expectedUrl: string | RegExp,
-  testContext: string,
-  options?: { timeout?: number }
-) {
+export async function waitForNavigation(page: Page, expectedUrl: string | RegExp, testContext: string, options?: { timeout?: number }) {
   const { timeout = 10000 } = options || {};
   const startUrl = page.url();
-  
+
   try {
     await page.waitForURL(expectedUrl, { timeout });
   } catch (error) {
