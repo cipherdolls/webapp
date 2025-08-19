@@ -39,6 +39,10 @@ export default [
     rules: {
       'no-debugger': 'error',
       'no-unused-vars': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: false,
     }
   }
 ]
