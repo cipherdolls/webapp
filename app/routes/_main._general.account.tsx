@@ -1,110 +1,144 @@
-import type { Route } from './+types/_main._general.account';
+import { useRouteLoaderData } from 'react-router';
+import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
-import YourInfo from '~/components/yourInfo';
-import AccountInfoCard from '~/components/account-info-card';
-import YourWalletModal from '~/components/yourWalletModal';
-import ApiKeyModal from '~/components/apiKeyModal';
-import { formatEther } from 'ethers';
-import SignOutModal from '~/components/signOutModal';
-import { Tooltip } from '~/components/ui/tooltip';
-import OP from '~/assets/svg/op-png.png';
-import LogoSvg from '~/assets/svg/logo.svg';
+import type { Route } from './+types/_main._general.account';
+import type { User } from '~/types';
+import YourAvatars from '~/components/yourAvatars';
+import YourChats from '~/components/your-chats';
+import YourScenarios from '~/components/your-scenarios';
+import UserEditModal from '~/components/UserEditModal';
+import TokenBalance from '~/components/TokenBalance';
+import TokenPermitsList from '~/components/TokenPermitsList';
+import { useState } from 'react';
+import { useNetworkCheck } from '~/hooks/useNetworkCheck';
+import { switchToOptimismNetwork } from '~/utils/networkUtils';
+import { toast } from 'sonner';
+import NetworkWarningBanner from '~/components/NetworkWarningBanner';
+import { useChats } from '~/hooks/queries/chatQueries';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
+import { YourReferrals } from '~/components/your-referrals';
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Account' }];
+function DashboardSkeleton({ count = 1 }: { count?: number }) {
+  return (
+    <div className='flex flex-col gap-4 pb-5 w-full'>
+      <div className='rounded-xl h-20 bg-gradient-1 w-full animate-pulse'></div>
+      <div className='rounded-xl h-32 bg-gradient-1 w-full animate-pulse'></div>
+      {Array.from({ length: count }).map((_, i) => (
+        <div className='flex flex-col gap-4 pl-5' key={i}>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
+          <div className='rounded-[10px] h-[276px] bg-gradient-1 w-full animate-pulse '></div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
-export default function Account({}: Route.ComponentProps) {
-  const { data: user } = useUser();
-  const me = user;
-  if (!me) {  
-    return null;
-  }
-  const { weiBalance, freeWeiBalance } = me;
+function LeftSkeleton({ count = 2 }: { count?: number }) {
+  return (
+    <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5'>
+      {Array.from({ length: count }).map((_, i) => (
+        <div className='flex flex-col gap-5' key={i}>
+          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+            <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+          </div>
+          <div className='-mt-2 mx-auto'>
+            <div className='rounded-[10px] h-10 bg-gradient-1 w-[118px] animate-pulse'></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function meta({}: Route.MetaArgs) {
+  return [{ title: 'Dashboard' }];
+}
+
+export default function Dashboard() {
+  const me = useRouteLoaderData('routes/_main') as User;
+  const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
+
+  // TanStack Query hooks
+  const { data: user, isLoading: userLoading } = useUser();
+  const { data: chatsData } = useChats();
+  const { data: avatarsData } = useAvatars();
+  
+  // Mutations
+
+  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
+
+  const currentUser = user || me;
+
+
+  // Loading state
+  const isLoading = userLoading;
+
+  const handleSwitchNetwork = async () => {
+    setIsSwitchingNetwork(true);
+    try {
+      const result = await switchToOptimismNetwork();
+      if (!result.success) {
+        toast.error(result.error || 'Failed to switch network');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred while switching networks');
+    } finally {
+      setIsSwitchingNetwork(false);
+    }
+  };
+
+  const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
-      <div className='flex flex-col gap-4'>
-        <div className='flex items-center justify-between sm:py-3 py-2'>
-          <h3 className='text-heading-h3'>Account</h3>
-          <SignOutModal>
-            <button className='sm:hidden block'>
-              <Icons.signOut className='fill-base-black' />
-            </button>
-          </SignOutModal>
+      <div className='flex flex-col sm:gap-4 gap-7'>
+        <h3 className='text-heading-h3 py-3 sm:block hidden'>Dashboard</h3>
+        <div className='sm:hidden block ml-4.5 '>
+          <Icons.mobileLogo />
         </div>
-        <div className='flex md:flex-row flex-col md:gap-8 gap-4'>
-          <Tooltip
-            trigger={
-              <div className='flex items-center sm:gap-6 gap-4 '>
-                <button className='sm:size-14 size-10 flex items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
-                  <Icons.eth className='sm:w-auto sm:h-auto w-4 h-7' />
-                  <div className='absolute -bottom-1 -right-1 size-6 rounded-full flex items-center justify-center'>
-                    <img src={OP} alt='OP' />
-                  </div>
-                </button>
-                <a
-                  href={`https://optimistic.etherscan.io/address/${me.walletAddress}`}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='hover:opacity-80 transition-opacity'
-                >
-                  <h2 className='text-heading-h2 sm:text-heading-h1 font-semibold break-all'>
-                    {!weiBalance || Number(formatEther(weiBalance)) === 0 ? '0.00' : String(Number(formatEther(weiBalance)).toFixed(5))}{' '}
-                    <span className='text-neutral-01'>ETH</span>
-                  </h2>
-                </a>
-              </div>
-            }
-            content='This is your CipherDolls wallet on the Optimism mainnet. We use this wallet to process payments. Please send ETH to this address to top up your account.'
-            side='top'
-            popoverClassName='px-2 py-1 text-xs max-w-48 whitespace-normal'
-            className='px-2 py-1 text-xs max-w-48'
-          />
 
-          {(!weiBalance || Number(formatEther(weiBalance)) === 0) && freeWeiBalance && Number(formatEther(freeWeiBalance)) > 0 && (
-            <Tooltip
-              trigger={
-                <div className='flex items-center sm:gap-6 gap-4 '>
-                  <button className='sm:size-14 size-10 flex items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
-                    <Icons.eth className='sm:w-auto sm:h-auto w-4 h-7' />
-                    <div className='absolute -bottom-1 -right-1 size-6 rounded-full flex items-center justify-center bg-white p-0.5'>
-                      <LogoSvg />
-                    </div>
-                  </button>
-                  <h2 className='text-heading-h2 sm:text-heading-h1 font-semibold break-all'>
-                    {!freeWeiBalance || Number(formatEther(freeWeiBalance)) === 0
-                      ? '0.00'
-                      : String(Number(formatEther(freeWeiBalance)).toFixed(5))}{' '}
-                    <span className='text-neutral-01'>ETH</span>
-                  </h2>
-                </div>
-              }
-              content='This is your virtual offchain ETH balance that we provide to give users free credits to try CipherDolls. You receive monthly ETH allowances to spend. This balance cannot be withdrawn.'
-              side='top'
-              popoverClassName='px-2 py-1 text-xs max-w-48 whitespace-normal'
-              className='px-2 py-1 text-xs max-w-48'
-            />
-          )}
-        </div>
-      </div>
-      <div className='flex sm:flex-row flex-col-reverse sm:gap-0 gap-8 sm:flex-1 sm:divide-x divide-neutral-04 pb-2.5'>
-        
-        
-          <YourInfo me={me} />
-        
+        <DashboardBanner
+          username={currentUser.name}
+          variant='welcome'
+          description={shouldShowNetworkWarning ? null : 'What do you want to start from?'}
+          showEditLink={true}
+          onEditClick={() => setIsUserEditModalOpen(true)}
+        />
 
-        <div className='sm:pl-4 sm:max-w-[352px] w-full flex flex-col sm:gap-10 gap-8'>
-          <AccountInfoCard
-            label='Your Wallet'
-            value={me.walletAddress}
-            link={`https://optimistic.etherscan.io/address/${me.walletAddress}`}
-            information={<YourWalletModal walletAddress={me.walletAddress} />}
-          />
-          <AccountInfoCard className='justify-between' label='API Key' value={me.apikey} information={<ApiKeyModal apiKey={me.apikey} />} />
-        </div>
+        {shouldShowNetworkWarning && <NetworkWarningBanner onSwitchNetwork={handleSwitchNetwork} isLoading={isSwitchingNetwork} />}
       </div>
+      {isLoading ? (
+        <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
+          <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
+            <LeftSkeleton />
+          </div>
+          <div className=''>
+            <DashboardSkeleton />
+          </div>
+        </div>
+      ) : (
+        <div className='grid lg:grid-cols-[1fr_352px] grid-cols-1 gap-5 pb-5'>
+          <div className='flex flex-col lg:gap-10 gap-5 lg:pr-5 lg:border-r border-neutral-04'>
+            <YourChats chats={chatsData || []} avatars={avatarsData || []} />
+            <YourAvatars />
+            <YourScenarios />
+          </div>
+          <div className='flex flex-col gap-5'>
+            <TokenBalance user={currentUser} />
+            <TokenPermitsList user={currentUser} />
+            <YourReferrals user={currentUser}/>
+            {/*<YourDolls />*/}
+          </div>
+        </div>
+      )}
+
+      <UserEditModal me={currentUser} open={isUserEditModalOpen} onOpenChange={setIsUserEditModalOpen} />
     </div>
   );
 }

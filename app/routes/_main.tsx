@@ -90,7 +90,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
   return (
     <MainLayoutProviders>
-      <div className='flex sm:flex-row flex-col-reverse size-full'>
+      <div className='flex sm:flex-row flex-col-reverse size-full h-screen'>
         <Sidebar />
         <Outlet />
       </div>
