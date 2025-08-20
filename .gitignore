@@ -5,3 +5,9 @@
 /.react-router/
 /build/
 .idea/
+
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/testing/cache/
+/.cache-synpress/

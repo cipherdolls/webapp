@@ -36,7 +36,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const timestamp = new Date().toISOString();
     const url = new URL(request.url);
     const domain = url.hostname;
-    
+
     const message = `
 ${domain} wants you to sign in with your Ethereum account:
 ${address}
@@ -66,6 +66,7 @@ Issued At: ${timestamp}
     return { token };
   } catch (error) {
     console.error('Error:', error);
+    return { error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
@@ -103,6 +104,22 @@ export default function SignInRoute() {
 
   useEffect(() => {
     checkConnection();
+
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        console.log('DEBUG: accountsChanged event:', accounts.length);
+        if (accounts.length === 0) {
+          setConnected(false);
+        } else {
+          setConnected(true);
+        }
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -112,20 +129,33 @@ export default function SignInRoute() {
   }, [token]);
 
   useEffect(() => {
+    console.log('DEBUG: connected =', connected, 'token =', token ? 'exists' : 'undefined');
     if (connected === true && token !== undefined) {
-      console.log('Connected and token is set');
+      console.log('Connected and token is set - triggering redirect');
       handleSuccessfulAuth();
     }
     // eslint-disable-next-line
   }, [connected, token]);
 
   const checkConnection = async () => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const accounts = await provider.listAccounts();
-    if (accounts.length === 0) {
+    try {
+      if (!window.ethereum) {
+        console.log('DEBUG: No ethereum object');
+        setConnected(false);
+        return;
+      }
+
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      console.log('DEBUG: Found accounts via eth_accounts:', accounts.length);
+
+      if (accounts.length === 0) {
+        setConnected(false);
+      } else {
+        setConnected(true);
+      }
+    } catch (error) {
+      console.log('DEBUG: checkConnection error:', error);
       setConnected(false);
-    } else {
-      setConnected(true);
     }
   };
 
@@ -140,16 +170,15 @@ export default function SignInRoute() {
         },
       });
 
-      // If 200 => token is valid
       if (res.status === 200) {
         return true;
       }
-      // If 401 => token invalid
+
       if (res.status === 401) {
         localStorage.removeItem('token');
         return false;
       }
-      // Otherwise, some other error
+
       return false;
     } catch (err) {
       console.error('Verify token error:', err);
@@ -184,7 +213,7 @@ export default function SignInRoute() {
 
                 <div className='px-4 py-6 flex flex-col gap-8 lg:py-10 lg:px-8 md:px-6 md:py-8'>
                   <p className='text-black text-body-md md:text-body-lg'>
-                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine)
+                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine).
                   </p>
                   <div className='flex flex-col gap-4'>
                     {!isLoading && !hasEthereum ? (
