@@ -11,7 +11,6 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface MessagesModeProps {
   chat: Chat;
@@ -20,7 +19,6 @@ interface MessagesModeProps {
 
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
-  const queryClient = useQueryClient();
   const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
@@ -38,21 +36,6 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   });
 
   useChatEvents(chat.id, {
-    // onProcessEvent: (event) => {
-    //   if (event.resourceName === 'Message') {
-    //     switch (event.jobName) {
-    //       case 'created':
-    //         if (event.jobStatus === 'completed') queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
-    //         break;
-    //       case 'updated':
-    //         const messageContent = event?.resourceAttributes?.content;
-    //         if (!messageContent) return;
-    //         queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
-    //         break;
-    //       default:
-    //     }
-    //   }
-    // },
     onActionEvent: (event) => {
       if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
     },

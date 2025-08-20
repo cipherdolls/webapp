@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router';
-import type { ProcessEvent } from '~/types';
 import type { Route } from './+types/_main.chats.$chatId';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import MessagesMode from '~/components/chat/MessagesMode';

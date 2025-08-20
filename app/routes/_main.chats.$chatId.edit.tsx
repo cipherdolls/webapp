@@ -81,7 +81,6 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
     });
   };
   
-
   return (
     <>
       <div className='pageModal'>
@@ -300,7 +299,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                       onClick={() => handleSttProviderChange(sttProvider)}
                       className={cn(
                         'flex items-center justify-center flex-1 px-4 h-[40px] text-body-sm font-semibold rounded-[10px]',
-                        chat.sttProvider?.id === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
+                        chat.sttProviderId === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
                       )}
                     >
                       {sttProvider.name}
