@@ -76,16 +76,19 @@ const ChatsSidebar = ({ chats, avatars }: ChatsSidebarProps) => {
         'max-w-0 p-0': chats.length === 0,
       })}
     >
-      <div className='px-5 py-[18px] flex items-center justify-between'>
-        <h3 className='text-heading-h3'>Chats</h3>
-        {showChatsButton && (
-          <AvatarSelectModal avatars={avatarsList}>
-            <Button.Root size='icon' aria-label='New Chat' className='shrink-0'>
-              <Button.Icon as={Icons.chat} />
-            </Button.Root>
-          </AvatarSelectModal>
-        )}
-      </div>
+      {chats.length !== 0 && (
+        <div className='px-5 py-[18px] flex items-center justify-between'>
+          <h3 className='text-heading-h3'>Chats</h3>
+          {showChatsButton && (
+            <AvatarSelectModal avatars={avatarsList}>
+              <Button.Root size='icon' aria-label='New Chat' className='shrink-0'>
+                <Button.Icon as={Icons.chat} />
+              </Button.Root>
+            </AvatarSelectModal>
+          )}
+        </div>
+      )}
+
       <div className='flex-1 sm:px-2 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none'>
         <div className='flex flex-col select-none'>
           {groupedChats.map((group) => (
