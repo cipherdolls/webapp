@@ -85,7 +85,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       {/* chat header */}
       <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
-      <ChatBody messages={messages} loadMoreMessages={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} />
+      <ChatBody messages={messages} isLoadingMessages={isLoading} loadMoreMessages={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

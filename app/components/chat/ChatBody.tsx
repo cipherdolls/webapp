@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useLayoutEffect, useRef } from 'react';
+import React, { Fragment, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
@@ -12,14 +12,50 @@ interface ChatBodyProps {
   messages: Message[];
   loadMoreMessages: () => void;
   isLoading: boolean;
+  isLoadingMessages: boolean;
   hasMore: boolean;
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoading, hasMore }) => {
+function MessagesSkeleton() {
+  return (
+    <div className='flex flex-col mx-auto max-w-[900px] animate-pulse'>
+      <div className='flex justify-start px-4.5 pb-4 mt-4'>
+        <div className='relative min-h-12 px-4 py-3 rounded-xl w-full max-w-[240px] bg-neutral-05 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05' />
+      </div>
+
+      <div className='flex justify-end px-4.5 pb-4 mt-4'>
+        <div className='flex gap-2 items-end w-full pb-4 min-h-12 relative px-4 py-3 rounded-xl max-w-[300px] bg-pink-02 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02' />
+      </div>
+
+      <div className='flex justify-start px-4.5 pb-4 mt-4'>
+        <div className='relative min-h-12 w-full px-4 py-3 rounded-xl max-w-[440px] bg-neutral-05 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05' />
+      </div>
+
+      <div className='flex  justify-end px-4.5 pb-4 mt-4'>
+        <div className='flex gap-2 items-end w-full pb-4 min-h-12 relative px-4 py-3 rounded-xl max-w-[160px] bg-pink-02 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02' />
+      </div>
+
+      <div className='flex justify-start px-4.5 pb-4 mt-4'>
+        <div className='relative min-h-12 px-4 w-full py-3 rounded-xl max-w-[360px] bg-neutral-05  [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05' />
+      </div>
+
+      <div className='flex justify-end px-4.5 pb-4 mt-4'>
+        <div className='flex gap-2 items-end w-full pb-4 min-h-12 relative px-4 py-3 rounded-xl max-w-[260px] bg-pink-02 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02' />
+      </div>
+
+      <ChatBubble.Root>
+        <ChatBubble.Message isLoading />
+      </ChatBubble.Root>
+    </div>
+  );
+}
+
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<string | null>(null);
+  const [isShouldShowChatBubble, setIsShouldShowChatBubble] = useState(false);
 
   const [infiniteRef, { rootRef }] = useInfiniteScroll({
     loading: isLoading,
@@ -78,15 +114,16 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
             <Icons.loader className='size-10 animate-spin text-neutral-01' />
           </div>
         )}
-        {messages.map((message, index) => {
+        {isLoadingMessages ? <MessagesSkeleton /> : messages.map((message, index) => {
           const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
           return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
         })}
-        {/* { (
-        <ChatBubble.Root>
-          <ChatBubble.Message isLoading />
-        </ChatBubble.Root>
-      )} */}
+
+        {isShouldShowChatBubble && (
+          <ChatBubble.Root>
+            <ChatBubble.Message isLoading />
+          </ChatBubble.Root>
+        )}
       </div>
     </div>
   );
