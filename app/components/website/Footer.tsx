@@ -9,7 +9,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white/40 backdrop-blur-sm border-t border-gray-200/50">
+    <footer className="bg-white/40 backdrop-blur-sm border-t border-gray-200/50 py-10">
       <div className="container">
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Brand Column */}

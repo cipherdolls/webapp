@@ -347,6 +347,7 @@ input[type='number'] {
 .gradient-move {
   background: linear-gradient(90deg, rgb(168, 85, 247), rgb(236, 72, 153), rgb(96, 165, 250), rgb(168, 85, 247));
   background-size: 200% 100%;
+  color: white;
 }
 
 .gradient-move:hover {

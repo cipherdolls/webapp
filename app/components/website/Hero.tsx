@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Shield, Zap } from 'lucide-react';
-// import freyaImage from '../assets/picture.webp';
 import * as Button from '~/components/ui/button/button';
 
 const Hero = () => {
