@@ -13,6 +13,7 @@ interface ChatBodyProps {
   loadMoreMessages: () => void;
   isLoading: boolean;
   isLoadingMessages: boolean;
+  isShouldShowChatBubble: boolean
   hasMore: boolean;
 }
 
@@ -50,12 +51,11 @@ function MessagesSkeleton() {
   );
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isLoading, hasMore }) => {
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isShouldShowChatBubble, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<string | null>(null);
-  const [isShouldShowChatBubble, setIsShouldShowChatBubble] = useState(false);
 
   const [infiniteRef, { rootRef }] = useInfiniteScroll({
     loading: isLoading,
@@ -95,7 +95,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
       lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
     }
   }, []);
-  
 
   return (
     <div className='flex-1 flex overflow-auto shrink-0'>
