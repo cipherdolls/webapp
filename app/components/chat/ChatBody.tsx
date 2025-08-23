@@ -141,7 +141,7 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
       {isNextDay && <ChatDateDivider date={message.createdAt} />}
       {/* chat bubble */}
       <ChatBubble.Root variant={bubbleVariant}>
-        <ChatBubble.Message asChild>
+        <ChatBubble.Message asChild className={cn(message.role === 'ASSISTANT' ? 'animate-message-assistant' : 'animate-message-user')}>
           <Link to={`messages/${message.id}`}>
             <ChatBubble.Text>{message.content}</ChatBubble.Text>
             {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
