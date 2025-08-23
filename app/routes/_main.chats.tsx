@@ -10,7 +10,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function ChatsIndex() {
   const { data: avatarsData } = useAvatars();
-  const { data: chatsData, isLoading: chatsLoading } = useChats();
+  const { data: chatsData, isLoading: isChatsLoading } = useChats();
 
   const avatars = avatarsData?.data || [];
   const chats = chatsData || [];
@@ -19,7 +19,7 @@ export default function ChatsIndex() {
     <>
       <main className='flex flex-1 sm:py-2 sm:pr-2 overflow-hidden'>
         <div className='flex flex-1 sm:rounded-xl sm:bg-gradient-1 overflow-hidden'>
-          <ChatsSidebar chats={chats} avatars={avatars} />
+          <ChatsSidebar chats={chats} avatars={avatars} isChatsLoading={isChatsLoading} />
           <div className='flex flex-1'>
             <Outlet />
           </div>
