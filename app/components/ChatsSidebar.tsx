@@ -96,7 +96,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
 
   return (
     <div
-      className='pb-3 px-2 md:pb-0 md:px-0 h-full w-full md:w-[348px] shrink-0 flex flex-col'
+      className={cn('pb-3 px-2 md:pb-0 md:px-0 h-full shrink-0 flex flex-col', chats.length !== 0 && 'w-full md:w-[348px]')}
     >
       {isChatsLoading ? <SidebarSkeleton /> : (
         <>

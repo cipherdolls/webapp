@@ -103,7 +103,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
         onScroll={handleRootScroll}
         className='flex-1 overflow-auto scrollbar scrollbar-medium bg-white rounded-t-xl lg:rounded-none'
       >
-        {hasMore && (
+        {hasMore && !isLoadingMessages && (
           <div
             ref={infiniteRef}
             className={cn('flex justify-center items-center py-5', {
@@ -113,6 +113,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
             <Icons.loader className='size-10 animate-spin text-neutral-01' />
           </div>
         )}
+
         {isLoadingMessages ? <MessagesSkeleton /> : messages.map((message, index) => {
           const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
           return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;

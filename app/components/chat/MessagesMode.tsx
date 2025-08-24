@@ -49,6 +49,9 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
             if (event.jobStatus === 'completed') {
               queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
             }
+            if (event.jobStatus === 'failed')  {
+              setIsShouldShowChatBubble(false)
+            }
             break;
           case 'updated':
             setIsShouldShowChatBubble(false)
