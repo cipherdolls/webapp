@@ -429,6 +429,28 @@ export const createMockUseUpdateUserResult = (overrides: any = {}) => ({
   ...overrides,
 });
 
+/**
+ * Creates a mock mutation result for useRefreshTokenBalance with proper typing
+ */
+export const createMockUseRefreshTokenBalanceResult = (overrides: any = {}) => ({
+  mutate: vi.fn(),
+  mutateAsync: vi.fn(),
+  isPending: false,
+  isError: false,
+  isSuccess: false,
+  error: null,
+  data: undefined,
+  variables: undefined,
+  context: undefined,
+  failureCount: 0,
+  failureReason: null,
+  isPaused: false,
+  status: 'idle' as const,
+  submittedAt: 0,
+  reset: vi.fn(),
+  ...overrides,
+});
+
 // ========================
 // MOCK COMPONENTS
 // ========================
