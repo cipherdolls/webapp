@@ -25,7 +25,7 @@ const BANNER_CONFIGS = {
 } as const;
 
 export const DashboardBanner: FC<BannerProps> = ({ variant, description, showEditLink = false }) => {
-  const { data: user, isLoading: userLoading } = useUser();
+  const { data: user, isPending: userLoading } = useUser();
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
 
   if (userLoading) {
