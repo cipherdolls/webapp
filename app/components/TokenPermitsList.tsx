@@ -105,7 +105,7 @@ const TokenPermitsList = () => {
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                  Create Allowances
+                  Create Permit
                 </span>
               </button>
             </CreateTokenAllowanceModal>
@@ -172,9 +172,9 @@ const TokenPermitsList = () => {
           <div className='py-6 px-6 flex flex-col items-center gap-2'>
             <h1 className='text-heading-h1'>🔐</h1>
             <div className='flex flex-col gap-1 text-center'>
-              <h4 className='text-heading-h4 text-base-black'>No Token Allowances</h4>
+              <h4 className='text-heading-h4 text-base-black'>No Token Permits</h4>
               <p className='text-body-md text-neutral-01'>
-                You don't have any allowances.
+                You don't have any permits.
                 <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
                   <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
                 </CreateTokenAllowanceModal>
