@@ -10,8 +10,6 @@ import { cn } from '~/utils/cn';
 import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
 import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import { useUser } from '~/hooks/queries/userQueries';
-import { useRouteLoaderData } from 'react-router';
-import type { User } from '~/types';
 
 import * as Button from '~/components/ui/button/button';
 
@@ -29,19 +27,16 @@ function TokenPermitsListSkeleton() {
 }
 
 const TokenPermitsList = () => {
-  const me = useRouteLoaderData('routes/_main') as User;
   const { data: user, isLoading: userLoading } = useUser();
   const createTokenPermitMutation = useCreateTokenPermit();
   const { data: tokenPermitsPaginated, isLoading: tokenPermitsLoading } = useTokenPermits();
-
-  const currentUser = user || me;
 
   if (userLoading || tokenPermitsLoading) {
     return <TokenPermitsListSkeleton />;
   }
 
   const permits = tokenPermitsPaginated?.data || [];
-  const allowance = currentUser.tokenAllowance || '0';
+  const allowance = user?.tokenAllowance || '0';
 
   const handlePermitSigned = async (permit: {
     owner: string;
@@ -106,7 +101,7 @@ const TokenPermitsList = () => {
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {permits.length !== 0 && (
           <div className='flex justify-between py-4 px-4'>
-            <CreateTokenAllowanceModal tokenBalance={currentUser.tokenBalance} onPermitSigned={handlePermitSigned}>
+            <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -135,7 +130,7 @@ const TokenPermitsList = () => {
               <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
               <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
 
-              <CreateTokenAllowanceModal tokenBalance={currentUser.tokenBalance} onPermitSigned={handlePermitSigned}>
+              <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
                 <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
               </CreateTokenAllowanceModal>
             </div>
@@ -180,7 +175,7 @@ const TokenPermitsList = () => {
               <h4 className='text-heading-h4 text-base-black'>No Token Allowances</h4>
               <p className='text-body-md text-neutral-01'>
                 You don't have any allowances.
-                <CreateTokenAllowanceModal tokenBalance={currentUser.tokenBalance} onPermitSigned={handlePermitSigned}>
+                <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
                   <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
                 </CreateTokenAllowanceModal>
               </p>
