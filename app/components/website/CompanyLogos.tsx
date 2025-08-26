@@ -34,10 +34,10 @@ const CompanyLogos = () => {
   ];
 
   return (
-    <section className='py-16 opacity-70'>
+    <section className='py-16 '>
       <div className='container'>
         {/* Logos Grid */}
-        <div className='flex justify-center items-center gap-20'>
+        <div className='flex justify-center items-center gap-20 opacity-60'>
           {companies.map((company, index) => (
             <div key={index} className='flex items-center justify-center'>
               <img src={company.logo} alt={company.name} className={company.className} />

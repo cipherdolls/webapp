@@ -1,11 +1,10 @@
-import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
 const CTA = () => {
   return (
-    <section className="py-20">
+    <section className="py-40">
       <div className="container">
-        <div className="relative">
+        <div className="relative mx-auto max-w-5xl">
           {/* Floating Elements */}
           <div className="absolute -top-4 -left-4 w-8 h-8 bg-purple-400/30 rounded-full animate-pulse"></div>
           <div className="absolute -top-2 -right-6 w-6 h-6 bg-pink-400/30 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>

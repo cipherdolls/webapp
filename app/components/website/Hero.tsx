@@ -2,8 +2,42 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Shield, Zap } from 'lucide-react';
 import * as Button from '~/components/ui/button/button';
+import type { Avatar } from '~/types';
+import { PICTURE_SIZE } from '~/constants';
+import AvatarPicture from '../AvatarPicture';
 
-const Hero = () => {
+
+
+const content = {
+  title: 'Where Privacy Meets',
+  subtitle: 'Anonymous AI Chat',
+  description: 'Chat with avatars without compromising your privacy. No email, no personal data, no subscriptions. Pay only for what you use with LOV tokens.',
+  features: [
+    {
+      icon: <Shield className='w-4 h-4 text-green-600' />,
+      title: 'No Personal Data',
+      description: 'Completely anonymous',
+    },
+    {
+      icon: <Zap className='w-4 h-4 text-blue-600' />,
+      title: 'Pay Per Message',
+      description: 'No subscriptions',
+    },
+  ],
+  cta: {
+    text: 'Start Chat for Free',
+    href: '/chat',
+  },
+  learnMore: {
+    text: 'Learn More',
+    href: '/learn-more',
+  },
+}
+
+
+
+
+const Hero = ({ avatar }: { avatar: Avatar }) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [displayedMessages, setDisplayedMessages] = useState<any[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -78,21 +112,20 @@ const Hero = () => {
             {/* Badge */}
             <div className='inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-full text-sm border border-gray-200/50'>
               <Shield className='w-4 h-4 text-green-600' />
-              <span>100% Anonymous & Private</span>
+              <span>{content.subtitle}</span>
             </div>
 
             {/* Headline */}
             <div className='space-y-6'>
               <h1 className='text-5xl sm:text-6xl lg:text-7xl font-light text-gray-900 leading-tight'>
-                Where Privacy Meets
+                {content.title}
                 <br />
                 <span className='font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
-                  Anonymous AI Chat
+                  {content.subtitle}
                 </span>
               </h1>
               <p className='text-lg text-gray-600 leading-relaxed max-w-xl'>
-                Chat with avatars without compromising your privacy. No email, no personal data, no subscriptions. Pay only for what you use
-                with LOV tokens.
+                {content.description}
               </p>
             </div>
 
@@ -100,20 +133,20 @@ const Hero = () => {
             <div className='flex flex-col sm:flex-row gap-6'>
               <div className='flex items-center space-x-3'>
                 <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center'>
-                  <Shield className='w-5 h-5 text-green-600' />
+                  {content.features[0].icon}
                 </div>
                 <div>
-                  <div className='font-medium text-gray-900'>No Personal Data</div>
-                  <div className='text-sm text-gray-600'>Completely anonymous</div>
+                  <div className='font-medium text-gray-900'>{content.features[0].title}</div>
+                  <div className='text-sm text-gray-600'>{content.features[0].description}</div>
                 </div>
               </div>
               <div className='flex items-center space-x-3'>
                 <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
-                  <Zap className='w-5 h-5 text-blue-600' />
+                  {content.features[1].icon}
                 </div>
                 <div>
-                  <div className='font-medium text-gray-900'>Pay Per Message</div>
-                  <div className='text-sm text-gray-600'>No subscriptions</div>
+                  <div className='font-medium text-gray-900'>{content.features[1].title}</div>
+                  <div className='text-sm text-gray-600'>{content.features[1].description}</div>
                 </div>
               </div>
             </div>
@@ -121,11 +154,11 @@ const Hero = () => {
             {/* CTA Buttons */}
             <div className='flex flex-col sm:flex-row gap-4'>
               <Button.Root className='px-10 gradient-move font-medium' variant='secondary' size='lg'>
-                Start Chat for Free
+                {content.cta.text}
                 <ArrowRight />
               </Button.Root>
               <Button.Root className='px-5' size='lg'>
-                Learn More
+                {content.learnMore.text}
               </Button.Root>
             </div>
           </div>
@@ -137,10 +170,10 @@ const Hero = () => {
               <div className='flex items-center justify-between mb-6 pb-4 border-b border-gray-200/50'>
                 <div className='flex items-center space-x-3'>
                   <div className='w-14 h-14 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center'>
-                    {/* <img src={freyaImage} alt='Freya' className='w-14 h-14 rounded-full object-cover' /> */}
+                    <AvatarPicture avatar={avatar} sizeType={PICTURE_SIZE.semiMedium} className='size-full shrink-0' />
                   </div>
                   <div>
-                    <div className='font-black text-gray-900 text-2xl'>Freya</div>
+                    <div className='font-black text-gray-900 text-2xl'>{avatar.name}</div>
                   </div>
                 </div>
               </div>

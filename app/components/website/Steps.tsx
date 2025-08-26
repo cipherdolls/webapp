@@ -1,5 +1,11 @@
 import { Wallet, User, Zap, MessageSquare, Link } from 'lucide-react';
 
+const content = {
+  title: 'Your Journey to',
+  subtitle: 'Anonymous AI Chat',
+  description: 'Follow these simple steps to start your completely private conversations with avatars',
+};
+
 const steps = [
   {
     icon: Link,
@@ -43,7 +49,6 @@ const steps = [
   },
 ];
 
-
 const Steps = () => {
   return (
     <section id='steps' className='py-24 relative overflow-hidden'>
@@ -68,16 +73,14 @@ const Steps = () => {
             <span>Simple Process</span>
           </div>
           <h2 className='text-4xl sm:text-5xl font-light text-gray-900 leading-tight'>
-            Your Journey to
+            {content.title}
             <br />
             <span className='font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
               {' '}
-              Anonymous AI Chat
+              {content.subtitle}
             </span>
           </h2>
-          <p className='text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed'>
-            Follow these simple steps to start your completely private conversations with avatars
-          </p>
+          <p className='text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed'>{content.description}</p>
         </div>
 
         {/* Horizontal Timeline */}
@@ -85,30 +88,32 @@ const Steps = () => {
           {/* Timeline Container */}
           <div className='flex flex-col items-center space-y-12'>
             {/* Top Timeline with Icons */}
-            <div className='relative w-full max-w-4xl'>
-              {/* Horizontal Timeline Line */}
-              <div className='absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 via-green-500 to-orange-500 transform -translate-y-1/2'></div>
+            <div className='relative w-full px-[calc(10%-40px)]'>
+              <div className='relative w-full'>
+                {/* Horizontal Timeline Line */}
+                <div className='absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 via-green-500 to-orange-500 transform -translate-y-1/2'></div>
 
-              {/* Timeline Nodes */}
-              <div className='flex justify-between items-center relative'>
-                {steps.map((step, index) => {
-                  const Icon = step.icon;
+                {/* Timeline Nodes */}
+                <div className='flex justify-between items-center relative'>
+                  {steps.map((step, index) => {
+                    const Icon = step.icon;
 
-                  return (
-                    <div key={index} className='relative'>
-                      {/* Timeline Node */}
-                      <div
-                        className={`w-16 h-16 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center shadow-lg border-4 border-white hover:scale-110 hover:shadow-xl transition-all duration-500 relative backdrop-blur-md`}
-                      >
-                        <Icon className='w-7 h-7 text-white' />
-                        <div className='absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent'></div>
+                    return (
+                      <div key={index} className='relative'>
+                        {/* Timeline Node */}
+                        <div
+                          className={`w-16 h-16 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center shadow-lg border-4 border-white hover:scale-110 hover:shadow-xl transition-all duration-500 relative backdrop-blur-md`}
+                        >
+                          <Icon className='w-7 h-7 text-white' />
+                          <div className='absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent'></div>
+                        </div>
+
+                        {/* Connecting Line to Card */}
+                        <div className='absolute top-full left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-gradient-to-b from-gray-300 to-transparent'></div>
                       </div>
-
-                      {/* Connecting Line to Card */}
-                      <div className='absolute top-full left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-gradient-to-b from-gray-300 to-transparent'></div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
