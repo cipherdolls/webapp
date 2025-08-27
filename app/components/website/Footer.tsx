@@ -25,17 +25,14 @@ const Footer = () => {
               <Shield className="w-4 h-4 text-green-600" />
               <span>100% Anonymous & Private</span>
             </div>
-            <div className="flex space-x-4">
+            {/* <div className="flex space-x-4">
               <a href="#" className="w-10 h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-lg flex items-center justify-center hover:bg-white/80 transition-colors">
                 <Twitter className="w-4 h-4 text-gray-600" />
               </a>
               <a href="#" className="w-10 h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-lg flex items-center justify-center hover:bg-white/80 transition-colors">
-                <Github className="w-4 h-4 text-gray-600" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-lg flex items-center justify-center hover:bg-white/80 transition-colors">
                 <MessageSquare className="w-4 h-4 text-gray-600" />
               </a>
-            </div>
+            </div> */}
           </div>
 
         </div>
@@ -44,7 +41,7 @@ const Footer = () => {
         <div className="border-t border-gray-200/50 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-500 text-sm">
-              © 2024 Cipherdolls. All rights reserved.
+              © 2025 Cipherdolls. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 text-sm text-gray-500">
               <span className="flex items-center space-x-2">

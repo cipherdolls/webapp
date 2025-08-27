@@ -28,6 +28,10 @@ export const PATHS = {
   avatarAudio: (id: string) => `${apiUrl}/avatars/${id}/audio`,
 };
 
+export const ROUTES = {
+  signIn: '/signin',
+}
+
 
 export const NETWORKS = {
   ETHEREUM_MAINNET: {

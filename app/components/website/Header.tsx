@@ -1,5 +1,9 @@
 import React from 'react';
 import { Menu, X } from 'lucide-react';
+import * as Button from '~/components/ui/button/button';
+import { Link } from 'react-router';
+import { ROUTES } from '~/constants';
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
@@ -33,9 +37,9 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className='hidden md:flex items-center'>
-            <button className='gradient-move text-white px-6 py-2 rounded-full transition-all duration-300 ease-in-out text-sm font-medium hover:shadow-lg'>
-              Start Chat for Free
-            </button>
+            <Button.Root className='gradient-move px-6'>
+              <Link to={ROUTES.signIn}>Start Chat for Free</Link>
+            </Button.Root>
           </div>
 
           {/* Mobile menu button */}

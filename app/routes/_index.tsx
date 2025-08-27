@@ -41,7 +41,6 @@ export async function clientLoader() {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { avatar, avatars, scenarios } = loaderData;
-  console.log(scenarios);
   return (
     <>
       <Header />

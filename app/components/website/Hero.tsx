@@ -1,17 +1,16 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Shield, Zap } from 'lucide-react';
+import { Link } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import type { Avatar } from '~/types';
-import { PICTURE_SIZE } from '~/constants';
+import { PICTURE_SIZE, ROUTES } from '~/constants';
 import AvatarPicture from '../AvatarPicture';
-
-
 
 const content = {
   title: 'Where Privacy Meets',
   subtitle: 'Anonymous AI Chat',
-  description: 'Chat with avatars without compromising your privacy. No email, no personal data, no subscriptions. Pay only for what you use with LOV tokens.',
+  description:
+    'Chat with avatars without compromising your privacy. No email, no personal data, no subscriptions. Pay only for what you use with LOV tokens.',
   features: [
     {
       icon: <Shield className='w-4 h-4 text-green-600' />,
@@ -32,10 +31,7 @@ const content = {
     text: 'Learn More',
     href: '/learn-more',
   },
-}
-
-
-
+};
 
 const Hero = ({ avatar }: { avatar: Avatar }) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
@@ -124,26 +120,20 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
                   {content.subtitle}
                 </span>
               </h1>
-              <p className='text-lg text-gray-600 leading-relaxed max-w-xl'>
-                {content.description}
-              </p>
+              <p className='text-lg text-gray-600 leading-relaxed max-w-xl'>{content.description}</p>
             </div>
 
             {/* Features */}
             <div className='flex flex-col sm:flex-row gap-6'>
               <div className='flex items-center space-x-3'>
-                <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center'>
-                  {content.features[0].icon}
-                </div>
+                <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center'>{content.features[0].icon}</div>
                 <div>
                   <div className='font-medium text-gray-900'>{content.features[0].title}</div>
                   <div className='text-sm text-gray-600'>{content.features[0].description}</div>
                 </div>
               </div>
               <div className='flex items-center space-x-3'>
-                <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
-                  {content.features[1].icon}
-                </div>
+                <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>{content.features[1].icon}</div>
                 <div>
                   <div className='font-medium text-gray-900'>{content.features[1].title}</div>
                   <div className='text-sm text-gray-600'>{content.features[1].description}</div>
@@ -153,9 +143,11 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
 
             {/* CTA Buttons */}
             <div className='flex flex-col sm:flex-row gap-4'>
-              <Button.Root className='px-10 gradient-move font-medium' variant='secondary' size='lg'>
-                {content.cta.text}
-                <ArrowRight />
+              <Button.Root className='px-10 gradient-move font-medium' variant='secondary' size='lg' asChild>
+                <Link to={ROUTES.signIn}>
+                  {content.cta.text}
+                  <ArrowRight />
+                </Link>
               </Button.Root>
               <Button.Root className='px-5' size='lg'>
                 {content.learnMore.text}

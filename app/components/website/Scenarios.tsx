@@ -18,6 +18,20 @@ const content = {
     'Explore immersive conversation scenarios where each AI character adapts to complex situations. Click on any scenario below to see detailed context, relationships, and objectives that shape your interactions.',
 };
 
+// Custom gradients for each scenario
+const scenarioGradients = [
+  'from-orange-600/70 to-red-600/70',
+  'from-blue-600/70 to-purple-600/70',
+  'from-green-600/70 to-teal-600/70',
+  'from-pink-600/70 to-rose-600/70',
+  'from-indigo-600/70 to-blue-600/70',
+  'from-emerald-600/70 to-green-600/70',
+  'from-violet-600/70 to-purple-600/70',
+  'from-cyan-600/70 to-blue-600/70',
+  'from-amber-600/70 to-orange-600/70',
+  'from-lime-600/70 to-green-600/70',
+];
+
 const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   const [activeScenario, setActiveScenario] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -48,26 +62,24 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
               <h4 className='text-xl font-medium text-gray-900 mb-6'>Choose Your Scenario</h4>
               <div className='space-y-3'>
                 {scenarios.map((scenario, index) => {
-                  // const ScenarioIcon = scenario.icon;
                   const isActive = activeScenario === index;
+                  const gradientIndex = index % scenarioGradients.length;
+                  const gradient = scenarioGradients[gradientIndex];
 
                   return (
                     <button
                       key={scenario.id}
                       onClick={() => setActiveScenario(index)}
                       className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
-                        isActive ? 'bg-black text-white shadow-lg' : 'bg-white/60 hover:bg-white/80 text-gray-700 hover:text-gray-900'
+                        isActive ? `bg-gradient-to-r ${gradient} text-white shadow-lg` : 'bg-white/60 hover:bg-white/80 text-gray-700 hover:text-gray-900'
                       }`}
                     >
                       <div className='flex items-center space-x-4'>
                         <div className='relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0'>
                           <img src={getPicture(scenario, 'scenarios', false)} alt={scenario.name} className='w-full h-full object-cover' />
-                          <div className={`absolute inset-0 flex items-center justify-center ${isActive ? 'bg-black/40' : 'bg-black/20'}`}>
-                            {/* <ScenarioIcon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-white/80'}`} /> */}
-                          </div>
                         </div>
                         <div className='flex-1 min-w-0'>
-                          <h5 className={`font-medium text-md mb-1 ${isActive ? 'text-white' : 'text-gray-900'}`}>{scenario.name}</h5>
+                          <h5 className={`font-bold text-lg ${isActive ? 'text-white' : 'text-gray-900'}`}>{scenario.name}</h5>
                           {/* <p className={`text-xs leading-relaxed ${isActive ? 'text-gray-200' : 'text-gray-600'}`}>
                             {scenario.introduction}
                           </p> */}
@@ -82,11 +94,13 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             {/* Right Side - Scenario Content */}
             <div ref={contentRef} className='space-y-6 max-h-[600px] overflow-y-auto scrollbar-hide'>
               <div className='flex items-center space-x-3 mb-6'>
-                <div className='w-12 h-12 bg-black rounded-xl flex items-center justify-center'>
-                  {/* <IconComponent className="w-6 h-6 text-white" /> */}
-                </div>
+                {/* <div className='w-12 h-12 bg-black rounded-xl flex items-center justify-center'>
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div> */}
                 <div>
-                  <h4 className='text-2xl font-medium text-gray-900'>{currentScenario.name}</h4>
+                  <h4 className={`text-3xl font-bold bg-gradient-to-r ${scenarioGradients[activeScenario % scenarioGradients.length]} bg-clip-text text-transparent`}>
+                    {currentScenario.name}
+                  </h4>
                   {/* <p className='text-gray-600'>{currentScenario.introduction}</p> */}
                 </div>
               </div>
@@ -108,9 +122,9 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                     <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
                     <h5 className='font-semibold text-gray-900'>Situation</h5>
                   </div> */}
-                  <p className='text-gray-600 leading-relaxed pl-4'>
+                  <div className='text-gray-600 leading-relaxed pl-4'>
                     <ReactMarkdown>{currentScenario.introduction}</ReactMarkdown>
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>

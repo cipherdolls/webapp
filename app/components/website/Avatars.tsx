@@ -15,13 +15,14 @@ import {
   PlayCircle,
   PauseCircle,
 } from 'lucide-react';
-import { PATHS, PICTURE_SIZE } from '~/constants';
+import { PATHS, PICTURE_SIZE, ROUTES } from '~/constants';
 import AvatarPicture from '../AvatarPicture';
 import { cn } from '~/utils/cn';
 import type { Avatar, Scenario } from '~/types';
 import Subtitle from './components/Subtitle';
 import * as Button from '~/components/ui/button/button';
 import { useAudioPlayer } from 'react-use-audio-player';
+import { Link } from 'react-router';
 
 const content = {
   title: 'Step Into Their World',
@@ -205,7 +206,7 @@ const Avatars = ({ avatars }: { avatars: any }) => {
             {/* Features List */}
             <div className='space-y-4'>
               {content.mainContent.features.map((feature, index) => (
-                <div className='flex items-center space-x-3'>
+                <div className='flex items-center space-x-3' key={index}>
                   <div className={cn(feature.color, 'w-8 h-8 rounded-lg flex items-center justify-center')}>
                     <feature.icon className='w-4 h-4' />
                   </div>
@@ -344,8 +345,8 @@ const Avatars = ({ avatars }: { avatars: any }) => {
                                   </div>
                                 </div>
                               </Button.Root>
-                              <Button.Root className='px-10 gradient-move font-medium w-full' variant='secondary' size='md'>
-                                Start Chat for Free
+                              <Button.Root className='px-10 gradient-move font-medium w-full' variant='secondary' size='md' asChild>
+                                <Link to={ROUTES.signIn}>Start Chat for Free</Link>
                               </Button.Root>
                             </div>
                           </div>
