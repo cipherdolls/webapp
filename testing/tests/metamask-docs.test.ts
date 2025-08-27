@@ -82,7 +82,6 @@ Response: ${responseText}
 
   console.log(`✅ API signin call: ${signinResponse.url()} - Status: ${status}`);
 
-  await page.screenshot({ path: 'debug-after-signin.png' });
   console.log('Current URL:', page.url());
   console.log('Page title:', await page.title());
 
