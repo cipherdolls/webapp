@@ -113,7 +113,7 @@ const Avatars = ({ avatars }: { avatars: any }) => {
 
   const { isPlaying, load, stop, getPosition, duration } = useAudioPlayer();
   const progressDivRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number>(0);
 
   const [currentSlide, setCurrentSlide] = useState(0);
 

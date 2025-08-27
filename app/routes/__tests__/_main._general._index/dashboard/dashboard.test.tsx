@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Dashboard from '~/routes/_main._general._index';
+import Dashboard from '~/routes/_main._general.account';
 import type { NetworkState } from '~/hooks/useNetworkCheck';
 
 // ========================
