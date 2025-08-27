@@ -49,10 +49,11 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className='hidden lg:flex items-center space-x-8'>
-            {navigationItems.map((item) => (
+            {navigationItems.map((item, index) => (
               <button
                 onClick={(e) => handleNavigationItemClick(e, item.sectionId)}
                 className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'
+                key={index}
               >
                 {item.label}
               </button>

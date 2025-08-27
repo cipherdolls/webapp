@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import HowItWorksModal from '~/components/howItWorksModal';
 import SignInPatterns from '~/components/ui/signInPatterns';
 import type { Route } from './+types/_auth.signIn';
-import { redirect, useFetcher, useNavigate } from 'react-router';
+import { Link, redirect, useFetcher, useNavigate } from 'react-router';
 import { apiUrl, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import TermsOfServiceModal from '~/components/TermsOfServiceModal';
@@ -195,7 +195,9 @@ export default function SignInRoute() {
       <div className='flex flex-col justify-center py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
         <div className='flex justify-center relative z-10 pb-5'>
           <div className='flex flex-col sm:gap-8 gap-5 items-center justify-center'>
-            <img src='/logo.svg' alt='Cipherdolls' className='sm:w-[234px] sm:h-8 w-[146px] h-5' width={234} height={32} />
+            <Link to={'/'} >
+              <img src='/logo.svg' alt='Cipherdolls' className='w-56 md:w-72 h-auto' />
+            </Link>
             <div className='mx-2 flex flex-col md:mx-auto md:flex-row relative'>
               <div className='order-2 rounded-b-xl w-full flex flex-col p-2 bg-white md:rounded-xl md:max-w-[600px] lg:max-w-[656px]'>
                 <iframe

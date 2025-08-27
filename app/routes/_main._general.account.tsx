@@ -1,6 +1,6 @@
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
-import type { Route } from './+types/_main._general._index';
+import type { Route } from './+types/_main._general.account';
 import YourAvatars from '~/components/yourAvatars';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
