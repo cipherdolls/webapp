@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import HowItWorksModal from '~/components/howItWorksModal';
 import SignInPatterns from '~/components/ui/signInPatterns';
 import type { Route } from './+types/_auth.signIn';
-import { useFetcher, useNavigate } from 'react-router';
+import { redirect, useFetcher, useNavigate } from 'react-router';
 import { apiUrl, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import TermsOfServiceModal from '~/components/TermsOfServiceModal';
@@ -82,7 +82,7 @@ export default function SignInRoute() {
       localStorage.removeItem('redirectAfterSignIn');
       navigate(redirectUrl);
     } else {
-      navigate(ROUTES.account);
+      navigate(ROUTES.account, { replace: true });
     }
   };
 
