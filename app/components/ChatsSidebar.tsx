@@ -98,7 +98,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
     <div
       className={cn('pb-3 px-2 md:pb-0 md:px-0 h-full shrink-0 flex flex-col w-full', chats.length !== 0 && 'md:w-[348px]')}
     >
-      {!isChatsLoading ? <SidebarSkeleton /> : (
+      {isChatsLoading ? <SidebarSkeleton /> : (
         <>
           {chats.length !== 0 && (
             <div className='px-5 py-[18px] flex items-center justify-between'>
