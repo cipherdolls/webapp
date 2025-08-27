@@ -1,17 +1,40 @@
 import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
 import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
+import { useUser } from '~/hooks/queries/userQueries';
+import { useRouteLoaderData } from 'react-router';
 import type { User } from '~/types';
 
-const TokenBalance = ({ user }: { user: User }) => {
-  const balance = user.tokenBalance || '0';
+function TokenBalanceSkeleton() {
+  return (
+    <div className='flex flex-col gap-5'>
+      <div className='flex items-center justify-between'>
+        <div className='rounded-[10px] h-6 bg-gradient-1 w-36 animate-pulse'></div>
+        <div className='rounded-lg h-9 w-9 bg-gradient-1 animate-pulse'></div>
+      </div>
+      <div className='grid grid-cols-1'>
+        <div className='bg-gradient-1 rounded-xl p-3 h-20 animate-pulse'></div>
+      </div>
+    </div>
+  );
+}
 
+const TokenBalance = () => {
+  const me = useRouteLoaderData('routes/_main') as User;
+  const { data: user, isLoading: userLoading } = useUser();
   const refreshTokenBalanceMutation = useRefreshTokenBalance();
+
+  const currentUser = user || me;
+  const balance = currentUser.tokenBalance || '0';
+
+  if (userLoading) {
+    return <TokenBalanceSkeleton />;
+  }
 
   const handleRefreshBalance = () => {
     refreshTokenBalanceMutation.mutate({
-      userId: user.id,
-      signerAddress: user.signerAddress,
+      userId: currentUser.id,
+      signerAddress: currentUser.signerAddress,
     });
   };
 

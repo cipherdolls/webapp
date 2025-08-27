@@ -59,4 +59,3 @@ jobs:
           script: |
             docker image prune -a -f
 
-

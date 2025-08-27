@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { server } from '~/setupTests';
 
 const mockGetItem = vi.fn();
 const mockRemoveItem = vi.fn();
@@ -46,11 +47,15 @@ describe('verifyToken Function', () => {
   let verifyToken: () => Promise<boolean>;
 
   beforeEach(() => {
+    // Disable MSW for this test suite to allow fetch mocking
+    server.close();
     verifyToken = createVerifyToken();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    // Restart MSW server for other tests
+    server.listen({ onUnhandledRequest: 'error' });
   });
 
   it('should return true when response status is 200', async () => {
