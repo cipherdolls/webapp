@@ -31,11 +31,11 @@ export const DashboardBanner: FC<BannerProps> = ({ variant, description, showEdi
   if (userLoading) {
     return (
       <div className='flex flex-col sm:gap-4 gap-2 sm:mt-0 mt-3'>
-        <div className='relative max-w-max'>
-          <div className='rounded-[10px] h-[72px] bg-gradient-1 w-48 animate-pulse'></div>
+        <div className='relative'>
+          <div className='rounded-[10px] h-[72px] bg-neutral-04 w-full max-w-96 animate-pulse'></div>
         </div>
         <div className='flex flex-col gap-1'>
-          <p className='sm:text-neutral-01 text-body-lg text-base-black'>{description}</p>
+          <p className='h-6 bg-neutral-04 rounded-[10px] w-[255px] '></p>
         </div>
       </div>
     );

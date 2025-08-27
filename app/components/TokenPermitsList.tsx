@@ -17,11 +17,11 @@ function TokenPermitsListSkeleton() {
   return (
     <div className='flex flex-col gap-5'>
       <div className='flex items-center justify-between'>
-        <div className='rounded-[10px] h-6 bg-gradient-1 w-28 animate-pulse'></div>
-        <div className='rounded-full h-6 w-6 bg-gradient-1 animate-pulse'></div>
+        <div className='rounded-[10px] h-6 bg-neutral-04 w-[156px] animate-pulse'></div>
+        <div className='rounded-full h-6 w-6 bg-neutral-04 animate-pulse'></div>
       </div>
-      <div className='p-2 pt-0 rounded-xl bg-gradient-1 h-32 animate-pulse'></div>
-      <div className='rounded-xl h-12 bg-gradient-1 w-full animate-pulse'></div>
+      <div className='p-2 pt-0 rounded-xl bg-neutral-04 h-[152px] animate-pulse'></div>
+      <div className='rounded-full h-12 bg-neutral-04 w-full animate-pulse'></div>
     </div>
   );
 }

@@ -12,14 +12,14 @@ import { useAvatars } from '~/hooks/queries/avatarQueries';
 function YourChatsSkeleton() {
   return (
     <div className='flex flex-col gap-5'>
-      <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[110px]'></div>
+      <div className='rounded-[10px] h-6 bg-neutral-04 w-full animate-pulse max-w-[110px]'></div>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-        <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
-        <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
-        <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
-        <div className='rounded-[10px] h-20 bg-gradient-1 w-full animate-pulse'></div>
+        <div className='rounded-[10px] h-20 bg-neutral-04 w-full animate-pulse'></div>
+        <div className='rounded-[10px] h-20 bg-neutral-04 w-full animate-pulse'></div>
+        <div className='rounded-[10px] h-20 bg-neutral-04 w-full animate-pulse'></div>
+        <div className='rounded-[10px] h-20 bg-neutral-04 w-full animate-pulse'></div>
       </div>
-      <div className='rounded-full h-10 bg-gradient-1 w-full animate-pulse max-w-[118px] mx-auto -mt-2'></div>
+      <div className='rounded-full h-10 bg-neutral-04 w-full animate-pulse max-w-[118px] mx-auto -mt-2'></div>
     </div>
   );
 }

@@ -27,7 +27,7 @@ function SidebarSkeleton({ count = 15 }: { count?: number }) {
         <div className='min-h-20 flex items-center justify-between rounded-xl w-full p-3 bg-neutral-05 animate-pulse'>
           <div className='flex items-center gap-4'>
             <div className='w-14 h-14 rounded-full bg-neutral-04' />
-            <div className='w-32 h-4 rounded-md bg-neutral-04' />
+            <div className='w-32 h-4 rounded-[10px] bg-neutral-04' />
           </div>
 
           <div className='w-5 h-5 rounded-full bg-neutral-04 mr-2' />
@@ -98,7 +98,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
     <div
       className={cn('pb-3 px-2 md:pb-0 md:px-0 h-full shrink-0 flex flex-col w-full', chats.length !== 0 && 'md:w-[348px]')}
     >
-      {isChatsLoading ? <SidebarSkeleton /> : (
+      {!isChatsLoading ? <SidebarSkeleton /> : (
         <>
           {chats.length !== 0 && (
             <div className='px-5 py-[18px] flex items-center justify-between'>
