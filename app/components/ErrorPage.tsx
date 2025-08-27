@@ -1,5 +1,6 @@
 import * as Button from '~/components/ui/button/button';
 import { Link } from 'react-router';
+import { ROUTES } from '~/constants';
 
 const ERROR_DETAILS: Record<number | string, { message: string; emoji: string }> = {
   400: {
@@ -80,7 +81,7 @@ const ErrorPage = ({ code, message }: { code?: number | string; message?: string
 
           {/* Go Back Button */}
           <Button.Root variant='primary' className='min-w-[220px] px-4' asChild>
-            <Link to='/'>Go to Dashboard</Link>
+            <Link to={ROUTES.account}>Go to Dashboard</Link>
           </Button.Root>
         </div>
       </div>

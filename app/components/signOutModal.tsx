@@ -1,8 +1,15 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
-import { Icons } from './ui/icons';
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router';
+
 const SignOutModal = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
+  
+  const signOut = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>{children}</Dialog.Trigger>
@@ -39,13 +46,7 @@ const SignOutModal = ({ children }: { children: ReactNode }) => {
               </Dialog.Description>
             </div>
             <div className='sm:mt-[22px] mt-4.5 grid grid-cols-2 gap-2'>
-              <Button.Root
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  window.location.href = '/signin';
-                }}
-                variant='secondary'
-              >
+              <Button.Root onClick={signOut} variant='secondary'>
                 Yes, Sign Out
               </Button.Root>
 

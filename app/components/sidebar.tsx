@@ -4,11 +4,12 @@ import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
 import type { User } from '~/types';
 import { ViewMore } from '~/view-more';
+import { ROUTES } from '~/constants';
 
 const SidebarItems = [
   {
     name: 'Dashboard',
-    href: '/',
+    href: ROUTES.account,
     icon: Icons.dashboard,
   },
   {
@@ -54,7 +55,7 @@ const Sidebar = ({ className }: { className?: string }) => {
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
       <div className='sm:py-4 sm:px-2 flex flex-col items-center justify-between flex-1 sm:bg-transparent sm:rounded-none rounded-t-xl bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] sm:bg-none'>
-        <Link to='/' className='py-3.5 sm:block hidden'>
+        <Link to={ROUTES.account} className='py-3.5 sm:block hidden'>
           <Icons.iconLogo className={cn(isAdmin ? 'text-specials-danger' : 'text-base-black')} />
         </Link>
         <div className='flex sm:flex-col flex-row sm:gap-3 w-full sm:justify-start justify-around sm:py-0 py-1'>
