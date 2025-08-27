@@ -30,6 +30,7 @@ export const PATHS = {
 
 export const ROUTES = {
   signIn: '/signin',
+  account: '/account',
 }
 
 

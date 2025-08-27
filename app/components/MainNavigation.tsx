@@ -5,6 +5,7 @@ import DashboardSvg from '~/assets/svg/dashboard-icon.svg';
 import ChatsSvg from '~/assets/svg/chat.svg';
 import PreferencesSvg from '~/assets/svg/preferences.svg';
 import Logout from '~/assets/svg/logout.svg';
+import { ROUTES } from '~/constants';
 
 const MainNavigation = ({ className }: { className?: string }) => {
   const navigate = useNavigate();
@@ -17,13 +18,13 @@ const MainNavigation = ({ className }: { className?: string }) => {
     >
       <div className='flex md:flex-col gap-4 px-2 h-full overflow-y-auto'>
         <div className='hidden justify-center shrink-0 h-24 md:flex  pt-7 pb-5'>
-          <Link to='/' className=' md:flex'>
+          <Link to={ROUTES.account} className=' md:flex'>
             <LogoSvg />
           </Link>
         </div>
 
         <nav className='flex justify-center flex-1 gap-5 px-5 md:flex-col md:gap-0.5 md:px-0'>
-          <NavLinkComponent to='/'>
+          <NavLinkComponent to={ROUTES.account}>
             <DashboardSvg />
             <span>Dashboard</span>
           </NavLinkComponent>

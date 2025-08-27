@@ -7,7 +7,7 @@ import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import { wsURL } from '~/constants';
+import { ROUTES, wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
 import UserEventsToast from '~/components/UserEventsToast';
 import { useUser } from '~/hooks/queries/userQueries';
@@ -75,7 +75,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('Accounts changed:', accounts);
         localStorage.removeItem('token');
-        navigate('/');
+        navigate(ROUTES.account);
       };
 
       // Subscribe to accountsChanged event directly from window.ethereum

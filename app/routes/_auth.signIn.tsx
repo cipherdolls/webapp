@@ -5,12 +5,7 @@ import HowItWorksModal from '~/components/howItWorksModal';
 import SignInPatterns from '~/components/ui/signInPatterns';
 import type { Route } from './+types/_auth.signIn';
 import { useFetcher, useNavigate } from 'react-router';
-import { apiUrl } from '~/constants';
-import Mixedbread from '../assets/logos/mixedbread.png';
-import Elevenlabs from '../assets/logos/elevenlabs.png';
-import Groq from '../assets/logos/groq.png';
-import Openrouter from '../assets/logos/openrouter.png';
-import Assembly from '../assets/logos/assembly.png';
+import { apiUrl, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import TermsOfServiceModal from '~/components/TermsOfServiceModal';
 import PrivacyPolicy from '~/components/PrivacyPolicyModal';
@@ -36,7 +31,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const timestamp = new Date().toISOString();
     const url = new URL(request.url);
     const domain = url.hostname;
-    
+
     const message = `
 ${domain} wants you to sign in with your Ethereum account:
 ${address}
@@ -87,7 +82,7 @@ export default function SignInRoute() {
       localStorage.removeItem('redirectAfterSignIn');
       navigate(redirectUrl);
     } else {
-      navigate('/');
+      navigate(ROUTES.account);
     }
   };
 
@@ -168,11 +163,11 @@ export default function SignInRoute() {
 
   return (
     <>
-      <div className='flex flex-col justify-between py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
-        <div className='flex justify-center relative z-10'>
+      <div className='flex flex-col justify-center py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
+        <div className='flex justify-center relative z-10 pb-5'>
           <div className='flex flex-col sm:gap-8 gap-5 items-center justify-center'>
             <img src='/logo.svg' alt='Cipherdolls' className='sm:w-[234px] sm:h-8 w-[146px] h-5' width={234} height={32} />
-            <div className='mx-2 flex flex-col md:mx-auto md:flex-row'>
+            <div className='mx-2 flex flex-col md:mx-auto md:flex-row relative'>
               <div className='order-2 rounded-b-xl w-full flex flex-col p-2 bg-white md:rounded-xl md:max-w-[600px] lg:max-w-[656px]'>
                 <iframe
                   className='w-full rounded-xl aspect-video min-h-[180px] max-h-[360px]'
@@ -243,8 +238,8 @@ export default function SignInRoute() {
                 </div>
               </div>
 
-              <div className='mt-4 order-first flex justify-center items-end gap-1 md:gap-2 md:order-last md:flex-col md:justify-start'>
-                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:h-32 md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
+              <div className='md:absolute left-full top-5 flex  md:flex-col gap-2'>
+                <div className='bg-gradient-1 h-full rounded-t-xl w-1/2 flex flex-col gap-2 items-center py-4 px-4 md:px-5 md:h-32  md:justify-center md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>🎉</h3>
                     <h3 className='text-lg font-semibold text-base-black md:text-heading-h3'>Free</h3>
@@ -252,26 +247,15 @@ export default function SignInRoute() {
 
                   <span className='text-body-sm text-center text-neutral-01'>Registration and usage</span>
                 </div>
-                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:h-32 md:rounded-r-xl md:w-[136px]'>
+                <div className='bg-gradient-1 h-full rounded-t-xl w-1/2 flex flex-col gap-2 items-center  py-4 px-4 md:px-5 md:rounded-t-none md:h-32 md:justify-center md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>💶</h3>
                     <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>1 LOV</h3>
                   </div>
-
                   <span className='text-body-sm text-center text-neutral-01'>For monthly usage</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className='relative z-10'>
-          <div className='flex justify-start gap-6 px-5 items-center mx-auto max-w-3xl md:max-w-max overflow-y-auto pb-2.5 md:justify-between lg:gap-20 lg:px-0'>
-            <img src={Mixedbread} alt='Mixedbread' draggable={'false'} className='object-cover select-none' />
-            <img src={Openrouter} alt='Openrouter' draggable={'false'} className='object-cover select-none' />
-            <img src={Groq} alt='Groq' draggable={'false'} className='object-cover select-none' />
-            <img src={Elevenlabs} alt='Elevenlabs' draggable={'false'} className='object-cover select-none' />
-            <img src={Assembly} alt='Assembly' draggable={'false'} className='object-cover select-none' />
           </div>
         </div>
       </div>
