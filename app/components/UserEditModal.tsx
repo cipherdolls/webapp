@@ -21,7 +21,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
-  const setOpenState = isControlled ? onOpenChange! : setInternalOpen;
+  const setOpenState = isControlled ? (onOpenChange || (() => {})) : setInternalOpen;
 
   useEffect(() => {
     if (updateUserMutation.isSuccess && !updateUserMutation.error) {
@@ -66,7 +66,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
           />
         </Dialog.Overlay>
 
-        <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20 max-h-[80vh] overflow-y-auto'>
+        <Dialog.Content data-testid="user-edit-modal" className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20 max-h-[80vh] overflow-y-auto'>
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
           <div className='flex flex-col sm:gap-4.5 gap-3'>
             <div className='sm:text-heading-h1 text-heading-h2 text-center'>✏️</div>
@@ -77,7 +77,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
               </Dialog.Description>
             </div>
 
-            <form onSubmit={handleSubmit} className='sm:mt-[22px] mt-4.5'>
+            <form role="form" onSubmit={handleSubmit} className='sm:mt-[22px] mt-4.5'>
               <div className='flex flex-col gap-4'>
                 {updateUserMutation.error && <ErrorsBox errors={[updateUserMutation.error.message]} className='mb-2' />}
 

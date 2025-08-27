@@ -4,7 +4,7 @@ import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { apiUrl } from '~/constants';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -21,6 +21,7 @@ interface MessagesModeProps {
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
   const queryClient = useQueryClient();
+  const [isShouldShowChatBubble, setIsShouldShowChatBubble] = useState(false);
   const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
@@ -42,9 +43,18 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       if (event.resourceName === 'Message') {
         switch (event.jobName) {
           case 'created':
-            if (event.jobStatus === 'completed') queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+            if (event.jobStatus === 'active')  {
+              setIsShouldShowChatBubble(true)
+            }
+            if (event.jobStatus === 'completed') {
+              queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+            }
+            if (event.jobStatus === 'failed')  {
+              setIsShouldShowChatBubble(false)
+            }
             break;
           case 'updated':
+            setIsShouldShowChatBubble(false)
             const messageContent = event?.resourceAttributes?.content;
             if (!messageContent) return;
             queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
@@ -85,7 +95,14 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       {/* chat header */}
       <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
-      <ChatBody messages={messages} loadMoreMessages={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} />
+      <ChatBody
+        messages={messages}
+        isShouldShowChatBubble={isShouldShowChatBubble}
+        isLoadingMessages={isLoading}
+        loadMoreMessages={fetchNextPage}
+        isLoading={isFetchingNextPage}
+        hasMore={hasNextPage}
+      />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

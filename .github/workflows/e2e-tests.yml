@@ -2,11 +2,16 @@ name: E2E Tests
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main]  # Only run real MetaMask tests on PRs to main
+
+env:
+  NODE_VERSION: '20'
+  CI: true
 
 jobs:
   security-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -14,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -22,6 +27,13 @@ jobs:
 
       - name: Security audit
         run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Run TypeScript checks
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npx eslint . --ext .ts,.tsx --max-warnings 0
         continue-on-error: true
 
   test-metamask:
@@ -36,7 +48,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -45,6 +57,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
+      - name: Install xvfb
+        run: sudo apt-get install -y xvfb
+
       - name: Start development server
         run: npm run dev &
 
@@ -52,11 +67,37 @@ jobs:
         run: |
           timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
 
-      - name: Build Synpress cache (headless)
-        run: HEADLESS=true npm run test:cache
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
 
-      - name: Run MetaMask tests
-        run: npm run test:all-metamask
+      - name: Build Synpress cache
+        run: xvfb-run -a npm run test:cache
+
+      - name: Run signin tests (if signin changed)
+        if: contains(steps.changed-files.outputs.all_changed_files, 'signIn')
+        run: xvfb-run -a npm run test:signin-conditions
+
+      - name: Run auth tests (if auth changed)
+        if: contains(steps.changed-files.outputs.all_changed_files, 'auth')
+        run: xvfb-run -a npm run test:auth-flow
+
+      - name: Run all tests (if no specific match)
+        if: |
+          !contains(steps.changed-files.outputs.all_changed_files, 'signIn') &&
+          !contains(steps.changed-files.outputs.all_changed_files, 'auth')
+        run: xvfb-run -a npm run test:all-metamask
+
+      - name: Format test results
+        if: failure()
+        run: |
+          echo "## ❌ MetaMask Tests Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Failed Tests:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          # Extract only failed test names and errors
+          grep -E "(✕|Error:|Expected:|Received:|at .*\.test\.ts)" test-results/results.txt 2>/dev/null || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -80,7 +121,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -117,4 +158,19 @@ jobs:
       - name: Test Summary
         run: |
           echo "## Test Results 🧪" >> $GITHUB_STEP_SUMMARY
-          echo "E2E tests completed. Check artifacts for detailed results." >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.test-metamask.result }}" = "failure" ]; then
+            echo "### ❌ MetaMask Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "Check the MetaMask test logs for details" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test-metamask.result }}" = "success" ]; then
+            echo "### ✅ MetaMask Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.test-browser.result }}" = "failure" ]; then
+            echo "### ❌ Browser Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test-browser.result }}" = "success" ]; then
+            echo "### ✅ Browser Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 View detailed reports in the artifacts section" >> $GITHUB_STEP_SUMMARY

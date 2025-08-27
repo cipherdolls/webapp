@@ -6,6 +6,23 @@ import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import CardWithBadge from './DashboardCard';
+
+function YourAvatarsSkeleton() {
+  return (
+    <div className='flex flex-col gap-5'>
+      <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[137px]'></div>
+      <div className='rounded-xl p-2 bg-gradient-1 w-full animate-pulse'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mt-12'>
+          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const YourAvatars = () => {
   const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: 'true' });
@@ -18,6 +35,10 @@ const YourAvatars = () => {
   const handleShowAll = () => {
     setShowAll(!showAll);
   };
+
+  if (avatarsLoading) {
+    return <YourAvatarsSkeleton />;
+  }
 
   return (
     <div className='flex flex-col gap-5'>
@@ -46,38 +67,19 @@ const YourAvatars = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
               {avatars.map((avatar, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                    <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'>
-                      <img
-                        src={getPicture(avatar, 'avatars', false)}
-                        srcSet={getPicture(avatar, 'avatars', true)}
-                        alt={`${avatar.name} picture`}
-                        className='object-cover size-full'
-                      />
-
-                      <div className='absolute top-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                          👤
-                          <span>By you</span>
-                        </div>
-                      </div>
-                    </Link>
-
-                    <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
-                      <div className='flex flex-col gap-1 min-w-0 flex-1'>
-                        <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
-
-                        <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
-                      </div>
-                      <div className='flex items-center gap-3 flex-shrink-0'>
-                        <AvatarScenarioModal avatar={avatar}>
-                          <Button.Root size='sm' className='px-5'>
-                            Chat
-                          </Button.Root>
-                        </AvatarScenarioModal>
-                      </div>
+                  <CardWithBadge item={avatar} type='avatars' to={`/avatars/${avatar.id}`}>
+                    <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                      <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
+                      <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                     </div>
-                  </div>
+                    <div className='flex items-center gap-3 flex-shrink-0'>
+                      <AvatarScenarioModal avatar={avatar}>
+                        <Button.Root size='sm' className='px-5'>
+                          Chat
+                        </Button.Root>
+                      </AvatarScenarioModal>
+                    </div>
+                  </CardWithBadge>
                 </div>
               ))}
             </div>
