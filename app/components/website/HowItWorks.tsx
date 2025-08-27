@@ -29,9 +29,9 @@ const HowItWorks = () => {
         {/* Video Section */}
         <div className='mb-20'>
           <div className='relative max-w-4xl mx-auto'>
-            <div className='relative bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl overflow-hidden shadow-sm'>
+            <div className='relative bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl overflow-hidden shadow-sm aspect-video'>
               <iframe
-                className='aspect-video'
+                className='w-full h-full'
                 src='https://www.youtube.com/embed/cb8CiwBFe30?start=113&controls=1&modestbranding=1&rel=0'
                 title='Cipherdolls Tutorial'
                 allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
