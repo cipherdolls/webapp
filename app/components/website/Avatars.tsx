@@ -180,7 +180,7 @@ const Avatars = ({ avatars }: { avatars: any }) => {
   }, [isPlaying, getPosition, duration]);
 
   return (
-    <section id='avatars' className='py-20'>
+    <section id='avatars' className='py-20 overflow-hidden'>
       <div className='container'>
         {/* Section Header */}
         <div className='text-center space-y-4 mb-16'>
@@ -360,13 +360,13 @@ const Avatars = ({ avatars }: { avatars: any }) => {
               {/* Navigation Arrows - Outside the cards */}
               <button
                 onClick={prevSlide}
-                className='absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 w-12 h-12 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg z-50'
+                className='absolute left-0 top-1/2 -translate-y-1/2 md:-translate-x-16 w-12 h-12 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg z-50'
               >
                 <ChevronLeft className='w-5 h-5 text-gray-600' />
               </button>
               <button
                 onClick={nextSlide}
-                className='absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 w-12 h-12 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg z-50'
+                className='absolute right-0 top-1/2 -translate-y-1/2 md:translate-x-16 w-12 h-12 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg z-50'
               >
                 <ChevronRight className='w-5 h-5 text-gray-600' />
               </button>

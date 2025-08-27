@@ -1,78 +1,71 @@
 import React from 'react';
-import { Menu, X } from 'lucide-react';
 import * as Button from '~/components/ui/button/button';
 import { Link } from 'react-router';
 import { ROUTES } from '~/constants';
 
+const navigationItems = [
+  {
+    label: 'How it Works',
+    sectionId: 'sectionHowItWorks',
+  },
+
+  {
+    label: 'How to use',
+    sectionId: 'steps',
+  },
+
+  {
+    label: 'Avatars',
+    sectionId: 'avatars',
+  },
+
+  {
+    label: 'Scenarios',
+    sectionId: 'scenarios',
+  },
+
+  {
+    label: 'Features',
+    sectionId: 'features',
+  },
+];
+
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const handleNavigationItemClick = (e: React.MouseEvent<HTMLButtonElement>, elementId: string) => {
+    e.preventDefault();
+    document.getElementById(elementId)?.scrollIntoView({
+      behavior: 'smooth',
+    });
+  };
 
   return (
-    <header className='fixed top-0 left-0 right-0 bg-white/70 backdrop-blur-md border-b border-gray-200/50 z-50'>
+    <header className='fixed top-0 left-0 right-0 bg-white/70 backdrop-blur-md border-b border-gray-200/50 z-100'>
       <div className='container'>
-        <div className='flex justify-between items-center h-16'>
+        <div className='flex justify-between items-center h-16 gap-3'>
           {/* Logo */}
           <div className='flex items-center'>
             <img src='/logo.svg' alt='Cipherdolls' className='w-48 h-auto' />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className='hidden md:flex items-center space-x-8'>
-            <a href='#how-it-works' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-              How it Works
-            </a>
-            <a href='#steps' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-              How to use
-            </a>
-            <a href='#avatars' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-              Avatars
-            </a>
-            <a href='#scenarios' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-              Scenarios
-            </a>
-            <a href='#features' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-              Features
-            </a>
+          <nav className='hidden lg:flex items-center space-x-8'>
+            {navigationItems.map((item) => (
+              <button
+                onClick={(e) => handleNavigationItemClick(e, item.sectionId)}
+                className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
 
           {/* CTA Button */}
-          <div className='hidden md:flex items-center'>
-            <Button.Root className='gradient-move px-6'>
+          <div className=''>
+            <Button.Root className='gradient-move px-6 md:px-8 md:py-5.5' size='sm'>
               <Link to={ROUTES.signIn}>Start Chat for Free</Link>
             </Button.Root>
           </div>
-
-          {/* Mobile menu button */}
-          <button className='md:hidden' onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className='w-5 h-5' /> : <Menu className='w-5 h-5' />}
-          </button>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className='md:hidden py-4 border-t border-gray-200/50'>
-            <div className='flex flex-col space-y-3'>
-              <a href='#how-it-works' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-                How it Works
-              </a>
-              <a href='#steps' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-                How to use
-              </a>
-              <a href='#avatars' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-                Avatars
-              </a>
-              <a href='#scenarios' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-                Scenarios
-              </a>
-              <a href='#features' className='text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium'>
-                Features
-              </a>
-              <button className='gradient-move text-white px-6 py-2 rounded-full transition-all duration-300 ease-in-out text-sm font-medium mt-3 self-start hover:shadow-lg'>
-                Start Chat for Free
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );

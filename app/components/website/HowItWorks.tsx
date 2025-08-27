@@ -17,7 +17,7 @@ const content = {
 
 const HowItWorks = () => {
   return (
-    <section id='how-it-works' className='py-20'>
+    <section id='sectionHowItWorks' className='py-20'>
       <div className='container'>
         {/* Section Header */}
         <div className='text-center space-y-4 mb-16'>

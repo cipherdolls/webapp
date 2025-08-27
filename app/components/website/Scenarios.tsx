@@ -59,8 +59,8 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
           <div className='grid lg:grid-cols-2 gap-12'>
             {/* Left Side - Scenario Buttons */}
             <div className='space-y-4'>
-              <h4 className='text-xl font-medium text-gray-900 mb-6'>Choose Your Scenario</h4>
-              <div className='space-y-3'>
+              <h4 className='text-xl font-medium text-gray-900 mb-6 text-center lg:text-left'>Choose Your Scenario</h4>
+              <div className='flex flex-wrap justify-center gap-2 lg:flex-column lg:gap-3'>
                 {scenarios.map((scenario, index) => {
                   const isActive = activeScenario === index;
                   const gradientIndex = index % scenarioGradients.length;
@@ -70,15 +70,15 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                     <button
                       key={scenario.id}
                       onClick={() => setActiveScenario(index)}
-                      className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
+                      className={` text-left p-2  rounded-xl transition-all duration-300 group lg:w-full lg:p-4 ${
                         isActive ? `bg-gradient-to-r ${gradient} text-white shadow-lg` : 'bg-white/60 hover:bg-white/80 text-gray-700 hover:text-gray-900'
                       }`}
                     >
-                      <div className='flex items-center space-x-4'>
+                      <div className='flex items-center gap-4'>
                         <div className='relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0'>
                           <img src={getPicture(scenario, 'scenarios', false)} alt={scenario.name} className='w-full h-full object-cover' />
                         </div>
-                        <div className='flex-1 min-w-0'>
+                        <div className='flex-1 min-w-0 hidden lg:block'>
                           <h5 className={`font-bold text-lg ${isActive ? 'text-white' : 'text-gray-900'}`}>{scenario.name}</h5>
                           {/* <p className={`text-xs leading-relaxed ${isActive ? 'text-gray-200' : 'text-gray-600'}`}>
                             {scenario.introduction}

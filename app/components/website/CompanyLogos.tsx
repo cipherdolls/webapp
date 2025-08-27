@@ -9,27 +9,22 @@ const CompanyLogos = () => {
     {
       name: 'Assembly',
       logo: assemblyLogo,
-      className: 'h-6',
     },
     {
       name: 'ElevenLabs',
       logo: elevenlabsLogo,
-      className: 'h-6',
     },
     {
       name: 'Groq',
       logo: groqLogo,
-      className: 'h-6',
     },
     {
       name: 'Mixedbread',
       logo: mixedbreadLogo,
-      className: 'h-6',
     },
     {
       name: 'OpenRouter',
       logo: openrouterLogo,
-      className: 'h-6',
     },
   ];
 
@@ -37,10 +32,10 @@ const CompanyLogos = () => {
     <section className='py-16 '>
       <div className='container'>
         {/* Logos Grid */}
-        <div className='flex justify-center items-center gap-20 opacity-60'>
+        <div className='flex flex-wrap justify-center items-center gap-20 opacity-60'>
           {companies.map((company, index) => (
             <div key={index} className='flex items-center justify-center'>
-              <img src={company.logo} alt={company.name} className={company.className} />
+              <img src={company.logo} alt={company.name}  className={'h-6'} />
             </div>
           ))}
         </div>
