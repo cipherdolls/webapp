@@ -159,7 +159,7 @@ describe('TokenPermitsList modal integration', () => {
     expect(screen.getByTestId('create-token-allowance-modal')).toHaveAttribute('data-token-balance', '250');
   });
 
-  it('should render Create Allowances button when no permits exist', () => {
+  it('should render Create allowances link when no permits exist', () => {
     const mockUser = createMockUser({
       tokenBalance: 100,
       tokenAllowance: '0',
@@ -189,7 +189,7 @@ describe('TokenPermitsList modal integration', () => {
     expect(screen.getByTestId('create-token-allowance-modal')).toBeInTheDocument();
   });
 
-  it('should render Create Allowances button when permits exist', () => {
+  it('should render Create Permit button when permits exist', () => {
     const mockPermit = createMockTokenPermit();
     const mockUser = createMockUser({
       tokenBalance: 100,
@@ -215,8 +215,8 @@ describe('TokenPermitsList modal integration', () => {
 
     renderWithQuery(<TokenPermitsList />);
 
-    // Should show the "Create Allowances" button in the top section
-    expect(screen.getByText('Create Allowances')).toBeInTheDocument();
+    // Should show the "Create Permit" button in the top section
+    expect(screen.getByText('Create Permit')).toBeInTheDocument();
     expect(screen.getByTestId('pen-icon')).toBeInTheDocument();
   });
 
@@ -301,7 +301,7 @@ describe('TokenPermitsList modal integration', () => {
     expect(callArgs.v).toBe('27');
   });
 
-  it('should use currentUser from route loader data when user query data is not available', () => {
+  it('should use user data from useUser hook correctly', () => {
     const mockUser = createMockUser({
       tokenBalance: 75,
       tokenAllowance: '0',
@@ -314,9 +314,9 @@ describe('TokenPermitsList modal integration', () => {
 
     vi.mocked(useRouteLoaderData).mockReturnValue(mockUser);
     vi.mocked(useUser).mockReturnValue(createMockUseUserResult({
-      data: undefined, // No user data from query
+      data: mockUser, // Use user data from query
       isLoading: false,
-      isSuccess: false,
+      isSuccess: true,
     }));
     vi.mocked(useTokenPermits).mockReturnValue(createMockUseTokenPermitsResult({
       data: createMockTokenPermitsPaginated({ data: [] }),
@@ -326,7 +326,7 @@ describe('TokenPermitsList modal integration', () => {
 
     renderWithQuery(<TokenPermitsList />);
 
-    // Should still pass the correct tokenBalance from route loader data
+    // Should pass the correct tokenBalance from useUser hook
     expect(screen.getByTestId('create-token-allowance-modal')).toHaveAttribute('data-token-balance', '75');
   });
 });

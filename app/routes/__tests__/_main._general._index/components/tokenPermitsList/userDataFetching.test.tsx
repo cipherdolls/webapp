@@ -5,8 +5,6 @@ import TokenPermitsList from '~/components/TokenPermitsList';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
-import { useRouteLoaderData } from 'react-router';
-
 // Mock dependencies
 vi.mock('~/hooks/queries/userQueries', () => ({
   useUser: vi.fn(),
@@ -18,10 +16,6 @@ vi.mock('~/hooks/queries/tokenQueries', () => ({
 
 vi.mock('~/hooks/queries/tokenMutations', () => ({
   useCreateTokenPermit: vi.fn(),
-}));
-
-vi.mock('react-router', () => ({
-  useRouteLoaderData: vi.fn(),
 }));
 
 vi.mock('~/components/CreateTokenAllowanceModal', () => ({
@@ -76,9 +70,6 @@ describe('TokenPermitsList user data fetching', () => {
   });
 
   it('should fetch user and token permits data', () => {
-    // Mock useRouteLoaderData
-    vi.mocked(useRouteLoaderData).mockReturnValue(mockUser);
-    
     // Mock useUser
     vi.mocked(useUser).mockReturnValue(createMockUseUserResult({
       data: mockUser,
@@ -103,11 +94,9 @@ describe('TokenPermitsList user data fetching', () => {
     
     expect(useUser).toHaveBeenCalled();
     expect(useTokenPermits).toHaveBeenCalled();
-    expect(useRouteLoaderData).toHaveBeenCalledWith('routes/_main');
   });
 
   it('should render Token Permits heading when hooks are called successfully', () => {
-    vi.mocked(useRouteLoaderData).mockReturnValue(mockUser);
     vi.mocked(useUser).mockReturnValue(createMockUseUserResult({
       data: mockUser,
       isLoading: false,
@@ -129,8 +118,7 @@ describe('TokenPermitsList user data fetching', () => {
     expect(screen.getByTestId('information-badge')).toBeInTheDocument();
   });
 
-  it('should use route loader data when user query is not available', () => {
-    vi.mocked(useRouteLoaderData).mockReturnValue(mockUser);
+  it('should handle when user query data is not available', () => {
     vi.mocked(useUser).mockReturnValue(createMockUseUserResult({
       data: undefined,
       isLoading: false,
@@ -148,13 +136,12 @@ describe('TokenPermitsList user data fetching', () => {
 
     renderWithQuery(<TokenPermitsList />);
     
-    // Should still render properly using route loader data
+    // Should still render properly even without user data
     expect(screen.getByText('Token Permits')).toBeInTheDocument();
-    expect(useRouteLoaderData).toHaveBeenCalledWith('routes/_main');
+    expect(screen.getByTestId('information-badge')).toBeInTheDocument();
   });
 
   it('should show skeleton when user data is loading', () => {
-    vi.mocked(useRouteLoaderData).mockReturnValue(mockUser);
     vi.mocked(useUser).mockReturnValue(createMockUseUserResult({
       data: undefined,
       isLoading: true,
@@ -178,7 +165,6 @@ describe('TokenPermitsList user data fetching', () => {
   });
 
   it('should show skeleton when token permits data is loading', () => {
-    vi.mocked(useRouteLoaderData).mockReturnValue(mockUser);
     vi.mocked(useUser).mockReturnValue(createMockUseUserResult({
       data: mockUser,
       isLoading: false,
