@@ -62,7 +62,7 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className=''>
-            <Button.Root className='gradient-move px-6 md:px-8 md:py-5.5' size='sm'>
+            <Button.Root className='gradient-move px-6 md:px-8 md:py-5.5' size='sm' asChild>
               <Link to={ROUTES.signIn}>Start Chat for Free</Link>
             </Button.Root>
           </div>
