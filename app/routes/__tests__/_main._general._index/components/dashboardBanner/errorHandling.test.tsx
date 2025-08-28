@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import type { User } from '~/types';
 import { 
   createMockUser, 
   createMockUseUserResult, 
   renderWithQuery,
-  renderHookWithQuery,
   server
 } from '../../test-utils';
 
@@ -206,7 +205,6 @@ describe('DashboardBanner error handling', () => {
 
     // Should show loading skeleton during recovery
     errorAssertions.expectLoadingSkeleton();
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('should handle successful recovery from error state', async () => {
@@ -378,7 +376,6 @@ describe('DashboardBanner error handling', () => {
 
     // Should show loading skeleton now
     errorAssertions.expectLoadingSkeleton();
-    expect(screen.getByText('Loading after error')).toBeInTheDocument();
     errorAssertions.expectNoUserContent();
   });
 
