@@ -8,34 +8,34 @@ import { ROUTES } from '~/constants';
 
 const SidebarItems = [
   {
-    name: 'Dashboard',
-    href: ROUTES.account,
-    icon: Icons.dashboard,
-  },
-  {
     name: 'Chats',
-    href: '/chats',
+    href: ROUTES.chats,
     icon: Icons.chats,
   },
   {
     name: 'Avatars',
-    href: '/avatars',
+    href: ROUTES.avatars,
     icon: Icons.users,
   },
   {
     name: 'Scenarios',
-    href: '/scenarios',
+    href: ROUTES.scenarios,
     icon: Icons.scenarios,
   },
   {
     name: 'Services',
-    href: '/services',
+    href: ROUTES.services,
     icon: Icons.services,
     hideOnMobile: true,
   },
+  {
+    name: 'Account',
+    href: ROUTES.account,
+    icon: Icons.account,
+  },
   // {
   //   name: 'Hardware',
-  //   href: '/hardware',
+  //   href: ROUTES.hardware,
   //   icon: Icons.gear,
   //   hideOnMobile: true,
   // },
