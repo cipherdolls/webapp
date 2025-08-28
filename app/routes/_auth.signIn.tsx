@@ -83,7 +83,7 @@ export default function SignInRoute() {
       localStorage.removeItem('redirectAfterSignIn');
       navigate(redirectUrl);
     } else {
-      navigate(ROUTES.account, { replace: true });
+      navigate(ROUTES.chats, { replace: true });
     }
   };
 
