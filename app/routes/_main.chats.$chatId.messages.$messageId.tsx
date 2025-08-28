@@ -21,17 +21,17 @@ function ChatMessageSkeleton() {
     <div className='flex flex-col justify-between h-full pb-5 pt-[26px] animate-pulse'>
       <div className='flex flex-col gap-8'>
         <div className='flex flex-col gap-6'>
-          <div className='w-36 h-6 bg-neutral-04 rounded-md' />
+          <div className='w-36 h-6 bg-neutral-04 rounded-[10px]' />
           <div className='shrink-0 bg-neutral-04  px-10 py-6 min-h-[140px] h-[140px] rounded-xl overflow-hidden' />
         </div>
 
         <div className='flex flex-col gap-6'>
-          <div className='w-48 h-6 bg-neutral-04 rounded-md' />
+          <div className='w-48 h-6 bg-neutral-04 rounded-[10px]' />
           <div className='shrink-0 bg-neutral-04  px-10 py-6 min-h-[278px] h-[278px] rounded-xl overflow-hidden' />
         </div>
 
         <div className='flex flex-col gap-6'>
-          <div className='w-40 h-6 bg-neutral-04 rounded-md' />
+          <div className='w-40 h-6 bg-neutral-04 rounded-[10px]' />
           <div className='shrink-0 bg-neutral-04  px-10 py-6 min-h-[278px] h-[278px] rounded-xl overflow-hidden' />
         </div>
       </div>

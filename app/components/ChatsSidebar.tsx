@@ -27,7 +27,7 @@ function SidebarSkeleton({ count = 15 }: { count?: number }) {
         <div className='min-h-20 flex items-center justify-between rounded-xl w-full p-3 bg-neutral-05 animate-pulse'>
           <div className='flex items-center gap-4'>
             <div className='w-14 h-14 rounded-full bg-neutral-04' />
-            <div className='w-32 h-4 rounded-md bg-neutral-04' />
+            <div className='w-32 h-4 rounded-[10px] bg-neutral-04' />
           </div>
 
           <div className='w-5 h-5 rounded-full bg-neutral-04 mr-2' />

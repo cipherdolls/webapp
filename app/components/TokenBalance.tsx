@@ -9,11 +9,11 @@ function TokenBalanceSkeleton() {
   return (
     <div className='flex flex-col gap-5'>
       <div className='flex items-center justify-between'>
-        <div className='rounded-[10px] h-6 bg-gradient-1 w-36 animate-pulse'></div>
-        <div className='rounded-lg h-9 w-9 bg-gradient-1 animate-pulse'></div>
+        <div className='rounded-[10px] h-6 bg-neutral-04 w-36 animate-pulse'></div>
+        <div className='rounded-full h-6 w-6 my-1.5 bg-neutral-04 animate-pulse'></div>
       </div>
       <div className='grid grid-cols-1'>
-        <div className='bg-gradient-1 rounded-xl p-3 h-20 animate-pulse'></div>
+        <div className='bg-neutral-04 rounded-xl p-3 h-20 animate-pulse'></div>
       </div>
     </div>
   );

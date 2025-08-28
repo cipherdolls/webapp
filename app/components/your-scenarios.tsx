@@ -11,13 +11,13 @@ import DashboardCard from './DashboardCard';
 function YourScenariosSkeleton() {
   return (
     <div className='flex flex-col gap-5'>
-      <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[137px]'></div>
-      <div className='rounded-xl p-2 bg-gradient-1 w-full animate-pulse'>
+      <div className='rounded-[10px] h-6 bg-neutral-04 w-full animate-pulse max-w-[137px]'></div>
+      <div className='rounded-xl p-2 bg-neutral-05 w-full animate-pulse'>
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mt-12'>
-          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
-          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
-          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
-          <div className='rounded-[10px] h-[184px] bg-white/50 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
         </div>
       </div>
     </div>

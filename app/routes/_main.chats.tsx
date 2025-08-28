@@ -21,10 +21,7 @@ export default function ChatsIndex() {
     <>
       <main className='flex flex-1 sm:py-2 sm:pr-2 overflow-hidden'>
         <div className='flex flex-1 sm:rounded-xl sm:bg-gradient-1 overflow-hidden'>
-          {/* for correct skeleton loading on mobile */}
-          <div className={cn(pathname === '/chats' ? '' : 'hidden lg:block')}>
-            <ChatsSidebar chats={chats} avatars={avatars} isChatsLoading={isChatsLoading} />
-          </div>
+          <ChatsSidebar chats={chats} avatars={avatars} isChatsLoading={isChatsLoading} />
 
           <div className='flex flex-1'>
             <Outlet />
