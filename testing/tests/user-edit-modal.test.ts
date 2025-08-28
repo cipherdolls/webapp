@@ -17,7 +17,7 @@ test.describe('User Edit Modal E2E Tests', () => {
     await page.waitForTimeout(1000);
     
     // Monitor API calls
-    const signinResponsePromise = page.waitForResponse((response) => 
+    const signinResponsePromise = page.waitForResponse((response: any) => 
       response.url().includes('/auth/signin')
     ).catch(() => null);
     
@@ -42,7 +42,7 @@ test.describe('User Edit Modal E2E Tests', () => {
     let currentUrl = page.url();
     if (currentUrl.endsWith('/signin')) {
       const tokenFromResponse = await page.evaluate(
-        (responseText) => {
+        (responseText: string) => {
           try {
             const data = JSON.parse(responseText);
             return data.token;
@@ -55,7 +55,7 @@ test.describe('User Edit Modal E2E Tests', () => {
 
       if (tokenFromResponse) {
         console.log('⚡ Manually setting token to trigger redirect...');
-        await page.evaluate((token) => {
+        await page.evaluate((token: string) => {
           localStorage.setItem('token', JSON.stringify(token));
           window.dispatchEvent(
             new StorageEvent('storage', {
