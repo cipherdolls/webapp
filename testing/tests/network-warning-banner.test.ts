@@ -87,7 +87,7 @@ test.describe('Network Warning Banner E2E Tests', () => {
     });
 
     await test.step('Navigate to dashboard and verify network warning', async () => {
-      await page.goto('/');
+      await page.goto('/account');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(2000);
 

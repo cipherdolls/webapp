@@ -69,18 +69,15 @@ test.describe('User Edit Modal E2E Tests', () => {
       }
     }
 
-    // Navigate to home page if not already there
-    await page.goto('/');
+    // Navigate to dashboard page (account route)
+    await page.goto('/account');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
   }
 
   // Helper function to open user edit modal
   async function openUserEditModal(page: any) {
-    // Look for the pen icon button in the dashboard banner
-    const penButton = page.locator('button:has(svg)').filter({ hasText: '' }).first();
-    
-    // Alternative selector - look for pen button specifically
+    // Look for the edit button next to the dashboard banner title
     const editButton = page.locator('h1').locator('..').locator('button').first();
     
     // Try to find the edit button
