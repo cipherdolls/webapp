@@ -30,7 +30,7 @@ export const DashboardBanner: FC<BannerProps> = ({ variant, description, showEdi
 
   if (userLoading) {
     return (
-      <div className='flex flex-col sm:gap-4 gap-2 sm:mt-0 mt-3'>
+      <div className='flex flex-col sm:gap-4 gap-2 sm:mt-0 mt-3' data-testid="dashboard-banner-loading">
         <div className='relative'>
           <div className='rounded-[10px] h-[72px] bg-neutral-04 w-full max-w-96 animate-pulse'></div>
         </div>
