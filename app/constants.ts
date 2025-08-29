@@ -36,7 +36,7 @@ export const ROUTES = {
   services: '/services',
   hardware: '/hardware',
   account: '/account',
-}
+} as const;
 
 
 export const NETWORKS = {

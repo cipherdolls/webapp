@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 export default function ChatsIndex() {
   const { data: chatsData } = useChats();
@@ -15,7 +16,7 @@ export default function ChatsIndex() {
   useEffect(() => {
     if (chatsData && chatsData.length > 0 && isDesktopView) {
       const firstChat = chatsData[0];
-      navigate(`/chats/${firstChat.id}`);
+      navigate(`${ROUTES.chats}/${firstChat.id}`);
     }
   }, [chatsData, isDesktopView, navigate]);
 

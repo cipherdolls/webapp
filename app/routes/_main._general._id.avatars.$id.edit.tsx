@@ -3,6 +3,7 @@ import type { Route } from './+types/_main._general._id.avatars.$id.edit';
 import AvatarFormModal from '~/components/AvatarFormModal';
 import { useUpdateAvatar } from '~/hooks/queries/avatarMutations';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatar edit' }];
@@ -21,7 +22,7 @@ export default function AvatarEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/avatars/${params.id}`);
+    navigate(`${ROUTES.avatars}/${params.id}`);
   };
 
   const handleSubmit = (formData: FormData) => {
@@ -29,7 +30,7 @@ export default function AvatarEdit({ params }: Route.ComponentProps) {
 
     updateAvatar({ avatarId: avatar.id, formData: formData }, {
       onSuccess: (updatedAvatar) => {
-        navigate(`/avatars/${updatedAvatar.id}`);
+        navigate(`${ROUTES.avatars}/${updatedAvatar.id}`);
       },
     });
   };

@@ -2,6 +2,7 @@ import { redirect, useFetcher } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/doll-bodies.$dollBodyId.destroy';
 import * as Button from '~/components/ui/button/button';
+import { ROUTES } from '~/constants';
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
   const dollBodyId = params.dollBodyId;
@@ -11,7 +12,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   if (!res.ok) {
     return await res.json();
   }
-  return redirect(`/hardware/doll-bodies`);
+  return redirect(`${ROUTES.hardware}/doll-bodies`);
 }
 
 export default function DollBodyDestroy() {

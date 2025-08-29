@@ -64,14 +64,14 @@ const Sidebar = ({ className }: { className?: string }) => {
 
             if (item.name === 'Menu') {
               const menuItems = [
-                { type: 'link' as const, text: 'Services', href: '/services', icon: Icons.services },
+                { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
                 {
                   type: 'onClick' as const,
                   text: 'Sign Out',
                   onClick: () => {
                     localStorage.removeItem('token');
                     localStorage.removeItem('redirectAfterSignIn');
-                    navigate('/signin');
+                    navigate(ROUTES.signIn);
                   },
                   icon: Icons.logout,
                 },
