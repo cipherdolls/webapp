@@ -19,19 +19,13 @@ type GenderFilter = 'All' | 'Male' | 'Female';
 
 function AvatarSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <div className='flex flex-col gap-10 pb-5 w-full'>
-      <div className='rounded-[10px] h-[52px] bg-gradient-1 w-full animate-pulse mb-8'></div>
+    <div className='flex flex-col gap-5 pb-5 w-full'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-5' key={i}>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div>
-          <div className='grid md:gap-5 gap-3.5 grid-cols-1 sm:grid-cols-2'>
-            <div className='rounded-[10px] h-[112px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[112px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[112px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[112px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
-          </div>
+        <div className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
         </div>
       ))}
     </div>
@@ -191,12 +185,12 @@ export default function AvatarsShow() {
           )}
         </div>
 
-        {isLoading ? (
+        {!isLoading ? (
           <AvatarSkeleton />
         ) : (
           <>
             <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
-              {filteredAndSortedAvatars.length === 0 ? (
+              {filteredAndSortedAvatars.length === 0  && !isLoading ? (
                 <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
                   {showMyAvatars ? 'No avatars found.' : 'No published avatars found.'}
                 </p>
@@ -268,7 +262,7 @@ export default function AvatarsShow() {
             )}
 
             {isFetchingNextPage && (
-              <div className='text-center py-4'>
+              <div className='text-center -mt-5 pb-5'>
                 <div className='inline-flex items-center gap-2'>
                   <Icons.loading className='size-4 animate-spin' />
                   <span className='text-neutral-01'>Loading more avatars...</span>
