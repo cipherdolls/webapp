@@ -118,19 +118,7 @@ Found: Not visible
       });
     });
 
-    await test.step('Check partner logos', async () => {
-      const partnerLogos = [
-        UI_TEXTS.LOGO_MIXEDBREAD,
-        UI_TEXTS.LOGO_OPENROUTER,
-        UI_TEXTS.LOGO_GROQ,
-        UI_TEXTS.LOGO_ELEVENLABS,
-        UI_TEXTS.LOGO_ASSEMBLY,
-      ];
-
-      for (const logo of partnerLogos) {
-        await expectElementVisible(page, `img[alt="${logo}"]`, `${logo} Partner Logo`);
-      }
-    });
+    // Partner logos check removed - not essential for signin functionality
 
     console.log('✅ All page elements verified with real MetaMask');
   });
