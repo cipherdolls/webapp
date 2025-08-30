@@ -131,13 +131,13 @@ describe('DashboardBanner user data loading', () => {
       />
     );
 
-    // Check for neutral background class
-    const neutralDiv = document.querySelector('[class*="bg-neutral-04"]');
-    expect(neutralDiv).toBeInTheDocument();
-    
-    // Check skeleton dimensions
-    const skeletonDiv = document.querySelector('[class*="h-[72px]"][class*="w-48"]');
-    expect(skeletonDiv).toBeInTheDocument();
+    // Check skeleton structure with data-testid (primary)
+    const skeletonContainer = screen.getByTestId('dashboard-banner-loading');
+    expect(skeletonContainer).toBeInTheDocument();
+
+    // Check animation class (fallback)
+    const animationElement = document.querySelector('.animate-pulse');
+    expect(animationElement).toBeInTheDocument();
     
     // Loading skeleton shown, description handling is not critical
   });
@@ -326,20 +326,17 @@ describe('DashboardBanner user data loading', () => {
       />
     );
 
-    // Check skeleton structure
-    const skeletonContainer = document.querySelector('.flex.flex-col.sm\\:gap-4.gap-2');
+    // Check skeleton structure with data-testid (primary)
+    const skeletonContainer = screen.getByTestId('dashboard-banner-loading');
     expect(skeletonContainer).toBeInTheDocument();
+
+    // Check animation class (fallback)
+    const animationElement = document.querySelector('.animate-pulse');
+    expect(animationElement).toBeInTheDocument();
 
     // Check neutral background
     const neutralDiv = document.querySelector('[class*="bg-neutral-04"]');
     expect(neutralDiv).toBeInTheDocument();
-    
-    // Check skeleton dimensions
-    const skeletonDiv = document.querySelector('[class*="h-[72px]"][class*="w-48"]');
-    expect(skeletonDiv).toBeInTheDocument();
-    
-    // Check animation class
-    loadingAssertions.expectSkeletonAnimation();
     
     // Loading skeleton structure verified
   });

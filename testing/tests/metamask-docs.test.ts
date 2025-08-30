@@ -165,20 +165,24 @@ Actual: Still on signin but can't verify page state
 📍 Check: Token handling and redirect logic
         `);
       }
-    } else if (currentUrl.endsWith('/')) {
-      console.log('✅ Successfully redirected to homepage!');
+    } else if (currentUrl.endsWith('/') || currentUrl.endsWith('/account')) {
+      console.log('✅ Successfully redirected to dashboard!');
 
       try {
-        await expect(page).toHaveURL('/');
+        // Accept both / (homepage) and /account (dashboard) as valid destinations
+        const isValidDestination = currentUrl.endsWith('/') || currentUrl.endsWith('/account');
+        if (!isValidDestination) {
+          throw new Error('Invalid redirect destination');
+        }
         console.log('🎉 FULL MetaMask signin flow completed successfully!');
 
         await page.waitForTimeout(2000);
-        console.log('✅ Test completed - homepage reached successfully');
+        console.log('✅ Test completed - dashboard/homepage reached successfully');
       } catch (error) {
         throw new Error(`
-❌ HOMEPAGE VERIFICATION FAILED
+❌ DASHBOARD VERIFICATION FAILED
 
-Expected URL: /
+Expected URL: / OR /account
 Actual URL: ${currentUrl}
 
 📍 Check: Navigation logic after successful auth
@@ -188,7 +192,7 @@ Actual URL: ${currentUrl}
       throw new Error(`
 ❌ UNEXPECTED NAVIGATION RESULT
 
-Expected: Either /signin (with clear state) OR / (homepage)
+Expected: Either /signin (with clear state) OR / (homepage) OR /account (dashboard)
 Actual: ${currentUrl}
 
 💡 This indicates:

@@ -17,7 +17,7 @@ test.describe('User Edit Modal E2E Tests', () => {
     await page.waitForTimeout(1000);
     
     // Monitor API calls
-    const signinResponsePromise = page.waitForResponse((response) => 
+    const signinResponsePromise = page.waitForResponse((response: any) => 
       response.url().includes('/auth/signin')
     ).catch(() => null);
     
@@ -42,7 +42,7 @@ test.describe('User Edit Modal E2E Tests', () => {
     let currentUrl = page.url();
     if (currentUrl.endsWith('/signin')) {
       const tokenFromResponse = await page.evaluate(
-        (responseText) => {
+        (responseText: string) => {
           try {
             const data = JSON.parse(responseText);
             return data.token;
@@ -55,7 +55,7 @@ test.describe('User Edit Modal E2E Tests', () => {
 
       if (tokenFromResponse) {
         console.log('⚡ Manually setting token to trigger redirect...');
-        await page.evaluate((token) => {
+        await page.evaluate((token: string) => {
           localStorage.setItem('token', JSON.stringify(token));
           window.dispatchEvent(
             new StorageEvent('storage', {
@@ -69,18 +69,15 @@ test.describe('User Edit Modal E2E Tests', () => {
       }
     }
 
-    // Navigate to home page if not already there
-    await page.goto('/');
+    // Navigate to dashboard page (account route)
+    await page.goto('/account');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
   }
 
   // Helper function to open user edit modal
   async function openUserEditModal(page: any) {
-    // Look for the pen icon button in the dashboard banner
-    const penButton = page.locator('button:has(svg)').filter({ hasText: '' }).first();
-    
-    // Alternative selector - look for pen button specifically
+    // Look for the edit button next to the dashboard banner title
     const editButton = page.locator('h1').locator('..').locator('button').first();
     
     // Try to find the edit button
