@@ -185,7 +185,7 @@ export default function AvatarsShow() {
           )}
         </div>
 
-        {!isLoading ? (
+        {isLoading ? (
           <AvatarSkeleton />
         ) : (
           <>
