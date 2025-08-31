@@ -130,7 +130,7 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
       )}
 
       {/* Results Section */}
-      {!queryProps.isLoading ? (
+      {queryProps.isLoading ? (
         <ModelSkeleton />
       ) : (
         <div className='flex flex-col gap-10 pb-5'>
