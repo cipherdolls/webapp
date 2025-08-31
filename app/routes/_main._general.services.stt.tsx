@@ -21,8 +21,13 @@ function STTSkeleton({ count = 1 }: { count?: number }) {
     <div className='flex flex-col gap-10 pb-5'>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
-          <div className='rounded-[10px] h-[170px] bg-gradient-1 w-full animate-pulse'></div>
+          <div className='flex flex-col gap-3'>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='w-[174px] h-6 rounded-lg bg-neutral-04'/>
+            </div>
+
+            <div className='rounded-xl h-[270px] md:h-[232px] bg-neutral-04 w-full animate-pulse'></div>
+          </div>
         </div>
       ))}
     </div>
