@@ -13,21 +13,15 @@ import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 
-function ScenarioSkeleton({ count = 1 }: { count?: number }) {
+function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <div className='flex flex-col gap-10 pb-5 w-full'>
-      {/* <div className='rounded-[10px] h-[52px] bg-gradient-1 w-full animate-pulse mb-8'></div> */}
+    <div className='flex flex-col gap-5 pb-5 w-full'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-5' key={i}>
-          {/* <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div> */}
-          <div className='grid md:gap-5 gap-3.5 grid-cols-1 sm:grid-cols-2'>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
-          </div>
+        <div className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
         </div>
       ))}
     </div>
