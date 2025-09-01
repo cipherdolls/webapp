@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import type { Avatar } from '~/types';
 import AvatarPicture, { type AvatarPictureProps } from './AvatarPicture';
-import { PICTURE_SIZE } from '~/constants';
+import { PICTURE_SIZE, ROUTES } from '~/constants';
 import { cn } from '~/utils/cn';
 import { Link, Form } from 'react-router';
 import * as Button from '~/components/ui/button/button';
@@ -66,7 +66,7 @@ AvatarCard.ChatButton = function AvatarCardChatButton({ onClick }: { onClick?: (
     <>
       {(avatar.chats?.length || 0) > 0 ? (
         <Button.Root size='sm' className='px-5' asChild>
-          <Link to={`/chats/${avatar.chats?.[0]?.id}`} onClick={onClick}>
+          <Link to={`${ROUTES.chats}/${avatar.chats?.[0]?.id}`} onClick={onClick}>
             Continue Chats
           </Link>
         </Button.Root>

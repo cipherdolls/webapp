@@ -29,7 +29,7 @@ const MainNavigation = ({ className }: { className?: string }) => {
             <span>Dashboard</span>
           </NavLinkComponent>
 
-          <NavLinkComponent to='/chats'>
+          <NavLinkComponent to={ROUTES.chats}>
             <span className='relative'>
               <ChatsSvg />
               <span className='absolute top-0 right-0 w-2.5 h-2.5 bg-[#03CC9C] rounded-full border border-white' />
@@ -48,7 +48,7 @@ const MainNavigation = ({ className }: { className?: string }) => {
             onClick={() => {
               localStorage.removeItem('token');
               localStorage.removeItem('redirectAfterSignIn');
-              navigate('/signin');
+              navigate(ROUTES.signIn);
             }}
             className='flex flex-col gap-1 items-center justify-center w-full h-[72px] rounded-xl text-xs text-center font-semibold text-[#350D2A]/40 hover:bg-black/5 hover:text-black hover:cursor-pointer'
           >

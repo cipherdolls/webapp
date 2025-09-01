@@ -23,6 +23,7 @@ import { useScenario } from '~/hooks/queries/scenarioQueries';
 import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import ErrorPage from '~/components/ErrorPage';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -72,7 +73,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const handleDeleteScenario = () => {
     deleteScenario(scenario.id, {
       onSuccess: () => {
-        navigate(`/scenarios?mine=true`);
+        navigate(`${ROUTES.scenarios}?mine=true`);
       },
     });
   };
@@ -89,7 +90,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
       },
       {
         onSuccess: (newChat) => {
-          navigate(`/chats/${newChat.id}`);
+          navigate(`${ROUTES.chats}/${newChat.id}`);
         },
       }
     );
@@ -99,7 +100,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
-          <Link to={`${scenario.userId === me.id ? '/scenarios?mine=true' : '/scenarios'}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${scenario.userId === me.id ? `${ROUTES.scenarios}?mine=true` : ROUTES.scenarios}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3 break-all flex-wrap'>
               <h3 className='font-semibold text-body-md text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
@@ -124,7 +125,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
             )}
             {me.id === scenario.userId && (
               <>
-                <Link to={`/scenarios/${scenario.id}/edit`}>
+                <Link to={`${ROUTES.scenarios}/${scenario.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
                     Edit
                   </Button.Root>
@@ -144,7 +145,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 {
                   type: 'link',
                   text: 'Edit',
-                  href: `/scenarios/${scenario.id}/edit`,
+                  href: `${ROUTES.scenarios}/${scenario.id}/edit`,
                   visible: me.id === scenario.userId,
                 },
                 {
@@ -188,7 +189,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                       <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
-                            to={`/avatars/${avatar.id}`}
+                            to={`${ROUTES.avatars}/${avatar.id}`}
                             className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
                           >
                             <img
@@ -219,7 +220,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                             <div className='flex items-center gap-3'>
                               {avatar?.chats && avatar?.chats.length > 0 ? (
                                 <Button.Root size='sm' className='px-5' asChild>
-                                  <Link to={`/chats/${avatar.chats[0].id}`}>Continue Chat</Link>
+                                  <Link to={`${ROUTES.chats}/${avatar.chats[0].id}`}>Continue Chat</Link>
                                 </Button.Root>
                               ) : (
                                 <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(avatar.id)}>
@@ -250,7 +251,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                   <div className='flex flex-col items-center sm:gap-2 gap-1'>
                     <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
                     <Link
-                      to='/scenarios'
+                      to={ROUTES.scenarios}
                       className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
                     >
                       Add new scenario

@@ -10,6 +10,7 @@ import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { useCreateSttProvider } from '~/hooks/queries/sttMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New STT Provider' }];
@@ -52,7 +53,7 @@ export default function TtsProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/services/stt`);
+    navigate(`${ROUTES.services}/stt`);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -60,7 +61,7 @@ export default function TtsProviderNew() {
     const formData = new FormData(e.target as HTMLFormElement);
     createSttProvider(formData, {
       onSuccess: (data) => {
-        navigate(`/services/stt/${data.id}`);
+        navigate(`${ROUTES.services}/stt/${data.id}`);
       },
     });
   };

@@ -11,6 +11,7 @@ import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 import { useMessage } from '~/hooks/queries/messageQueries';
 import React from 'react';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -49,7 +50,7 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
   const { mutate: deleteMessage } = useDeleteMessage(chatId);
 
   const handleMessageClose = () => {
-    navigate(`/chats/${chatId}`);
+    navigate(`${ROUTES.chats}/${chatId}`);
   };
 
   const handleMessageDelete = async () => {
@@ -63,7 +64,7 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
     if (confirmResult) {
       deleteMessage(messageId, {
         onSuccess: () => {
-          navigate(`/chats/${chatId}`, { replace: true });
+          navigate(`${ROUTES.chats}/${chatId}`, { replace: true });
         },
       });
     }

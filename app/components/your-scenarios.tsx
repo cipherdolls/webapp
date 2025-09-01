@@ -7,6 +7,7 @@ import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import DashboardCard from './DashboardCard';
+import { ROUTES } from '~/constants';
 
 function YourScenariosSkeleton() {
   return (
@@ -47,7 +48,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
         {hasScenarios ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
-              <Link to={'/scenarios'} className='group '>
+              <Link to={ROUTES.scenarios} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -55,7 +56,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
                   </span>
                 </div>
               </Link>
-              <Link to={'/scenarios/new'} className='group '>
+              <Link to={`${ROUTES.scenarios}/new`} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -67,7 +68,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
               {scenarios.map((scenario, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <DashboardCard item={scenario} type='scenarios' to={`/scenarios/${scenario.id}`}>
+                  <DashboardCard item={scenario} type='scenarios' to={`${ROUTES.scenarios}/${scenario.id}`}>
                     <div className='flex flex-col gap-1 min-w-0 flex-1'>
                       <div className='flex items-center gap-2'>
                         <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
@@ -94,7 +95,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
               <Link
-                to='/scenarios'
+                to={ROUTES.scenarios}
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new scenario

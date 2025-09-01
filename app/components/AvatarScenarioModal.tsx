@@ -8,6 +8,7 @@ import { useConfirm } from '~/providers/AlertDialogProvider';
 import SelectionModal from './SelectionModal';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
+import { ROUTES } from '~/constants';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
@@ -68,7 +69,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
               {
                 onSuccess: (newChat) => {
                   setSelectedScenario(null);
-                  navigate(`/chats/${newChat.id}`);
+                  navigate(`${ROUTES.chats}/${newChat.id}`);
                   setIsOpen(false);
                 },
               }
@@ -81,7 +82,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
           {
             onSuccess: (newChat) => {
               setSelectedScenario(null);
-              navigate(`/chats/${newChat.id}`);
+              navigate(`${ROUTES.chats}/${newChat.id}`);
               setIsOpen(false);
             },
           }

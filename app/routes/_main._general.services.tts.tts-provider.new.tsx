@@ -9,6 +9,7 @@ import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import type { Route } from './+types/_main._general.services.tts.tts-provider.new';
 import { useCreateTtsProvider } from '~/hooks/queries/ttsMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Provider' }];
@@ -54,7 +55,7 @@ export default function TtsProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/services/tts`);
+    navigate(`${ROUTES.services}/tts`);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

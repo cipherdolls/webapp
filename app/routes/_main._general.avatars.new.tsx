@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.avatars.new';
 import AvatarFormModal from '~/components/AvatarFormModal';
 import { useCreateAvatar } from '~/hooks/queries/avatarMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -11,7 +12,7 @@ export default function AvatarNew() {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate('/avatars');
+    navigate(ROUTES.avatars);
   };
   const {
     mutate: createAvatar,
@@ -22,7 +23,7 @@ export default function AvatarNew() {
   const handleSubmit = (formData: FormData) => {
     createAvatar(formData, {
       onSuccess: (newAvatarData) => {
-        navigate(`/avatars/${newAvatarData.id}`);
+        navigate(`${ROUTES.avatars}/${newAvatarData.id}`);
       },
     });
   };
