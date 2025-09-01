@@ -4,6 +4,7 @@ import type { Route } from './+types/_main._general._id.scenarios.$scenariosId.e
 import ScenarioFormModal from '~/components/ScenarioFormModal';
 import { useUpdateScenario } from '~/hooks/queries/scenarioMutations';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Scenario' }];
@@ -21,7 +22,7 @@ export default function ScenarioEdit({ params }: Route.ComponentProps) {
   const scenario = scenarioData;
 
   const handleClose = () => {
-    navigate(`/scenarios/${scenario.id}`);
+    navigate(`${ROUTES.scenarios}/${scenario.id}`);
   };
 
   const handleSubmit = (formData: FormData) => {
@@ -29,7 +30,7 @@ export default function ScenarioEdit({ params }: Route.ComponentProps) {
       { scenarioId: scenario.id, formData },
       {
         onSuccess: () => {
-          navigate(`/scenarios/${scenario.id}`);
+          navigate(`${ROUTES.scenarios}/${scenario.id}`);
         },
       }
     );

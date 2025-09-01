@@ -5,6 +5,7 @@ import * as Button from '~/components/ui/button/button';
 import type { Avatar } from '~/types';
 import { useState } from 'react';
 import { cn } from '~/utils/cn';
+import { ROUTES } from '~/constants';
 
 interface AvatarSelectModalProps {
   avatars: Avatar[];
@@ -41,7 +42,7 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
           <>
             {availableAvatars.map((avatar) => (
               <AvatarCard key={avatar.id} avatar={avatar} className='flex flex-wrap max-sm:!px-0 sm:flex-nowrap'>
-                <Link to={`/avatars/${avatar.id}`}>
+                <Link to={`${ROUTES.avatars}/${avatar.id}`}>
                   <AvatarCard.Avatar />
                 </Link>
                 <AvatarCard.Content className='min-w-[60px] sm:min-w-auto'>

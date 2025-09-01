@@ -6,7 +6,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
-import { PATHS } from '~/constants';
+import { PATHS, ROUTES } from '~/constants';
 import * as Popover from '~/components/ui/popover';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
@@ -118,7 +118,7 @@ export default function AvatarsShow() {
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold '>Avatars</h2>
 
-        <NavLink to={'/avatars/new'}>
+        <NavLink to={`${ROUTES.avatars}/new`}>
           <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
             <Button.Icon as={Icons.add} />
             Add New Avatar
@@ -204,7 +204,7 @@ export default function AvatarsShow() {
                 filteredAndSortedAvatars.map((avatar) => (
                   <div className='transition-all duration-500 ease-out' key={avatar.id}>
                     <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                      <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                      <Link to={`${ROUTES.avatars}/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
                         <img
                           src={getPicture(avatar, 'avatars', false)}
                           srcSet={getPicture(avatar, 'avatars', true)}

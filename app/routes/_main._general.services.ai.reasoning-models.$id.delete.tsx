@@ -5,6 +5,7 @@ import { useReasoningModel } from '~/hooks/queries/aiProviderQueries';
 import { useDeleteReasoningModel } from '~/hooks/queries/aiProviderMutations';
 import { useEffect } from 'react';
 import { useConfirm } from '~/providers/AlertDialogProvider';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Delete Reasoning Model' }];
@@ -18,7 +19,7 @@ export default function ReasoningModelDelete({ params }: Route.ComponentProps) {
   const confirm = useConfirm();
 
   const handleClose = () => {
-    navigate(`/services/ai`, { replace: true });
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
 

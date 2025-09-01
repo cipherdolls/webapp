@@ -15,6 +15,7 @@ import { useDeleteSttProvider } from '~/hooks/queries/sttMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import ModalSttProviderEdit from '~/components/ModalSttProviderEdit';
 import { useState } from 'react';
+import { ROUTES } from '~/constants';
 
 function STTSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -138,7 +139,7 @@ export default function SttProvidersIndex() {
             wrapperClassName='hidden md:block'
             columns={columnProperties}
             data={sttProviders}
-            getRowUrl={(stt) => `/services/stt/${stt.id}`}
+            getRowUrl={(stt) => `${ROUTES.services}/stt/${stt.id}`}
           />
 
           {/* MOBILE */}
@@ -146,7 +147,7 @@ export default function SttProvidersIndex() {
             {sttProviders.map((sttProvider, index) => {
               return (
                 <Fragment key={sttProvider.id}>
-                  <DataCard.Item key={sttProvider.id} href={`services/stt/${sttProvider.id}`}>
+                  <DataCard.Item key={sttProvider.id} href={`${ROUTES.services}/stt/${sttProvider.id}`}>
                     <DataCard.ItemLabel>
                       <div className='flex items-center justify-start gap-2'>
                         <div className='size-6'>

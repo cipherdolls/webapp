@@ -2,13 +2,14 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
+import { ROUTES } from '~/constants';
 
 const SignOutModal = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   
   const signOut = () => {
     localStorage.removeItem('token');
-    navigate('/');
+    navigate(ROUTES.index);
   };
   return (
     <Dialog.Root>

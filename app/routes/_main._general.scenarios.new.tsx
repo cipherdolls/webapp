@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.scenarios.new';
 import ScenarioFormModal from '~/components/ScenarioFormModal';
 import { useCreateScenario } from '~/hooks/queries/scenarioMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Scenario' }];
@@ -12,13 +13,13 @@ export default function ScenarioNew() {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/scenarios`);
+    navigate(ROUTES.scenarios);
   };
 
   const handleSubmit = (formData: FormData) => {
     createScenario(formData, {
       onSuccess: (newScenarioData) => {
-        navigate(`/scenarios/${newScenarioData.id}`);
+        navigate(`${ROUTES.scenarios}/${newScenarioData.id}`);
       },
     });
   };

@@ -83,7 +83,7 @@ export default function SignInRoute() {
       localStorage.removeItem('redirectAfterSignIn');
       navigate(redirectUrl);
     } else {
-      navigate(ROUTES.account, { replace: true });
+      navigate(ROUTES.chats, { replace: true });
     }
   };
 
@@ -195,7 +195,7 @@ export default function SignInRoute() {
       <div className='flex flex-col justify-center py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
         <div className='flex justify-center relative z-10 pb-5'>
           <div className='flex flex-col sm:gap-8 gap-5 items-center justify-center'>
-            <Link to={'/'} >
+            <Link to={ROUTES.index} >
               <img src='/logo.svg' alt='Cipherdolls' className='w-56 md:w-72 h-auto' />
             </Link>
             <div className='mx-2 flex flex-col md:mx-auto md:flex-row relative'>

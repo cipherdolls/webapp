@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 
 import * as Button from './ui/button/button';
 import DeleteModal from './ui/deleteModal';
+import { ROUTES } from '~/constants';
 
 const DeleteAvatarModal = ({ dropdown, avatarId }: { dropdown?: boolean, avatarId: string }) => {
   const { mutate: deleteAvatar } = useDeleteAvatar();
@@ -11,7 +12,7 @@ const DeleteAvatarModal = ({ dropdown, avatarId }: { dropdown?: boolean, avatarI
   const handleDeleteAvatar = () => {
       deleteAvatar(avatarId, {
         onSuccess: () => {
-          navigate(`/avatars?mine=true`); 
+          navigate(`${ROUTES.avatars}?mine=true`);
         },
       });
   };

@@ -8,6 +8,7 @@ import AvatarCard from '~/components/AvatarCardReusable';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 function YourChatsSkeleton() {
   return (
@@ -118,7 +119,7 @@ const YourChats = () => {
                       {group.chats.map((chat) => (
                         <NavLink
                           key={chat.id}
-                          to={`/chats/${chat.id}`}
+                          to={`${ROUTES.chats}/${chat.id}`}
                           className={({ isActive }) =>
                             cn('block rounded-lg p-3 group transition-colors', {
                               'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
@@ -185,7 +186,7 @@ const YourChats = () => {
                         {group.chats.map((chat) => (
                           <NavLink
                             key={chat.id}
-                            to={`/chats/${chat.id}`}
+                            to={`${ROUTES.chats}/${chat.id}`}
                             className={({ isActive }) =>
                               cn('block rounded-lg p-3 group transition-colors', {
                                 'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
@@ -251,7 +252,7 @@ const YourChats = () => {
                         {group.chats.map((chat) => (
                           <NavLink
                             key={chat.id}
-                            to={`/chats/${chat.id}`}
+                            to={`${ROUTES.chats}/${chat.id}`}
                             className={({ isActive }) =>
                               cn('block rounded-lg p-3 group transition-colors', {
                                 'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
@@ -289,7 +290,7 @@ const YourChats = () => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Chats Yet</h4>
               <Link
-                to='/chats'
+                to={ROUTES.chats}
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Start new chat

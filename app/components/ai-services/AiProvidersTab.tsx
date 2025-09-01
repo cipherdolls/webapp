@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router';
 import { useDeleteAiProvider } from '~/hooks/queries/aiProviderMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import type { AiProvider } from '~/types';
+import { ROUTES } from '~/constants';
 
 function AiProviderSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -96,18 +97,18 @@ const AiProvidersTab = () => {
                   extra={
                     <ViewButton
                       popoverItems={[
-                        { text: 'Edit AI Provider', href: `/services/ai/ai-providers/${aiProvider.id}/edit` },
+                        { text: 'Edit AI Provider', href: `${ROUTES.services}/ai/ai-providers/${aiProvider.id}/edit` },
                         {
                           text: 'Add Chat Model',
-                          href: `/services/ai/chat-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
+                          href: `${ROUTES.services}/ai/chat-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                         },
                         {
                           text: 'Add Embedding Model',
-                          href: `/services/ai/embedding-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
+                          href: `${ROUTES.services}/ai/embedding-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                         },
                         {
                           text: 'Add Reasoning Model',
-                          href: `/services/ai/reasoning-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
+                          href: `${ROUTES.services}/ai/reasoning-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                         },
                         {
                           text: 'Delete',

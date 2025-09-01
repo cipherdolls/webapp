@@ -14,6 +14,7 @@ import Table from '~/components/Table';
 import { chatModelColumns, embeddingModelColumns, reasoningModelColumns } from '~/components/ai-services/TableDefinitions';
 import type { UseInfiniteQueryResult } from '@tanstack/react-query';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { ROUTES } from '~/constants';
 
 type ModelData = ChatModel | EmbeddingModel;
 
@@ -107,13 +108,13 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
     let baseUrl;
     switch (tabType) {
       case 'chat-models':
-        baseUrl = '/services/ai/chat-models/new';
+        baseUrl = `${ROUTES.services}/ai/chat-models/new`;
         break;
       case 'embedding-models':
-        baseUrl = '/services/ai/embedding-models/new';
+        baseUrl = `${ROUTES.services}/ai/embedding-models/new`;
         break;
       default:
-        baseUrl = '/services/ai/reasoning-models/new';
+        baseUrl = `${ROUTES.services}/ai/reasoning-models/new`;
         break;
     }
     return `${baseUrl}?id=${providerId || ''}&modelName=${providerName || ''}`;
@@ -145,14 +146,14 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
                     extra={
                       <ViewButton
                         popoverItems={[
-                          { text: 'Edit AI Provider', href: `/services/ai/ai-providers/${group.provider?.id}/edit` },
+                          { text: 'Edit AI Provider', href: `${ROUTES.services}/ai/ai-providers/${group.provider?.id}/edit` },
                           {
                             text: `Add ${modelType}`,
                             href: addModelHref(group.provider?.id || '', group.provider?.name || ''),
                           },
                           {
                             text: 'Delete',
-                            href: `/services/ai/providers/delete?id=${group.provider?.id}&modelName=${group.provider?.name}`,
+                            href: `${ROUTES.services}/ai/providers/delete?id=${group.provider?.id}&modelName=${group.provider?.name}`,
                             isDelete: true,
                           },
                         ]}

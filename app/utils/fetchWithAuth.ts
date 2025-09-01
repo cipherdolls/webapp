@@ -1,7 +1,7 @@
 // utils/fetchWithAuth.ts
 
 import { redirect } from 'react-router';
-import { apiUrl } from '~/constants';
+import { apiUrl, ROUTES } from '~/constants';
 
 /**
  * If you want to do a *second* check to confirm the token is invalid,
@@ -84,12 +84,12 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     const referral = params.get('referral');
     if (referral) {
       localStorage.setItem('referralId', referral);
-      throw redirect(`/signin?invitedBy=${referral}`);
+      throw redirect(`${ROUTES.signIn}?invitedBy=${referral}`);
     }
 
     const currentUrl = window.location.pathname + window.location.search;
     localStorage.setItem('redirectAfterSignIn', currentUrl);
-    throw redirect('/signin');
+    throw redirect(ROUTES.signIn);
   }
 
   // 2) Merge Authorization header with any custom headers
@@ -112,14 +112,14 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
       localStorage.removeItem('token');
       const currentUrl = window.location.pathname + window.location.search;
       localStorage.setItem('redirectAfterSignIn', currentUrl);
-      throw redirect('/signin');
+      throw redirect(ROUTES.signIn);
     }
   }
 
   // // If 403 => definitely unauthorized
   // if (res.status === 403) {
   //   localStorage.removeItem('token');
-  //   throw redirect('/signin');
+  //   throw redirect(ROUTES.signIn);
   // }
 
   // Return the response so the loader/action can continue

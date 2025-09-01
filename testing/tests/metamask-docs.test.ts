@@ -1,7 +1,7 @@
 import { testWithSynpress } from '@synthetixio/synpress';
 import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright';
 import basicSetup from '../setup/basic.setup';
-import { SELECTORS, expectElementVisible } from './helpers/test-utils';
+import { SELECTORS, expectElementVisible, handleSignatureWithCleanup } from './helpers/test-utils';
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup));
 const { expect } = test;
@@ -44,7 +44,7 @@ test('should connect wallet and sign in to CipherDolls', async ({ context, page,
   await test.step('Complete authentication flow', async () => {
     await page.locator(SELECTORS.SIGNIN_BUTTON).click();
 
-    await metamask.confirmSignature();
+    await handleSignatureWithCleanup(page, metamask, 'MetaMask Docs Test');
 
     await page.waitForTimeout(3000);
   });

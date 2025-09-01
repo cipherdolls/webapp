@@ -11,6 +11,7 @@ import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useUpdateAiProvider } from '~/hooks/queries/aiProviderMutations';
 import { useAiProvider } from '~/hooks/queries/aiProviderQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Ai Providers' }];
@@ -54,7 +55,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(`${ROUTES.services}/ai`);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
