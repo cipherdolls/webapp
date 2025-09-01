@@ -11,14 +11,14 @@ import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Dashboard' },
-    { name: 'description', content: 'Manage your avatars, scenarios and chats from your personal dashboard' },
+    { title: 'Account' },
+    { name: 'description', content: 'Manage your avatars, scenarios and chats from your personal account' },
     { name: 'robots', content: 'noindex, nofollow' },
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
   ];
 }
 
-export default function Dashboard() {
+export default function Account() {
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
 
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
@@ -26,7 +26,7 @@ export default function Dashboard() {
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
       <div className='flex flex-col sm:gap-4 gap-7'>
-        <h3 className='text-heading-h3 py-3 sm:block hidden'>Dashboard</h3>
+        <h3 className='text-heading-h3 py-3 sm:block hidden'>Account</h3>
         <div className='sm:hidden block ml-4.5 '>
           <Icons.mobileLogo />
         </div>
