@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { cn } from '~/utils/cn';
 import { UniversalModelTab } from './UniversalModelTab';
 import { useEmbeddingModels, useInfiniteChatModels, useReasoningModels } from '~/hooks/queries/aiProviderQueries';
+import { ROUTES } from '~/constants';
 
 type Tab = {
   id: 'chat-models' | 'embedding-models' | 'reasoning-models';
@@ -38,7 +39,7 @@ export default function AiModelsTabs() {
   const handleTabClick = (tabId: string) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('tab', tabId);
-    navigate(`/services/ai?${newSearchParams.toString()}`, { replace: true });
+    navigate(`${ROUTES.services}/ai?${newSearchParams.toString()}`, { replace: true });
   };
 
   // Just handle each tab explicitly:

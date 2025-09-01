@@ -8,7 +8,7 @@ import type { TTableColumn } from '~/components/Table';
 import { DataCard } from '~/components/DataCard';
 import type { Route } from './+types/_main._general.tts-providers.$ttsProviderId';
 import PlayerButton from '~/components/PlayerButton';
-import { PATHS } from '~/constants';
+import { PATHS, ROUTES } from '~/constants';
 import DeleteModal from '~/components/ui/deleteModal';
 import { ViewMore } from '~/view-more';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
@@ -91,7 +91,7 @@ export default function ttsProviderShow({ params }: Route.ComponentProps) {
 
     deleteTtsProvider(params.ttsProviderId, {
       onSuccess: () => {
-        navigate('/services/tts');
+        navigate(`${ROUTES.services}/tts`);
       },
     });
   };
@@ -102,7 +102,7 @@ export default function ttsProviderShow({ params }: Route.ComponentProps) {
     <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
       <div className='flex items-center justify-between sm:px-0 px-4.5'>
         <div className='flex items-center gap-3 sm:gap-4'>
-          <Link to={'/services/tts'} className='hover:bg-white/40 rounded-full'>
+          <Link to={`${ROUTES.services}/tts`} className='hover:bg-white/40 rounded-full'>
             <Icons.chevronLeft />
           </Link>
           <div className='flex items-center sm:gap-3 gap-1'>

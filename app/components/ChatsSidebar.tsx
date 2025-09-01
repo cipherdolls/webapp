@@ -7,6 +7,7 @@ import * as Button from './ui/button/button';
 import AvatarSelectModal from './AvatarSelectModal';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import React, { useState, useMemo, useEffect } from 'react';
+import { ROUTES } from '~/constants';
 
 interface ChatsSidebarProps {
   chats: Chat[];
@@ -146,7 +147,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                       {group.chats.map((chat) => (
                         <NavLink
                           key={chat.id}
-                          to={`/chats/${chat.id}`}
+                          to={`${ROUTES.chats}/${chat.id}`}
                           className={({ isActive }) =>
                             cn('block rounded-lg p-3 group transition-colors', {
                               'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,

@@ -8,6 +8,7 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import type { Route } from './+types/_main._general.services.tts.tts-providers.$ttsProviderId.tts-voice.new';
 import { useCreateTtsVoice } from '~/hooks/queries/ttsMutations';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
@@ -21,7 +22,7 @@ export default function NewTtsVoice({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/services/tts`, { replace: true });
+    navigate(`${ROUTES.services}/tts`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

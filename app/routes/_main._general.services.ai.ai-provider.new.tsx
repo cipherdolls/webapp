@@ -9,6 +9,7 @@ import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useCreateAiProvider } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New AI Provider' }];
@@ -52,7 +53,7 @@ export default function ApiProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(`${ROUTES.services}/ai`);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Form, Link } from 'react-router';
 import * as Button from '~/components/ui/button/button';
-import { PATHS, PICTURE_SIZE } from '~/constants';
+import { PATHS, PICTURE_SIZE, ROUTES } from '~/constants';
 import type { Avatar } from '~/types';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
@@ -31,7 +31,7 @@ const MyAvatars = ({ avatars }: { avatars: Avatar[] }) => {
           sortedAvatars.map((avatar, index) => (
             <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
               <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                <Link to={`/avatars/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                <Link to={`${ROUTES.avatars}/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
                   <img
                     src={getPicture(avatar, 'avatars', false)}
                     srcSet={getPicture(avatar, 'avatars', true)}
@@ -66,7 +66,7 @@ const MyAvatars = ({ avatars }: { avatars: Avatar[] }) => {
                     <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
 
                     {(avatar.chats?.length || 0) > 0 ? (
-                      <Link to={`/chats/${avatar.chats?.[0]?.id}`}>
+                      <Link to={`${ROUTES.chats}/${avatar.chats?.[0]?.id}`}>
                         <Button.Root size='sm' className='px-5'>
                           Continue Chat
                         </Button.Root>

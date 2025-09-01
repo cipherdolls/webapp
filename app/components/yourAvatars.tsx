@@ -7,6 +7,7 @@ import { getPicture } from '~/utils/getPicture';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import CardWithBadge from './DashboardCard';
+import { ROUTES } from '~/constants';
 
 function YourAvatarsSkeleton() {
   return (
@@ -47,7 +48,7 @@ const YourAvatars = () => {
         {hasAvatars ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
-              <Link to={'/avatars'} className='group '>
+              <Link to={ROUTES.avatars} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -55,7 +56,7 @@ const YourAvatars = () => {
                   </span>
                 </div>
               </Link>
-              <Link to={'/avatars/new'} className='group '>
+              <Link to={`${ROUTES.avatars}/new`} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -67,7 +68,7 @@ const YourAvatars = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
               {avatars.map((avatar, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <CardWithBadge item={avatar} type='avatars' to={`/avatars/${avatar.id}`}>
+                  <CardWithBadge item={avatar} type='avatars' to={`${ROUTES.avatars}/${avatar.id}`}>
                     <div className='flex flex-col gap-1 min-w-0 flex-1'>
                       <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
                       <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
@@ -90,7 +91,7 @@ const YourAvatars = () => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
               <Link
-                to='/avatars'
+                to={ROUTES.avatars}
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new avatar

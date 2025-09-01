@@ -7,6 +7,7 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useCreateChatModel } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Chat Model' }];
@@ -20,7 +21,7 @@ export default function NewChatModel() {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/services/ai`, { replace: true });
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

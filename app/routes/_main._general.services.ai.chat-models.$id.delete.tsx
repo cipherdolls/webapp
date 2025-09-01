@@ -5,6 +5,7 @@ import { useDeleteChatModel } from '~/hooks/queries/aiProviderMutations';
 import { useChatModel } from '~/hooks/queries/aiProviderQueries';
 import { useEffect } from 'react';
 import { useConfirm } from '~/providers/AlertDialogProvider';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Delete Chat Model' }];
@@ -17,7 +18,7 @@ export default function ChatModelDelete({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const confirm = useConfirm();
   const handleClose = () => {
-    navigate(`/services/ai`, { replace: true });
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
   useEffect(() => {

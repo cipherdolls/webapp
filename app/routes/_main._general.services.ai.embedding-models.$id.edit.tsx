@@ -10,6 +10,7 @@ import { formatModelName } from '~/utils/formatModelName';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
 import { useUpdateEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Embedding Model' }];
@@ -21,7 +22,7 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(`${ROUTES.services}/ai`);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

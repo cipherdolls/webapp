@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import * as Select from '~/components/ui/input/select';
 import { useTtsProvider, useTtsVoice } from '~/hooks/queries/ttsQueries';
 import { useUpdateTtsVoice } from '~/hooks/queries/ttsMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
@@ -42,7 +43,7 @@ export default function TTSVoiceEdit({ params }: Route.ComponentProps) {
   const [gender, setGender] = useState<string>(ttsVoice?.gender ?? 'All');
 
   const handleClose = () => {
-    navigate(`/services/tts`);
+    navigate(`${ROUTES.services}/tts`);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

@@ -5,7 +5,7 @@ import { DataCard } from '~/components/DataCard';
 import type { TTableColumn } from '~/components/Table';
 import Table from '~/components/Table';
 import PlayerButton from '~/components/PlayerButton';
-import { PATHS } from '~/constants';
+import { PATHS, ROUTES } from '~/constants';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from '~/components/ui/InformationBadge';
@@ -107,7 +107,7 @@ export default function TtsProvidersIndex() {
       render: (data) => (
         <ViewButton
           popoverItems={[
-            { text: 'Edit', href: `/services/tts/tts-providers/${data.providerId}/tts-voices/${data.id}/edit` },
+            { text: 'Edit', href: `${ROUTES.services}/tts/tts-providers/${data.providerId}/tts-voices/${data.id}/edit` },
             { text: 'Delete', onClick: () => handleDeleteTtsVoice(data), isDelete: true },
           ]}
           className='flex items-center justify-center'
@@ -143,11 +143,11 @@ export default function TtsProvidersIndex() {
                       </div>
                       <ViewButton
                         popoverItems={[
-                          { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
+                          { text: 'Edit TTS Provider', href: `${ROUTES.services}/tts/tts-providers/${ttsProvider.id}/edit` },
 
                           {
                             text: 'Add TTS Voice',
-                            href: `/services/tts/tts-providers/${ttsProvider.id}/tts-voice/new`,
+                            href: `${ROUTES.services}/tts/tts-providers/${ttsProvider.id}/tts-voice/new`,
                           },
                           {
                             text: 'Delete',

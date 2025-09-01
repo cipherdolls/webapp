@@ -4,7 +4,7 @@ import type { Avatar, Scenario } from '~/types';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
 import { useState } from 'react';
-import { PICTURE_SIZE } from '~/constants';
+import { PICTURE_SIZE, ROUTES } from '~/constants';
 import { useUpdateAvatar } from '~/hooks/queries/avatarMutations';
 import ErrorsBox from './ui/input/errorsBox';
 
@@ -75,7 +75,7 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
                 <p>You don't have any avatars yet.</p>
                 <Button.Root className='mt-4 px-6' asChild>
                   <Dialog.Close asChild>
-                    <a href='/avatars/new'>Create an Avatar</a>
+                    <a href={`${ROUTES.avatars}/new`}>Create an Avatar</a>
                   </Dialog.Close>
                 </Button.Root>
               </div>

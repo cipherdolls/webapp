@@ -1,5 +1,5 @@
 import { Form, Link } from 'react-router';
-import { PICTURE_SIZE } from '~/constants';
+import { PICTURE_SIZE, ROUTES } from '~/constants';
 import type { Avatar } from '~/types';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
@@ -11,7 +11,7 @@ export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
     <div className='lg:p-4 sm:p-3.5 p-3 flex items-center justify-between gap-4 sm:gap-4.5 flex-wrap'>
       <div className='sm:gap-4.5 gap-4 flex items-center'>
         <div className='shrink-0'>
-          <Link to={`/avatars/${id}`} >
+          <Link to={`${ROUTES.avatars}/${id}`} >
             <img
               src={getPicture(avatar, 'avatars', false, PICTURE_SIZE.avatar)}
               srcSet={getPicture(avatar, 'avatars', true, PICTURE_SIZE.avatar)}
@@ -27,7 +27,7 @@ export const AvatarCard = ({ avatar }: { avatar: Avatar }) => {
       </div>
 
       {(chats?.length || 0) > 0 ? (
-        <Link to={`/chats/${avatar.chats?.[0]?.id}`}>
+        <Link to={`${ROUTES.chats}/${avatar.chats?.[0]?.id}`}>
           <Button.Root size='sm' className='px-5'>
             Continue Chats
           </Button.Root>

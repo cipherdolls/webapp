@@ -8,6 +8,7 @@ import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useState, useCallback } from 'react';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 interface ScenarioAvatarModalProps {
   scenario: Scenario;
@@ -71,7 +72,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
               {
                 onSuccess: (newChat) => {
                   setSelectedAvatar(null);
-                  navigate(`/chats/${newChat.id}`);
+                  navigate(`${ROUTES.chats}/${newChat.id}`);
                   setIsOpen(false);
                 },
               }
@@ -84,7 +85,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
           {
             onSuccess: (newChat) => {
               setSelectedAvatar(null);
-              navigate(`/chats/${newChat.id}`);
+              navigate(`${ROUTES.chats}/${newChat.id}`);
               setIsOpen(false);
             },
           }

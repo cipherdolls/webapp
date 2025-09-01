@@ -3,6 +3,7 @@ import * as Input from '~/components/ui/input/input';
 import { Icons } from '~/components/ui/icons';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { ROUTES } from '~/constants';
 
 const SearchChatModels = () => {
   const [searchParams] = useSearchParams();
@@ -40,7 +41,7 @@ const SearchChatModels = () => {
         newSearchParams.set('view', 'models');
         newSearchParams.set('tab', 'chat-models');
         
-        navigate(`/services/ai?${newSearchParams.toString()}`);
+        navigate(`${ROUTES.services}/ai?${newSearchParams.toString()}`);
       }
     }, 300);
     

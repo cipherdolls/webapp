@@ -7,6 +7,7 @@ import { useDeleteEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
 import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useEffect } from 'react';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Delete Embedding Model' }];
@@ -19,7 +20,7 @@ export default function EmbeddingModelDelete({ params }: Route.ComponentProps) {
   const confirm = useConfirm();
 
   const handleClose = () => {
-    navigate(`/services/ai`, { replace: true });
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
   useEffect(() => {

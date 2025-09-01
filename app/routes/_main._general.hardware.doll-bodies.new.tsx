@@ -13,6 +13,7 @@ import * as Textarea from '~/components/ui/input/textarea';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Doll Body' }];
@@ -35,7 +36,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     const dollBody = await res.json();
-    return redirect(`/hardware/doll-bodies`);
+    return redirect(`${ROUTES.hardware}/doll-bodies`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
@@ -53,7 +54,7 @@ export default function DollBodyNew() {
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
-    navigate(`/hardware/doll-bodies`);
+    navigate(`${ROUTES.hardware}/doll-bodies`);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

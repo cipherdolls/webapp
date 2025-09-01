@@ -12,6 +12,7 @@ import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { ROUTES } from '~/constants';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -115,7 +116,7 @@ export default function ScenariosIndex() {
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold '>Scenarios</h2>
 
-        <NavLink to={'/scenarios/new'}>
+        <NavLink to={`${ROUTES.scenarios}/new`}>
           <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
             <Button.Icon as={Icons.add} />
             Add New Scenario
@@ -222,7 +223,7 @@ export default function ScenariosIndex() {
                   <div className='transition-all duration-500 ease-out' key={scenario.id}>
                     <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                       <Link
-                        to={`/scenarios/${scenario.id}`}
+                        to={`${ROUTES.scenarios}/${scenario.id}`}
                         className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'
                       >
                         <img

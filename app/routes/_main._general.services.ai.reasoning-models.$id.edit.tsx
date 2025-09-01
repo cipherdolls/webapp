@@ -9,6 +9,7 @@ import { formatModelName } from '~/utils/formatModelName';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useReasoningModel } from '~/hooks/queries/aiProviderQueries';
 import { useUpdateReasoningModel } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Reasoning Model' }];
@@ -21,7 +22,7 @@ export default function ReasoningModelEdit({ params }: Route.ComponentProps) {
   const errors = updateReasoningModelError;
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(`${ROUTES.services}/ai`);
   };
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import DeleteModal from '~/components/ui/deleteModal';
 import DollBodyDestroy from './doll-bodies.$dollBodyId.destroy';
 import { formatDate } from '~/utils/date.utils';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Body Details' }];
@@ -30,14 +31,14 @@ export default function DollBodyId({ loaderData }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={'/hardware/doll-bodies'} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${ROUTES.hardware}/doll-bodies`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <h3 className='text-body-md font-semibold text-base-black hover:underline transition-all duration-200'>
               Go back to <span className='text-neutral-01 text-body-lg'>Doll Bodies</span>
             </h3>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
-            <Link to={`/doll-bodies/${dollBody.id}/edit`}>
+            <Link to={`${ROUTES.hardware}/doll-bodies/${dollBody.id}/edit`}>
               <Button.Root variant='secondary' className='w-[130px]'>
                 Edit
               </Button.Root>
@@ -149,7 +150,7 @@ export default function DollBodyId({ loaderData }: Route.ComponentProps) {
                   <span className='font-medium'>{dollBody.avatar.published ? 'Yes' : 'No'}</span>
                 </div>
 
-                <Link to={`/avatars/${dollBody.avatar.id}`} className='w-full'>
+                <Link to={`${ROUTES.avatars}/${dollBody.avatar.id}`} className='w-full'>
                   <Button.Root variant='secondary' className='w-full'>
                     View Avatar Details
                   </Button.Root>

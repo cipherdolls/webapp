@@ -7,6 +7,7 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useCreateReasoningModel } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Reasoning Model' }];
@@ -23,7 +24,7 @@ export default function NewReasoningModel() {
   const errors = createReasoningModelError;
 
   const handleClose = () => {
-    navigate(`/services/ai`, { replace: true });
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

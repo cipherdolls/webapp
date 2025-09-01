@@ -1,7 +1,7 @@
 import { testWithSynpress } from '@synthetixio/synpress';
 import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright';
 import basicSetup from '../setup/basic.setup';
-import { SELECTORS, expectElementVisible, connectWallet } from './helpers/test-utils';
+import { SELECTORS, expectElementVisible, connectWallet, handleSignatureWithCleanup } from './helpers/test-utils';
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup));
 
@@ -56,7 +56,7 @@ test.describe('SignIn Authentication Flow with Real MetaMask', () => {
 
       await page.locator(SELECTORS.SIGNIN_BUTTON).click();
 
-      await metamask.confirmSignature();
+      await handleSignatureWithCleanup(page, metamask, 'Complete Authentication Flow');
 
       const signinResponse = await signinResponsePromise;
       if (!signinResponse) {
