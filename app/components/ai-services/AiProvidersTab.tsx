@@ -25,8 +25,17 @@ function AiProviderSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
           <div className='flex flex-col gap-3'>
-            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='flex gap-2 items-center'>
+                <div className='w-6 h-6 rounded-lg bg-neutral-04'/>
+                <div className='w-32 h-6 rounded-lg bg-neutral-04'/>
+              </div>
+
+              <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
+            </div>
+
+            <div className='rounded-xl h-[110px] bg-neutral-04 w-full animate-pulse'></div>
+            <div className='rounded-xl h-[110px] bg-neutral-04 w-full animate-pulse'></div>
           </div>
         </div>
       ))}
