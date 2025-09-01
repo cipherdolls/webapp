@@ -254,3 +254,60 @@ export async function waitForNavigation(page: Page, expectedUrl: string | RegExp
     `);
   }
 }
+
+/**
+ * Helper function to handle signature with popup cleanup
+ */
+export async function handleSignatureWithCleanup(page: Page, metamask: any, testContext: string) {
+  try {
+    console.log(`🔄 Starting signature process: ${testContext}`);
+    
+    // Confirm signature
+    await metamask.confirmSignature();
+    console.log('✅ Signature confirmed');
+    
+    // Wait for popup to process
+    await page.waitForTimeout(2000);
+    console.log('⏳ Waited for popup processing');
+    
+    // Bring main page to front
+    await page.bringToFront();
+    console.log('🎯 Brought main page to front');
+    
+    // Check and close MetaMask popup windows
+    const context = page.context();
+    const pages = context.pages();
+    let closedPopups = 0;
+    
+    for (const openPage of pages) {
+      const url = openPage.url();
+      if (url.includes('chrome-extension') && url.includes('metamask') && openPage !== page) {
+        try {
+          console.log(`🗂️ Found MetaMask popup: ${url.substring(0, 50)}...`);
+          await openPage.close();
+          closedPopups++;
+          console.log('🗑️ Closed MetaMask popup');
+        } catch (e) {
+          console.log('⚠️ Popup already closed or couldn\'t close');
+        }
+      }
+    }
+    
+    console.log(`✅ Signature cleanup completed. Closed ${closedPopups} popup(s)`);
+    
+  } catch (error: any) {
+    console.error(`❌ Signature cleanup error: ${error.message}`);
+    throw new Error(`
+❌ SIGNATURE WITH CLEANUP FAILED: ${testContext}
+
+🔍 Error: ${error.message}
+💡 MetaMask popup might be stuck open
+
+📍 Debug steps:
+   1. Check if MetaMask popup appeared
+   2. Verify signature was actually confirmed
+   3. Check browser console for errors
+   4. Manually close any open MetaMask windows
+    `);
+  }
+}
