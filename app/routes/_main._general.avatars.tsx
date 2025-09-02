@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
@@ -13,7 +13,6 @@ import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
-import Tooltip from '~/components/ui/tooltip';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -21,11 +20,11 @@ function AvatarSkeleton({ count = 2 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-5 pb-5 w-full'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+        <div key={i} className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
         </div>
       ))}
     </div>
@@ -44,9 +43,7 @@ export default function AvatarsShow() {
   const rawParams = Object.fromEntries(searchParams.entries());
 
   // Filter out undefined values from rawParams
-  const cleanRawParams = Object.fromEntries(
-    Object.entries(rawParams).filter(([_, value]) => value !== undefined && value !== null)
-  );
+  const cleanRawParams = Object.fromEntries(Object.entries(rawParams).filter(([_, value]) => value !== undefined && value !== null));
 
   const {
     data: avatars,
@@ -190,7 +187,7 @@ export default function AvatarsShow() {
         ) : (
           <>
             <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
-              {filteredAndSortedAvatars.length === 0  && !isLoading ? (
+              {filteredAndSortedAvatars.length === 0 && !isLoading ? (
                 <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
                   {showMyAvatars ? 'No avatars found.' : 'No published avatars found.'}
                 </p>
@@ -198,7 +195,10 @@ export default function AvatarsShow() {
                 filteredAndSortedAvatars.map((avatar) => (
                   <div className='transition-all duration-500 ease-out' key={avatar.id}>
                     <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                      <Link to={`${ROUTES.avatars}/${avatar.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
+                      <Link
+                        to={`${ROUTES.avatars}/${avatar.id}`}
+                        className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'
+                      >
                         <img
                           src={getPicture(avatar, 'avatars', false)}
                           srcSet={getPicture(avatar, 'avatars', true)}
@@ -238,9 +238,7 @@ export default function AvatarsShow() {
                           <p className='text-body-md text-neutral-01 line-clamp-1 truncate'>{avatar.shortDesc}</p>
                         </div>
                         <div className='flex items-center gap-3'>
-                          {avatar.introductionAudio && (
-                            <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />
-                          )}
+                          {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}
 
                           <AvatarScenarioModal avatar={avatar}>
                             <Button.Root size='sm' className='px-5'>

@@ -43,7 +43,7 @@ const SidebarItems = [
   // },
   {
     name: 'Menu',
-    href: '#',
+    href: null, // This will be handled as button, not link
     icon: Icons.more,
     showOnMobileOnly: true,
   },
@@ -106,11 +106,22 @@ const Sidebar = ({ className }: { className?: string }) => {
               );
             }
 
+            // Handle items without href as regular links
+            if (item.href) {
+              return (
+                <NavLink to={item.href} key={index} className={getNavLinkClassName(item)}>
+                  {<NavIcon />}
+                  <span className='text-label font-semibold'>{item.name}</span>
+                </NavLink>
+              );
+            }
+
+            // Handle items without href (like disabled menu items)
             return (
-              <NavLink to={item.href} key={index} className={getNavLinkClassName(item)}>
+              <div key={index} className={getNavLinkClassName(item)({ isActive: false })}>
                 {<NavIcon />}
                 <span className='text-label font-semibold'>{item.name}</span>
-              </NavLink>
+              </div>
             );
           })}
         </div>
