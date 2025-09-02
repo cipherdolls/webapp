@@ -90,7 +90,7 @@ export default function SignInRoute() {
   useEffect(() => {
     if (fetcher.data?.token) {
       setToken(fetcher.data.token);
-      handleSuccessfulAuth();
+      // Don't call handleSuccessfulAuth here - let the token state update trigger it
     }
     if (fetcher.data?.error) {
       console.error('Sign-in error:', fetcher.data.error);
@@ -102,7 +102,6 @@ export default function SignInRoute() {
 
     if (window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
-        console.log('DEBUG: accountsChanged event:', accounts.length);
         if (accounts.length === 0) {
           setConnected(false);
         } else {
@@ -124,9 +123,7 @@ export default function SignInRoute() {
   }, [token]);
 
   useEffect(() => {
-    console.log('DEBUG: connected =', connected, 'token =', token ? 'exists' : 'undefined');
-    if (connected === true && token !== undefined) {
-      console.log('Connected and token is set - triggering redirect');
+    if (connected === true && token !== undefined && token !== null) {
       handleSuccessfulAuth();
     }
     // eslint-disable-next-line
@@ -135,13 +132,11 @@ export default function SignInRoute() {
   const checkConnection = async () => {
     try {
       if (!window.ethereum) {
-        console.log('DEBUG: No ethereum object');
         setConnected(false);
         return;
       }
 
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      console.log('DEBUG: Found accounts via eth_accounts:', accounts.length);
 
       if (accounts.length === 0) {
         setConnected(false);
@@ -149,7 +144,6 @@ export default function SignInRoute() {
         setConnected(true);
       }
     } catch (error) {
-      console.log('DEBUG: checkConnection error:', error);
       setConnected(false);
     }
   };

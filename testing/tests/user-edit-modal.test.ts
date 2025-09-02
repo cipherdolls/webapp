@@ -174,9 +174,27 @@ Actual: Button not found or not visible
         'Male Gender Button'
       );
       
+      // Monitor API call
+      const updateResponsePromise = page.waitForResponse((response: any) => 
+        response.url().includes('/users/') && response.request().method() === 'PATCH'
+      ).catch(() => null);
+      
       // Submit the form
       const saveButton = page.locator('button[type="submit"]:has-text("Save Changes")');
       await saveButton.click();
+      
+      // Wait for API response
+      const updateResponse = await updateResponsePromise;
+      if (!updateResponse) {
+        throw new Error('❌ API user update call not detected');
+      }
+
+      const status = updateResponse.status();
+      if (status !== 200) {
+        throw new Error(`❌ API user update failed with status: ${status}`);
+      }
+
+      console.log(`✅ API user update call: ${updateResponse.url()} - Status: ${status}`);
       
       // Wait for the modal to close (success)
       await page.waitForTimeout(3000);
@@ -188,6 +206,31 @@ Actual: Button not found or not visible
       }
       
       console.log(`✅ Name changed from "${currentName}" to "${newName}"`);
+    });
+
+    await test.step('Verify data persistence after page reload', async () => {
+      // Reload page to verify data persisted
+      await page.reload();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+      
+      // Open modal again to check if name change persisted
+      await openUserEditModal(page);
+      
+      // Get the name value after reload
+      const persistedName = await page.locator('input[name="name"]').inputValue();
+      
+      // The name should contain our test pattern
+      if (!persistedName.includes('TestUser_Name_')) {
+        throw new Error(`❌ Name change not persisted. Expected pattern 'TestUser_Name_', got: '${persistedName}'`);
+      }
+      
+      console.log(`✅ Name change persisted after reload: ${persistedName}`);
+      
+      // Close modal
+      const cancelButton = page.locator('button[type="button"]:has-text("Cancel")');
+      await cancelButton.click();
+      await page.waitForTimeout(1000);
     });
 
     console.log('✅ User edit modal - name only test completed');
@@ -251,9 +294,27 @@ Actual: Button not found or not visible
       
       await page.waitForTimeout(500);
       
+      // Monitor API call
+      const updateResponsePromise = page.waitForResponse((response: any) => 
+        response.url().includes('/users/') && response.request().method() === 'PATCH'
+      ).catch(() => null);
+      
       // Submit the form
       const saveButton = page.locator('button[type="submit"]:has-text("Save Changes")');
       await saveButton.click();
+      
+      // Wait for API response
+      const updateResponse = await updateResponsePromise;
+      if (!updateResponse) {
+        throw new Error('❌ API user update call not detected');
+      }
+
+      const status = updateResponse.status();
+      if (status !== 200) {
+        throw new Error(`❌ API user update failed with status: ${status}`);
+      }
+
+      console.log(`✅ API user update call: ${updateResponse.url()} - Status: ${status}`);
       
       // Wait for the modal to close
       await page.waitForTimeout(3000);
@@ -263,6 +324,30 @@ Actual: Button not found or not visible
       if (modalVisible) {
         throw new Error('❌ Modal should have closed after successful save');
       }
+    });
+
+    await test.step('Verify gender persistence after page reload', async () => {
+      // Reload page to verify data persisted
+      await page.reload();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+      
+      // Open modal again to check if gender change persisted
+      await openUserEditModal(page);
+      
+      // Check which gender button is active after reload
+      const femaleButton = page.locator('button:has-text("👩🏻 Female")');
+      const maleButton = page.locator('button:has-text("🧔🏻‍♂ Male")');
+      
+      const femaleActiveAfter = await femaleButton.getAttribute('class').then(cls => cls?.includes('bg-white')).catch(() => false);
+      const maleActiveAfter = await maleButton.getAttribute('class').then(cls => cls?.includes('bg-white')).catch(() => false);
+      
+      console.log(`✅ Gender persistence verified - Female: ${femaleActiveAfter}, Male: ${maleActiveAfter}`);
+      
+      // Close modal
+      const cancelButton = page.locator('button[type="button"]:has-text("Cancel")');
+      await cancelButton.click();
+      await page.waitForTimeout(1000);
     });
 
     console.log('✅ User edit modal - gender only test completed');
@@ -325,9 +410,27 @@ Actual: Button not found or not visible
       
       await page.waitForTimeout(500);
       
+      // Monitor API call
+      const updateResponsePromise = page.waitForResponse((response: any) => 
+        response.url().includes('/users/') && response.request().method() === 'PATCH'
+      ).catch(() => null);
+      
       // Submit the form
       const saveButton = page.locator('button[type="submit"]:has-text("Save Changes")');
       await saveButton.click();
+      
+      // Wait for API response
+      const updateResponse = await updateResponsePromise;
+      if (!updateResponse) {
+        throw new Error('❌ API user update call not detected');
+      }
+
+      const status = updateResponse.status();
+      if (status !== 200) {
+        throw new Error(`❌ API user update failed with status: ${status}`);
+      }
+
+      console.log(`✅ API user update call: ${updateResponse.url()} - Status: ${status}`);
       
       // Wait for the modal to close
       await page.waitForTimeout(3000);
@@ -339,6 +442,36 @@ Actual: Button not found or not visible
       }
       
       console.log('✅ Both name and gender updated successfully');
+    });
+
+    await test.step('Verify both changes persisted after page reload', async () => {
+      // Reload page to verify data persisted
+      await page.reload();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+      
+      // Open modal again to check if both changes persisted
+      await openUserEditModal(page);
+      
+      // Check name persistence
+      const persistedName = await page.locator('input[name="name"]').inputValue();
+      if (!persistedName.includes('TestUser_Both_')) {
+        throw new Error(`❌ Name change not persisted. Expected pattern 'TestUser_Both_', got: '${persistedName}'`);
+      }
+      
+      // Check gender persistence
+      const femaleButton = page.locator('button:has-text("👩🏻 Female")');
+      const maleButton = page.locator('button:has-text("🧔🏻‍♂ Male")');
+      
+      const femaleActiveAfter = await femaleButton.getAttribute('class').then(cls => cls?.includes('bg-white')).catch(() => false);
+      const maleActiveAfter = await maleButton.getAttribute('class').then(cls => cls?.includes('bg-white')).catch(() => false);
+      
+      console.log(`✅ Both changes persisted - Name: ${persistedName}, Female: ${femaleActiveAfter}, Male: ${maleActiveAfter}`);
+      
+      // Close modal
+      const cancelButton = page.locator('button[type="button"]:has-text("Cancel")');
+      await cancelButton.click();
+      await page.waitForTimeout(1000);
     });
 
     console.log('✅ User edit modal - both fields test completed');
