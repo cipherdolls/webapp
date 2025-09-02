@@ -1,14 +1,20 @@
 import { testWithSynpress } from '@synthetixio/synpress';
 import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright';
 import basicSetup from '../setup/basic.setup';
+
+// Extend Window interface for test properties
+declare global {
+  interface Window {
+    testBalanceBeforeReload?: string;
+  }
+}
 import { expectElementVisible, expectTextVisible, connectWallet, handleSignatureWithCleanup } from './helpers/test-utils';
 import { 
   expectTokenBalanceVisible, 
   getCurrentBalance, 
   clickRefreshButtonAndWaitForAPI,
   verifyBalanceFormat,
-  verifyLOVTokenLabel,
-  waitForBalanceUpdate
+  verifyLOVTokenLabel
 } from './helpers/token-balance-utils';
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup));
@@ -68,7 +74,7 @@ test.describe('Token Balance E2E Tests', () => {
             console.log(`ℹ️ Keeping page: ${url.substring(0, 50)}...`);
           }
         } catch (e) {
-          console.log(`⚠️ Page already closed or couldn't close: ${e.message}`);
+          console.log(`⚠️ Page already closed or couldn't close: ${(e as Error).message}`);
         }
       }
       
@@ -85,13 +91,13 @@ test.describe('Token Balance E2E Tests', () => {
           });
           console.log('✅ Cleared main page storage');
         } catch (e) {
-          console.log(`⚠️ Could not clear main page storage: ${e.message}`);
+          console.log(`⚠️ Could not clear main page storage: ${(e as Error).message}`);
         }
       }
       
       console.log(`✅ Context cleanup completed: ${testName}`);
     } catch (error) {
-      console.log(`⚠️ Context cleanup error: ${error.message}`);
+      console.log(`⚠️ Context cleanup error: ${(error as Error).message}`);
     }
   }
 
@@ -259,7 +265,7 @@ test.describe('Token Balance E2E Tests', () => {
     console.log('✅ Token balance display test completed');
     
     } catch (error) {
-      console.error(`❌ Test failed: ${testName} - ${error.message}`);
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
       throw error;
     } finally {
       await cleanupContext(context, page, testName);
@@ -339,7 +345,7 @@ test.describe('Token Balance E2E Tests', () => {
     console.log('✅ Token balance refresh test completed');
     
     } catch (error) {
-      console.error(`❌ Test failed: ${testName} - ${error.message}`);
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
       throw error;
     } finally {
       await cleanupContext(context, page, testName);
@@ -432,7 +438,7 @@ test.describe('Token Balance E2E Tests', () => {
     console.log('✅ Token balance persistence test completed');
     
     } catch (error) {
-      console.error(`❌ Test failed: ${testName} - ${error.message}`);
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
       throw error;
     } finally {
       await cleanupContext(context, page, testName);
@@ -487,7 +493,7 @@ test.describe('Token Balance E2E Tests', () => {
     console.log('✅ Token balance button state test completed');
     
     } catch (error) {
-      console.error(`❌ Test failed: ${testName} - ${error.message}`);
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
       throw error;
     } finally {
       await cleanupContext(context, page, testName);
