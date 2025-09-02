@@ -19,6 +19,7 @@
     "test:auth-flow": "npm run test:cache && npx playwright test testing/tests/metamask-auth-flow.test.ts",
     "test:network-warning": "npm run test:cache && npx playwright test testing/tests/network-warning-banner.test.ts",
     "test:user-edit-modal": "npm run test:cache && npx playwright test testing/tests/user-edit-modal.test.ts",
+    "test:token-balance": "npm run test:cache && npx playwright test testing/tests/token-balance.test.ts",
     "test:browser": "npx playwright test testing/tests/browser-compatibility.test.ts",
     "test:landing": "npx playwright test testing/tests/landing-page-navigation.test.ts",
     "test:all-metamask": "npm run test:cache && npx playwright test testing/tests/metamask-*.test.ts && npx playwright test testing/tests/network-warning-banner.test.ts && npx playwright test testing/tests/user-edit-modal.test.ts",

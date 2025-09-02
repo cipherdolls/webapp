@@ -2,8 +2,8 @@ import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
 import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
 import { useUser } from '~/hooks/queries/userQueries';
-import { useRouteLoaderData } from 'react-router';
-import type { User } from '~/types';
+import { TOKEN_BALANCE } from '~/constants';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 
 function TokenBalanceSkeleton() {
   return (
@@ -19,51 +19,100 @@ function TokenBalanceSkeleton() {
   );
 }
 
+const isValidTokenBalance = (balance: unknown): boolean => {
+  if (balance === null || balance === undefined) return false;
+  const num = typeof balance === 'string' ? parseFloat(balance) : typeof balance === 'number' ? balance : 0;
+  return !isNaN(num) && isFinite(num);
+};
+
 const TokenBalance = () => {
-  const me = useRouteLoaderData('routes/_main') as User;
   const { data: user, isLoading: userLoading } = useUser();
   const refreshTokenBalanceMutation = useRefreshTokenBalance();
+  const [lastRefreshTime, setLastRefreshTime] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
-  const currentUser = user || me;
-  const balance = currentUser.tokenBalance || '0';
+  const { isPending: isRefreshingBalance, isError, isSuccess, error } = refreshTokenBalanceMutation;
 
-  if (userLoading) {
+  const rawBalance = user?.tokenBalance || '0';
+  const validatedBalance = isValidTokenBalance(rawBalance) ? rawBalance : '0';
+
+  const handleRefreshBalance = useCallback(() => {
+    if (!user) return;
+
+    const now = Date.now();
+    if (now - lastRefreshTime < TOKEN_BALANCE.RATE_LIMIT_MS) {
+      return;
+    }
+
+    setLastRefreshTime(now);
+    refreshTokenBalanceMutation.mutate({
+      userId: user.id,
+      signerAddress: user.signerAddress,
+    });
+  }, [user, refreshTokenBalanceMutation, lastRefreshTime]);
+
+  const formattedBalance = useMemo(() => {
+    const numberValue =
+      typeof validatedBalance === 'string' ? parseFloat(validatedBalance) : typeof validatedBalance === 'number' ? validatedBalance : 0;
+    const roundedValue = Number(numberValue.toFixed(TOKEN_BALANCE.DECIMAL_PLACES));
+
+    return roundedValue > 0
+      ? numberValue.toLocaleString(undefined, {
+          maximumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
+          minimumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
+        })
+      : '0';
+  }, [validatedBalance]);
+
+  const canRefresh = useMemo(() => {
+    if (lastRefreshTime === 0) return true;
+    return Date.now() - lastRefreshTime >= TOKEN_BALANCE.RATE_LIMIT_MS;
+  }, [lastRefreshTime]);
+
+  useEffect(() => {
+    if (isSuccess && !showSuccess) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => setShowSuccess(false), TOKEN_BALANCE.FEEDBACK_TIMEOUT_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, showSuccess]);
+
+  useEffect(() => {
+    if (isError && !showError) {
+      setShowError(true);
+      const timer = setTimeout(() => setShowError(false), TOKEN_BALANCE.FEEDBACK_TIMEOUT_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [isError, showError]);
+
+  if (userLoading || !user) {
     return <TokenBalanceSkeleton />;
   }
 
-  const handleRefreshBalance = () => {
-    refreshTokenBalanceMutation.mutate({
-      userId: currentUser.id,
-      signerAddress: currentUser.signerAddress,
-    });
-  };
-
-  const isRefreshingBalance = refreshTokenBalanceMutation.isPending;
-
-  const numberValue = typeof balance === 'string' ? parseFloat(balance) : balance;
-  const roundedValue = Number(numberValue.toFixed(3));
-
-  const formattedBalance =
-    roundedValue > 0
-      ? numberValue.toLocaleString(undefined, {
-          maximumFractionDigits: 3,
-          minimumFractionDigits: 3,
-        })
-      : '0';
-
   return (
-    <div className='flex flex-col gap-5'>
+    <div className='flex flex-col gap-5 relative'>
       <div className='flex items-center justify-between'>
         <h3 className='text-heading-h3 text-base-black'>Your Balance</h3>
         <button
           onClick={handleRefreshBalance}
-          disabled={isRefreshingBalance}
+          disabled={isRefreshingBalance || !canRefresh}
           className='p-2 rounded-lg text-[#350D2A]/40 hover:text-[#350D2A] transition-all disabled:opacity-50'
           title='Refresh token balance'
         >
           <Icons.refresh className={`w-5 h-5  ${isRefreshingBalance ? 'animate-spin' : ''}`} />
         </button>
       </div>
+
+      {showError && (
+        <div className='text-specials-danger text-sm absolute top-0 -translate-y-full right-0'>
+          Error: {error?.message || 'Failed to refresh balance'}
+        </div>
+      )}
+
+      {showSuccess && (
+        <div className='text-specials-success text-sm absolute top-0 -translate-y-full right-0'>Balance refreshed successfully!</div>
+      )}
       <div className='grid grid-cols-1'>
         <div className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
           <button className='sm:size-14 size-10 flex items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
