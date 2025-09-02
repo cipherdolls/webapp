@@ -1,11 +1,11 @@
-import { Link, NavLink, useRouteLoaderData } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
-import type { User } from '~/types';
 import { ViewMore } from '~/view-more';
 import { ROUTES } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
+import { useIsAdmin } from '~/hooks/useCurrentUser';
 
 const SidebarItems = [
   {
@@ -49,8 +49,7 @@ const SidebarItems = [
 ];
 
 const Sidebar = ({ className }: { className?: string }) => {
-  const me = useRouteLoaderData('routes/_main') as User;
-  const isAdmin = me?.role === 'ADMIN';
+  const isAdmin = useIsAdmin();
   const logout = useAuthStore((state) => state.logout);
 
   return (

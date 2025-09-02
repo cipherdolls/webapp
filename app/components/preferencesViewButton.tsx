@@ -1,8 +1,8 @@
-import { Link, useRouteLoaderData } from 'react-router';
-import type { User } from '~/types';
+import { Link } from 'react-router';
 import { Icons } from './ui/icons';
 import * as Popover from '~/components/ui/popover';
 import { cn } from '~/utils/cn';
+import { useCurrentUser } from '~/hooks/useCurrentUser';
 
 type PopoverItem = {
   text: string;
@@ -19,8 +19,8 @@ type ViewButtonProps = {
 };
 
 export const ViewButton = ({ userId, popoverItems, className, isDataCard }: ViewButtonProps) => {
-  const me = useRouteLoaderData('routes/_main') as User;
-  if (me.role !== 'ADMIN' && me.id !== userId) {
+  const me = useCurrentUser();
+  if (!me || (me.role !== 'ADMIN' && me.id !== userId)) {
     return null;
   }
   return (

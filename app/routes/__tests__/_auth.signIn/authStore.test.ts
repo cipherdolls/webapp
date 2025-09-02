@@ -5,7 +5,6 @@ import { http, HttpResponse } from 'msw';
 
 // Mock window.location for redirect tests
 const mockLocationReload = vi.fn();
-const mockLocationAssign = vi.fn();
 Object.defineProperty(window, 'location', {
   value: {
     href: '',

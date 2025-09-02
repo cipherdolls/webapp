@@ -11,11 +11,10 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
-import { useRouteLoaderData } from 'react-router';
-
-import type { Avatar, Gender, Scenario, TtsVoice, User } from '~/types';
+import type { Avatar, Gender, Scenario, TtsVoice } from '~/types';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
+import { useCurrentUser } from '~/hooks/useCurrentUser';
 
 // TODO: Create all the scenarios or create a page with a new ui. 
 
@@ -29,7 +28,7 @@ interface AvatarEditModalProps {
 
 const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
 
-  const me = useRouteLoaderData('routes/_main') as User;
+  const me = useCurrentUser();
   
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({mine: 'true', published: 'true', limit: '100'});
   const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
@@ -305,7 +304,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  userId={me.id}
+                  userId={me?.id || ''}
                   options={scenarios}
                   selectedOptions={avatarData.scenarios}
                   onChange={(scenarios) => updateAvatarData('scenarios', scenarios)}
