@@ -9,6 +9,23 @@ import type { Route } from './+types/_main._general.services.tts.tts-providers.$
 import { useCreateTtsVoice } from '~/hooks/queries/ttsMutations';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
 import { ROUTES } from '~/constants';
+import * as Select from '~/components/ui/input/select';
+import { useState } from 'react';
+
+const genreOptions = [
+  {
+    value: 'All',
+    label: 'All',
+  },
+  {
+    value: 'Male',
+    label: 'Male',
+  },
+  {
+    value: 'Female',
+    label: 'Female',
+  },
+];
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
@@ -20,6 +37,7 @@ export default function NewTtsVoice({ params }: Route.ComponentProps) {
   const { mutate: createTtsVoice, isPending: isCreatingTtsVoice, error: errorCreateTtsVoice } = useCreateTtsVoice();
   const providerName = ttsProvider?.name || '';
   const navigate = useNavigate();
+  const [gender, setGender] = useState<string>('All');
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/tts`, { replace: true });
@@ -74,7 +92,25 @@ export default function NewTtsVoice({ params }: Route.ComponentProps) {
                 placeholder='Provider Voice ID'
               />
             </Input.Root>
-
+            <Select.Root
+              onValueChange={(value) => {
+                setGender(value);
+              }}
+              defaultValue={gender}
+            >
+              <Select.Label>Gender</Select.Label>
+              <Select.Trigger className='border-neutral-04 outline-neutral-04 outline py-3.5 -mt-2'>
+                <Select.Value placeholder='Gender' />
+              </Select.Trigger>
+              <Select.Content className='z-[1000001]'>
+                {genreOptions.map((item) => (
+                  <Select.Item key={item.value} value={item.value}>
+                    {item.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+              <input type='hidden' name='gender' value={gender} />
+            </Select.Root>
             <div className='flex items-center gap-2'>
               <Checkbox.Root
                 className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
