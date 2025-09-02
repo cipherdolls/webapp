@@ -1,10 +1,11 @@
-import { Link, NavLink, useNavigate, useRouteLoaderData } from 'react-router';
+import { Link, NavLink, useRouteLoaderData } from 'react-router';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
 import type { User } from '~/types';
 import { ViewMore } from '~/view-more';
 import { ROUTES } from '~/constants';
+import { useAuthStore } from '~/store/useAuthStore';
 
 const SidebarItems = [
   {
@@ -49,8 +50,8 @@ const SidebarItems = [
 
 const Sidebar = ({ className }: { className?: string }) => {
   const me = useRouteLoaderData('routes/_main') as User;
-  const isAdmin = me.role === 'ADMIN';
-  const navigate = useNavigate();
+  const isAdmin = me?.role === 'ADMIN';
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
@@ -68,11 +69,7 @@ const Sidebar = ({ className }: { className?: string }) => {
                 {
                   type: 'onClick' as const,
                   text: 'Sign Out',
-                  onClick: () => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('redirectAfterSignIn');
-                    navigate(ROUTES.signIn);
-                  },
+                  onClick: logout,
                   icon: Icons.logout,
                 },
               ];

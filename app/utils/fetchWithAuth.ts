@@ -2,43 +2,7 @@
 
 import { redirect } from 'react-router';
 import { apiUrl, ROUTES } from '~/constants';
-
-/**
- * If you want to do a *second* check to confirm the token is invalid,
- * you can call this from inside fetchWithAuth if you get 401.
- * e.g. maybe your server returns 401 for reasons other than invalid token.
- */
-async function verifyToken(): Promise<boolean> {
-  try {
-    const localToken = localStorage.getItem('token')?.replaceAll('"', '');
-    if (!localToken) return false;
-
-    const res = await fetch(`${apiUrl}/auth/verify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localToken}`,
-      },
-    });
-
-    // If 200 => token is still valid
-    if (res.status === 200) {
-      return true;
-    }
-
-    // If 401 => token invalid
-    if (res.status === 401) {
-      localStorage.removeItem('token');
-      return false;
-    }
-
-    // Otherwise, some other error—treat as invalid
-    return false;
-  } catch (err) {
-    console.error('Verify token error:', err);
-    return false;
-  }
-}
+import { getToken, useAuthStore } from '~/store/useAuthStore';
 
 /**
  * A convenience wrapper around fetch that:
@@ -77,9 +41,9 @@ export async function fetchPaginatedData<T>(
 }
 
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
-  // 1) Check localStorage for a token
-  const localToken = localStorage.getItem('token')?.replaceAll('"', '');
-  if (!localToken) {
+  // 1) Check for token using auth store
+  const token = getToken();
+  if (!token) {
     const params = new URLSearchParams(window.location.search);
     const referral = params.get('referral');
     if (referral) {
@@ -95,7 +59,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   // 2) Merge Authorization header with any custom headers
   const mergedHeaders: HeadersInit = {
     ...options.headers,
-    Authorization: `Bearer ${localToken}`,
+    Authorization: `Bearer ${token}`,
   };
 
   const mergedOptions: RequestInit = {
@@ -107,20 +71,15 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   const res = await fetch(`${apiUrl}/${endpoint}`, mergedOptions);
 
   if (res.status === 401) {
+    // Use auth store's verifyToken method
+    const { verifyToken } = useAuthStore.getState();
     const stillValid = await verifyToken();
     if (!stillValid) {
-      localStorage.removeItem('token');
       const currentUrl = window.location.pathname + window.location.search;
       localStorage.setItem('redirectAfterSignIn', currentUrl);
       throw redirect(ROUTES.signIn);
     }
   }
-
-  // // If 403 => definitely unauthorized
-  // if (res.status === 403) {
-  //   localStorage.removeItem('token');
-  //   throw redirect(ROUTES.signIn);
-  // }
 
   // Return the response so the loader/action can continue
   return res;
