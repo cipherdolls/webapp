@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router';
+import { useMemo, useCallback } from 'react';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
@@ -52,6 +53,32 @@ const Sidebar = ({ className }: { className?: string }) => {
   const isAdmin = useIsAdmin();
   const logout = useAuthStore((state) => state.logout);
 
+  const menuItems = useMemo(
+    () => [
+      { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
+      {
+        type: 'onClick' as const,
+        text: 'Sign Out',
+        onClick: logout,
+        icon: Icons.logout,
+      },
+    ],
+    [logout]
+  );
+
+  const getNavLinkClassName = useCallback(
+    (item: (typeof SidebarItems)[0]) =>
+      ({ isActive }: { isActive: boolean }) => {
+        return cn(
+          'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
+          isActive ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black' : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
+          item.hideOnMobile && 'sm:flex hidden',
+          item.showOnMobileOnly && 'sm:hidden flex'
+        );
+      },
+    []
+  );
+
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
       <div className='sm:py-4 sm:px-2 flex flex-col items-center justify-between flex-1 sm:bg-transparent sm:rounded-none rounded-t-xl bg-[linear-gradient(86.23deg,rgba(254,253,248,0.48)_0%,rgba(255,255,255,0.48)_100%)] sm:bg-none'>
@@ -63,16 +90,6 @@ const Sidebar = ({ className }: { className?: string }) => {
             const NavIcon = item.icon;
 
             if (item.name === 'Menu') {
-              const menuItems = [
-                { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
-                {
-                  type: 'onClick' as const,
-                  text: 'Sign Out',
-                  onClick: logout,
-                  icon: Icons.logout,
-                },
-              ];
-
               return (
                 <ViewMore
                   key={index}
@@ -90,20 +107,7 @@ const Sidebar = ({ className }: { className?: string }) => {
             }
 
             return (
-              <NavLink
-                to={item.href}
-                key={index}
-                className={({ isActive }) => {
-                  return cn(
-                    'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
-                    isActive
-                      ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black'
-                      : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
-                    item.hideOnMobile && 'sm:flex hidden',
-                    item.showOnMobileOnly && 'sm:hidden flex'
-                  );
-                }}
-              >
+              <NavLink to={item.href} key={index} className={getNavLinkClassName(item)}>
                 {<NavIcon />}
                 <span className='text-label font-semibold'>{item.name}</span>
               </NavLink>
