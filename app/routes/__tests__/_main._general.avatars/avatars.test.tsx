@@ -11,6 +11,7 @@ import {
 import AvatarsShow from '~/routes/_main._general.avatars';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import { useRouteLoaderData, useSearchParams } from 'react-router';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 
 // ========================
 // MOCK SETUP
@@ -46,12 +47,13 @@ vi.mock('~/components/ui/RecommendedBadge', () => ({
 }));
 
 vi.mock('react-infinite-scroll-hook', () => ({
-  default: vi.fn(() => [vi.fn()]),
+  default: vi.fn(),
 }));
 
 const mockUseInfiniteAvatars = vi.mocked(useInfiniteAvatars);
 const mockUseRouteLoaderData = vi.mocked(useRouteLoaderData);
 const mockUseSearchParams = vi.mocked(useSearchParams);
+const mockUseInfiniteScroll = vi.mocked(useInfiniteScroll);
 
 // ========================
 // TEST 5: PUBLIC/MY AVATARS TOGGLE
@@ -63,6 +65,8 @@ describe('Avatar Filter Logic - Public/My Avatars Toggle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseRouteLoaderData.mockReturnValue(createMockUser({ id: 'current-user' }));
+    // Mock useInfiniteScroll to return proper array [ref, { rootRef }]
+    mockUseInfiniteScroll.mockReturnValue([vi.fn(), { rootRef: vi.fn() }]);
   });
 
   it('should call useInfiniteAvatars with published=true for public avatars (default state)', () => {
@@ -279,6 +283,7 @@ describe('Gender Filter Logic', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseRouteLoaderData.mockReturnValue(createMockUser({ id: 'current-user' }));
+    mockUseInfiniteScroll.mockReturnValue([vi.fn(), { rootRef: vi.fn() }]);
   });
 
   it('should call useInfiniteAvatars with gender parameter when filter is applied', () => {
@@ -574,6 +579,7 @@ describe('Clear Filters Logic', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseRouteLoaderData.mockReturnValue(createMockUser({ id: 'current-user' }));
+    mockUseInfiniteScroll.mockReturnValue([vi.fn(), { rootRef: vi.fn() }]);
   });
 
   it('should show clear filters button when mine filter is active', () => {
@@ -865,6 +871,7 @@ describe('Search Integration Logic', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseRouteLoaderData.mockReturnValue(createMockUser({ id: 'current-user' }));
+    mockUseInfiniteScroll.mockReturnValue([vi.fn(), { rootRef: vi.fn() }]);
   });
 
   it('should pass name search parameter to useInfiniteAvatars hook', () => {
@@ -1170,5 +1177,305 @@ describe('Search Integration Logic', () => {
     expect(mockUseInfiniteAvatars).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'searchterm' })
     );
+  });
+});
+
+// ========================
+// TEST 9: INFINITE SCROLL
+// ========================
+
+describe('Infinite Scroll Logic', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseRouteLoaderData.mockReturnValue(createMockUser({ id: 'current-user' }));
+    mockUseSearchParams.mockReturnValue([new URLSearchParams('published=true'), vi.fn()]);
+    
+    // Default mock return
+    mockUseInfiniteScroll.mockReturnValue([vi.fn(), { rootRef: vi.fn() }]);
+  });
+
+  it('should call useInfiniteScroll with correct parameters when hasNextPage is true', () => {
+    const mockFetchNextPage = vi.fn();
+    
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,
+        isFetchingNextPage: false,
+        fetchNextPage: mockFetchNextPage,
+        isError: false,
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    expect(mockUseInfiniteScroll).toHaveBeenCalledWith({
+      loading: false,          // isFetchingNextPage
+      hasNextPage: true,       // hasNextPage
+      onLoadMore: mockFetchNextPage, // fetchNextPage function
+      disabled: false,         // !!isError
+    });
+  });
+
+  it('should call useInfiniteScroll with loading=true when fetching next page', () => {
+    const mockFetchNextPage = vi.fn();
+    
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,
+        isFetchingNextPage: true, // Currently loading next page
+        fetchNextPage: mockFetchNextPage,
+        isError: false,
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    expect(mockUseInfiniteScroll).toHaveBeenCalledWith({
+      loading: true,           // isFetchingNextPage = true
+      hasNextPage: true,
+      onLoadMore: mockFetchNextPage,
+      disabled: false,
+    });
+  });
+
+  it('should call useInfiniteScroll with hasNextPage=false when no more pages', () => {
+    const mockFetchNextPage = vi.fn();
+    
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: false,      // No more pages available
+        isFetchingNextPage: false,
+        fetchNextPage: mockFetchNextPage,
+        isError: false,
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    expect(mockUseInfiniteScroll).toHaveBeenCalledWith({
+      loading: false,
+      hasNextPage: false,      // No more pages
+      onLoadMore: mockFetchNextPage,
+      disabled: false,
+    });
+  });
+
+  it('should call useInfiniteScroll with disabled=true when error occurs', () => {
+    const mockFetchNextPage = vi.fn();
+    
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,
+        isFetchingNextPage: false,
+        fetchNextPage: mockFetchNextPage,
+        isError: true,           // Error occurred
+        error: new Error('API Error'),
+        isLoading: false,
+        isPending: false,
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    expect(mockUseInfiniteScroll).toHaveBeenCalledWith({
+      loading: false,
+      hasNextPage: true,
+      onLoadMore: mockFetchNextPage,
+      disabled: true,          // Disabled due to error
+    });
+  });
+
+  it('should show loading indicator when fetching next page', () => {
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        isFetchingNextPage: true, // Loading next page
+        hasNextPage: true,
+        isLoading: false,
+        isPending: false,
+        data: { 
+          pages: [createMockAvatarsPaginated({ 
+            data: [createMockAvatar({ name: 'Existing Avatar' })]
+          })] 
+        }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should show loading indicator
+    expect(screen.getByText('Loading more avatars...')).toBeInTheDocument();
+    
+    // Should also show existing content
+    expect(screen.getByText('Existing Avatar')).toBeInTheDocument();
+  });
+
+  it('should show loading icon when fetching next page', () => {
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        isFetchingNextPage: true,
+        hasNextPage: true,
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should have loading icon (component renders Icons.loading)
+    const loadingElement = screen.getByText('Loading more avatars...');
+    expect(loadingElement).toBeInTheDocument();
+    
+    // Loading section should exist (don't test specific classes, just structure)
+    expect(loadingElement.closest('div')).toBeInTheDocument();
+  });
+
+  it('should render scroll trigger div when hasNextPage and not fetching', () => {
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,        // More pages available
+        isFetchingNextPage: false, // Not currently loading
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should render the scroll trigger div
+    const scrollTrigger = document.querySelector('.h-4');
+    expect(scrollTrigger).toBeInTheDocument();
+  });
+
+  it('should NOT render scroll trigger when hasNextPage=false', () => {
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: false,       // No more pages
+        isFetchingNextPage: false,
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should NOT show loading indicator
+    expect(screen.queryByText('Loading more avatars...')).not.toBeInTheDocument();
+    
+    // Should NOT render scroll trigger when no more pages
+    const scrollTriggers = document.querySelectorAll('.h-4');
+    expect(scrollTriggers).toHaveLength(0);
+  });
+
+  it('should NOT render scroll trigger when currently fetching next page', () => {
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,
+        isFetchingNextPage: true,  // Currently fetching
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should show loading indicator
+    expect(screen.getByText('Loading more avatars...')).toBeInTheDocument();
+    
+    // Should NOT render scroll trigger when fetching
+    const scrollTriggers = document.querySelectorAll('.h-4');
+    expect(scrollTriggers).toHaveLength(0);
+  });
+
+  it('should work with search and infinite scroll together', () => {
+    mockUseSearchParams.mockReturnValue([
+      new URLSearchParams('name=test&published=true'),
+      vi.fn()
+    ]);
+
+    const mockFetchNextPage = vi.fn();
+    
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,
+        isFetchingNextPage: false,
+        fetchNextPage: mockFetchNextPage,
+        isLoading: false,
+        isPending: false,
+        data: { 
+          pages: [createMockAvatarsPaginated({ 
+            data: [createMockAvatar({ name: 'Test Avatar' })]
+          })] 
+        }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should call useInfiniteAvatars with search parameter
+    expect(mockUseInfiniteAvatars).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'test' })
+    );
+    
+    // Should call useInfiniteScroll with correct config
+    expect(mockUseInfiniteScroll).toHaveBeenCalledWith({
+      loading: false,
+      hasNextPage: true,
+      onLoadMore: mockFetchNextPage,
+      disabled: false,
+    });
+    
+    // Should render content
+    expect(screen.getByText('Test Avatar')).toBeInTheDocument();
+  });
+
+  it('should work with filters and infinite scroll together', () => {
+    mockUseSearchParams.mockReturnValue([
+      new URLSearchParams('gender=Female&mine=true'),
+      vi.fn()
+    ]);
+
+    const mockFetchNextPage = vi.fn();
+    
+    mockUseInfiniteAvatars.mockReturnValue(
+      createMockUseInfiniteAvatarsResult({
+        hasNextPage: true,
+        isFetchingNextPage: false,
+        fetchNextPage: mockFetchNextPage,
+        isLoading: false,
+        isPending: false,
+        data: { pages: [createMockAvatarsPaginated({ data: [] })] }
+      })
+    );
+
+    renderWithQuery(<AvatarsShow />);
+    
+    // Should call useInfiniteAvatars with filter parameters
+    expect(mockUseInfiniteAvatars).toHaveBeenCalledWith(
+      expect.objectContaining({ 
+        gender: 'Female',
+        mine: 'true'
+      })
+    );
+    
+    // Should call useInfiniteScroll with correct config
+    expect(mockUseInfiniteScroll).toHaveBeenCalledWith({
+      loading: false,
+      hasNextPage: true,
+      onLoadMore: mockFetchNextPage,
+      disabled: false,
+    });
   });
 });
