@@ -1,9 +1,12 @@
-import { Outlet, useLocation } from 'react-router';
+import { Outlet } from 'react-router';
 import type { Route } from './+types/_main.chats';
 import ChatsSidebar from '~/components/ChatsSidebar';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
-import { cn } from '~/utils/cn';
+import { useUser } from '~/hooks/queries/userQueries';
+import { OnboardWizardModal } from '~/components/OnboardWizardModal';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useEffect } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -12,10 +15,19 @@ export function meta({}: Route.MetaArgs) {
 export default function ChatsIndex() {
   const { data: avatarsData } = useAvatars();
   const { data: chatsData, isLoading: isChatsLoading } = useChats();
-  const { pathname } = useLocation();
+  const { data: user, isLoading: isUserLoading } = useUser()
+  const { isOnboardWizardCompleted, setOnboardWizardCompleted } = useAuthStore();
+
+  const shouldShowOnboardWizard = isOnboardWizardCompleted ? false : user?.name === 'Adam' && user.gender === null || user?.tokenAllowance === 0;
 
   const avatars = avatarsData?.data || [];
   const chats = chatsData || [];
+
+  useEffect(() => {
+    if (user && user.tokenAllowance > 0) {
+      setOnboardWizardCompleted(true);
+    }
+  }, [user]);
 
   return (
     <>
@@ -28,6 +40,10 @@ export default function ChatsIndex() {
           </div>
         </div>
       </main>
+
+      {user && shouldShowOnboardWizard && (
+        <OnboardWizardModal me={user} isOpen={shouldShowOnboardWizard} />
+      )}
     </>
   );
 }
