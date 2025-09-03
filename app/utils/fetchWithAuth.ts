@@ -47,12 +47,12 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     const params = new URLSearchParams(window.location.search);
     const referral = params.get('referral');
     if (referral) {
-      localStorage.setItem('referralId', referral);
+      useAuthStore.getState().setReferralId(referral);
       throw redirect(`${ROUTES.signIn}?invitedBy=${referral}`);
     }
 
     const currentUrl = window.location.pathname + window.location.search;
-    localStorage.setItem('redirectAfterSignIn', currentUrl);
+    useAuthStore.getState().setRedirectAfterSignIn(currentUrl);
     throw redirect(ROUTES.signIn);
   }
 
@@ -76,7 +76,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     const stillValid = await verifyToken();
     if (!stillValid) {
       const currentUrl = window.location.pathname + window.location.search;
-      localStorage.setItem('redirectAfterSignIn', currentUrl);
+      useAuthStore.getState().setRedirectAfterSignIn(currentUrl);
       throw redirect(ROUTES.signIn);
     }
   }

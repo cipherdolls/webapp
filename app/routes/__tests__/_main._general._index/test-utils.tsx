@@ -339,6 +339,48 @@ export const createMockUseScenariosResult = (overrides: any = {}) => {
 };
 
 /**
+ * Creates a mock UseInfiniteQueryResult for useInfiniteAvatars hook with proper state consistency
+ * Using type assertion to bypass TypeScript's strict mutual exclusive constraints for testing
+ */
+export const createMockUseInfiniteAvatarsResult = (overrides: any = {}) => {
+  const baseResult = {
+    data: undefined,
+    isPending: false,
+    isError: false,
+    error: null,
+    isSuccess: false,
+    isLoading: false,
+    isPaused: false,
+    isPlaceholderData: false,
+    isRefetching: false,
+    isStale: false,
+    status: 'pending' as const,
+    fetchStatus: 'idle' as const,
+    dataUpdatedAt: 0,
+    errorUpdatedAt: 0,
+    errorUpdateCount: 0,
+    failureCount: 0,
+    failureReason: null,
+    isFetched: false,
+    isFetchedAfterMount: false,
+    isFetching: false,
+    isInitialLoading: false,
+    isLoadingError: false,
+    isRefetchError: false,
+    isEnabled: true,
+    fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
+    hasNextPage: false,
+    hasPreviousPage: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    promise: Promise.resolve(undefined as unknown as any),
+    refetch: vi.fn(),
+  };
+  return { ...baseResult, ...overrides } as any;
+};
+
+/**
  * Creates a mock TokenPermit object with proper typing
  */
 export const createMockTokenPermit = (overrides: any = {}) => ({

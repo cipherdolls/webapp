@@ -7,6 +7,8 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  redirectAfterSignIn: string | null;
+  referralId: string | null;
 }
 
 interface AuthActions {
@@ -15,6 +17,8 @@ interface AuthActions {
   verifyToken: () => Promise<boolean>;
   clearAuth: () => void;
   setLoading: (loading: boolean) => void;
+  setRedirectAfterSignIn: (url: string | null) => void;
+  setReferralId: (id: string | null) => void;
 }
 
 interface AuthStore extends AuthState, AuthActions {}
@@ -26,6 +30,8 @@ export const useAuthStore = create<AuthStore>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      redirectAfterSignIn: null,
+      referralId: null,
 
       // Actions
       setToken: (token) =>
@@ -56,9 +62,7 @@ export const useAuthStore = create<AuthStore>()(
           // Always clear auth state
           clearAuth();
           
-          // Clear related localStorage items
-          localStorage.removeItem('redirectAfterSignIn');
-          localStorage.removeItem('referralId');
+          // These are now handled by Zustand persist automatically
           
           // Redirect to sign in
           window.location.href = ROUTES.signIn;
@@ -103,11 +107,23 @@ export const useAuthStore = create<AuthStore>()(
           state.token = null;
           state.isAuthenticated = false;
           state.isLoading = false;
+          state.redirectAfterSignIn = null;
+          state.referralId = null;
         }),
 
       setLoading: (loading) =>
         set((state) => {
           state.isLoading = loading;
+        }),
+
+      setRedirectAfterSignIn: (url) =>
+        set((state) => {
+          state.redirectAfterSignIn = url;
+        }),
+
+      setReferralId: (id) =>
+        set((state) => {
+          state.referralId = id;
         }),
     })),
     {
@@ -115,6 +131,8 @@ export const useAuthStore = create<AuthStore>()(
       partialize: (state) => ({
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        redirectAfterSignIn: state.redirectAfterSignIn,
+        referralId: state.referralId,
       }),
     }
   )

@@ -6,6 +6,7 @@ import { Buffer } from 'buffer';
 import type { Route } from "./+types/_main._general.dolls.$id";
 import { fetchWithAuth } from "~/utils/fetchWithAuth";
 import { wsURL } from "~/constants";
+import { getToken } from "~/store/useAuthStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,7 +24,7 @@ export async function clientLoader({params}: Route.LoaderArgs) {
 export default function ChatShow({ loaderData }: Route.ComponentProps) {
   const doll: Doll = loaderData;
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
-  const localStorageToken = localStorage.getItem('token');
+  const localStorageToken = getToken();
   const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
 
   useEffect(() => {

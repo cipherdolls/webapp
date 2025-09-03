@@ -67,7 +67,15 @@ Issued At: ${timestamp}
 
 export default function SignInRoute() {
   const fetcher = useFetcher();
-  const { token, setToken, verifyToken } = useAuthStore();
+  const { 
+    token, 
+    setToken, 
+    verifyToken, 
+    redirectAfterSignIn, 
+    setRedirectAfterSignIn,
+    referralId,
+    setReferralId 
+  } = useAuthStore();
   const [connected, setConnected] = useState(false);
   const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
@@ -78,10 +86,9 @@ export default function SignInRoute() {
     if (hasNavigated) return;
 
     setHasNavigated(true);
-    const redirectUrl = localStorage.getItem('redirectAfterSignIn');
-    if (redirectUrl) {
-      localStorage.removeItem('redirectAfterSignIn');
-      navigate(redirectUrl);
+    if (redirectAfterSignIn) {
+      setRedirectAfterSignIn(null); // Clear from store
+      navigate(redirectAfterSignIn);
     } else {
       navigate(ROUTES.chats, { replace: true });
     }
