@@ -14,7 +14,7 @@ import * as Modal from '~/components/ui/new-modal';
 import type { Avatar, Gender, Scenario, TtsVoice } from '~/types';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
-import { useCurrentUser } from '~/hooks/useCurrentUser';
+import { useUser } from '~/hooks/queries/userQueries';
 
 // TODO: Create all the scenarios or create a page with a new ui. 
 
@@ -28,7 +28,7 @@ interface AvatarEditModalProps {
 
 const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
 
-  const me = useCurrentUser();
+  const { data: me } = useUser();
   
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({mine: 'true', published: 'true', limit: '100'});
   const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();

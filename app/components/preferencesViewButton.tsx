@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { Icons } from './ui/icons';
 import * as Popover from '~/components/ui/popover';
 import { cn } from '~/utils/cn';
-import { useCurrentUser } from '~/hooks/useCurrentUser';
+import { useUser } from '~/hooks/queries/userQueries';
 
 type PopoverItem = {
   text: string;
@@ -19,7 +19,7 @@ type ViewButtonProps = {
 };
 
 export const ViewButton = ({ userId, popoverItems, className, isDataCard }: ViewButtonProps) => {
-  const me = useCurrentUser();
+  const { data: me } = useUser();
   if (!me || (me.role !== 'ADMIN' && me.id !== userId)) {
     return null;
   }

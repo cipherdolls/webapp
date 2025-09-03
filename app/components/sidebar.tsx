@@ -6,7 +6,7 @@ import SignOutModal from './signOutModal';
 import { ViewMore } from '~/view-more';
 import { ROUTES } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
-import { useIsAdmin } from '~/hooks/useCurrentUser';
+import { useUser } from '~/hooks/queries/userQueries';
 
 const SidebarItems = [
   {
@@ -50,7 +50,8 @@ const SidebarItems = [
 ];
 
 const Sidebar = ({ className }: { className?: string }) => {
-  const isAdmin = useIsAdmin();
+  const { data: user } = useUser();
+  const isAdmin = user?.role === 'ADMIN';
   const logout = useAuthStore((state) => state.logout);
 
   const menuItems = useMemo(
