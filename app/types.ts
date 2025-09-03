@@ -36,8 +36,8 @@ export interface User {
   gender: Gender | null;
   role: string;
   character: string;
-  tokenBalance?: number;
-  tokenAllowance?: string;
+  tokenBalance: number;
+  tokenAllowance: number;
 }
 
 export interface TokenPermitsPaginated {
