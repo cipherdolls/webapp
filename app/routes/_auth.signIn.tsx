@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { useLocalStorage } from 'usehooks-ts';
 import { useEffect, useState } from 'react';
 import HowItWorksModal from '~/components/howItWorksModal';
 import SignInPatterns from '~/components/ui/signInPatterns';
@@ -9,6 +8,7 @@ import { apiUrl, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import TermsOfServiceModal from '~/components/TermsOfServiceModal';
 import PrivacyPolicy from '~/components/PrivacyPolicyModal';
+import { useAuthStore } from '~/store/useAuthStore';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Sign In' }];
@@ -67,7 +67,15 @@ Issued At: ${timestamp}
 
 export default function SignInRoute() {
   const fetcher = useFetcher();
-  const [token, setToken] = useLocalStorage('token', undefined);
+  const { 
+    token, 
+    setToken, 
+    verifyToken, 
+    redirectAfterSignIn, 
+    setRedirectAfterSignIn,
+    referralId,
+    setReferralId 
+  } = useAuthStore();
   const [connected, setConnected] = useState(false);
   const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
@@ -78,10 +86,9 @@ export default function SignInRoute() {
     if (hasNavigated) return;
 
     setHasNavigated(true);
-    const redirectUrl = localStorage.getItem('redirectAfterSignIn');
-    if (redirectUrl) {
-      localStorage.removeItem('redirectAfterSignIn');
-      navigate(redirectUrl);
+    if (redirectAfterSignIn) {
+      setRedirectAfterSignIn(null); // Clear from store
+      navigate(redirectAfterSignIn);
     } else {
       navigate(ROUTES.chats, { replace: true });
     }
@@ -148,32 +155,6 @@ export default function SignInRoute() {
     }
   };
 
-  const verifyToken = async () => {
-    try {
-      const localToken = localStorage.getItem('token')?.replaceAll('"', '');
-      const res = await fetch(`${apiUrl}/auth/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localToken}`,
-        },
-      });
-
-      if (res.status === 200) {
-        return true;
-      }
-
-      if (res.status === 401) {
-        localStorage.removeItem('token');
-        return false;
-      }
-
-      return false;
-    } catch (err) {
-      console.error('Verify token error:', err);
-      return false;
-    }
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate, type NavLinkProps } from 'react-router';
+import { Link, NavLink, type NavLinkProps } from 'react-router';
 import { cn } from '~/utils/cn';
 import LogoSvg from '~/assets/svg/logo.svg';
 import DashboardSvg from '~/assets/svg/dashboard-icon.svg';
@@ -6,9 +6,10 @@ import ChatsSvg from '~/assets/svg/chat.svg';
 import PreferencesSvg from '~/assets/svg/preferences.svg';
 import Logout from '~/assets/svg/logout.svg';
 import { ROUTES } from '~/constants';
+import { useAuthStore } from '~/store/useAuthStore';
 
 const MainNavigation = ({ className }: { className?: string }) => {
-  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
   return (
     <aside
       className={cn(
@@ -45,11 +46,7 @@ const MainNavigation = ({ className }: { className?: string }) => {
 
         <div className='hidden h-24 shrink-0 md:block'>
           <button
-            onClick={() => {
-              localStorage.removeItem('token');
-              localStorage.removeItem('redirectAfterSignIn');
-              navigate(ROUTES.signIn);
-            }}
+            onClick={logout}
             className='flex flex-col gap-1 items-center justify-center w-full h-[72px] rounded-xl text-xs text-center font-semibold text-[#350D2A]/40 hover:bg-black/5 hover:text-black hover:cursor-pointer'
           >
             <Logout />

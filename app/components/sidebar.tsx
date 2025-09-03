@@ -1,10 +1,12 @@
-import { Link, NavLink, useNavigate, useRouteLoaderData } from 'react-router';
+import { Link, NavLink } from 'react-router';
+import { useMemo, useCallback } from 'react';
 import { Icons } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
-import type { User } from '~/types';
 import { ViewMore } from '~/view-more';
 import { ROUTES } from '~/constants';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useUser } from '~/hooks/queries/userQueries';
 
 const SidebarItems = [
   {
@@ -41,16 +43,42 @@ const SidebarItems = [
   // },
   {
     name: 'Menu',
-    href: '#',
+    href: null, // This will be handled as button, not link
     icon: Icons.more,
     showOnMobileOnly: true,
   },
 ];
 
 const Sidebar = ({ className }: { className?: string }) => {
-  const me = useRouteLoaderData('routes/_main') as User;
-  const isAdmin = me.role === 'ADMIN';
-  const navigate = useNavigate();
+  const { data: user } = useUser();
+  const isAdmin = user?.role === 'ADMIN';
+  const logout = useAuthStore((state) => state.logout);
+
+  const menuItems = useMemo(
+    () => [
+      { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
+      {
+        type: 'onClick' as const,
+        text: 'Sign Out',
+        onClick: logout,
+        icon: Icons.logout,
+      },
+    ],
+    [logout]
+  );
+
+  const getNavLinkClassName = useCallback(
+    (item: (typeof SidebarItems)[0]) =>
+      ({ isActive }: { isActive: boolean }) => {
+        return cn(
+          'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
+          isActive ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black' : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
+          item.hideOnMobile && 'sm:flex hidden',
+          item.showOnMobileOnly && 'sm:hidden flex'
+        );
+      },
+    []
+  );
 
   return (
     <aside className={cn('sm:w-[104px] flex', className)}>
@@ -63,20 +91,6 @@ const Sidebar = ({ className }: { className?: string }) => {
             const NavIcon = item.icon;
 
             if (item.name === 'Menu') {
-              const menuItems = [
-                { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
-                {
-                  type: 'onClick' as const,
-                  text: 'Sign Out',
-                  onClick: () => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('redirectAfterSignIn');
-                    navigate(ROUTES.signIn);
-                  },
-                  icon: Icons.logout,
-                },
-              ];
-
               return (
                 <ViewMore
                   key={index}
@@ -93,24 +107,22 @@ const Sidebar = ({ className }: { className?: string }) => {
               );
             }
 
+            // Handle items without href as regular links
+            if (item.href) {
+              return (
+                <NavLink to={item.href} key={index} className={getNavLinkClassName(item)}>
+                  {<NavIcon />}
+                  <span className='text-label font-semibold'>{item.name}</span>
+                </NavLink>
+              );
+            }
+
+            // Handle items without href (like disabled menu items)
             return (
-              <NavLink
-                to={item.href}
-                key={index}
-                className={({ isActive }) => {
-                  return cn(
-                    'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
-                    isActive
-                      ? 'sm:bg-neutral-05 hover:bg-neutral-04 text-base-black'
-                      : 'sm:bg-transparent hover:bg-neutral-05 text-pink-01',
-                    item.hideOnMobile && 'sm:flex hidden',
-                    item.showOnMobileOnly && 'sm:hidden flex'
-                  );
-                }}
-              >
+              <div key={index} className={getNavLinkClassName(item)({ isActive: false })}>
                 {<NavIcon />}
                 <span className='text-label font-semibold'>{item.name}</span>
-              </NavLink>
+              </div>
             );
           })}
         </div>

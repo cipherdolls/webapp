@@ -11,6 +11,7 @@ import { ROUTES, wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
 import UserEventsToast from '~/components/UserEventsToast';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useAuthStore } from '~/store/useAuthStore';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -22,6 +23,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
   const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
   const navigate = useNavigate();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   useUser({
     initialData: loaderData?.user,
@@ -74,7 +76,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
     if (provider) {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('Accounts changed:', accounts);
-        localStorage.removeItem('token');
+        clearAuth();
         navigate(ROUTES.account);
       };
 
@@ -104,7 +106,7 @@ export default MainLayout;
 // PROVIDERS WRAPPER
 
 export const MainLayoutProviders = ({ children }: { children: React.ReactNode }) => {
-  const localStorageToken = localStorage.getItem('token');
+  const token = useAuthStore((state) => state.token);
   const mqttConfig = useMemo(() => {
     const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
 
@@ -113,7 +115,7 @@ export const MainLayoutProviders = ({ children }: { children: React.ReactNode })
       options: {
         clientId,
         username: 'frontend',
-        password: localStorageToken?.replaceAll('"', ''),
+        password: token?.replaceAll('"', ''),
         keepAlive: 60,
         reconnectPeriod: 1000,
         connectTimeout: 30000,
@@ -132,7 +134,7 @@ export const MainLayoutProviders = ({ children }: { children: React.ReactNode })
         },
       },
     };
-  }, [localStorageToken]);
+  }, [token]);
 
   return (
     <MqttProvider config={mqttConfig}>
