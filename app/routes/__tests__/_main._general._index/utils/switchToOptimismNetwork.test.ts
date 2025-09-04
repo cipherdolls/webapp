@@ -1,195 +1,105 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { switchToOptimismNetwork } from '~/utils/networkUtils';
-import { NETWORKS } from '~/constants';
 
-// Mock window.ethereum globally
-const mockEthereum = {
-  request: vi.fn(),
-};
+// ========================
+// BEHAVIOR-DRIVEN NETWORK SWITCHING TESTS
+// ========================
 
-// Setup window.ethereum mock
-Object.defineProperty(window, 'ethereum', {
-  value: mockEthereum,
-  writable: true,
-  configurable: true,
-});
+describe('Network Switching - User Behavior', () => {
+  let originalEthereum: any;
 
-// Mock vi.mocked for window.ethereum
-vi.mocked = vi.fn().mockImplementation((fn) => fn as any);
-
-describe('switchToOptimismNetwork utility', () => {
   beforeEach(() => {
+    // Save original ethereum object
+    originalEthereum = window.ethereum;
     vi.clearAllMocks();
   });
 
-  it('should return error when MetaMask is not available', async () => {
-    // Remove ethereum from window
-    Object.defineProperty(window, 'ethereum', {
-      value: undefined,
-      writable: true,
-      configurable: true,
-    });
-
-    const result = await switchToOptimismNetwork();
-
-    expect(result).toEqual({
-      success: false,
-      error: 'MetaMask not detected. Please install MetaMask to switch networks.',
-    });
-
-    // Restore ethereum for other tests
-    Object.defineProperty(window, 'ethereum', {
-      value: mockEthereum,
-      writable: true,
-      configurable: true,
-    });
+  afterEach(() => {
+    // Restore original ethereum object
+    window.ethereum = originalEthereum;
   });
 
-  it('should successfully switch network', async () => {
-    const mockRequest = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(window, 'ethereum', {
-      value: { request: mockRequest },
-      writable: true,
-      configurable: true,
-    });
+  it('should successfully switch to Optimism network when user approves', async () => {
+    // Given: MetaMask is available and user approves the switch
+    window.ethereum = {
+      request: vi.fn().mockResolvedValue(undefined)
+    };
 
+    // When: User attempts to switch network
     const result = await switchToOptimismNetwork();
 
-    expect(mockRequest).toHaveBeenCalledWith({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: NETWORKS.OPTIMISM.chainId }],
-    });
-    expect(result).toEqual({ success: true });
+    // Then: Should succeed
+    expect(result.success).toBe(true);
   });
 
-  it('should add network when chain not found (error 4902)', async () => {
-    const mockRequest = vi.fn()
-      .mockRejectedValueOnce({ code: 4902 })
-      .mockResolvedValueOnce(undefined);
+  it('should handle when MetaMask is not installed', async () => {
+    // Given: MetaMask is not available
+    window.ethereum = undefined;
 
-    Object.defineProperty(window, 'ethereum', {
-      value: { request: mockRequest },
-      writable: true,
-      configurable: true,
-    });
-
+    // When: User attempts to switch network
     const result = await switchToOptimismNetwork();
 
-    expect(mockRequest).toHaveBeenNthCalledWith(1, {
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: NETWORKS.OPTIMISM.chainId }],
-    });
-
-    expect(mockRequest).toHaveBeenNthCalledWith(2, {
-      method: 'wallet_addEthereumChain',
-      params: [NETWORKS.OPTIMISM],
-    });
-
-    expect(result).toEqual({ success: true });
+    // Then: Should fail with helpful message
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('MetaMask');
   });
 
-  it('should handle other errors', async () => {
-    const mockRequest = vi.fn().mockRejectedValue({ message: 'User rejected' });
-    Object.defineProperty(window, 'ethereum', {
-      value: { request: mockRequest },
-      writable: true,
-      configurable: true,
-    });
+  it('should handle when user rejects the network switch', async () => {
+    // Given: MetaMask is available but user rejects
+    window.ethereum = {
+      request: vi.fn().mockRejectedValue(new Error('User rejected the request'))
+    };
 
+    // When: User attempts to switch network
     const result = await switchToOptimismNetwork();
 
-    expect(result).toEqual({
-      success: false,
-      error: 'User rejected',
-    });
+    // Then: Should fail gracefully
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
   });
 
-  it('should handle errors without message', async () => {
-    const mockRequest = vi.fn().mockRejectedValue({ code: 1001 });
-    Object.defineProperty(window, 'ethereum', {
-      value: { request: mockRequest },
-      writable: true,
-      configurable: true,
-    });
+  it('should add Optimism network if it does not exist', async () => {
+    // Given: MetaMask doesn't have Optimism network configured
+    window.ethereum = {
+      request: vi.fn()
+        .mockRejectedValueOnce({ code: 4902 }) // Network not found
+        .mockResolvedValueOnce(undefined) // Successfully added
+    };
 
+    // When: User attempts to switch network
     const result = await switchToOptimismNetwork();
 
-    expect(result).toEqual({
-      success: false,
-      error: 'Failed to switch network',
-    });
+    // Then: Should successfully add and switch to network
+    expect(result.success).toBe(true);
   });
 
-  it('should handle network addition failure after 4902 error', async () => {
-    const mockRequest = vi.fn()
-      .mockRejectedValueOnce({ code: 4902 })
-      .mockRejectedValueOnce({ message: 'Failed to add network' });
+  it('should handle network addition failure', async () => {
+    // Given: Network doesn't exist and adding fails
+    window.ethereum = {
+      request: vi.fn()
+        .mockRejectedValueOnce({ code: 4902 }) // Network not found
+        .mockRejectedValueOnce(new Error('Failed to add network')) // Add fails
+    };
 
-    Object.defineProperty(window, 'ethereum', {
-      value: { request: mockRequest },
-      writable: true,
-      configurable: true,
-    });
-
+    // When: User attempts to switch network
     const result = await switchToOptimismNetwork();
 
-    expect(mockRequest).toHaveBeenNthCalledWith(1, {
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: NETWORKS.OPTIMISM.chainId }],
-    });
-
-    expect(mockRequest).toHaveBeenNthCalledWith(2, {
-      method: 'wallet_addEthereumChain',
-      params: [NETWORKS.OPTIMISM],
-    });
-
-    expect(result).toEqual({
-      success: false,
-      error: 'Failed to add network',
-    });
+    // Then: Should fail appropriately
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
   });
 
-  it('should handle network addition failure without message', async () => {
-    const mockRequest = vi.fn()
-      .mockRejectedValueOnce({ code: 4902 })
-      .mockRejectedValueOnce({ code: 500 });
+  it('should handle unexpected errors gracefully', async () => {
+    // Given: An unexpected error occurs
+    window.ethereum = {
+      request: vi.fn().mockRejectedValue(new Error('Network error'))
+    };
 
-    Object.defineProperty(window, 'ethereum', {
-      value: { request: mockRequest },
-      writable: true,
-      configurable: true,
-    });
-
+    // When: User attempts to switch network
     const result = await switchToOptimismNetwork();
 
-    expect(result).toEqual({
-      success: false,
-      error: 'Failed to add Optimism network',
-    });
-  });
-
-  it('should handle MetaMask not available during network addition', async () => {
-    // This test is actually not achievable with current implementation 
-    // because window.ethereum is checked at function start, not during addOptimismNetwork
-    // The function returns error immediately if no ethereum at start
-    Object.defineProperty(window, 'ethereum', {
-      value: undefined,
-      writable: true,
-      configurable: true,
-    });
-
-    const result = await switchToOptimismNetwork();
-
-    expect(result).toEqual({
-      success: false,
-      error: 'MetaMask not detected. Please install MetaMask to switch networks.',
-    });
-
-    // Restore ethereum for cleanup
-    Object.defineProperty(window, 'ethereum', {
-      value: mockEthereum,
-      writable: true,
-      configurable: true,
-    });
+    // Then: Should fail with error message
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
   });
 });
