@@ -3,11 +3,15 @@ import { InformationBadge } from './ui/InformationBadge';
 import type { User } from '~/types';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 import { Icons } from '~/components/ui/icons';
+import { useUser } from '~/hooks/queries/userQueries';
 
 // TODO: Add referrals display logic
 
-export const YourReferrals = ({ user }: { user: User }) => {
+export const YourReferrals = () => {
   const { copied, copyToClipboard } = useCopyToClipboard();
+  const { data: user, isLoading: isUserLoading } = useUser()
+
+  if (!user) return null;
 
   const handleInviteCopy = async () => {
     if (navigator.share) {

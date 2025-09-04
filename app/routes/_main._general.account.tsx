@@ -8,6 +8,8 @@ import TokenBalance from '~/components/TokenBalance';
 import TokenPermitsList from '~/components/TokenPermitsList';
 import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
+import { YourReferrals } from '~/components/your-referrals';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -48,6 +50,7 @@ export default function Account() {
         <div className='flex flex-col gap-5'>
           <TokenBalance />
           <TokenPermitsList />
+          <YourReferrals />
         </div>
       </div>
     </div>
