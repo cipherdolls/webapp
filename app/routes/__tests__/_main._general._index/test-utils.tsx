@@ -339,6 +339,58 @@ export const createMockUseScenariosResult = (overrides: any = {}) => {
 };
 
 /**
+ * Creates a mock UseQueryResult for useTtsVoices hook with proper state consistency
+ */
+export const createMockUseTtsVoicesResult = (overrides: any = {}) => {
+  const baseResult = {
+    data: undefined,
+    isPending: false,
+    isError: false,
+    error: null,
+    isSuccess: false,
+    isLoading: false,
+    isPaused: false,
+    isPlaceholderData: false,
+    isRefetching: false,
+    isStale: false,
+    status: 'pending' as const,
+    fetchStatus: 'idle' as const,
+    dataUpdatedAt: 0,
+    errorUpdatedAt: 0,
+    errorUpdateCount: 0,
+    failureCount: 0,
+    failureReason: null,
+    isFetched: false,
+    isFetchedAfterMount: false,
+    isFetching: false,
+    isInitialLoading: false,
+    isLoadingError: false,
+    isRefetchError: false,
+    isEnabled: true,
+    promise: Promise.resolve(undefined as unknown as any),
+    refetch: vi.fn(),
+  };
+  return { ...baseResult, ...overrides } as any;
+};
+
+/**
+ * Creates a mock TtsVoice object with proper typing
+ */
+export const createMockTtsVoice = (overrides: any = {}) => ({
+  id: `voice-${Math.random().toString(36).substring(2, 11)}`,
+  name: 'Test Voice',
+  model: 'test-model',
+  ttsProviderId: 'provider-123',
+  ttsProvider: {
+    id: 'provider-123',
+    name: 'Test Provider',
+  },
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+/**
  * Creates a mock UseInfiniteQueryResult for useInfiniteAvatars hook with proper state consistency
  * Using type assertion to bypass TypeScript's strict mutual exclusive constraints for testing
  */
