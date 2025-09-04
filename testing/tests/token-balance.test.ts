@@ -155,11 +155,21 @@ test.describe('Token Balance E2E Tests', () => {
       if (tokenFromResponse) {
         console.log('⚡ Manually setting token to trigger redirect...');
         await page.evaluate((token: string) => {
-          localStorage.setItem('token', JSON.stringify(token));
+          // Set auth store data in the format expected by Zustand persist
+          const authData = {
+            state: {
+              token: token,
+              isAuthenticated: true,
+              redirectAfterSignIn: null,
+              referralId: null
+            },
+            version: 0
+          };
+          localStorage.setItem('auth-storage', JSON.stringify(authData));
           window.dispatchEvent(
             new StorageEvent('storage', {
-              key: 'token',
-              newValue: JSON.stringify(token),
+              key: 'auth-storage',
+              newValue: JSON.stringify(authData),
             })
           );
         }, tokenFromResponse);
