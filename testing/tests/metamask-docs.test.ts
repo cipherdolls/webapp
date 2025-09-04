@@ -120,8 +120,18 @@ Response: ${responseText}
     if (tokenFromResponse) {
       console.log('⚡ Manually setting token to test redirect...');
       await page.evaluate((token) => {
-        localStorage.setItem('token', JSON.stringify(token));
-        console.log('Token set manually, triggering storage event');
+        // Set auth store data in the format expected by Zustand persist
+        const authData = {
+          state: {
+            token: token,
+            isAuthenticated: true,
+            redirectAfterSignIn: null,
+            referralId: null
+          },
+          version: 0
+        };
+        localStorage.setItem('auth-storage', JSON.stringify(authData));
+        console.log('Token set manually using auth-storage format, triggering storage event');
 
         console.log('DEBUG: Manually triggering checkConnection...');
 
@@ -133,13 +143,20 @@ Response: ${responseText}
 
         window.dispatchEvent(
           new StorageEvent('storage', {
-            key: 'token',
-            newValue: JSON.stringify(token),
+            key: 'auth-storage',
+            newValue: JSON.stringify(authData),
           })
         );
       }, tokenFromResponse);
 
       await page.waitForTimeout(3000);
+      
+      // Force navigation to dashboard like other working tests
+      console.log('🔄 Manually navigating to dashboard to complete auth flow...');
+      await page.goto('/account');
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+      
       currentUrl = page.url();
     }
   }

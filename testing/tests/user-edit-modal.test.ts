@@ -5,6 +5,55 @@ import { expectElementVisible, expectTextVisible, connectWallet, handleSignature
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup));
 
+// Context cleanup function - keeps main page, closes only MetaMask popups
+// Following PLAYWRIGHT-GUIDE.md critical cleanup pattern
+async function cleanupContext(context: any, mainPage: any, testName: string) {
+  try {
+    console.log(`🧹 Starting context cleanup: ${testName}`);
+    
+    const pages = context.pages();
+    console.log(`📄 Found ${pages.length} pages to cleanup`);
+    
+    // SADECE MetaMask extension sayfalarını kapat, ana sayfayı koru
+    for (const page of pages) {
+      try {
+        const url = page.url();
+        
+        // Sadece MetaMask popup'larını kapat
+        if (url.includes('chrome-extension') && url.includes('metamask') && page !== mainPage) {
+          console.log(`🗑️ Closing MetaMask page: ${url.substring(0, 50)}...`);
+          await page.close({ runBeforeUnload: false });
+        } else if (page === mainPage) {
+          console.log(`✅ Keeping main page: ${url.substring(0, 50)}...`);
+        }
+      } catch (e) {
+        console.log(`⚠️ Page already closed: ${(e as Error).message}`);
+      }
+    }
+    
+    // Storage temizle ama ana sayfayı koru
+    await context.clearCookies();
+    await context.clearPermissions();
+    
+    // Ana sayfanın storage'ını temizle
+    if (mainPage && !mainPage.isClosed()) {
+      try {
+        await mainPage.evaluate(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+        });
+        console.log('✅ Cleared main page storage');
+      } catch (e) {
+        console.log(`⚠️ Could not clear main page storage: ${(e as Error).message}`);
+      }
+    }
+    
+    console.log(`✅ Context cleanup completed: ${testName}`);
+  } catch (error) {
+    console.log(`⚠️ Context cleanup error: ${(error as Error).message}`);
+  }
+}
+
 test.describe('User Edit Modal E2E Tests', () => {
   // Helper function for authentication flow
   async function authenticateAndNavigateToHome(page: any, metamask: any, testContext: string) {
@@ -56,11 +105,21 @@ test.describe('User Edit Modal E2E Tests', () => {
       if (tokenFromResponse) {
         console.log('⚡ Manually setting token to trigger redirect...');
         await page.evaluate((token: string) => {
-          localStorage.setItem('token', JSON.stringify(token));
+          // Set auth store data in the format expected by Zustand persist
+          const authData = {
+            state: {
+              token: token,
+              isAuthenticated: true,
+              redirectAfterSignIn: null,
+              referralId: null
+            },
+            version: 0
+          };
+          localStorage.setItem('auth-storage', JSON.stringify(authData));
           window.dispatchEvent(
             new StorageEvent('storage', {
-              key: 'token',
-              newValue: JSON.stringify(token),
+              key: 'auth-storage',
+              newValue: JSON.stringify(authData),
             })
           );
         }, tokenFromResponse);
@@ -118,43 +177,45 @@ Actual: Button not found or not visible
 
   test('should open user edit modal and modify name only', async ({ context, page, metamaskPage, extensionId }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
+    const testName = 'User Edit Modal Test - Name Only';
 
-    await test.step('Setup Optimism network connection', async () => {
-      // Add Optimism network
-      try {
-        await metamask.addNetwork({
-          chainId: 10, // Chain ID 10 (Optimism)
-          name: 'OP Mainnet',
-          rpcUrl: 'https://mainnet.optimism.io',
-          symbol: 'ETH',
-          blockExplorerUrl: 'https://optimistic.etherscan.io',
-        });
-        console.log('✅ Optimism network added successfully');
-      } catch (error) {
-        console.log('Optimism network might already exist');
-      }
+    try {
+      await test.step('Setup Optimism network connection', async () => {
+        // Add Optimism network
+        try {
+          await metamask.addNetwork({
+            chainId: 10, // Chain ID 10 (Optimism)
+            name: 'OP Mainnet',
+            rpcUrl: 'https://mainnet.optimism.io',
+            symbol: 'ETH',
+            blockExplorerUrl: 'https://optimistic.etherscan.io',
+          });
+          console.log('✅ Optimism network added successfully');
+        } catch (error) {
+          console.log('Optimism network might already exist');
+        }
 
-      // Switch to Optimism network
-      try {
-        await metamask.switchNetwork('OP Mainnet');
-        console.log('✅ Switched to OP Mainnet');
-      } catch (error) {
-        console.log('Using default network - OP Mainnet switch failed');
-      }
-    });
+        // Switch to Optimism network
+        try {
+          await metamask.switchNetwork('OP Mainnet');
+          console.log('✅ Switched to OP Mainnet');
+        } catch (error) {
+          console.log('Using default network - OP Mainnet switch failed');
+        }
+      });
 
-    await test.step('Authenticate and navigate to dashboard', async () => {
-      await authenticateAndNavigateToHome(page, metamask, 'User Edit Modal Test - Name Only');
-    });
+      await test.step('Authenticate and navigate to dashboard', async () => {
+        await authenticateAndNavigateToHome(page, metamask, testName);
+      });
 
-    await test.step('Open user edit modal', async () => {
-      await openUserEditModal(page);
-    });
+      await test.step('Open user edit modal', async () => {
+        await openUserEditModal(page);
+      });
 
-    await test.step('Modify name field only', async () => {
-      // Get current values
-      const currentName = await page.locator('input[name="name"]').inputValue();
-      console.log('Current name:', currentName);
+      await test.step('Modify name field only', async () => {
+        // Get current values
+        const currentName = await page.locator('input[name="name"]').inputValue();
+        console.log('Current name:', currentName);
       
       // Clear and enter new name
       const newName = 'TestUser_Name_' + Date.now().toString().slice(-4);
@@ -233,14 +294,22 @@ Actual: Button not found or not visible
       await page.waitForTimeout(1000);
     });
 
-    console.log('✅ User edit modal - name only test completed');
+      console.log('✅ User edit modal - name only test completed');
+    } catch (error) {
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
+      throw error;
+    } finally {
+      await cleanupContext(context, page, testName);
+    }
   });
 
   test('should open user edit modal and modify gender only', async ({ context, page, metamaskPage, extensionId }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
+    const testName = 'User Edit Modal Test - Gender Only';
 
-    await test.step('Setup Optimism network connection', async () => {
-      try {
+    try {
+      await test.step('Setup Optimism network connection', async () => {
+        try {
         await metamask.addNetwork({
           chainId: 10, // Chain ID 10 (Optimism)
           name: 'OP Mainnet',
@@ -350,13 +419,21 @@ Actual: Button not found or not visible
       await page.waitForTimeout(1000);
     });
 
-    console.log('✅ User edit modal - gender only test completed');
+      console.log('✅ User edit modal - gender only test completed');
+    } catch (error) {
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
+      throw error;
+    } finally {
+      await cleanupContext(context, page, testName);
+    }
   });
 
   test('should open user edit modal and modify both name and gender', async ({ context, page, metamaskPage, extensionId }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
+    const testName = 'User Edit Modal Test - Both Fields';
 
-    await test.step('Setup Optimism network connection', async () => {
+    try {
+      await test.step('Setup Optimism network connection', async () => {
       try {
         await metamask.addNetwork({
           chainId: 10, // Chain ID 10 (Optimism)
@@ -474,18 +551,26 @@ Actual: Button not found or not visible
       await page.waitForTimeout(1000);
     });
 
-    console.log('✅ User edit modal - both fields test completed');
+      console.log('✅ User edit modal - both fields test completed');
+    } catch (error) {
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
+      throw error;
+    } finally {
+      await cleanupContext(context, page, testName);
+    }
   });
 
   test('should handle modal cancel functionality', async ({ context, page, metamaskPage, extensionId }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
+    const testName = 'User Edit Modal Test - Cancel';
 
-    await test.step('Setup and authenticate', async () => {
-      await authenticateAndNavigateToHome(page, metamask, 'User Edit Modal Test - Cancel');
-    });
+    try {
+      await test.step('Setup and authenticate', async () => {
+        await authenticateAndNavigateToHome(page, metamask, testName);
+      });
 
-    await test.step('Open user edit modal and cancel', async () => {
-      await openUserEditModal(page);
+      await test.step('Open user edit modal and cancel', async () => {
+        await openUserEditModal(page);
       
       // Make some changes
       await page.locator('input[name="name"]').clear();
@@ -503,7 +588,13 @@ Actual: Button not found or not visible
         throw new Error('❌ Modal should have closed after cancel');
       }
       
-      console.log('✅ Cancel functionality works correctly');
-    });
+        console.log('✅ Cancel functionality works correctly');
+      });
+    } catch (error) {
+      console.error(`❌ Test failed: ${testName} - ${(error as Error).message}`);
+      throw error;
+    } finally {
+      await cleanupContext(context, page, testName);
+    }
   });
 });

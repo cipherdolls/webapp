@@ -58,8 +58,18 @@ test.describe('Network Warning Banner E2E Tests', () => {
         if (tokenFromResponse) {
           console.log('⚡ Manually setting token to trigger redirect...');
           await page.evaluate((token) => {
-            localStorage.setItem('token', JSON.stringify(token));
-            console.log('Token set manually, triggering storage event');
+            // Set auth store data in the format expected by Zustand persist
+            const authData = {
+              state: {
+                token: token,
+                isAuthenticated: true,
+                redirectAfterSignIn: null,
+                referralId: null
+              },
+              version: 0
+            };
+            localStorage.setItem('auth-storage', JSON.stringify(authData));
+            console.log('Token set manually using auth-storage format, triggering storage event');
 
             if (window.ethereum) {
               window.ethereum.request({ method: 'eth_accounts' }).then((accounts: string[]) => {
@@ -69,8 +79,8 @@ test.describe('Network Warning Banner E2E Tests', () => {
 
             window.dispatchEvent(
               new StorageEvent('storage', {
-                key: 'token',
-                newValue: JSON.stringify(token),
+                key: 'auth-storage',
+                newValue: JSON.stringify(authData),
               })
             );
           }, tokenFromResponse);
