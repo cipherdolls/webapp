@@ -32,10 +32,7 @@ const TokenPermitsList = () => {
   const createTokenPermitMutation = useCreateTokenPermit();
   const { data: tokenPermitsPaginated, isLoading: tokenPermitsLoading } = useTokenPermits();
 
-  if (userLoading || tokenPermitsLoading) {
-    return <TokenPermitsListSkeleton />;
-  }
-
+  // Always run hooks - move calculations above early return
   const permits = tokenPermitsPaginated?.data || [];
   const allowance = user?.tokenAllowance || 0;
   const firstPermit = permits[0];
@@ -100,6 +97,10 @@ const TokenPermitsList = () => {
       return 0;
     }
   }, [allowance, firstPermit, formattedAllowance, formattedFirstPermitAmount]);
+
+  if (userLoading || tokenPermitsLoading) {
+    return <TokenPermitsListSkeleton />;
+  }
 
   return (
     <div className='flex flex-col gap-5'>
