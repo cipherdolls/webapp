@@ -50,7 +50,7 @@ vi.mock('~/components/TokenPermitsList', () => ({
 }));
 
 vi.mock('~/components/your-referrals', () => ({
-  default: () => <div data-testid="your-referrals">Your Referrals</div>,
+  YourReferrals: () => <div data-testid="your-referrals">Your Referrals</div>,
 }));
 
 vi.mock('~/components/ui/icons', () => ({
