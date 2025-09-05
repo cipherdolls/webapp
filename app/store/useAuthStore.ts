@@ -110,7 +110,6 @@ export const useAuthStore = create<AuthStore>()(
           state.token = null;
           state.isAuthenticated = false;
           state.isLoading = false;
-          state.isOnboardWizardCompleted = false;
           state.redirectAfterSignIn = null;
           state.referralId = null;
         }),

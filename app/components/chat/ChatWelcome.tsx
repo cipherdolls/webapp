@@ -84,7 +84,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chats, avatars }) => {
   return (
     <div
       className={cn(
-        'lex-1 size-full flex flex-col items-center justify-center text-center pb-24',
+        'flex-1 size-full flex flex-col items-center justify-center text-center pb-24',
         hasChats && 'border-l border-neutral-04'
       )}
     >
