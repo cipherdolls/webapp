@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 const createAccountsChangedHandler = (setConnected: (value: boolean) => void) => {
   return (accounts: string[]) => {
     if (accounts.length === 0) {
@@ -39,7 +45,7 @@ describe('accountsChanged Event Handler', () => {
   afterEach(() => {
     if (cleanup) cleanup();
     vi.clearAllMocks();
-    delete (window as any).ethereum;
+    delete window.ethereum;
   });
 
   it('should set connected false when accounts length is 0', () => {
@@ -67,7 +73,7 @@ describe('accountsChanged Event Handler', () => {
   });
 
   it('should register event listener when ethereum exists', () => {
-    (window as any).ethereum = mockEthereum;
+    window.ethereum = mockEthereum;
 
     const eventListenerSetup = createEventListenerSetup(setConnected);
     cleanup = eventListenerSetup();
@@ -76,7 +82,7 @@ describe('accountsChanged Event Handler', () => {
   });
 
   it('should cleanup event listener on unmount', () => {
-    (window as any).ethereum = mockEthereum;
+    window.ethereum = mockEthereum;
 
     const eventListenerSetup = createEventListenerSetup(setConnected);
     cleanup = eventListenerSetup();
@@ -87,7 +93,7 @@ describe('accountsChanged Event Handler', () => {
   });
 
   it('should not register event listener when ethereum does not exist', () => {
-    delete (window as any).ethereum;
+    delete window.ethereum;
 
     const eventListenerSetup = createEventListenerSetup(setConnected);
     cleanup = eventListenerSetup();
