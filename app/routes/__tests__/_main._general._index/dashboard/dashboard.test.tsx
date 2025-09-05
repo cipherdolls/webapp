@@ -49,6 +49,10 @@ vi.mock('~/components/TokenPermitsList', () => ({
   default: () => <div data-testid="token-permits-list">Token Permits List</div>,
 }));
 
+vi.mock('~/components/your-referrals', () => ({
+  default: () => <div data-testid="your-referrals">Your Referrals</div>,
+}));
+
 vi.mock('~/components/ui/icons', () => ({
   Icons: {
     mobileLogo: () => <svg data-testid="mobile-logo" />,
