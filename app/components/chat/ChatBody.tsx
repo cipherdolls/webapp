@@ -17,36 +17,10 @@ interface ChatBodyProps {
   hasMore: boolean;
 }
 
-function MessagesSkeleton() {
+function MessagesLoader() {
   return (
-    <div className='flex flex-col mx-auto max-w-[900px] animate-pulse'>
-      <div className='flex justify-start px-4.5 pb-4 mt-4'>
-        <div className='relative min-h-12 px-4 py-3 rounded-xl w-full max-w-[240px] bg-neutral-05 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05' />
-      </div>
-
-      <div className='flex justify-end px-4.5 pb-4 mt-4'>
-        <div className='flex gap-2 items-end w-full pb-4 min-h-12 relative px-4 py-3 rounded-xl max-w-[300px] bg-pink-02 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02' />
-      </div>
-
-      <div className='flex justify-start px-4.5 pb-4 mt-4'>
-        <div className='relative min-h-12 w-full px-4 py-3 rounded-xl max-w-[440px] bg-neutral-05 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05' />
-      </div>
-
-      <div className='flex  justify-end px-4.5 pb-4 mt-4'>
-        <div className='flex gap-2 items-end w-full pb-4 min-h-12 relative px-4 py-3 rounded-xl max-w-[160px] bg-pink-02 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02' />
-      </div>
-
-      <div className='flex justify-start px-4.5 pb-4 mt-4'>
-        <div className='relative min-h-12 px-4 w-full py-3 rounded-xl max-w-[360px] bg-neutral-05  [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05' />
-      </div>
-
-      <div className='flex justify-end px-4.5 pb-4 mt-4'>
-        <div className='flex gap-2 items-end w-full pb-4 min-h-12 relative px-4 py-3 rounded-xl max-w-[260px] bg-pink-02 [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02' />
-      </div>
-
-      <ChatBubble.Root>
-        <ChatBubble.Message isLoading />
-      </ChatBubble.Root>
+    <div className='flex flex-col mx-auto w-full h-full'>
+      <Icons.loader className='mx-auto my-auto size-10 animate-spin text-neutral-01' />
     </div>
   );
 }
@@ -114,7 +88,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
           </div>
         )}
 
-        {isLoadingMessages ? <MessagesSkeleton /> : messages.map((message, index) => {
+        {isLoadingMessages ? <MessagesLoader /> : messages.map((message, index) => {
           const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
           return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
         })}
