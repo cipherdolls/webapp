@@ -16,41 +16,29 @@ export function createTestQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false,        // Test'lerde retry kapalı
-        gcTime: Infinity,    // v5'te gcTime (cacheTime yerine)
-        staleTime: 0,        // Her zaman stale (refetch için)
+        retry: false,
+        gcTime: Infinity,
+        staleTime: 0,
       },
       mutations: {
         retry: false,
       },
     },
-    // ⚠️ v5'te logger property'si kaldırıldı - varsayılan console logging kullanılıyor
   });
 }
 
-export function renderWithQuery(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) {
+export function renderWithQuery(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   const queryClient = createTestQueryClient();
 
   return render(ui, {
-    wrapper: ({ children }) => (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    ),
+    wrapper: ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>,
     ...options,
   });
 }
 
 export function createWrapper(queryClient?: QueryClient) {
   const client = queryClient || createTestQueryClient();
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={client}>
-      {children}
-    </QueryClientProvider>
-  );
+  return ({ children }: { children: ReactNode }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 
 // ========================
@@ -71,13 +59,9 @@ export function renderHookWithQuery<TResult, TProps>(
 ) {
   const { queryClient, ...renderOptions } = options || {};
   const client = queryClient || createTestQueryClient();
-  
+
   return renderHook(hook, {
-    wrapper: ({ children }) => (
-      <QueryClientProvider client={client}>
-        {children}
-      </QueryClientProvider>
-    ),
+    wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
     ...renderOptions,
   });
 }
@@ -90,7 +74,7 @@ export function renderHookWithQuery<TResult, TProps>(
  * Creates a mock User object with proper typing
  */
 export const createMockUser = (overrides: Partial<User> = {}): User => ({
-  id: `user-${Math.random().toString(36).substring(2, 11)}`, // ✅ substr() deprecated - substring() kullan
+  id: `user-${Math.random().toString(36).substring(2, 11)}`,
   name: 'John Doe',
   signerAddress: '0x123456789',
   gender: 'Male',
@@ -101,28 +85,30 @@ export const createMockUser = (overrides: Partial<User> = {}): User => ({
   role: 'user',
   character: 'Test character description',
   tokenBalance: 100,
+  tokenAllowance: 0,
   ...overrides,
 });
 
 /**
  * Creates a mock Chat object with proper typing - using unknown for flexibility
  */
-export const createMockChat = (overrides: any = {}): Chat => ({
-  id: `chat-${Math.random().toString(36).substring(2, 11)}`,
-  userId: 'user-123',
-  avatar: {
-    id: 'avatar-123',
-    name: 'Test Avatar',
-  },
-  scenario: {
-    name: 'Test Scenario',
-  },
-  updatedAt: new Date().toISOString(),
-  chatCompletionJobs: [],
-  doll: null,
-  _count: { chatCompletionJobs: 0 },
-  ...overrides,
-} as unknown as Chat);
+export const createMockChat = (overrides: any = {}): Chat =>
+  ({
+    id: `chat-${Math.random().toString(36).substring(2, 11)}`,
+    userId: 'user-123',
+    avatar: {
+      id: 'avatar-123',
+      name: 'Test Avatar',
+    },
+    scenario: {
+      name: 'Test Scenario',
+    },
+    updatedAt: new Date().toISOString(),
+    chatCompletionJobs: [],
+    doll: null,
+    _count: { chatCompletionJobs: 0 },
+    ...overrides,
+  }) as unknown as Chat;
 
 /**
  * Creates a mock Avatar object with proper typing
@@ -553,14 +539,10 @@ export const createMockUseRefreshTokenBalanceResult = (overrides: any = {}) => (
  * Standard UserEditModal mock component
  */
 export const createMockUserEditModal = () => ({
-  default: ({ me, open, onOpenChange }: {
-    me: User;
-    open: boolean;
-    onOpenChange?: (open: boolean) => void;
-  }) => (
-    <div data-testid="user-edit-modal" data-open={open} data-user-name={me?.name}>
+  default: ({ me, open, onOpenChange }: { me: User; open: boolean; onOpenChange?: (open: boolean) => void }) => (
+    <div data-testid='user-edit-modal' data-open={open} data-user-name={me?.name}>
       User Edit Modal for {me?.name}
-      <button data-testid="close-modal" onClick={() => onOpenChange && onOpenChange(false)}>
+      <button data-testid='close-modal' onClick={() => onOpenChange && onOpenChange(false)}>
         Close Modal
       </button>
     </div>
@@ -572,7 +554,7 @@ export const createMockUserEditModal = () => ({
  */
 export const createMockIcons = () => ({
   Icons: {
-    pen: () => <svg data-testid="pen-icon" />,
+    pen: () => <svg data-testid='pen-icon' />,
   },
 });
 
@@ -583,7 +565,7 @@ export const createMockIcons = () => ({
 // renderDashboardBanner function removed - use renderWithQuery + JSX directly in test files
 // Example:
 // renderWithQuery(
-//   <DashboardBanner 
+//   <DashboardBanner
 //     variant="welcome"
 //     description="Test description"
 //     showEditLink={false}

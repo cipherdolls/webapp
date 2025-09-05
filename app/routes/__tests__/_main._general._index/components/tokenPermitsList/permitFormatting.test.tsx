@@ -135,7 +135,7 @@ describe('TokenPermitsList formatting functions', () => {
     // Test with large wei value (more than 15 digits - should be treated as wei)
     const mockUserWithAllowance = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: '1500000000000000000', // 1.5 ether in wei (18 digits)
+      tokenAllowance: 1500000000000000000, // 1.5 ether in wei (18 digits)
     });
 
     vi.mocked(useRouteLoaderData).mockReturnValue(mockUserWithAllowance);
@@ -169,7 +169,7 @@ describe('TokenPermitsList formatting functions', () => {
     // Test with small value (less than 15 digits - should be treated as ether)
     const mockUserWithAllowance = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: '2.5', // already in ether format
+      tokenAllowance: 2.5, // already in ether format
     });
 
     vi.mocked(useRouteLoaderData).mockReturnValue(mockUserWithAllowance);
@@ -229,7 +229,7 @@ describe('TokenPermitsList formatting functions', () => {
 
     const mockUserWithInvalidAllowance = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: 'invalid-allowance',
+      tokenAllowance: 0, // invalid cases now use 0 for number type
     });
 
     vi.mocked(useRouteLoaderData).mockReturnValue(mockUserWithInvalidAllowance);

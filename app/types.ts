@@ -37,7 +37,7 @@ export interface User {
   role: string;
   character: string;
   tokenBalance?: number;
-  tokenAllowance?: string;
+  tokenAllowance: number;
 }
 
 export interface TokenPermitsPaginated {

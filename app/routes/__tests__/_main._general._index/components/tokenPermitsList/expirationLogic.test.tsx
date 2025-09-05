@@ -64,7 +64,7 @@ vi.mock('~/components/ui/button/button', () => ({
 describe('TokenPermitsList expiration logic', () => {
   const mockUser = createMockUser({
     tokenBalance: 100,
-    tokenAllowance: '500000000000000000',
+    tokenAllowance: 500000000000000000,
   });
 
   beforeEach(() => {
