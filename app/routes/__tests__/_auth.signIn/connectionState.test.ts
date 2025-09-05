@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 const createCheckConnection = (setConnected: (value: boolean) => void) => {
   return async () => {
     try {
@@ -34,11 +40,11 @@ describe('Connection State Logic', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-    delete (window as any).ethereum;
+    delete window.ethereum;
   });
 
   it('should set connected false when accounts length is 0', async () => {
-    (window as any).ethereum = mockEthereum;
+    window.ethereum = mockEthereum;
     mockEthereum.request.mockResolvedValue([]);
 
     const checkConnection = createCheckConnection(setConnected);
@@ -49,7 +55,7 @@ describe('Connection State Logic', () => {
   });
 
   it('should set connected true when accounts length is greater than 0', async () => {
-    (window as any).ethereum = mockEthereum;
+    window.ethereum = mockEthereum;
     mockEthereum.request.mockResolvedValue(['0x123...', '0x456...']);
 
     const checkConnection = createCheckConnection(setConnected);
@@ -60,7 +66,7 @@ describe('Connection State Logic', () => {
   });
 
   it('should set connected false when window.ethereum does not exist', async () => {
-    delete (window as any).ethereum;
+    delete window.ethereum;
 
     const checkConnection = createCheckConnection(setConnected);
     await checkConnection();
@@ -69,7 +75,7 @@ describe('Connection State Logic', () => {
   });
 
   it('should set connected false when ethereum request throws error', async () => {
-    (window as any).ethereum = mockEthereum;
+    window.ethereum = mockEthereum;
     mockEthereum.request.mockRejectedValue(new Error('User rejected request'));
 
     const checkConnection = createCheckConnection(setConnected);
@@ -80,7 +86,7 @@ describe('Connection State Logic', () => {
   });
 
   it('should set connected true with single account', async () => {
-    (window as any).ethereum = mockEthereum;
+    window.ethereum = mockEthereum;
     mockEthereum.request.mockResolvedValue(['0x123456789abcdef']);
 
     const checkConnection = createCheckConnection(setConnected);
@@ -90,7 +96,7 @@ describe('Connection State Logic', () => {
   });
 
   it('should handle null ethereum object', async () => {
-    (window as any).ethereum = null;
+    window.ethereum = null;
 
     const checkConnection = createCheckConnection(setConnected);
     await checkConnection();
@@ -99,7 +105,7 @@ describe('Connection State Logic', () => {
   });
 
   it('should handle undefined ethereum object', async () => {
-    (window as any).ethereum = undefined;
+    window.ethereum = undefined;
 
     const checkConnection = createCheckConnection(setConnected);
     await checkConnection();
