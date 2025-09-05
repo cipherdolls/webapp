@@ -62,7 +62,7 @@ vi.mock('~/components/ui/button/button', () => ({
 describe('TokenPermitsList user data fetching', () => {
   const mockUser = createMockUser({
     tokenBalance: 100,
-    tokenAllowance: '500000000000000000', // 0.5 ether in wei
+    tokenAllowance: 500000000000000000, // 0.5 ether in wei
   });
 
   beforeEach(() => {

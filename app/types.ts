@@ -36,7 +36,7 @@ export interface User {
   gender: Gender | null;
   role: string;
   character: string;
-  tokenBalance: number;
+  tokenBalance?: number;
   tokenAllowance: number;
 }
 

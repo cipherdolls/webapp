@@ -1,4 +1,5 @@
 import { formatEther } from 'ethers';
+import { useMemo } from 'react';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
 
 import { Icons } from '~/components/ui/icons';
@@ -31,12 +32,11 @@ const TokenPermitsList = () => {
   const createTokenPermitMutation = useCreateTokenPermit();
   const { data: tokenPermitsPaginated, isLoading: tokenPermitsLoading } = useTokenPermits();
 
-  if (userLoading || tokenPermitsLoading) {
-    return <TokenPermitsListSkeleton />;
-  }
-
+  // Always run hooks - move calculations above early return
   const permits = tokenPermitsPaginated?.data || [];
-  const allowance = user?.tokenAllowance || '0';
+  const allowance = user?.tokenAllowance || 0;
+  const firstPermit = permits[0];
+  const hasPermits = permits.length > 0;
 
   const handlePermitSigned = async (permit: {
     owner: string;
@@ -69,20 +69,38 @@ const TokenPermitsList = () => {
     }
   };
 
-  const formatAllowanceAmount = (value: string): string => {
+  const formatAllowanceAmount = (value: number): string => {
     try {
-      // First try to parse as wei (if it's a very large number)
-      if (value.length > 15) {
-        const ethValue = parseFloat(formatEther(value));
+      // Direct number formatting - no string conversion needed
+      if (value > 1e15) {
+        // Wei threshold
+        const ethValue = parseFloat(formatEther(value.toString()));
         return ethValue.toFixed(2);
       }
-      // Otherwise, it's already in ether format
-      const ethValue = parseFloat(value);
-      return ethValue.toFixed(2);
+      return value.toFixed(2);
     } catch {
       return '0.00';
     }
   };
+
+  const formattedAllowance = useMemo(() => formatAllowanceAmount(allowance), [allowance]);
+
+  const formattedFirstPermitAmount = useMemo(() => (firstPermit ? formatPermitAmount(firstPermit.value) : '0'), [firstPermit]);
+
+  const progressPercentage = useMemo(() => {
+    if (!allowance || !firstPermit?.value) return 0;
+    try {
+      const allowanceFloat = parseFloat(formattedAllowance.replace(',', ''));
+      const permitFloat = parseFloat(formattedFirstPermitAmount);
+      return Math.min((allowanceFloat / permitFloat) * 100, 100);
+    } catch {
+      return 0;
+    }
+  }, [allowance, firstPermit, formattedAllowance, formattedFirstPermitAmount]);
+
+  if (userLoading || tokenPermitsLoading) {
+    return <TokenPermitsListSkeleton />;
+  }
 
   return (
     <div className='flex flex-col gap-5'>
@@ -99,7 +117,7 @@ const TokenPermitsList = () => {
       </div>
 
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
-        {permits.length !== 0 && (
+        {hasPermits && (
           <div className='flex justify-between py-4 px-4'>
             <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
@@ -123,7 +141,7 @@ const TokenPermitsList = () => {
           </div>
         )}
 
-        {permits.length === 0 ? (
+        {!hasPermits ? (
           <div className='py-6 px-6 flex flex-col items-center gap-2'>
             <h1 className='text-heading-h1'>🎁</h1>
             <div className='flex flex-col gap-1 text-center'>
@@ -135,7 +153,7 @@ const TokenPermitsList = () => {
               </CreateTokenAllowanceModal>
             </div>
           </div>
-        ) : permits.length > 0 ? (
+        ) : (
           <div className='p-3 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
             <div className='flex items-center gap-3'>
               <button className='sm:size-10 size-8 flex text-2xl items-center justify-center bg-black/5 backdrop-blur-48 rounded-full relative shrink-0'>
@@ -151,16 +169,7 @@ const TokenPermitsList = () => {
                     <div
                       className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300'
                       style={{
-                        width: `${
-                          allowance && permits[0].value
-                            ? Math.min(
-                                (parseFloat(formatAllowanceAmount(allowance.toString()).replace(',', '')) /
-                                  parseFloat(formatPermitAmount(permits[0].value))) *
-                                  100,
-                                100
-                              )
-                            : 0
-                        }%`,
+                         width: `${progressPercentage}%`,
                       }}
                     />
                   </div>
@@ -168,28 +177,15 @@ const TokenPermitsList = () => {
               </div>
             </div>
           </div>
-        ) : (
-          <div className='py-6 px-6 flex flex-col items-center gap-2'>
-            <h1 className='text-heading-h1'>🔐</h1>
-            <div className='flex flex-col gap-1 text-center'>
-              <h4 className='text-heading-h4 text-base-black'>No Token Permits</h4>
-              <p className='text-body-md text-neutral-01'>
-                You don't have any permits.
-                <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
-                  <button className='underline hover:opacity-80 transition-opacity'>Create allowances.</button>
-                </CreateTokenAllowanceModal>
-              </p>
-            </div>
-          </div>
         )}
 
-        {permits.length > 0 && (
+        {hasPermits && (
           <div className='text-body-sm text-neutral-01 font-medium text-right mt-2 flex items-center justify-between gap-1'>
             <div>
-              Remaining: <span className='text-base-black font-semibold'>{allowance ? formatAllowanceAmount(allowance.toString()) : '0.00'} LOV</span>
+              Remaining: <span className='text-base-black font-semibold'>{allowance ? formattedAllowance : '0.00'} LOV</span>
             </div>
             <div>
-              Total: <span className='text-base-black font-semibold'>{formatPermitAmount(permits[0].value)} LOV</span>
+              Total: <span className='text-base-black font-semibold'>{formattedFirstPermitAmount} LOV</span>
             </div>
           </div>
         )}

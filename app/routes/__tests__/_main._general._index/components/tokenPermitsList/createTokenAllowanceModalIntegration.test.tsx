@@ -94,7 +94,7 @@ describe('TokenPermitsList modal integration', () => {
   it('should call onPermitSigned with correct parameters', () => {
     const mockUser = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: '0',
+      tokenAllowance: 0,
     });
 
     const mockMutation = { mutate: mockMutate, isPending: false };
@@ -133,7 +133,7 @@ describe('TokenPermitsList modal integration', () => {
   it('should pass tokenBalance to CreateTokenAllowanceModal', () => {
     const mockUser = createMockUser({
       tokenBalance: 250,
-      tokenAllowance: '0',
+      tokenAllowance: 0,
     });
 
     vi.mocked(useCreateTokenPermit).mockReturnValue({
@@ -162,7 +162,7 @@ describe('TokenPermitsList modal integration', () => {
   it('should render Create allowances link when no permits exist', () => {
     const mockUser = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: '0',
+      tokenAllowance: 0,
     });
 
     vi.mocked(useCreateTokenPermit).mockReturnValue({
@@ -193,7 +193,7 @@ describe('TokenPermitsList modal integration', () => {
     const mockPermit = createMockTokenPermit();
     const mockUser = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: '500000000000000000',
+      tokenAllowance: 500000000000000000,
     });
 
     vi.mocked(useCreateTokenPermit).mockReturnValue({
@@ -223,7 +223,7 @@ describe('TokenPermitsList modal integration', () => {
   it('should handle permit signing flow correctly', () => {
     const mockUser = createMockUser({
       tokenBalance: 150,
-      tokenAllowance: '0',
+      tokenAllowance: 0,
     });
 
     vi.mocked(useCreateTokenPermit).mockReturnValue({
@@ -269,7 +269,7 @@ describe('TokenPermitsList modal integration', () => {
   it('should convert numeric permit values to strings correctly', () => {
     const mockUser = createMockUser({
       tokenBalance: 100,
-      tokenAllowance: '0',
+      tokenAllowance: 0,
     });
 
     vi.mocked(useCreateTokenPermit).mockReturnValue({
@@ -304,7 +304,7 @@ describe('TokenPermitsList modal integration', () => {
   it('should use user data from useUser hook correctly', () => {
     const mockUser = createMockUser({
       tokenBalance: 75,
-      tokenAllowance: '0',
+      tokenAllowance: 0,
     });
 
     vi.mocked(useCreateTokenPermit).mockReturnValue({

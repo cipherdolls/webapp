@@ -14,12 +14,10 @@ async function cleanupContext(context: any, mainPage: any, testName: string) {
     const pages = context.pages();
     console.log(`📄 Found ${pages.length} pages to cleanup`);
     
-    // SADECE MetaMask extension sayfalarını kapat, ana sayfayı koru
     for (const page of pages) {
       try {
         const url = page.url();
         
-        // Sadece MetaMask popup'larını kapat
         if (url.includes('chrome-extension') && url.includes('metamask') && page !== mainPage) {
           console.log(`🗑️ Closing MetaMask page: ${url.substring(0, 50)}...`);
           await page.close({ runBeforeUnload: false });
@@ -31,11 +29,9 @@ async function cleanupContext(context: any, mainPage: any, testName: string) {
       }
     }
     
-    // Storage temizle ama ana sayfayı koru
     await context.clearCookies();
     await context.clearPermissions();
     
-    // Ana sayfanın storage'ını temizle
     if (mainPage && !mainPage.isClosed()) {
       try {
         await mainPage.evaluate(() => {
