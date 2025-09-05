@@ -1,9 +1,8 @@
-import { Outlet, useLocation } from 'react-router';
+import { Outlet } from 'react-router';
 import type { Route } from './+types/_main.chats';
 import ChatsSidebar from '~/components/ChatsSidebar';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
-import { cn } from '~/utils/cn';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
@@ -12,7 +11,6 @@ export function meta({}: Route.MetaArgs) {
 export default function ChatsIndex() {
   const { data: avatarsData } = useAvatars();
   const { data: chatsData, isLoading: isChatsLoading } = useChats();
-  const { pathname } = useLocation();
 
   const avatars = avatarsData?.data || [];
   const chats = chatsData || [];

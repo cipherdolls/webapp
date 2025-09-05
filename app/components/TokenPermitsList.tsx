@@ -169,7 +169,7 @@ const TokenPermitsList = () => {
                     <div
                       className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300'
                       style={{
-                        width: `${progressPercentage}%`,
+                         width: `${progressPercentage}%`,
                       }}
                     />
                   </div>

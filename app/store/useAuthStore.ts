@@ -7,6 +7,7 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isOnboardWizardCompleted: boolean;
   redirectAfterSignIn: string | null;
   referralId: string | null;
 }
@@ -19,6 +20,7 @@ interface AuthActions {
   setLoading: (loading: boolean) => void;
   setRedirectAfterSignIn: (url: string | null) => void;
   setReferralId: (id: string | null) => void;
+  setOnboardWizardCompleted: (value: boolean) => void;
 }
 
 interface AuthStore extends AuthState, AuthActions {}
@@ -30,6 +32,7 @@ export const useAuthStore = create<AuthStore>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      isOnboardWizardCompleted: false,
       redirectAfterSignIn: null,
       referralId: null,
 
@@ -125,12 +128,18 @@ export const useAuthStore = create<AuthStore>()(
         set((state) => {
           state.referralId = id;
         }),
+
+      setOnboardWizardCompleted: (value) =>
+        set((state) => {
+          state.isOnboardWizardCompleted = value;
+        }),
     })),
     {
       name: 'auth-storage',
       partialize: (state) => ({
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        isOnboardWizardCompleted: state.isOnboardWizardCompleted,
         redirectAfterSignIn: state.redirectAfterSignIn,
         referralId: state.referralId,
       }),
