@@ -18,6 +18,10 @@ export default function ChatsIndex() {
   const navigate = useNavigate()
   const isDesktopView = useMediaQuery('(min-width: 1024px)');
 
+  const handleClose = () => {
+    setOnboardWizardCompleted(true)
+  }
+
   useEffect(() => {
     if (chatsData && chatsData.length > 0 && isDesktopView) {
       const firstChat = chatsData[0];
@@ -38,6 +42,6 @@ export default function ChatsIndex() {
   return isOnboardWizardCompleted ? (
     <ChatWelcome chats={chatsData || []} avatars={avatarsData?.data || []} />
   ) : (
-    <WelcomeOnboardWizard me={user} />
+    <WelcomeOnboardWizard me={user} onClose={handleClose}/>
   );
 }
