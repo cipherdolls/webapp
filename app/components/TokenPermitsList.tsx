@@ -154,7 +154,7 @@ const TokenPermitsList = () => {
                         width: `${
                           allowance && permits[0].value
                             ? Math.min(
-                                (parseFloat(formatAllowanceAmount(allowance).replace(',', '')) /
+                                (parseFloat(formatAllowanceAmount(allowance.toString()).replace(',', '')) /
                                   parseFloat(formatPermitAmount(permits[0].value))) *
                                   100,
                                 100
@@ -186,7 +186,7 @@ const TokenPermitsList = () => {
         {permits.length > 0 && (
           <div className='text-body-sm text-neutral-01 font-medium text-right mt-2 flex items-center justify-between gap-1'>
             <div>
-              Remaining: <span className='text-base-black font-semibold'>{allowance ? formatAllowanceAmount(allowance) : '0.00'} LOV</span>
+              Remaining: <span className='text-base-black font-semibold'>{allowance ? formatAllowanceAmount(allowance.toString()) : '0.00'} LOV</span>
             </div>
             <div>
               Total: <span className='text-base-black font-semibold'>{formatPermitAmount(permits[0].value)} LOV</span>

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 const createEthereumDetection = (setHasEthereum: (value: boolean) => void, setIsLoading: (value: boolean) => void) => {
   return () => {
     const timer = setTimeout(() => {
@@ -26,11 +32,11 @@ describe('Ethereum Detection Logic', () => {
     if (cleanup) cleanup();
     vi.useRealTimers();
     vi.clearAllMocks();
-    delete (window as any).ethereum;
+    delete window.ethereum;
   });
 
   it('should set hasEthereum true when window.ethereum exists', () => {
-    (window as any).ethereum = {};
+    window.ethereum = {};
     
     const ethereumDetection = createEthereumDetection(setHasEthereum, setIsLoading);
     cleanup = ethereumDetection();
@@ -42,7 +48,7 @@ describe('Ethereum Detection Logic', () => {
   });
 
   it('should set hasEthereum false when window.ethereum does not exist', () => {
-    delete (window as any).ethereum;
+    delete window.ethereum;
     
     const ethereumDetection = createEthereumDetection(setHasEthereum, setIsLoading);
     cleanup = ethereumDetection();
@@ -54,7 +60,7 @@ describe('Ethereum Detection Logic', () => {
   });
 
   it('should set loading false after 500ms', () => {
-    (window as any).ethereum = {};
+    window.ethereum = {};
     
     const ethereumDetection = createEthereumDetection(setHasEthereum, setIsLoading);
     cleanup = ethereumDetection();
@@ -68,7 +74,7 @@ describe('Ethereum Detection Logic', () => {
 
   it('should cleanup timer on unmount', () => {
     const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
-    (window as any).ethereum = {};
+    window.ethereum = {};
     
     const ethereumDetection = createEthereumDetection(setHasEthereum, setIsLoading);
     cleanup = ethereumDetection();
@@ -80,7 +86,7 @@ describe('Ethereum Detection Logic', () => {
   });
 
   it('should return false when window.ethereum is undefined', () => {
-    (window as any).ethereum = undefined;
+    window.ethereum = undefined;
     
     const ethereumDetection = createEthereumDetection(setHasEthereum, setIsLoading);
     cleanup = ethereumDetection();
@@ -91,7 +97,7 @@ describe('Ethereum Detection Logic', () => {
   });
 
   it('should return false when window.ethereum is null', () => {
-    (window as any).ethereum = null;
+    window.ethereum = null;
     
     const ethereumDetection = createEthereumDetection(setHasEthereum, setIsLoading);
     cleanup = ethereumDetection();
