@@ -89,7 +89,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chats, avatars }) => {
       )}
     >
       {header && <div className='text-heading-h2 md:text-heading-h1 flex items-center justify-center mb-5 md:mb-8'>{header}</div>}
-      <h3 className='text-body-lg md:text-heading-h3 font-semibold'>{title}</h3>
+      <h3 className='text-body-lg px-2 md:text-heading-h3 font-semibold'>{title}</h3>
       {footer && <div className='mt-4 sm:mt-6'>{footer}</div>}
     </div>
   );

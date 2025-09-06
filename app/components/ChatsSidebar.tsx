@@ -96,7 +96,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
   };
 
   return (
-    <div className={cn('pb-3 md:pb-0 h-full shrink-0 flex flex-col', chats.length !== 0 && 'px-2 md:px-0 md:w-[348px]')}>
+    <div className={cn('pb-3 h-full shrink-0 flex flex-col md:pb-0', chats.length !== 0 ? 'px-2 w-full md:w-[348px]' : 'w-fit px-0')}>
       {isChatsLoading ? (
         <SidebarSkeleton />
       ) : (
@@ -114,7 +114,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
             </div>
           )}
 
-          <div className='flex-1 sm:px-2 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none'>
+          <div className={cn('flex-1 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none', chats.length !== 0 && 'sm:px-2')}>
             <div className='flex flex-col select-none'>
               {groupedChats.map((group) => (
                 <div key={group.avatar.id} className='mb-2'>
