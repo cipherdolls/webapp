@@ -116,8 +116,8 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
 
           <div className={cn('flex-1 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none', chats.length !== 0 && 'sm:px-2')}>
             <div className='flex flex-col select-none'>
-              {groupedChats.map((group) => (
-                <div key={group.avatar.id} className='mb-2'>
+              {groupedChats.map((group, index) => (
+                <div key={group.avatar.id} className={cn(index + 1 !== groupedChats.length && 'mb-2')}>
                   <div
                     className='flex items-center gap-3 cursor-pointer hover:bg-neutral-05 rounded-xl mb-2'
                     onClick={() => handleAvatarClick(group.avatar.id)}
@@ -143,7 +143,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                   </div>
 
                   {expandedAvatars.has(group.avatar.id) && (
-                    <div className='ml-4 space-y-1 border-l border-neutral-04 pl-3 animate-chat-toggle'>
+                    <div className='ml-4 space-y-1 border-l border-neutral-04 pl-3 pr-3 animate-chat-toggle sm:pr-0'>
                       {group.chats.map((chat) => (
                         <NavLink
                           key={chat.id}
