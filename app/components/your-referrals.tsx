@@ -1,20 +1,21 @@
 import { Card } from '~/components/card';
 import { InformationBadge } from './ui/InformationBadge';
-import type { User } from '~/types';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 import { Icons } from '~/components/ui/icons';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useMediaQuery } from 'usehooks-ts';
 
 // TODO: Add referrals display logic
 
 export const YourReferrals = () => {
   const { copied, copyToClipboard } = useCopyToClipboard();
   const { data: user, isLoading: isUserLoading } = useUser()
+  const isMobileView = useMediaQuery('(max-width: 768px)');
 
   if (!user) return null;
 
   const handleInviteCopy = async () => {
-    if (navigator.share) {
+    if (isMobileView && navigator.share) {
       await navigator.share({
         title: 'Join Cipherdolls',
         text: 'Join Cipherdolls with my link and get free tokens!',
