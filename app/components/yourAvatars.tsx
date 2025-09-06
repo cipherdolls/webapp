@@ -8,6 +8,7 @@ import AvatarScenarioModal from './AvatarScenarioModal';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import CardWithBadge from './DashboardCard';
 import { ROUTES } from '~/constants';
+import { cn } from '~/utils/cn';
 
 function YourAvatarsSkeleton() {
   return (
@@ -44,7 +45,7 @@ const YourAvatars = () => {
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Avatars</h3>
-      <div className={'bg-gradient-1 rounded-xl p-2 pt-0 flex flex-col'}>
+      <div className={cn('bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col', hasAvatars && '!pt-0')}>
         {hasAvatars ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
