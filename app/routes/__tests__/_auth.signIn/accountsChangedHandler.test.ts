@@ -6,6 +6,22 @@ declare global {
   }
 }
 
+/**
+ * Mock Ethereum interface for event handling testing
+ */
+interface MockEthereum {
+  on: ReturnType<typeof vi.fn>;
+  removeListener: ReturnType<typeof vi.fn>;
+}
+
+/**
+ * Creates a properly typed mock Ethereum object for event testing
+ */
+const createMockEthereum = (): MockEthereum => ({
+  on: vi.fn(),
+  removeListener: vi.fn(),
+});
+
 const createAccountsChangedHandler = (setConnected: (value: boolean) => void) => {
   return (accounts: string[]) => {
     if (accounts.length === 0) {
@@ -31,15 +47,12 @@ const createEventListenerSetup = (setConnected: (value: boolean) => void) => {
 
 describe('accountsChanged Event Handler', () => {
   let setConnected: ReturnType<typeof vi.fn>;
-  let mockEthereum: any;
+  let mockEthereum: MockEthereum;
   let cleanup: (() => void) | undefined;
 
   beforeEach(() => {
     setConnected = vi.fn();
-    mockEthereum = {
-      on: vi.fn(),
-      removeListener: vi.fn(),
-    };
+    mockEthereum = createMockEthereum();
   });
 
   afterEach(() => {

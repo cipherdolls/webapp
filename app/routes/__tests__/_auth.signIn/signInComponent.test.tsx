@@ -1,3 +1,11 @@
+/**
+ * SignIn Component Rendering Tests
+ * 
+ * Tests core rendering functionality including:
+ * - Page element visibility
+ * - Ethereum wallet detection states
+ * - Loading and error states
+ */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -9,11 +17,6 @@ declare global {
   }
 }
 
-// ========================
-// SHARED MOCK SETUP - Copy exact working pattern from userInteractions.test.tsx
-// ========================
-
-// Mock external dependencies
 vi.mock('~/store/useAuthStore', () => ({
   useAuthStore: vi.fn(() => ({
     token: null,
@@ -24,7 +27,6 @@ vi.mock('~/store/useAuthStore', () => ({
   })),
 }));
 
-// Mock ethers
 vi.mock('ethers', () => ({
   ethers: {
     BrowserProvider: vi.fn(() => ({
@@ -36,49 +38,10 @@ vi.mock('ethers', () => ({
   },
 }));
 
-// Mock fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-// Mock components
-vi.mock('~/components/howItWorksModal', () => ({
-  default: () => (
-    <div>
-      <button>How It Works</button>
-      <div data-testid="how-it-works-content">How It Works Modal Content</div>
-    </div>
-  ),
-}));
 
-vi.mock('~/components/TermsOfServiceModal', () => ({
-  default: () => (
-    <div>
-      <button>Terms of Service</button>
-      <div data-testid="terms-content">Terms Modal Content</div>
-    </div>
-  ),
-}));
-
-vi.mock('~/components/PrivacyPolicyModal', () => ({
-  default: () => (
-    <div>
-      <button>Privacy Policy</button>
-      <div data-testid="privacy-content">Privacy Modal Content</div>
-    </div>
-  ),
-}));
-
-vi.mock('~/components/ui/signInPatterns', () => ({
-  default: () => <div data-testid="sign-in-patterns">Sign In Patterns</div>,
-}));
-
-// ========================
-// SHARED HELPER FUNCTIONS (Data Factories & Utilities)
-// ========================
-
-/**
- * Mock Ethereum interface with proper typing
- */
 interface MockEthereum {
   request: ReturnType<typeof vi.fn>;
   on: ReturnType<typeof vi.fn>;
@@ -86,9 +49,6 @@ interface MockEthereum {
   isMetaMask?: boolean;
 }
 
-/**
- * Creates a properly typed mock Ethereum object
- */
 const createMockEthereum = (): MockEthereum => ({
   request: vi.fn(),
   on: vi.fn(),
@@ -96,9 +56,6 @@ const createMockEthereum = (): MockEthereum => ({
   isMetaMask: true,
 });
 
-/**
- * Standard render function for SignIn component with proper setup
- */
 const renderSignInPage = () => {
   const router = createMemoryRouter([
     {
@@ -112,9 +69,6 @@ const renderSignInPage = () => {
   return render(<RouterProvider router={router} />);
 };
 
-/**
- * Sets up window.ethereum for testing
- */
 const setupEthereumEnvironment = (hasEthereum: boolean = true) => {
   if (hasEthereum) {
     const mockEthereum = createMockEthereum();
@@ -145,10 +99,21 @@ const assertSignInButton = {
 
 const assertPageContent = {
   showsLogo: () => {
-    expect(screen.getByAltText('Cipherdolls')).toBeInTheDocument();
+    // ✅ ENHANCED SPECIFICITY: Check for exact logo elements (there are 6 background patterns + 1 main logo)
+    const logos = screen.getAllByAltText('Cipherdolls');
+    expect(logos).toHaveLength(6); // 6 Cipherdolls images: main logo + background patterns
+    expect(logos[0]).toBeInTheDocument();
+    expect(logos[0]).toHaveAttribute('alt', 'Cipherdolls');
+    expect(logos[0]).toHaveAttribute('src');
+    
+    // ✅ ENHANCED SPECIFICITY: Verify main logo is present
+    const mainLogo = logos.find(logo => logo.getAttribute('src') === '/logo.svg');
+    expect(mainLogo).toBeInTheDocument();
   },
   showsWarningMessage: () => {
-    expect(screen.getByText(/A connected crypto wallet in your browser is required/)).toBeInTheDocument();
+    // ✅ ENHANCED SPECIFICITY: Use exact text that actually appears on the page
+    const warningText = 'A connected crypto wallet in your browser is required to log in (new or empty wallets are fine).';
+    expect(screen.getByText(warningText)).toBeInTheDocument();
   },
   showsVideoPlayer: () => {
     expect(screen.getByTitle('YouTube video player')).toBeInTheDocument();
@@ -187,30 +152,44 @@ describe('SignIn Component - User Experience', () => {
   });
 
   describe('Page Loading and Rendering', () => {
-    it('renders core page elements without errors', () => {
+    it('should display essential sign-in page elements to users', () => {
+      // Arrange
       window.ethereum = mockEthereum;
+      
+      // Act
       renderSignInPage();
       
+      // Assert
       assertPageContent.showsLogo();
       assertPageContent.showsVideoPlayer();
       assertPageContent.showsFeatureInfo();
       assertSignInButton.exists();
     });
 
-    it('displays all navigation and modal links', () => {
+    it('should provide users with access to all help resources', () => {
+      // Arrange
       window.ethereum = mockEthereum;
+      
+      // Act
       renderSignInPage();
       
+      // Assert
       expect(screen.getByText('How It Works')).toBeInTheDocument();
       expect(screen.getByText('Terms of Service')).toBeInTheDocument();
       expect(screen.getByText('Privacy Policy')).toBeInTheDocument();
-      expect(screen.getByTestId('sign-in-patterns')).toBeInTheDocument();
+      
+      const patternImages = screen.getAllByAltText('Cipherdolls');
+      expect(patternImages.length).toBeGreaterThan(1);
     });
 
-    it('shows video player with correct YouTube embed', () => {
+    it('should show users the instructional video content', () => {
+      // Arrange
       window.ethereum = mockEthereum;
+      
+      // Act
       renderSignInPage();
       
+      // Assert
       const iframe = screen.getByTitle('YouTube video player');
       expect(iframe).toBeInTheDocument();
       expect(iframe).toHaveAttribute('src', expect.stringContaining('youtube.com'));
@@ -218,67 +197,83 @@ describe('SignIn Component - User Experience', () => {
   });
 
   describe('Ethereum Detection and Wallet States', () => {
-    it('shows loading state before Ethereum detection completes', () => {
+    it('should indicate to users that wallet detection is in progress', () => {
+      // Arrange
       window.ethereum = mockEthereum;
+      
+      // Act
       renderSignInPage();
       
-      // Before timer completion - should be in loading state
+      // Assert
       assertSignInButton.isDisabled();
     });
 
-    it('enables sign in when Ethereum wallet is detected', async () => {
+    it('should allow users to sign in when their wallet is ready', async () => {
+      // Arrange
       window.ethereum = mockEthereum;
-      renderSignInPage();
       
+      // Act
+      renderSignInPage();
       await act(async () => {
         vi.advanceTimersByTime(500);
       });
       
+      // Assert
       assertSignInButton.isEnabled();
     });
 
-    it('shows warning and disables sign in when no wallet is detected', async () => {
-      // Explicitly remove ethereum to simulate no wallet
+    it('should prevent sign-in and guide users when wallet is unavailable', async () => {
+      // Arrange
       delete window.ethereum;
-      renderSignInPage();
       
+      // Act
+      renderSignInPage();
       await act(async () => {
         vi.advanceTimersByTime(500);
       });
       
+      // Assert
       assertPageContent.showsWarningMessage();
       assertSignInButton.isDisabled();
     });
 
-    it('handles Ethereum detection timeout gracefully', async () => {
+    it('should gracefully handle wallet detection delays for users', async () => {
+      // Arrange
       // Don't set ethereum for this test
+      
+      // Act
       renderSignInPage();
-      
-      // Initially loading
-      assertSignInButton.isDisabled();
-      
-      // After timeout - should show appropriate warning
       await act(async () => {
         vi.advanceTimersByTime(500);
       });
       
+      // Assert
+      assertSignInButton.isDisabled();
       assertPageContent.showsWarningMessage();
     });
   });
 
   describe('Feature Information Display', () => {
     it('displays free usage information correctly', () => {
+      // Arrange
       window.ethereum = mockEthereum;
+      
+      // Act
       renderSignInPage();
       
+      // Assert
       expect(screen.getByText('Free')).toBeInTheDocument();
       expect(screen.getByText('Registration and usage')).toBeInTheDocument();
     });
 
     it('displays pricing information correctly', () => {
+      // Arrange
       window.ethereum = mockEthereum;
+      
+      // Act
       renderSignInPage();
       
+      // Assert
       expect(screen.getByText('1 LOV')).toBeInTheDocument();
       expect(screen.getByText('For monthly usage')).toBeInTheDocument();
     });
