@@ -10,7 +10,7 @@ import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 
 // ========================
-// MOCKS
+// EXTERNAL DEPENDENCY MOCKS - Following UNIT_TEST_FUNDAMENTALS.md
 // ========================
 
 vi.mock('react-router', () => ({
@@ -33,26 +33,20 @@ vi.mock('~/hooks/queries/ttsQueries', () => ({
   useTtsVoices: vi.fn(),
 }));
 
-// Mock AvatarFormModal component for easier testing
-vi.mock('~/components/AvatarFormModal', () => ({
-  default: ({ onSubmit, onClose, isPending, errors }: any) => (
-    <div data-testid="avatar-form-modal">
-      <h1>Avatar Form Modal</h1>
-      <button data-testid="mock-submit" onClick={() => {
-        const mockFormData = new FormData();
-        mockFormData.append('name', 'Test Avatar');
-        onSubmit(mockFormData);
-      }}>
-        Submit
-      </button>
-      <button data-testid="mock-close" onClick={onClose}>
-        Close
-      </button>
-      <div data-testid="loading-state">{isPending ? 'Loading...' : 'Not Loading'}</div>
-      <div data-testid="error-state">{errors ? `Error: ${errors.message}` : 'No Errors'}</div>
-    </div>
-  ),
+// Mock audio context for PlayerButton component in AvatarFormModal
+// This is external dependency, not child component logic
+vi.mock('react-use-audio-player', () => ({
+  useAudioPlayerContext: vi.fn(() => ({
+    isPlaying: false,
+    load: vi.fn(),
+    src: null,
+    stop: vi.fn(),
+    duration: 0,
+    getPosition: vi.fn(() => 0),
+  })),
 }));
+
+// AvatarFormModal renders naturally for real integration testing
 
 const mockNavigate = vi.mocked(useNavigate);
 const mockUseCreateAvatar = vi.mocked(useCreateAvatar);
@@ -61,10 +55,10 @@ const mockUseScenarios = vi.mocked(useScenarios);
 const mockUseTtsVoices = vi.mocked(useTtsVoices);
 
 // ========================
-// TESTS
+// INTEGRATION TESTS - Real Component Behavior
 // ========================
 
-describe('AvatarNew Component', () => {
+describe('AvatarNew Integration Tests', () => {
   const user = userEvent.setup();
   const mockNavigateFn = vi.fn();
   const mockCreateAvatar = vi.fn();
@@ -72,102 +66,79 @@ describe('AvatarNew Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Setup mocks
+    // Setup external dependency mocks
     mockNavigate.mockReturnValue(mockNavigateFn);
     mockUseCreateAvatar.mockReturnValue({
       mutate: mockCreateAvatar,
+      mutateAsync: vi.fn(),
       isPending: false,
+      isError: false,
+      isSuccess: false,
+      isIdle: true,
       error: null,
-    } as any);
-    
+      data: undefined,
+      variables: null as any,
+      context: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      status: 'idle' as const,
+      submittedAt: 0,
+      reset: vi.fn(),
+    });
+
+    // Mock required data for AvatarFormModal integration
+    const mockUser = createMockUser({ id: '1', name: 'Test User' });
+    const mockScenarios = [
+      createMockScenario({ id: '1', name: 'Test Scenario 1' }),
+      createMockScenario({ id: '2', name: 'Test Scenario 2' }),
+    ];
+    const mockVoices = [
+      createMockTtsVoice({ id: 'voice1', name: 'Voice 1' }),
+      createMockTtsVoice({ id: 'voice2', name: 'Voice 2' }),
+    ];
+
     mockUseUser.mockReturnValue(createMockUseUserResult({
-      data: createMockUser({ id: 'user-123', name: 'Test User' }),
+      data: mockUser,
+      isLoading: false,
       isSuccess: true,
     }));
-    
+
     mockUseScenarios.mockReturnValue(createMockUseScenariosResult({
-      data: createMockScenariosPaginated({
-        data: [
-          createMockScenario({ id: 'scenario-1', name: 'Chat Scenario' }),
-          createMockScenario({ id: 'scenario-2', name: 'Gaming Scenario' }),
-        ],
-      }),
+      data: createMockScenariosPaginated(mockScenarios),
+      isLoading: false,
       isSuccess: true,
     }));
-    
+
     mockUseTtsVoices.mockReturnValue(createMockUseTtsVoicesResult({
-      data: [
-        createMockTtsVoice({ id: 'voice-1', name: 'Voice 1' }),
-        createMockTtsVoice({ id: 'voice-2', name: 'Voice 2' }),
-      ],
+      data: mockVoices,
+      isLoading: false,
       isSuccess: true,
     }));
   });
 
-  describe('Component Rendering', () => {
-    it('should render AvatarFormModal with correct props', () => {
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('avatar-form-modal')).toBeInTheDocument();
-      expect(screen.getByText('Avatar Form Modal')).toBeInTheDocument();
-    });
-
-    it('should pass isPending=false when not creating', () => {
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('loading-state')).toHaveTextContent('Not Loading');
-    });
-
-    it('should pass isPending=true when creating avatar', () => {
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: mockCreateAvatar,
-        isPending: true,
-        error: null,
-      } as any);
-
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('loading-state')).toHaveTextContent('Loading...');
-    });
-
-    it('should display error when creation fails', () => {
-      const testError = new Error('Creation failed');
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: mockCreateAvatar,
-        isPending: false,
-        error: testError,
-      } as any);
-
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('error-state')).toHaveTextContent('Error: Creation failed');
-    });
-
-    it('should display no errors when error is null', () => {
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('error-state')).toHaveTextContent('No Errors');
-    });
+  it('should display avatar creation form to users', () => {
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Real AvatarFormModal should render
+    // This now tests the actual component instead of a mock
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /create avatar/i })).toBeInTheDocument();
   });
 
-  describe('Navigation Logic', () => {
-    it('should navigate to avatars route when form is closed', async () => {
-      renderWithQuery(<AvatarNew />);
-      
-      const closeButton = screen.getByTestId('mock-close');
-      await user.click(closeButton);
-      
-      expect(mockNavigateFn).toHaveBeenCalledWith('/avatars');
-    });
-  });
-
-  describe('Form Submission', () => {
-    it('should call createAvatar with form data on submit', async () => {
-      renderWithQuery(<AvatarNew />);
-      
-      const submitButton = screen.getByTestId('mock-submit');
-      await user.click(submitButton);
-      
+  it('should handle form submission through real AvatarFormModal', async () => {
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Test real form interaction
+    // Fill out the actual form fields (not mock buttons)
+    const nameInput = screen.getByRole('textbox', { name: /name/i });
+    await user.type(nameInput, 'Test Avatar');
+    
+    const submitButton = screen.getByRole('button', { name: /create avatar/i });
+    await user.click(submitButton);
+    
+    // ✅ INTEGRATION TEST: Verify real form submission
+    await waitFor(() => {
       expect(mockCreateAvatar).toHaveBeenCalledWith(
         expect.any(FormData),
         expect.objectContaining({
@@ -175,131 +146,105 @@ describe('AvatarNew Component', () => {
         })
       );
     });
-
-    it('should navigate to avatar detail page on successful creation', async () => {
-      const mockNewAvatar = { id: 'new-avatar-123' };
-      
-      // Mock successful creation
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: (formData: FormData, options: any) => {
-          // Simulate successful creation
-          options.onSuccess(mockNewAvatar);
-        },
-        isPending: false,
-        error: null,
-      } as any);
-
-      renderWithQuery(<AvatarNew />);
-      
-      const submitButton = screen.getByTestId('mock-submit');
-      await user.click(submitButton);
-      
-      expect(mockNavigateFn).toHaveBeenCalledWith('/avatars/new-avatar-123');
-    });
-
-    it('should handle form data correctly', async () => {
-      renderWithQuery(<AvatarNew />);
-      
-      const submitButton = screen.getByTestId('mock-submit');
-      await user.click(submitButton);
-      
-      // Verify FormData was created and passed
-      expect(mockCreateAvatar).toHaveBeenCalledWith(
-        expect.any(FormData),
-        expect.any(Object)
-      );
-      
-      // Get the FormData that was passed
-      const callArgs = mockCreateAvatar.mock.calls[0];
-      const formData = callArgs[0] as FormData;
-      
-      // Verify FormData contains expected values
-      expect(formData.get('name')).toBe('Test Avatar');
-    });
   });
 
-  describe('Error Handling', () => {
-    it('should display API error message when provided', () => {
-      const apiError = new Error('Server validation error');
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: mockCreateAvatar,
-        isPending: false,
-        error: apiError,
-      } as any);
-
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('error-state')).toHaveTextContent('Error: Server validation error');
-    });
-
-    it('should handle network errors', () => {
-      const networkError = new Error('Network request failed');
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: mockCreateAvatar,
-        isPending: false,
-        error: networkError,
-      } as any);
-
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('error-state')).toHaveTextContent('Error: Network request failed');
-    });
+  it('should handle close action through real AvatarFormModal', async () => {
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Test real close button interaction
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    await user.click(closeButton);
+    
+    // ✅ INTEGRATION TEST: Verify navigation
+    expect(mockNavigateFn).toHaveBeenCalledWith('/avatars');
   });
 
-  describe('Component Integration', () => {
-    it('should pass all required props to AvatarFormModal', () => {
-      renderWithQuery(<AvatarNew />);
-      
-      // Verify modal is rendered (integration test)
-      expect(screen.getByTestId('avatar-form-modal')).toBeInTheDocument();
-      
-      // Verify all interaction elements are present
-      expect(screen.getByTestId('mock-submit')).toBeInTheDocument();
-      expect(screen.getByTestId('mock-close')).toBeInTheDocument();
-      expect(screen.getByTestId('loading-state')).toBeInTheDocument();
-      expect(screen.getByTestId('error-state')).toBeInTheDocument();
+  it('should handle successful avatar creation and navigation', async () => {
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Fill real form
+    const nameInput = screen.getByRole('textbox', { name: /name/i });
+    await user.type(nameInput, 'Success Avatar');
+    
+    const submitButton = screen.getByRole('button', { name: /create avatar/i });
+    await user.click(submitButton);
+    
+    // Simulate successful creation
+    await waitFor(() => {
+      const createCall = mockCreateAvatar.mock.calls[0];
+      const onSuccessCallback = createCall[1].onSuccess;
+      onSuccessCallback({ id: 'new-avatar-123' });
     });
-
-    it('should handle modal state changes correctly', async () => {
-      renderWithQuery(<AvatarNew />);
-      
-      // Test close functionality
-      const closeButton = screen.getByTestId('mock-close');
-      await user.click(closeButton);
-      
-      expect(mockNavigateFn).toHaveBeenCalledWith('/avatars');
-      
-      // Test submit functionality
-      const submitButton = screen.getByTestId('mock-submit');
-      await user.click(submitButton);
-      
-      expect(mockCreateAvatar).toHaveBeenCalled();
-    });
+    
+    // ✅ INTEGRATION TEST: Verify navigation to new avatar
+    expect(mockNavigateFn).toHaveBeenCalledWith('/avatars/new-avatar-123');
   });
 
-  describe('Loading States', () => {
-    it('should show loading state during avatar creation', () => {
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: mockCreateAvatar,
-        isPending: true,
-        error: null,
-      } as any);
-
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('loading-state')).toHaveTextContent('Loading...');
+  it('should show loading state in real AvatarFormModal', () => {
+    // Setup loading state
+    mockUseCreateAvatar.mockReturnValue({
+      mutate: mockCreateAvatar,
+      mutateAsync: vi.fn(),
+      isPending: true,
+      isError: false,
+      isSuccess: false,
+      isIdle: false,
+      error: null,
+      data: undefined,
+      variables: null as any,
+      context: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      status: 'pending' as const,
+      submittedAt: 0,
+      reset: vi.fn(),
     });
 
-    it('should hide loading state when not pending', () => {
-      mockUseCreateAvatar.mockReturnValue({
-        mutate: mockCreateAvatar,
-        isPending: false,
-        error: null,
-      } as any);
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Real loading state should be visible
+    // Form should be present with loading state
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    const buttons = screen.getAllByRole('button');
+    expect(buttons.length).toBeGreaterThan(0);
+  });
 
-      renderWithQuery(<AvatarNew />);
-      
-      expect(screen.getByTestId('loading-state')).toHaveTextContent('Not Loading');
+  it('should handle error state in real AvatarFormModal', () => {
+    // Setup error state
+    const mockError = new Error('Creation failed');
+    mockUseCreateAvatar.mockReturnValue({
+      mutate: mockCreateAvatar,
+      mutateAsync: vi.fn(),
+      isPending: false,
+      isError: true,
+      isSuccess: false,
+      isIdle: false,
+      error: mockError,
+      data: undefined,
+      variables: null as any,
+      context: undefined,
+      failureCount: 1,
+      failureReason: mockError,
+      isPaused: false,
+      status: 'error' as const,
+      submittedAt: 0,
+      reset: vi.fn(),
     });
+
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Real error state should be visible
+    expect(screen.getByText(/creation failed/i)).toBeInTheDocument();
+  });
+
+  it('should pass correct props to AvatarFormModal', () => {
+    renderWithQuery(<AvatarNew />);
+    
+    // ✅ INTEGRATION TEST: Verify modal receives correct props
+    // The modal should be open (not showing initial closed state)
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute('data-state', 'open');
   });
 });

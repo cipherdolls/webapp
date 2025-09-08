@@ -108,7 +108,7 @@ export const createMockChat = (overrides: any = {}): Chat =>
     doll: null,
     _count: { chatCompletionJobs: 0 },
     ...overrides,
-  }) as unknown as Chat;
+  }) as Chat;
 
 /**
  * Creates a mock Avatar object with proper typing
@@ -318,10 +318,10 @@ export const createMockUseScenariosResult = (overrides: any = {}) => {
     isLoadingError: false,
     isRefetchError: false,
     isEnabled: true,
-    promise: Promise.resolve(undefined as unknown as any),
+    promise: Promise.resolve(undefined),
     refetch: vi.fn(),
   };
-  return { ...baseResult, ...overrides } as any;
+  return { ...baseResult, ...overrides };
 };
 
 /**
@@ -353,10 +353,10 @@ export const createMockUseTtsVoicesResult = (overrides: any = {}) => {
     isLoadingError: false,
     isRefetchError: false,
     isEnabled: true,
-    promise: Promise.resolve(undefined as unknown as any),
+    promise: Promise.resolve(undefined),
     refetch: vi.fn(),
   };
-  return { ...baseResult, ...overrides } as any;
+  return { ...baseResult, ...overrides };
 };
 
 /**
@@ -412,10 +412,10 @@ export const createMockUseInfiniteAvatarsResult = (overrides: any = {}) => {
     hasPreviousPage: false,
     isFetchingNextPage: false,
     isFetchingPreviousPage: false,
-    promise: Promise.resolve(undefined as unknown as any),
+    promise: Promise.resolve(undefined),
     refetch: vi.fn(),
   };
-  return { ...baseResult, ...overrides } as any;
+  return { ...baseResult, ...overrides };
 };
 
 /**
@@ -481,10 +481,10 @@ export const createMockUseTokenPermitsResult = (overrides: any = {}) => {
     isLoadingError: false,
     isRefetchError: false,
     isEnabled: true,
-    promise: Promise.resolve(undefined as unknown as any),
+    promise: Promise.resolve(undefined),
     refetch: vi.fn(),
   };
-  return { ...baseResult, ...overrides } as any;
+  return { ...baseResult, ...overrides };
 };
 
 /**
@@ -518,6 +518,53 @@ export const createMockUseRefreshTokenBalanceResult = (overrides: any = {}) => (
   isPending: false,
   isError: false,
   isSuccess: false,
+  isIdle: true,
+  error: null,
+  data: undefined,
+  variables: undefined,
+  context: undefined,
+  failureCount: 0,
+  failureReason: null,
+  isPaused: false,
+  status: 'idle' as const,
+  submittedAt: 0,
+  reset: vi.fn(),
+  ...overrides,
+});
+
+/**
+ * Creates a mock mutation result for create avatar with proper typing
+ */
+export const createMockUseCreateAvatarResult = (overrides: any = {}) => ({
+  mutate: vi.fn(),
+  mutateAsync: vi.fn(),
+  isPending: false,
+  isError: false,
+  isSuccess: false,
+  isIdle: true,
+  error: null,
+  data: undefined,
+  variables: undefined,
+  context: undefined,
+  failureCount: 0,
+  failureReason: null,
+  isPaused: false,
+  status: 'idle' as const,
+  submittedAt: 0,
+  reset: vi.fn(),
+  ...overrides,
+});
+
+/**
+ * Creates a mock mutation result for create token allowance with proper typing
+ */
+export const createMockUseCreateTokenAllowanceResult = (overrides: any = {}) => ({
+  mutate: vi.fn(),
+  mutateAsync: vi.fn(),
+  isPending: false,
+  isError: false,
+  isSuccess: false,
+  isIdle: true,
   error: null,
   data: undefined,
   variables: undefined,

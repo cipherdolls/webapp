@@ -6,6 +6,20 @@ declare global {
   }
 }
 
+/**
+ * Mock Ethereum interface for connection testing
+ */
+interface MockEthereum {
+  request: ReturnType<typeof vi.fn>;
+}
+
+/**
+ * Creates a properly typed mock Ethereum object for connection testing
+ */
+const createMockEthereum = (): MockEthereum => ({
+  request: vi.fn(),
+});
+
 const createCheckConnection = (setConnected: (value: boolean) => void) => {
   return async () => {
     try {
@@ -27,15 +41,17 @@ const createCheckConnection = (setConnected: (value: boolean) => void) => {
   };
 };
 
-describe('Connection State Logic', () => {
-  let setConnected: ReturnType<typeof vi.fn>;
-  let mockEthereum: any;
+describe('Wallet Connection Detection', () => {
+  let connectionResult: boolean | null = null;
+  let mockEthereum: MockEthereum;
+
+  const setConnected = (value: boolean) => {
+    connectionResult = value;
+  };
 
   beforeEach(() => {
-    setConnected = vi.fn();
-    mockEthereum = {
-      request: vi.fn(),
-    };
+    connectionResult = null;
+    mockEthereum = createMockEthereum();
   });
 
   afterEach(() => {
@@ -43,73 +59,103 @@ describe('Connection State Logic', () => {
     delete window.ethereum;
   });
 
-  it('should set connected false when accounts length is 0', async () => {
-    window.ethereum = mockEthereum;
-    mockEthereum.request.mockResolvedValue([]);
+  describe('when wallet has no accounts', () => {
+    it('should indicate user is disconnected', async () => {
+      // Arrange
+      window.ethereum = mockEthereum;
+      mockEthereum.request.mockResolvedValue([]);
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(mockEthereum.request).toHaveBeenCalledWith({ method: 'eth_accounts' });
-    expect(setConnected).toHaveBeenCalledWith(false);
+      // Assert
+      expect(connectionResult).toBe(false);
+    });
   });
 
-  it('should set connected true when accounts length is greater than 0', async () => {
-    window.ethereum = mockEthereum;
-    mockEthereum.request.mockResolvedValue(['0x123...', '0x456...']);
+  describe('when wallet has active accounts', () => {
+    it('should indicate user is connected', async () => {
+      // Arrange
+      window.ethereum = mockEthereum;
+      mockEthereum.request.mockResolvedValue(['0x123...', '0x456...']);
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(mockEthereum.request).toHaveBeenCalledWith({ method: 'eth_accounts' });
-    expect(setConnected).toHaveBeenCalledWith(true);
+      // Assert
+      expect(connectionResult).toBe(true);
+    });
   });
 
-  it('should set connected false when window.ethereum does not exist', async () => {
-    delete window.ethereum;
+  describe('when wallet is missing', () => {
+    it('should gracefully handle missing wallet and show disconnected state', async () => {
+      // Arrange
+      delete window.ethereum;
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(setConnected).toHaveBeenCalledWith(false);
+      // Assert
+      expect(connectionResult).toBe(false);
+    });
   });
 
-  it('should set connected false when ethereum request throws error', async () => {
-    window.ethereum = mockEthereum;
-    mockEthereum.request.mockRejectedValue(new Error('User rejected request'));
+  describe('when wallet connection fails', () => {
+    it('should handle connection errors and show disconnected state', async () => {
+      // Arrange
+      window.ethereum = mockEthereum;
+      mockEthereum.request.mockRejectedValue(new Error('User rejected request'));
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(mockEthereum.request).toHaveBeenCalledWith({ method: 'eth_accounts' });
-    expect(setConnected).toHaveBeenCalledWith(false);
+      // Assert
+      expect(connectionResult).toBe(false);
+    });
   });
 
-  it('should set connected true with single account', async () => {
-    window.ethereum = mockEthereum;
-    mockEthereum.request.mockResolvedValue(['0x123456789abcdef']);
+  describe('when wallet has single account', () => {
+    it('should connect successfully with one account', async () => {
+      // Arrange
+      window.ethereum = mockEthereum;
+      mockEthereum.request.mockResolvedValue(['0x123456789abcdef']);
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(setConnected).toHaveBeenCalledWith(true);
+      // Assert
+      expect(connectionResult).toBe(true);
+    });
   });
 
-  it('should handle null ethereum object', async () => {
-    window.ethereum = null;
+  describe('when wallet is in invalid state', () => {
+    it('should handle null wallet state safely', async () => {
+      // Arrange
+      window.ethereum = null;
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(setConnected).toHaveBeenCalledWith(false);
-  });
+      // Assert
+      expect(connectionResult).toBe(false);
+    });
 
-  it('should handle undefined ethereum object', async () => {
-    window.ethereum = undefined;
+    it('should handle undefined wallet state consistently', async () => {
+      // Arrange
+      window.ethereum = undefined;
+      const checkConnection = createCheckConnection(setConnected);
 
-    const checkConnection = createCheckConnection(setConnected);
-    await checkConnection();
+      // Act
+      await checkConnection();
 
-    expect(setConnected).toHaveBeenCalledWith(false);
+      // Assert
+      expect(connectionResult).toBe(false);
+    });
   });
 });

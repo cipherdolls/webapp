@@ -39,41 +39,7 @@ vi.mock('ethers', () => ({
 // Mock network layer
 global.fetch = vi.fn();
 
-// Component mocks focused on behavior rather than implementation
-vi.mock('~/components/howItWorksModal', () => ({
-  default: () => (
-    <div>
-      <button>How It Works</button>
-      <div data-testid="how-it-works-content">How It Works Modal Content</div>
-    </div>
-  ),
-}));
 
-vi.mock('~/components/TermsOfServiceModal', () => ({
-  default: () => (
-    <div>
-      <button>Terms of Service</button>
-      <div data-testid="terms-content">Terms Modal Content</div>
-    </div>
-  ),
-}));
-
-vi.mock('~/components/PrivacyPolicyModal', () => ({
-  default: () => (
-    <div>
-      <button>Privacy Policy</button>
-      <div data-testid="privacy-content">Privacy Modal Content</div>
-    </div>
-  ),
-}));
-
-vi.mock('~/components/ui/signInPatterns', () => ({
-  default: () => <div data-testid="sign-in-patterns">Sign In Patterns</div>,
-}));
-
-// ========================
-// SHARED HELPER FUNCTIONS (Data Factories & Test Utilities)
-// ========================
 
 /**
  * Mock Ethereum interface with proper typing
@@ -93,9 +59,6 @@ const createMockEthereum = (): MockEthereum => ({
   removeListener: vi.fn(),
 });
 
-/**
- * Sets up Ethereum environment for testing
- */
 const setupEthereumEnvironment = (hasEthereum: boolean = true): MockEthereum | null => {
   if (hasEthereum) {
     const mockEthereum = createMockEthereum();
@@ -107,9 +70,6 @@ const setupEthereumEnvironment = (hasEthereum: boolean = true): MockEthereum | n
   }
 };
 
-/**
- * Standard render function for SignIn component with routing
- */
 const renderSignInPageWithNavigation = () => {
   const router = createMemoryRouter([
     { path: '/signin', element: <SignInRoute /> },
@@ -163,12 +123,7 @@ describe('SignIn User Interactions - Behavior-Driven Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Setup persistent ethereum mock using same pattern as original
-    mockEthereum = {
-      request: vi.fn(),
-      on: vi.fn(),
-      removeListener: vi.fn(),
-    };
+    mockEthereum = createMockEthereum();
     
     vi.useFakeTimers();
   });
@@ -176,7 +131,6 @@ describe('SignIn User Interactions - Behavior-Driven Tests', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
-    // Clean up but don't delete the mock structure - same pattern as original
     if (mockEthereum) {
       mockEthereum.request.mockClear();
       mockEthereum.on.mockClear();  
@@ -210,7 +164,6 @@ describe('SignIn User Interactions - Behavior-Driven Tests', () => {
     });
 
     it('prevents sign in when wallet is not available', async () => {
-      // Explicitly remove ethereum to simulate no wallet
       delete window.ethereum;
       renderSignInPageWithNavigation();
       
@@ -227,7 +180,6 @@ describe('SignIn User Interactions - Behavior-Driven Tests', () => {
       window.ethereum = mockEthereum;
       renderSignInPageWithNavigation();
       
-      // Before ethereum detection completes, should be in loading state
       assertUserInteractions.signInButtonIsDisabled();
     });
 
@@ -235,10 +187,8 @@ describe('SignIn User Interactions - Behavior-Driven Tests', () => {
       window.ethereum = mockEthereum;
       renderSignInPageWithNavigation();
       
-      // Initially disabled during detection
       assertUserInteractions.signInButtonIsDisabled();
       
-      // After successful ethereum detection
       await act(async () => {
         vi.advanceTimersByTime(500);
       });

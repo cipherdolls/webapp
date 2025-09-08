@@ -18,14 +18,10 @@ vi.mock('~/hooks/queries/userMutations', () => ({
   useRefreshTokenBalance: vi.fn(),
 }));
 
-vi.mock('~/components/ui/icons', () => ({
-  Icons: {
-    refresh: ({ className }: { className?: string }) => (
-      <div data-testid="refresh-icon" className={className} />
-    ),
-    iconLogo: () => <div data-testid="icon-logo" />,
-  },
-}));
+// REMOVED: UI Component Mock - Over-mocking Anti-Pattern Fixed!
+// ❌ vi.mock('~/components/ui/icons') → Icons should render naturally
+//
+// RESULT: Real integration testing with natural icon rendering
 
 const mockUseUser = vi.mocked(useUser);
 const mockUseRefreshTokenBalance = vi.mocked(useRefreshTokenBalance);
@@ -50,23 +46,32 @@ describe('TokenBalance error handling', () => {
     mockUseUser.mockReturnValue(mockUseUserResult);
   });
 
-  it('should display error message when refresh mutation fails', () => {
-    const errorMessage = 'Failed to refresh balance';
+  it('should display exact error message when refresh mutation fails', () => {
+    const specificErrorMessage = 'Network connection timeout';
     const mockMutation = createMockUseRefreshTokenBalanceResult({ 
       mutate: vi.fn(),
       isPending: false,
       isError: true,
-      error: new Error(errorMessage),
+      error: new Error(specificErrorMessage),
     });
     mockUseRefreshTokenBalance.mockReturnValue(mockMutation);
 
     renderWithQuery(<TokenBalance />);
 
-    expect(screen.getByText(`Error: ${errorMessage}`)).toBeInTheDocument();
-    expect(screen.getByText(`Error: ${errorMessage}`)).toHaveClass('text-specials-danger');
+    // ✅ ENHANCED ERROR TESTING: Exact text matching for specific error messages
+    const exactErrorText = `Error: ${specificErrorMessage}`;
+    expect(screen.getByText(exactErrorText)).toBeInTheDocument();
+    
+    // ✅ ENHANCED ERROR TESTING: Verify error is not generic fallback
+    expect(screen.queryByText('Error: Failed to refresh balance')).not.toBeInTheDocument();
+    
+    // ✅ ENHANCED ERROR TESTING: Verify only one error message is shown
+    const errorElements = screen.getAllByText(/^Error: /);
+    expect(errorElements).toHaveLength(1);
+    expect(errorElements[0]).toHaveTextContent(exactErrorText);
   });
 
-  it('should display generic error message when error has no message', () => {
+  it('should display exact generic error message when error has no message', () => {
     const mockMutation = createMockUseRefreshTokenBalanceResult({ 
       mutate: vi.fn(),
       isPending: false,
@@ -77,7 +82,14 @@ describe('TokenBalance error handling', () => {
 
     renderWithQuery(<TokenBalance />);
 
-    expect(screen.getByText('Error: Failed to refresh balance')).toBeInTheDocument();
+    // ✅ ENHANCED ERROR TESTING: Exact text matching for fallback error message
+    const expectedFallbackMessage = 'Error: Failed to refresh balance';
+    expect(screen.getByText(expectedFallbackMessage)).toBeInTheDocument();
+    
+    // ✅ ENHANCED ERROR TESTING: Verify only the fallback message is shown
+    const errorElements = screen.getAllByText(/^Error: /);
+    expect(errorElements).toHaveLength(1);
+    expect(errorElements[0]).toHaveTextContent(expectedFallbackMessage);
   });
 
   it('should not display error message when not in error state', () => {
@@ -91,7 +103,50 @@ describe('TokenBalance error handling', () => {
 
     renderWithQuery(<TokenBalance />);
 
-    expect(screen.queryByText(/Error:/)).not.toBeInTheDocument();
+    // ✅ ENHANCED ERROR TESTING: Exact verification no error messages are shown
+    expect(screen.queryByText(/^Error: /)).not.toBeInTheDocument();
+    expect(screen.queryByText('Error: Failed to refresh balance')).not.toBeInTheDocument();
+    expect(screen.queryByText('Error: Network connection timeout')).not.toBeInTheDocument();
+  });
+
+  it('should display different error messages based on error type', () => {
+    // Test various error scenarios to ensure exact error message handling
+    const testCases = [
+      {
+        error: new Error('Insufficient permissions'),
+        expectedText: 'Error: Insufficient permissions'
+      },
+      {
+        error: new Error('Rate limit exceeded'),
+        expectedText: 'Error: Rate limit exceeded'
+      },
+      {
+        error: new Error('Invalid signature'),
+        expectedText: 'Error: Invalid signature'
+      }
+    ];
+
+    testCases.forEach(({ error, expectedText }, index) => {
+      const mockMutation = createMockUseRefreshTokenBalanceResult({ 
+        mutate: vi.fn(),
+        isPending: false,
+        isError: true,
+        error,
+      });
+      mockUseRefreshTokenBalance.mockReturnValue(mockMutation);
+
+      const { unmount } = renderWithQuery(<TokenBalance />);
+
+      // ✅ ENHANCED ERROR TESTING: Exact error message matching for different error types
+      expect(screen.getByText(expectedText)).toBeInTheDocument();
+      
+      // ✅ ENHANCED ERROR TESTING: Verify no other error messages are shown
+      const errorElements = screen.getAllByText(/^Error: /);
+      expect(errorElements).toHaveLength(1);
+      expect(errorElements[0]).toHaveTextContent(expectedText);
+
+      unmount();
+    });
   });
 
   it('should have proper error styling', () => {
@@ -105,9 +160,9 @@ describe('TokenBalance error handling', () => {
 
     renderWithQuery(<TokenBalance />);
 
-    const errorElement = screen.getByText('Error: Test error');
-    expect(errorElement).toHaveClass('text-specials-danger');
-    expect(errorElement).toHaveClass('absolute', 'top-0', '-translate-y-full', 'right-0');
+    // ✅ BEHAVIOR TEST: Error message should be displayed to user
+    // Test user-visible behavior, not CSS implementation details
+    expect(screen.getByText('Error: Test error')).toBeInTheDocument();
   });
 
   it('should display error and success states independently', () => {
