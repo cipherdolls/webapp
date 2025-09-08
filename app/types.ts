@@ -175,6 +175,7 @@ export interface Scenario {
   published?: boolean;
   userGender?: Gender;
   avatarGender?: Gender;
+  nsfw?: boolean;
 }
 
 export interface Chat {

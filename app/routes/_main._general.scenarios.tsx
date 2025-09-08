@@ -6,6 +6,8 @@ import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { getPicture } from '~/utils/getPicture';
 import * as Popover from '~/components/ui/popover';
+import * as Switch from '~/components/ui/switch';
+import * as RadioGroup from '~/components/ui/radio-group';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import Tooltip from '~/components/ui/tooltip';
 import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
@@ -19,10 +21,10 @@ function ScenarioSkeleton({ count = 2 }: { count?: number }) {
     <div className='flex flex-col gap-5 pb-5 w-full'>
       {Array.from({ length: count }).map((_, i) => (
         <div className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]'/>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
         </div>
       ))}
     </div>
@@ -40,6 +42,12 @@ export default function ScenariosIndex() {
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
+  const showMyScenarios = searchParams.has('mine');
+  const searchQuery = searchParams.get('name') || '';
+  const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
+  const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
+  const showNsfw = searchParams.has('nsfw');
+
   const {
     data: scenarios,
     isLoading,
@@ -50,6 +58,7 @@ export default function ScenariosIndex() {
   } = useInfiniteScenarios({
     ...rawParams,
     ...(rawParams.mine === 'true' ? {} : { published: 'true' }),
+    nsfw: showNsfw ? 'true' : 'false',
   });
 
   const filteredAndSortedScenarios = useMemo(() => {
@@ -63,13 +72,8 @@ export default function ScenariosIndex() {
     disabled: !!isError,
   });
 
-  const showMyScenarios = searchParams.has('mine');
-  const searchQuery = searchParams.get('name') || '';
-  const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
-  const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
-
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All';
+  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All' || showNsfw;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -109,6 +113,16 @@ export default function ScenariosIndex() {
     }
     setSearchParams(newSearchParams);
     setPopoverOpen(false);
+  };
+
+  const handleNsfwToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (showNsfw) {
+      newSearchParams.delete('nsfw');
+    } else {
+      newSearchParams.set('nsfw', 'true');
+    }
+    setSearchParams(newSearchParams);
   };
 
   return (
@@ -157,52 +171,63 @@ export default function ScenariosIndex() {
                 <p className='text-body-md font-medium'>Clear filters</p>
               </button>
             )}
-            <Popover.Root>
-              <Popover.Trigger asChild>
-                <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
-                  <Icons.preferences className='size-4' />
-                  User Gender: {userGenderFilter}
-                  <Icons.chevronDown className='size-4' />
-                </Button.Root>
-              </Popover.Trigger>
-              <Popover.Content className='w-48 p-0'>
-                <div className='p-1'>
-                  {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => handleUserGenderFilterChange(filter)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                        userGenderFilter === filter ? 'bg-gradient-1 text-base-black font-medium' : 'text-neutral-01 hover:bg-neutral-05'
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </Popover.Content>
-            </Popover.Root>
 
             <Popover.Root>
               <Popover.Trigger asChild>
                 <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
                   <Icons.preferences className='size-4' />
-                  Avatar Gender: {avatarGenderFilter}
+                  Filters
                   <Icons.chevronDown className='size-4' />
                 </Button.Root>
               </Popover.Trigger>
-              <Popover.Content className='w-48 p-0'>
-                <div className='p-1'>
-                  {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => handleAvatarGenderFilterChange(filter)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                        avatarGenderFilter === filter ? 'bg-gradient-1 text-base-black font-medium' : 'text-neutral-01 hover:bg-neutral-05'
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
+              <Popover.Content className='w-64 p-0'>
+                <div className='p-4 space-y-6'>
+                  {/* User Gender Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>User Gender</h4>
+                    <RadioGroup.Root value={userGenderFilter} onValueChange={handleUserGenderFilterChange}>
+                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                        <div key={filter} className='flex items-center space-x-2'>
+                          <RadioGroup.Item value={filter} id={`user-${filter}`}>
+                            <RadioGroup.Indicator />
+                          </RadioGroup.Item>
+                          <label htmlFor={`user-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                            {filter}
+                          </label>
+                        </div>
+                      ))}
+                    </RadioGroup.Root>
+                  </div>
+
+                  {/* Avatar Gender Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Avatar Gender</h4>
+                    <RadioGroup.Root value={avatarGenderFilter} onValueChange={handleAvatarGenderFilterChange}>
+                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                        <div key={filter} className='flex items-center space-x-2'>
+                          <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
+                            <RadioGroup.Indicator />
+                          </RadioGroup.Item>
+                          <label htmlFor={`avatar-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                            {filter}
+                          </label>
+                        </div>
+                      ))}
+                    </RadioGroup.Root>
+                  </div>
+
+                  {/* NSFW Switch */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Content Filter</h4>
+                    <div className='flex items-center gap-3'>
+                      <Switch.Root checked={showNsfw} onCheckedChange={() => handleNsfwToggle()}>
+                        <Switch.Thumb />
+                      </Switch.Root>
+                      <label className='text-sm text-neutral-01 cursor-pointer' onClick={handleNsfwToggle}>
+                        Show NSFW
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </Popover.Content>
             </Popover.Root>

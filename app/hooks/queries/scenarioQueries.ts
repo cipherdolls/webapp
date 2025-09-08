@@ -12,6 +12,7 @@ interface ScenariosQueryParams {
   limit?: string;
   recommended?: string;
   avatarId?: string;
+  nsfw?: string;
 }
 
 // Scenario queries
