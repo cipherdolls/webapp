@@ -1,76 +1,32 @@
+/**
+ * Dashboard Component Integration Tests
+ * 
+ * Tests the main dashboard behavior including:
+ * - Network warning visibility logic
+ * - User data integration
+ * - Component rendering based on network state
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithQuery, createMockUser, createMockUseUserResult } from '../test-utils';
 import Dashboard from '~/routes/_main._general.account';
 import type { NetworkState } from '~/hooks/useNetworkCheck';
+import type { User } from '~/types';
 
-// ========================
-// SHARED MOCK SETUP
-// ========================
-
-// Mock hooks
 vi.mock('~/hooks/useNetworkCheck', () => ({
   useNetworkCheck: vi.fn(),
 }));
 
-// Mock components
-vi.mock('~/components/dashboardBanner', () => ({
-  default: ({ variant, description, showEditLink }: { 
-    variant: string; 
-    description: string | null; 
-    showEditLink: boolean; 
-  }) => (
-    <div data-testid="dashboard-banner" data-variant={variant} data-show-edit-link={showEditLink}>
-      {description && <span data-testid="description">{description}</span>}
-    </div>
-  ),
-}));
-
-vi.mock('~/components/NetworkWarningBanner', () => ({
-  default: () => <div data-testid="network-warning-banner">Network Warning</div>,
-}));
-
-vi.mock('~/components/your-chats', () => ({
-  default: () => <div data-testid="your-chats">Your Chats</div>,
-}));
-
-vi.mock('~/components/yourAvatars', () => ({
-  default: () => <div data-testid="your-avatars">Your Avatars</div>,
-}));
-
-vi.mock('~/components/your-scenarios', () => ({
-  default: () => <div data-testid="your-scenarios">Your Scenarios</div>,
-}));
-
-vi.mock('~/components/TokenBalance', () => ({
-  default: () => <div data-testid="token-balance">Token Balance</div>,
-}));
-
-vi.mock('~/components/TokenPermitsList', () => ({
-  default: () => <div data-testid="token-permits-list">Token Permits List</div>,
-}));
-
-vi.mock('~/components/your-referrals', () => ({
-  YourReferrals: () => <div data-testid="your-referrals">Your Referrals</div>,
-}));
-
-vi.mock('~/components/ui/icons', () => ({
-  Icons: {
-    mobileLogo: () => <svg data-testid="mobile-logo" />,
-  },
+vi.mock('~/hooks/queries/userQueries', () => ({
+  useUser: vi.fn(),
 }));
 
 import { useNetworkCheck } from '~/hooks/useNetworkCheck';
+import { useUser } from '~/hooks/queries/userQueries';
 
-// Create typed mock
 const mockUseNetworkCheck = useNetworkCheck as ReturnType<typeof vi.fn>;
+const mockUseUser = vi.mocked(useUser);
 
-// ========================
-// SHARED HELPER FUNCTIONS
-// ========================
-
-/**
- * Creates a mock NetworkState object with required properties
- */
 interface CreateMockNetworkStateOptions {
   isOnCorrectNetwork?: boolean;
   hasMetaMask?: boolean;
@@ -87,146 +43,189 @@ const createMockNetworkState = (overrides: CreateMockNetworkStateOptions = {}): 
   ...overrides,
 });
 
-/**
- * Standard render function for Dashboard
- */
 const renderDashboard = () => {
-  return render(<Dashboard />);
+  return renderWithQuery(<Dashboard />);
 };
 
-/**
- * Common assertion helpers
- */
 const dashboardAssertions = {
   expectNetworkWarningVisible: () => {
-    expect(screen.getByTestId('network-warning-banner')).toBeInTheDocument();
+    expect(screen.getByText(/wrong network detected/i)).toBeInTheDocument();
   },
   
   expectNetworkWarningHidden: () => {
-    expect(screen.queryByTestId('network-warning-banner')).not.toBeInTheDocument();
+    expect(screen.queryByText(/wrong network detected/i)).not.toBeInTheDocument();
   },
   
   expectDashboardBannerVisible: () => {
-    expect(screen.getByTestId('dashboard-banner')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /hey, test user/i })).toBeInTheDocument();
   },
   
   expectDescriptionVisible: (description: string) => {
-    expect(screen.getByTestId('description')).toHaveTextContent(description);
+    expect(screen.getByText(description)).toBeInTheDocument();
   },
   
   expectDescriptionHidden: () => {
-    expect(screen.queryByTestId('description')).not.toBeInTheDocument();
+    expect(screen.queryByText('What do you want to start from?')).not.toBeInTheDocument();
+  },
+  
+  expectRealComponentsRender: () => {
+    expect(screen.getByText(/your balance/i)).toBeInTheDocument();
+    expect(screen.getByText('100.123')).toBeInTheDocument();
   },
 };
 
-// ========================
-// TESTS
-// ========================
 
-describe('Dashboard useNetworkCheck integration', () => {
+describe('when dashboard loads', () => {
+  let mockUser: User;
+  
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    mockUser = createMockUser({
+      id: '1',
+      name: 'Test User',
+      tokenBalance: 100.123,
+    });
+    
+    const mockUseUserResult = createMockUseUserResult({
+      data: mockUser,
+      isLoading: false,
+      isSuccess: true,
+    });
+    mockUseUser.mockReturnValue(mockUseUserResult);
   });
 
-  it('should call useNetworkCheck hook and use its values', () => {
+  it('should display dashboard content when network is correct', () => {
+    // Arrange
     const mockNetworkCheck = createMockNetworkState({
       isOnCorrectNetwork: true,
       hasMetaMask: true,
       isLoading: false,
     });
-    
     mockUseNetworkCheck.mockReturnValue(mockNetworkCheck);
 
+    // Act
     renderDashboard();
     
-    expect(useNetworkCheck).toHaveBeenCalled();
+    // Assert
     dashboardAssertions.expectDashboardBannerVisible();
     dashboardAssertions.expectNetworkWarningHidden();
+    dashboardAssertions.expectRealComponentsRender();
   });
 });
 
-describe('Dashboard shouldShowNetworkWarning logic', () => {
+describe('when determining network warning visibility', () => {
+  let mockUser: User;
+  
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    mockUser = createMockUser({
+      id: '1', 
+      name: 'Test User',
+      tokenBalance: 100.123,
+    });
+    
+    const mockUseUserResult = createMockUseUserResult({
+      data: mockUser,
+      isLoading: false,
+      isSuccess: true,
+    });
+    mockUseUser.mockReturnValue(mockUseUserResult);
   });
 
-  it('should show network warning when hasMetaMask=true, isLoading=false, isOnCorrectNetwork=false', () => {
+  it('should display network warning when user has MetaMask but wrong network', () => {
+    // Arrange
     const mockNetworkCheck = createMockNetworkState({
       hasMetaMask: true,
       isLoading: false,
       isOnCorrectNetwork: false,
     });
-    
     mockUseNetworkCheck.mockReturnValue(mockNetworkCheck);
 
+    // Act
     renderDashboard();
     
+    // Assert
     dashboardAssertions.expectNetworkWarningVisible();
     dashboardAssertions.expectDashboardBannerVisible();
     dashboardAssertions.expectDescriptionHidden();
+    dashboardAssertions.expectRealComponentsRender();
   });
 
-  it('should not show network warning when hasMetaMask=false', () => {
+  it('should show default description when user has no MetaMask', () => {
+    // Arrange
     const mockNetworkCheck = createMockNetworkState({
       hasMetaMask: false,
       isLoading: false,
       isOnCorrectNetwork: false,
     });
-    
     mockUseNetworkCheck.mockReturnValue(mockNetworkCheck);
 
+    // Act
     renderDashboard();
     
+    // Assert
     dashboardAssertions.expectNetworkWarningHidden();
     dashboardAssertions.expectDashboardBannerVisible();
     dashboardAssertions.expectDescriptionVisible('What do you want to start from?');
+    dashboardAssertions.expectRealComponentsRender();
   });
 
-  it('should not show network warning when isLoading=true', () => {
+  it('should show default description during network loading', () => {
+    // Arrange
     const mockNetworkCheck = createMockNetworkState({
       hasMetaMask: true,
       isLoading: true,
       isOnCorrectNetwork: false,
     });
-    
     mockUseNetworkCheck.mockReturnValue(mockNetworkCheck);
 
+    // Act
     renderDashboard();
     
+    // Assert
     dashboardAssertions.expectNetworkWarningHidden();
     dashboardAssertions.expectDashboardBannerVisible();
     dashboardAssertions.expectDescriptionVisible('What do you want to start from?');
+    dashboardAssertions.expectRealComponentsRender();
   });
 
-  it('should not show network warning when isOnCorrectNetwork=true', () => {
+  it('should show default description when user is on correct network', () => {
+    // Arrange
     const mockNetworkCheck = createMockNetworkState({
       hasMetaMask: true,
       isLoading: false,
       isOnCorrectNetwork: true,
     });
-    
     mockUseNetworkCheck.mockReturnValue(mockNetworkCheck);
 
+    // Act
     renderDashboard();
     
+    // Assert
     dashboardAssertions.expectNetworkWarningHidden();
     dashboardAssertions.expectDashboardBannerVisible();
     dashboardAssertions.expectDescriptionVisible('What do you want to start from?');
+    dashboardAssertions.expectRealComponentsRender();
   });
 
-  it('should show normal description when all conditions for warning are false', () => {
+  it('should display normal dashboard state when all conditions are optimal', () => {
+    // Arrange
     const mockNetworkCheck = createMockNetworkState({
       hasMetaMask: false,
       isLoading: false,
-      isOnCorrectNetwork: true, // doesn't matter when hasMetaMask is false
+      isOnCorrectNetwork: true,
     });
-    
     mockUseNetworkCheck.mockReturnValue(mockNetworkCheck);
 
+    // Act
     renderDashboard();
     
+    // Assert
     dashboardAssertions.expectNetworkWarningHidden();
     dashboardAssertions.expectDashboardBannerVisible();
     dashboardAssertions.expectDescriptionVisible('What do you want to start from?');
+    dashboardAssertions.expectRealComponentsRender();
   });
 });

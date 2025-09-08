@@ -1,15 +1,20 @@
+/**
+ * TokenBalance Component User Experience Tests
+ * 
+ * Tests how users see and interact with their token balance including:
+ * - Clear balance display for users
+ * - Easy-to-read formatting for various amounts
+ * - Graceful handling of edge cases
+ * - User-friendly refresh functionality
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithQuery, createMockUser, createMockUseUserResult, createMockUseRefreshTokenBalanceResult } from '../../test-utils';
 import TokenBalance from '~/components/TokenBalance';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
-import { useRouteLoaderData } from 'react-router';
 import type { User } from '~/types';
 
-// ========================
-// MOCK SETUP
-// ========================
 
 vi.mock('~/hooks/queries/userQueries', () => ({
   useUser: vi.fn(),
@@ -19,28 +24,17 @@ vi.mock('~/hooks/queries/userMutations', () => ({
   useRefreshTokenBalance: vi.fn(),
 }));
 
-vi.mock('react-router', () => ({
-  useRouteLoaderData: vi.fn(),
-}));
 
-vi.mock('~/components/ui/icons', () => ({
-  Icons: {
-    refresh: () => <div data-testid="refresh-icon" />,
-    iconLogo: () => <div data-testid="icon-logo" />,
-  },
-}));
 
 const mockUseUser = vi.mocked(useUser);
 const mockUseRefreshTokenBalance = vi.mocked(useRefreshTokenBalance);
-const mockUseRouteLoaderData = vi.mocked(useRouteLoaderData);
 
-describe('TokenBalance formatting', () => {
+describe('TokenBalance User Experience', () => {
   let mockUser: User;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Default mock implementations
     mockUseRefreshTokenBalance.mockReturnValue(
       createMockUseRefreshTokenBalanceResult({
         mutate: vi.fn(),
@@ -48,10 +42,12 @@ describe('TokenBalance formatting', () => {
       })
     );
 
-    mockUseRouteLoaderData.mockReturnValue(createMockUser({ tokenBalance: 0 }));
+    // REMOVED: Unused mock call
+    // mockUseRouteLoaderData.mockReturnValue(createMockUser({ tokenBalance: 0 }));
   });
 
-  it('should format balance with 3 decimal places', () => {
+  it('should display user token balance clearly and precisely', () => {
+    // Arrange
     mockUser = createMockUser({ id: '1', tokenBalance: 123.456789 });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -61,14 +57,32 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // Should format to 3 decimal places: 123.457 (rounded up from 123.456789)
+    // Assert - Focus on what users see and can interact with
     expect(screen.getByText('123.457')).toBeInTheDocument();
     expect(screen.getByText('LOV')).toBeInTheDocument();
+    
+    // ✅ ACCESSIBILITY: Section heading should be accessible to screen readers
+    const balanceHeading = screen.getByRole('heading', { name: /your balance/i });
+    expect(balanceHeading).toBeInTheDocument();
+    expect(balanceHeading).toHaveProperty('tagName', 'H3');
+    
+    // ✅ ACCESSIBILITY: User should be able to refresh their balance with proper button role and name
+    const refreshButton = screen.getByRole('button', { name: /refresh token balance/i });
+    expect(refreshButton).toBeInTheDocument();
+    expect(refreshButton).not.toBeDisabled();
+    expect(refreshButton).toHaveAttribute('title', 'Refresh token balance');
+    
+    // ✅ ACCESSIBILITY: Visual indicator (OP logo) should have proper alt text for screen readers
+    const opLogo = screen.getByRole('img', { name: /op/i });
+    expect(opLogo).toBeInTheDocument();
+    expect(opLogo).toHaveAttribute('alt', 'OP');
   });
 
-  it('should show 0 for zero balance', () => {
+  it('should show users when they have no tokens', () => {
+    // Arrange
     mockUser = createMockUser({ id: '1', tokenBalance: 0 });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -78,14 +92,25 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
+    // Assert - User should clearly see they have zero tokens
     expect(screen.getByText('0')).toBeInTheDocument();
     expect(screen.getByText('LOV')).toBeInTheDocument();
+    
+    // ✅ ACCESSIBILITY: Balance section should be accessible even with zero tokens
+    const balanceHeading = screen.getByRole('heading', { name: /your balance/i });
+    expect(balanceHeading).toBeInTheDocument();
+    
+    // ✅ ACCESSIBILITY: User should still have access to refresh functionality with proper accessibility attributes
+    const refreshButton = screen.getByRole('button', { name: /refresh token balance/i });
+    expect(refreshButton).toBeInTheDocument();
+    expect(refreshButton).toHaveAttribute('title', 'Refresh token balance');
   });
 
-  it('should handle string balance values', () => {
-    // TokenBalance can receive string values from API
+  it('should display balance correctly regardless of data format', () => {
+    // Arrange - Backend might send balance as string
     mockUser = createMockUser({ id: '1', tokenBalance: '456.789123' as any });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -95,13 +120,16 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // Should parse string and format to 3 decimal places: 456.789
+    // Assert - User should see properly formatted balance regardless of data type
     expect(screen.getByText('456.789')).toBeInTheDocument();
+    expect(screen.getByText('LOV')).toBeInTheDocument();
   });
 
-  it('should format large numbers with thousand separators', () => {
+  it('should make large token amounts easy to read for users', () => {
+    // Arrange - User has a large token balance
     mockUser = createMockUser({ id: '1', tokenBalance: 1234567.123 });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -111,13 +139,16 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // Should include thousand separators: 1,234,567.123
+    // Assert - Large numbers should have thousand separators for readability
     expect(screen.getByText('1,234,567.123')).toBeInTheDocument();
+    expect(screen.getByText('LOV')).toBeInTheDocument();
   });
 
-  it('should handle very small decimal values', () => {
+  it('should display small token amounts accurately for users', () => {
+    // Arrange - User has a very small token balance
     mockUser = createMockUser({ id: '1', tokenBalance: 0.001 });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -127,13 +158,16 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // Should format small decimals: 0.001
+    // Assert - Small amounts should be preserved and visible to users
     expect(screen.getByText('0.001')).toBeInTheDocument();
+    expect(screen.getByText('LOV')).toBeInTheDocument();
   });
 
-  it('should handle negative balance (edge case)', () => {
+  it('should protect users from displaying negative balances', () => {
+    // Arrange - Edge case where balance might be negative
     mockUser = createMockUser({ id: '1', tokenBalance: -123.456 });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -143,14 +177,16 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // For negative values, the formatting logic shows 0
-    // Based on: roundedValue > 0 ? formatted : '0'
+    // Assert - Negative balance should be shown as 0 to avoid user confusion
     expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('LOV')).toBeInTheDocument();
   });
 
-  it('should handle null or undefined balance gracefully', () => {
+  it('should show sensible default when balance data is unavailable', () => {
+    // Arrange - Balance data is missing or undefined
     mockUser = createMockUser({ id: '1', tokenBalance: undefined as any });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -160,13 +196,16 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // Should fall back to '0' for undefined balance
+    // Assert - Should show 0 as safe default when data is unavailable
     expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('LOV')).toBeInTheDocument();
   });
 
-  it('should always display 3 decimal places for non-zero values', () => {
+  it('should provide consistent precision for user readability', () => {
+    // Arrange - User has whole number token balance
     mockUser = createMockUser({ id: '1', tokenBalance: 5 });
     
     const mockUseUserResult = createMockUseUserResult({
@@ -176,9 +215,11 @@ describe('TokenBalance formatting', () => {
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
 
+    // Act
     renderWithQuery(<TokenBalance />);
     
-    // Should show 3 decimal places even for whole numbers: 5.000
+    // Assert - Should display consistent decimal places for uniformity
     expect(screen.getByText('5.000')).toBeInTheDocument();
+    expect(screen.getByText('LOV')).toBeInTheDocument();
   });
 });
