@@ -81,7 +81,7 @@ const YourChats = () => {
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Chats</h3>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-2 bg-gradient-1 rounded-xl p-2 pt-2'>
         {groupedChats.length > 0 ? (
           groupedChats.length <= 2 ? (
             <>

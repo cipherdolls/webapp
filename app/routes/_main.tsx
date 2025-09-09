@@ -12,6 +12,7 @@ import { MqttProvider } from '~/providers/MqttContext';
 import UserEventsToast from '~/components/UserEventsToast';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useAuthStore } from '~/store/useAuthStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -21,9 +22,9 @@ export async function clientLoader() {
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
-  const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
   const navigate = useNavigate();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const queryClient = useQueryClient();
 
   useUser({
     initialData: loaderData?.user,
@@ -39,9 +40,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
           // Create a new provider instance
           const providerInstance = new ethers.BrowserProvider(window.ethereum, 'any');
-          const network = await providerInstance.getNetwork();
           setProvider(providerInstance);
-          setNetwork(network);
         } catch (error) {
           console.error('Error connecting to wallet:', error);
         }
@@ -76,8 +75,10 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
     if (provider) {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('Accounts changed:', accounts);
+        // Clear all React Query cache when account changes
+        queryClient.clear();
         clearAuth();
-        navigate(ROUTES.account);
+        navigate(ROUTES.signIn);
       };
 
       // Subscribe to accountsChanged event directly from window.ethereum
@@ -88,7 +89,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       };
     }
-  }, [provider]);
+  }, [provider, queryClient, clearAuth, navigate]);
 
   return (
     <MainLayoutProviders>
