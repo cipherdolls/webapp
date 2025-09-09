@@ -751,31 +751,38 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                <div className={cn('p-1 bg-neutral-05 grid grid-cols-2 rounded-xl', scenario?.published && 'opacity-50 cursor-not-allowed')}>
                   <button
                     type='button'
+                    disabled={scenario?.published}
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
-                      !scenarioData.published && 'bg-white'
+                      !scenarioData.published && 'bg-white',
+                      scenario?.published && 'cursor-not-allowed'
                     )}
-                    onClick={() => updateScenarioData('published', false)}
+                    onClick={() => !scenario?.published && updateScenarioData('published', false)}
                   >
                     🔒 Private
                   </button>
                   <button
                     type='button'
+                    disabled={scenario?.published}
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioData.published && 'bg-white'
+                      scenarioData.published && 'bg-white',
+                      scenario?.published && 'cursor-not-allowed'
                     )}
-                    onClick={() => updateScenarioData('published', true)}
+                    onClick={() => !scenario?.published && updateScenarioData('published', true)}
                   >
                     🌐 Public
                   </button>
                 </div>
                 <input type='hidden' name='published' value={scenarioData.published ? 'true' : 'false'} />
                 <p className='text-xs text-gray-500'>
-                  Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.
+                  {scenario?.published 
+                    ? 'If scenario is published it cannot be unpublished or deleted.'
+                    : 'Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.'
+                  }
                 </p>
               </Input.Root>
             </div>
