@@ -96,10 +96,10 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
             <button onClick={handleEditChatClose} className='md:hidden'>
               <Icons.chevronLeft />
             </button>
-            <div className='flex items-center gap-3'>
+            <div className='flex items-center gap-3 overflow-hidden'>
               <h3 className='text-heading-h3 text-base-black'>{chat.avatar.name}</h3>
               <span className='text-body-lg text-neutral-01'>•</span>
-              <p className='text-body-lg text-neutral-01'>{chat.avatar.shortDesc}</p>
+              <p className='text-body-lg text-neutral-01 truncate'>{chat.avatar.shortDesc}</p>
             </div>
           </div>
           <div className='flex flex-col flex-1 gap-8 overflow-y-auto scrollbar-medium pb-5 -mx-5 px-5'>
