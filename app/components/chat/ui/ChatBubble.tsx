@@ -3,6 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '~/utils/cn';
 import { formatTime } from '~/utils/date.utils';
 import { Slot } from '@radix-ui/react-slot';
+import { useAnimatedText } from '~/hooks/useAnimatedText';
 
 // ChatBubble
 const chatBubbleVariant = cva('flex gap-2 items-end relative w-full px-4.5 mt-4 max-w-[900px] mx-auto pb-4', {
@@ -35,7 +36,8 @@ const ChatBubbleRoot = React.forwardRef<HTMLDivElement, ChatBubbleProps>(({ clas
 const chatBubbleMessageVariants = cva('relative px-4 py-3 rounded-xl max-w-[85%] md:max-w-[60%]', {
   variants: {
     variant: {
-      received: 'bg-neutral-05 text-base-black [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05',
+      received:
+        'bg-neutral-05 text-base-black [&]:after:message-corner [&]:after:top-[-3px] [&]:after:left-[-7px] [&]:after:text-neutral-05',
       sent: 'bg-pink-02 text-base-black [&]:after:message-corner [&]:after:top-[-3px] [&]:after:right-[-7px] [&]:after:scale-x-[-1] [&]:after:text-pink-02',
       system: 'bg-neutral-03 text-base-black',
     },
@@ -70,9 +72,31 @@ const ChatBubbleMessage = React.forwardRef<HTMLDivElement, ChatBubbleMessageProp
   }
 );
 
-const ChatMessageText = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('text-body-sm text-base-black break-words', className)}>{children}</div>
-);
+interface ChatMessageTextProps {
+  children: React.ReactNode;
+  className?: string;
+  animate?: boolean;
+}
+
+const ChatMessageText = ({ children, className, animate = false }: ChatMessageTextProps) => {
+  const text = typeof children === 'string' ? children : '';
+  const animatedText = useAnimatedText(text);
+
+  return (
+    <div className={cn('text-body-sm text-base-black break-words', className)}>
+      {animate && typeof children === 'string' ? (
+        <div className='relative'>
+          <div className='invisible h-0 overflow-hidden' aria-hidden='true'>
+            {text}
+          </div>
+          <div>{animatedText}</div>
+        </div>
+      ) : (
+        children
+      )}
+    </div>
+  );
+};
 
 const ChatMessageTimestamp = ({ time, className }: { time: Date; className?: string }) => (
   <div className={cn('text-xs leading-none font-semibold text-neutral-02 mt-0.5 -mb-1.5 text-right', className)}>{formatTime(time)}</div>
