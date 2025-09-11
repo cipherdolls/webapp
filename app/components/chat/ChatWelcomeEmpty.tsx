@@ -200,7 +200,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
   );
 
   return (
-    <div className='flex-1 flex flex-col w-full mx-auto gap-10 py-10'>
+    <div className='flex-1 flex flex-col w-full mx-auto gap-10 py-10 px-6 overflow-y-auto'>
       <div className='text-center flex flex-col gap-3'>
         <div className='text-5xl mb-3'>💬</div>
         <h1 className='text-heading-h2 font-bold text-base-black'>Start Your First Chat</h1>
@@ -210,9 +210,9 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
       </div>
 
       <div className='max-w-6xl mx-auto w-full'>
-        <div className='flex items-center gap-8'>
-          <div className='flex-shrink-0 w-80'>
-            <div className='space-y-4'>
+        <div className='flex lg:flex-row flex-col lg:items-center lg:gap-8 gap-6'>
+          <div className='min-w-0 flex-1'>
+            <div className='flex flex-col gap-4'>
               <h2 className='text-heading-h3 font-semibold text-base-black'>Select an Avatar</h2>
               <p className='text-body-md text-neutral-01'>Choose your AI companion to chat with</p>
               <div>
@@ -226,7 +226,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
             </div>
           </div>
 
-          <div className='flex-1'>
+          <div className='min-w-0 flex-[2]'>
             {isLoadingAvatars ? (
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-6'>
                 {Array.from({ length: 3 }, (_, index) => (
@@ -281,9 +281,9 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
 
       {selectedAvatar && (
         <div className='max-w-6xl mx-auto w-full animate-in slide-in-from-bottom duration-500'>
-          <div className='flex items-center gap-8'>
-            <div className='flex-shrink-0 w-80'>
-              <div className='space-y-4'>
+          <div className='flex lg:flex-row flex-col lg:items-center lg:gap-8 gap-6'>
+            <div className='min-w-0 flex-1'>
+              <div className='flex flex-col gap-4'>
                 <h2 className='text-heading-h3 font-semibold text-base-black'>Choose a Scenario</h2>
                 <p className='text-body-md text-neutral-01'>Pick a conversation style with {selectedAvatar.name}</p>
                 <div>
@@ -313,7 +313,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
               </div>
             </div>
 
-            <div className='flex-1'>
+            <div className='min-w-0 flex-[2]'>
               {displayScenarios.length === 0 ? (
                 <div className='grid grid-cols-1 sm:grid-cols-3 gap-6'>
                   {Array.from({ length: 3 }, (_, index) => (
@@ -363,7 +363,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
       {selectedAvatar && selectedScenario && (
         <div className='max-w-4xl mx-auto animate-in slide-in-from-bottom duration-500'>
           {user.tokenAllowance === 0 ? (
-            <div className='text-center space-y-4'>
+            <div className='text-center flex flex-col gap-4'>
               <div className='space-y-2'>
                 <div className='flex justify-center items-center gap-2 mb-2'>
                   {isPermitInProgress ? (
@@ -398,7 +398,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
               </CreateTokenAllowanceModal>
             </div>
           ) : (
-            <div className='text-center space-y-4'>
+            <div className='text-center flex flex-col gap-4'>
               <div className='space-y-2'>
                 <div className='flex justify-center items-center gap-2 mb-2'>
                   <div className='text-3xl'>✅</div>
