@@ -215,7 +215,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                             <div className='flex flex-col gap-1 min-w-0 flex-1'>
                               <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
 
-                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.character}</p>
+                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                             </div>
                             <div className='flex items-center gap-3'>
                               {avatar?.chats && avatar?.chats.length > 0 ? (
