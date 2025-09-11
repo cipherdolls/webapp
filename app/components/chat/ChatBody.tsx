@@ -108,6 +108,12 @@ export default ChatBody;
 const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(({ message, isNextDay }) => {
   const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
   const isSystemMessage = message.role === 'SYSTEM';
+  const isAssistantMessage = message.role === 'ASSISTANT';
+  
+  // Check if this is a recent assistant message (created within last 30 seconds)
+  const isRecentAssistantMessage = isAssistantMessage && 
+    message.createdAt && 
+    (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
 
   if (!message.content) return null;
   return (
@@ -118,7 +124,9 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
       <ChatBubble.Root variant={bubbleVariant}>
         <ChatBubble.Message asChild className={cn(message.role === 'ASSISTANT' ? 'animate-message-assistant' : 'animate-message-user')}>
           <Link to={`messages/${message.id}`}>
-            <ChatBubble.Text>{message.content}</ChatBubble.Text>
+            <ChatBubble.Text animate={isRecentAssistantMessage}>
+              {message.content}
+            </ChatBubble.Text>
             {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
           </Link>
         </ChatBubble.Message>
