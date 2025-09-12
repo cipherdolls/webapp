@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
@@ -71,7 +71,7 @@ export default function AvatarsShow() {
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
 
-  const hasActiveFilters = showMyAvatars || genderFilter !== 'All';
+  const hasActiveFilters = searchParams.size >= 1 || showMyAvatars;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -118,7 +118,7 @@ export default function AvatarsShow() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchInput searchParamName='name' placeholder='Search avatars by name' />
+        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search avatars by name' />
         <div className='flex flex-wrap gap-3 items-center justify-between'>
           <div className='flex items-center gap-3'>
             <button
