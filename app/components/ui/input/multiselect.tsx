@@ -85,7 +85,7 @@ export const Multiselect = <T extends Option>({
         <div className='flex flex-1 flex-wrap gap-1'>
           {Array.isArray(selectedOptions) && selectedOptions.length > 0 ? (
             selectedOptions.map((option) => (
-              <div key={option.id} className='flex items-center gap-1 rounded-lg bg-neutral-04 px-2 py-1 text-body-sm font-medium'>
+              <div key={option.id} className='select-none flex items-center gap-1 rounded-lg bg-neutral-04 px-2 py-1 text-body-sm font-medium'>
                 {option.name}
                 <button
                   type='button'
@@ -101,7 +101,7 @@ export const Multiselect = <T extends Option>({
               </div>
             ))
           ) : (
-            <span className='text-neutral-02'>{placeholder}</span>
+            <span className='select-none text-neutral-02'>{placeholder}</span>
           )}
         </div>
         <div className='flex items-center self-center'>
