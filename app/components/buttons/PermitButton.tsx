@@ -190,27 +190,44 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         s,
       });
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Signing failed');
+      // Check if user cancelled the transaction (don't show error for this)
+      const isUserCancellation =
+        err.code === 'ACTION_REJECTED' ||
+        err.code === 4001 ||
+        err.message?.includes('ethers-user-denied') ||
+        err.message?.includes('User rejected') ||
+        err.message?.includes('user rejected');
+
+      if (isUserCancellation) {
+        // Show user-friendly message for cancellation
+        console.log('User cancelled MetaMask transaction');
+        setError('Signing canceled');
+      } else {
+        // Real error - log and show to user
+        console.error(err);
+        setError(err.message || 'Signing failed');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className='flex flex-col gap-2 w-full'>
-      <Button.Root className='w-full' onClick={handleClick} disabled={loading}>
-        {loading ? (
-          <>
-            <span className='animate-spin'>⏳</span>
-            Signing...
-          </>
-        ) : (
-          'Sign Message'
-        )}
-      </Button.Root>
+    <>
+      <div className='flex flex-col gap-2 w-full'>
+        <Button.Root className='w-full' onClick={handleClick} disabled={loading}>
+          {loading ? (
+            <>
+              <span className='animate-spin'>⏳</span>
+              Signing...
+            </>
+          ) : (
+            'Sign Message'
+          )}
+        </Button.Root>
+      </div>
       {error && (
-        <div className='text-xs text-specials-danger bg-specials-danger/5 p-2 rounded-lg'>
+        <div className='text-xs text-specials-danger bg-specials-danger/5 p-2 rounded-lg col-span-2'>
           <p className='font-medium mb-1'>Error:</p>
           <p>{error}</p>
           {error.includes('network') && (
@@ -218,6 +235,6 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
           )}
         </div>
       )}
-    </div>
+    </>
   );
 };
