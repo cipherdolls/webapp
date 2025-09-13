@@ -190,7 +190,6 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         s,
       });
     } catch (err: any) {
-      // Check if user cancelled the transaction (don't show error for this)
       const isUserCancellation =
         err.code === 'ACTION_REJECTED' ||
         err.code === 4001 ||
@@ -199,11 +198,8 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         err.message?.includes('user rejected');
 
       if (isUserCancellation) {
-        // Show user-friendly message for cancellation
-        console.log('User cancelled MetaMask transaction');
         setError('Signing canceled');
       } else {
-        // Real error - log and show to user
         console.error(err);
         setError(err.message || 'Signing failed');
       }
