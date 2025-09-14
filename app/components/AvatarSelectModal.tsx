@@ -25,7 +25,12 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
   const navigate = useNavigate();
   const confirm = useConfirm();
 
-  const availableAvatars = avatars.filter((avatar) => (avatar.chats?.length || 0) === 0 || (avatar.scenarios?.length || 0) > 1);
+  const availableAvatars = avatars.filter((avatar) => {
+    const chats = avatar.chats?.length || 0
+    const scenarios = avatar.scenarios?.length || 0
+
+    return (chats === 0 || scenarios > 1) && scenarios > 0
+  })
 
   const handleAvatarSelect = (avatar: Avatar) => {
     setSelectedAvatar(avatar);
