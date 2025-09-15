@@ -37,32 +37,6 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
         />
         {/*<DataCard.Divider />*/}
         {/*<DataCard.ItemLabel className='pb-4'>Payment Job</DataCard.ItemLabel>*/}
-        <DataCard.ItemDataGrid
-          variant='secondary'
-          data={[
-            {
-              label: 'Cost',
-              value: `${formatEther(ttsJob.paymentJob?.weiCost || 0)} LOV`,
-            },
-            {
-              label: 'txHash',
-              value: ttsJob.paymentJob?.txHash ? (
-                <>
-                  <a
-                    href={`https://optimistic.etherscan.io/tx/${ttsJob.paymentJob?.txHash}`}
-                    className='underline line-clamp-1 block truncate break-normal max-w-[244px]'
-                    target='_blank'
-                    rel='noreferrer noopener'
-                  >
-                    {ttsJob.paymentJob.txHash}
-                  </a>
-                </>
-              ) : (
-                'N/A'
-              ),
-            },
-          ]}
-        />
       </DataCard.Wrapper>
     </DataCard.Root>
   );
