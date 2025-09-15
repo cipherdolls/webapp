@@ -207,6 +207,26 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                       </div>
                     </div>
                   </div>
+
+                  <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
+                    <div className='flex items-center justify-between w-full'>
+                      <div
+                        className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
+                      >
+                        {avatarData.picture !== null && (
+                          <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
+                            <Icons.trash className='text-black' />
+                          </button>
+                        )}
+                        {(avatarData.picture || avatar?.picture)  &&
+                          <div className='h-6 w-px bg-neutral-04'/>
+                        }
+                        <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()} >
+                          <Icons.fileUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className='grid grid-cols-1 gap-4'>
