@@ -6,11 +6,11 @@ import ChatEmbeddingJobCard from '~/components/job-cards/ChatEmbeddingJobCard';
 import ChatTTSJobCard from '~/components/job-cards/ChatTTSJobCard';
 import ChatCompletionJobCard from '~/components/job-cards/ChatCompletionJobCard';
 import ChatSTTJobCard from '~/components/job-cards/ChatSTTJobCard';
+import ChatTransactionJobCard from '~/components/job-cards/ChatTransactionJobCard';
 import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 import { useMessage } from '~/hooks/queries/messageQueries';
-import React from 'react';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
@@ -107,6 +107,8 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
                 {message.sttJob && <ChatSTTJobCard message={message} />}
                 {/* chat completion job */}
                 {message.chatCompletionJob && <ChatCompletionJobCard message={message} />}
+                {/* transaction job */}
+                {message.transactionJob && <ChatTransactionJobCard message={message} />}
 
                 <div className='mt-auto pt-10'>
                   <Button.Root type='button' variant='danger' className='w-full px-10' onClick={handleMessageDelete}>
