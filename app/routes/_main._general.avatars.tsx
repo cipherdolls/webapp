@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
@@ -71,7 +71,7 @@ export default function AvatarsShow() {
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
 
-  const hasActiveFilters = showMyAvatars || genderFilter !== 'All';
+  const hasActiveFilters = searchParams.size >= 1 || showMyAvatars;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -118,7 +118,7 @@ export default function AvatarsShow() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchInput searchParamName='name' placeholder='Search avatars by name' />
+        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search avatars by name' />
         <div className='flex flex-wrap gap-3 items-center justify-between'>
           <div className='flex items-center gap-3'>
             <button
@@ -230,12 +230,12 @@ export default function AvatarsShow() {
                         ) : null}
                       </Link>
                       <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
-                        <div className='flex flex-col gap-1 flex-1 min-w-0'>
+                        <div className='flex flex-col gap-1 flex-1 min-w-0 overflow-hidden'>
                           <div className='flex items-center gap-2'>
                             <h4 className='truncate text-heading-h4 text-base-black'>{avatar.name}</h4>
                             <RecommendedBadge recommended={avatar.recommended} tooltipText='Recommended' className='pt-1' />
                           </div>
-                          <p className='text-body-md text-neutral-01 line-clamp-1 truncate'>{avatar.shortDesc}</p>
+                          <p className='text-body-md text-neutral-01 truncate'>{avatar.shortDesc}</p>
                         </div>
                         <div className='flex items-center gap-3'>
                           {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}

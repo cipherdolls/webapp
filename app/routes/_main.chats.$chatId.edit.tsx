@@ -30,7 +30,7 @@ export function meta({}: Route.MetaArgs) {
 export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
   const { data: aiProviders } = useAiProviders();
   const { data: sttProviders, isLoading } = useSttProviders();
-  const { data: chatData } = useChat(params.chatId);
+  const { data: chatData, refetch } = useChat(params.chatId);
   const chat = chatData;
 
   const me = useRouteLoaderData('routes/_main') as User;
@@ -130,7 +130,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} />}
+                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} refetch={refetch} />}
 
                   <button
                     onClick={() => {
