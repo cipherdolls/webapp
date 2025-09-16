@@ -14,10 +14,6 @@ import { useState } from 'react';
 
 const genreOptions = [
   {
-    value: 'All',
-    label: 'All',
-  },
-  {
     value: 'Male',
     label: 'Male',
   },
