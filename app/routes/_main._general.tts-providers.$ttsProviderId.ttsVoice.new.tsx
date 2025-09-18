@@ -20,7 +20,7 @@ export default function TtsVoiceNew({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(-1, { replace: true });
+    navigate(`/tts-providers/${ttsProviderId}`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
