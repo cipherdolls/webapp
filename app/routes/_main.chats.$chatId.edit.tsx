@@ -21,6 +21,7 @@ import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
 import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 import { ROUTES } from '~/constants';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
@@ -84,10 +85,17 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
   
 
   return (
-    <>
+    <AnimatePresence>
       <div className='pageModal'>
         <div className='pageModal-overlay' onClick={handleEditChatClose}></div>
-        <div className='pageModal-content'>
+
+        <motion.div
+          className='pageModal-content'
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 100 }}
+          transition={{ duration: 0.25 }}
+        >
           <Button.Root size='icon' variant='white' className='pageModal-button-close' onClick={handleEditChatClose}>
             <Button.Icon as={Icons.close} />
           </Button.Root>
@@ -379,8 +387,13 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               </Button.Root>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </>
+    </AnimatePresence>
   );
+}
+
+const openModalVariant = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
 }
