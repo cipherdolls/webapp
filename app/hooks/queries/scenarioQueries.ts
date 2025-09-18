@@ -21,6 +21,13 @@ export function useScenario(scenarioId: string) {
     queryKey: ['scenario', scenarioId],
     queryFn: () => fetchResource<Scenario>(`scenarios/${scenarioId}`),
     enabled: !!scenarioId,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data?.introduction || data.introduction.trim() === '') {
+        return 5000;
+      }
+      return false;
+    },
   });
 }
 
