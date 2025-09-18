@@ -2,8 +2,7 @@ import { useNavigate } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
 import type { Route } from './+types/_main._general.services.ai.ai-providers.$aiProviderId.edit';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
@@ -55,7 +54,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`${ROUTES.services}/ai`);
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -69,17 +68,18 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Edit AI Provider</Drawer.Title>
+      <Modal.Content>
+        <Modal.Title>Edit AI Provider</Modal.Title>
+        <Modal.Description className='sr-only'>Edit AI Provider</Modal.Description>
         {aiProvider ? (
-          <form onSubmit={handleSubmit} encType='multipart/form-data' className='size-full flex flex-col'>
-            <Drawer.Body className='flex flex-col gap-3'>
+          <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+            <Modal.Body className='flex flex-col gap-5'>
               <ErrorsBox errors={updateAiProviderError} />
               <input type='hidden' name='aiProviderId' value={aiProvider.id} />
               <div className='flex flex-col items-center justify-center mb-10'>
@@ -128,7 +128,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                   Name
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='name'
                   name='name'
                   type='text'
@@ -140,7 +140,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                   API Key
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='apiKey'
                   name='apiKey'
                   type='text'
@@ -153,37 +153,29 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                   Base Path
                 </Input.Label>
                 <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  className='text-base-black py-3.5 px-3'
                   id='basePath'
                   name='basePath'
                   type='text'
                   defaultValue={aiProvider.basePath}
                 />
               </Input.Root>
-            </Drawer.Body>
-            <Drawer.Footer>
-              <Dialog.Close asChild>
-                <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                  Close
+            </Modal.Body>
+            <Modal.Footer>
+              <Modal.Close asChild>
+                <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                  Cancel
                 </Button.Root>
-              </Dialog.Close>
+              </Modal.Close>
               <Button.Root type='submit' className='w-full'>
                 Save
               </Button.Root>
-            </Drawer.Footer>
+            </Modal.Footer>
           </form>
         ) : (
           <p className='text-body-md text-neutral-01 text-center'>AI Provider not found</p>
         )}
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

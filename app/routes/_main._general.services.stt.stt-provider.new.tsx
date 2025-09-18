@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.services.stt.stt-provider.new';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
@@ -53,7 +52,7 @@ export default function TtsProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`${ROUTES.services}/stt`);
+    navigate(`${ROUTES.services}/stt`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,22 +60,23 @@ export default function TtsProviderNew() {
     const formData = new FormData(e.target as HTMLFormElement);
     createSttProvider(formData, {
       onSuccess: (data) => {
-        navigate(`${ROUTES.services}/stt/${data.id}`);
+        handleClose();
       },
     });
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Create STT Provider</Drawer.Title>
-        <form encType='multipart/form-data' className='size-full flex flex-col' onSubmit={handleSubmit}>
-          <Drawer.Body className='flex flex-col gap-3'>
+      <Modal.Content>
+        <Modal.Title>Create STT Provider</Modal.Title>
+        <Modal.Description className='sr-only'>Create STT Provider</Modal.Description>
+        <form encType='multipart/form-data' className='w-full flex flex-col mt-[18px]' onSubmit={handleSubmit}>
+          <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={createSttProviderError} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -119,7 +119,7 @@ export default function TtsProviderNew() {
                 Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
@@ -131,7 +131,7 @@ export default function TtsProviderNew() {
                 API Key
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='apiKey'
                 name='apiKey'
                 type='text'
@@ -143,7 +143,7 @@ export default function TtsProviderNew() {
                 Dollar per Second
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='dollarPerSecond'
                 name='dollarPerSecond'
                 type='number'
@@ -165,28 +165,19 @@ export default function TtsProviderNew() {
                 Recommended
               </label>
             </div>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-            onClick={handleClose}
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }
