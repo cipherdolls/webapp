@@ -24,6 +24,7 @@ import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import ErrorPage from '~/components/ErrorPage';
 import { ROUTES } from '~/constants';
+import IntroductionSkeleton from '~/components/ui/IntroductionSkeleton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -178,7 +179,11 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
         <div className='flex flex-col-reverse rounded-xl divide-neutral-04 pb-2.5 gap-5 sm:flex-1 sm:backdrop-blur-none md:gap-0 sm:bg-none sm:rounded-none md:divide-x md:flex-row'>
           <div className='flex size-full flex-col gap-5 md:pr-4'>
             <DetailCard title='' copy={false} copyText={scenario.introduction} isScenario={true}>
-              {scenario.introduction && <ReactMarkdown>{scenario.introduction}</ReactMarkdown>}
+              {scenario.introduction && scenario.introduction.trim() ? (
+                <ReactMarkdown>{scenario.introduction}</ReactMarkdown>
+              ) : (
+                <IntroductionSkeleton />
+              )}
             </DetailCard>
 
             <div className={'bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col'}>
@@ -247,14 +252,14 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 </div>
               ) : (
                 <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
-                  <h1 className='text-heading-h2'>📚</h1>
+                  <h1 className='text-heading-h2'>🤖</h1>
                   <div className='flex flex-col items-center sm:gap-2 gap-1'>
-                    <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
+                    <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
                     <Link
-                      to={ROUTES.scenarios}
+                      to={ROUTES.avatars}
                       className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
                     >
-                      Add new scenario
+                      Add new avatar
                     </Link>
                   </div>
                 </div>
