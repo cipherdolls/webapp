@@ -2,8 +2,7 @@ import { useNavigate } from 'react-router';
 
 import type { Route } from './+types/_main._general.tts-providers.$ttsProviderId.ttsVoice.$ttsVoiceId.edit';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
@@ -22,7 +21,7 @@ export default function TtsVoiceEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(`/tts-providers/${params.ttsProviderId}`);
+    navigate(`/tts-providers/${params.ttsProviderId}`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,18 +34,19 @@ export default function TtsVoiceEdit({ params }: Route.ComponentProps) {
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
+      <Modal.Content>
         {ttsVoice ? (
           <>
-            <Drawer.Title>Edit {ttsVoice.name}</Drawer.Title>
-            <form onSubmit={handleSubmit} className='size-full flex flex-col'>
-              <Drawer.Body className='flex flex-col gap-3'>
+            <Modal.Title>Edit {ttsVoice.name}</Modal.Title>
+            <Modal.Description className='sr-only'>Edit {ttsVoice.name}</Modal.Description>
+            <form onSubmit={handleSubmit} className='w-full flex flex-col mt-[18px]'>
+              <Modal.Body className='flex flex-col gap-5'>
                 <ErrorsBox errors={errorUpdateTtsVoice} />
                 <input type='hidden' name='ttsVoiceId' value={ttsVoice.id} />
 
@@ -55,7 +55,7 @@ export default function TtsVoiceEdit({ params }: Route.ComponentProps) {
                     Voice Name
                   </Input.Label>
                   <Input.Input
-                    className='text-base-black border border-neutral-04 py-3.5 px-3'
+                    className='text-base-black py-3.5 px-3'
                     id='name'
                     name='name'
                     type='text'
@@ -68,7 +68,7 @@ export default function TtsVoiceEdit({ params }: Route.ComponentProps) {
                     Provider Voice ID
                   </Input.Label>
                   <Input.Input
-                    className='text-base-black border border-neutral-04 py-3.5 px-3'
+                    className='text-base-black py-3.5 px-3'
                     id='providerVoiceId'
                     name='providerVoiceId'
                     type='text'
@@ -91,32 +91,23 @@ export default function TtsVoiceEdit({ params }: Route.ComponentProps) {
                     Recommended
                   </label>
                 </div>
-              </Drawer.Body>
-              <Drawer.Footer>
-                <Dialog.Close asChild>
-                  <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                    Close
+              </Modal.Body>
+              <Modal.Footer>
+                <Modal.Close asChild>
+                  <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                    Cancel
                   </Button.Root>
-                </Dialog.Close>
+                </Modal.Close>
                 <Button.Root type='submit' className='w-full'>
                   Save
                 </Button.Root>
-              </Drawer.Footer>
+              </Modal.Footer>
             </form>
-            <Dialog.Close asChild>
-              <button
-                className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-                aria-label='Close'
-                onClick={handleClose}
-              >
-                <Icons.close className='text-base-black' />
-              </button>
-            </Dialog.Close>
           </>
         ) : (
           <p>TTS voice not found</p>
         )}
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

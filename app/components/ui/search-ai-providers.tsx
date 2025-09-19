@@ -3,6 +3,7 @@ import * as Input from '~/components/ui/input/input';
 import { Icons } from '~/components/ui/icons';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { ROUTES } from '~/constants';
 
 const SearchAiProviders = () => {
   const [searchParams] = useSearchParams();
@@ -36,7 +37,7 @@ const SearchAiProviders = () => {
           newSearchParams.delete('name');
         }
         
-        navigate(`/services/ai?${newSearchParams.toString()}`);
+        navigate(`${ROUTES.services}/ai?${newSearchParams.toString()}`);
       }
     }, 300);
     

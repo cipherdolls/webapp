@@ -11,6 +11,7 @@ import { ViewMore } from '~/view-more';
 import { useDeleteEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
@@ -41,7 +42,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
 
     deleteEmbeddingModel(embeddingModel.id, {
       onSuccess: () => {
-        navigate('/services/ai');
+        navigate(`${ROUTES.services}/ai`);
       },
     });
   };
@@ -50,7 +51,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${ROUTES.services}/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>

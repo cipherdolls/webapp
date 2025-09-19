@@ -6,6 +6,7 @@ import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { Icons } from '~/components/ui/icons';
 import Tooltip from '~/components/ui/tooltip';
+import { ROUTES } from '~/constants';
 
 export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
   {
@@ -56,8 +57,8 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     render: (data) => (
       <ViewButton
         popoverItems={[
-          { text: 'Edit', href: `/services/ai/chat-models/${data.id}/edit` },
-          { text: 'Delete', href: `/services/ai/chat-models/${data.id}/delete`, isDelete: true },
+          { text: 'Edit', href: `${ROUTES.services}/ai/chat-models/${data.id}/edit` },
+          { text: 'Delete', href: `${ROUTES.services}/ai/chat-models/${data.id}/delete`, isDelete: true },
         ]}
         className='flex items-center justify-center'
         isDataCard={true}
@@ -117,8 +118,8 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     render: (data) => (
       <ViewButton
         popoverItems={[
-          { text: 'Edit', href: `/services/ai/embedding-models/${data.id}/edit` },
-          { text: 'Delete', href: `/services/ai/embedding-models/${data.id}/delete`, isDelete: true },
+          { text: 'Edit', href: `${ROUTES.services}/ai/embedding-models/${data.id}/edit` },
+          { text: 'Delete', href: `${ROUTES.services}/ai/embedding-models/${data.id}/delete`, isDelete: true },
         ]}
         className='flex items-center justify-center'
         isDataCard={true}
@@ -178,8 +179,8 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
     render: (data) => (
       <ViewButton
         popoverItems={[
-          { text: 'Edit', href: `/services/ai/reasoning-models/${data.id}/edit` },
-          { text: 'Delete', href: `/services/ai/reasoning-models/${data.id}/delete`, isDelete: true },
+          { text: 'Edit', href: `${ROUTES.services}/ai/reasoning-models/${data.id}/edit` },
+          { text: 'Delete', href: `${ROUTES.services}/ai/reasoning-models/${data.id}/delete`, isDelete: true },
         ]}
         className='flex items-center justify-center'
         isDataCard={true}

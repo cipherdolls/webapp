@@ -65,7 +65,7 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
                   💰
                 </button>
                 <div>
-                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
+                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Permit</h4>
                   <p className='text-sm text-neutral-01'>{formatPermitAmount(permit.value)} LOV approved for spending</p>
                 </div>
                 {isExpired(permit.deadline) && (

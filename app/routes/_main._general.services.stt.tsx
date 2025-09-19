@@ -15,14 +15,20 @@ import { useDeleteSttProvider } from '~/hooks/queries/sttMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import ModalSttProviderEdit from '~/components/ModalSttProviderEdit';
 import { useState } from 'react';
+import { ROUTES } from '~/constants';
 
 function STTSkeleton({ count = 1 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-10 pb-5'>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
-          <div className='rounded-[10px] h-[170px] bg-gradient-1 w-full animate-pulse'></div>
+          <div className='flex flex-col gap-3'>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='w-[174px] h-6 rounded-lg bg-neutral-04'/>
+            </div>
+
+            <div className='rounded-xl h-[270px] md:h-[232px] bg-neutral-04 w-full animate-pulse'></div>
+          </div>
         </div>
       ))}
     </div>
@@ -133,7 +139,7 @@ export default function SttProvidersIndex() {
             wrapperClassName='hidden md:block'
             columns={columnProperties}
             data={sttProviders}
-            getRowUrl={(stt) => `/services/stt/${stt.id}`}
+            getRowUrl={(stt) => `${ROUTES.services}/stt/${stt.id}`}
           />
 
           {/* MOBILE */}
@@ -141,7 +147,7 @@ export default function SttProvidersIndex() {
             {sttProviders.map((sttProvider, index) => {
               return (
                 <Fragment key={sttProvider.id}>
-                  <DataCard.Item key={sttProvider.id} href={`services/stt/${sttProvider.id}`}>
+                  <DataCard.Item key={sttProvider.id} href={`${ROUTES.services}/stt/${sttProvider.id}`}>
                     <DataCard.ItemLabel>
                       <div className='flex items-center justify-start gap-2'>
                         <div className='size-6'>

@@ -4,13 +4,14 @@ import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { apiUrl } from '~/constants';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MessagesModeProps {
   chat: Chat;
@@ -19,6 +20,8 @@ interface MessagesModeProps {
 
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
+  const queryClient = useQueryClient();
+  const [isShouldShowChatBubble, setIsShouldShowChatBubble] = useState(false);
   const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
@@ -36,6 +39,30 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   });
 
   useChatEvents(chat.id, {
+    onProcessEvent: (event) => {
+      if (event.resourceName === 'Message') {
+        switch (event.jobName) {
+          case 'created':
+            if (event.jobStatus === 'active') {
+              setIsShouldShowChatBubble(true);
+            }
+            if (event.jobStatus === 'completed') {
+              queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+            }
+            if (event.jobStatus === 'failed') {
+              setIsShouldShowChatBubble(false);
+            }
+            break;
+          case 'updated':
+            setIsShouldShowChatBubble(false);
+            const messageContent = event?.resourceAttributes?.content;
+            if (!messageContent) return;
+            queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+            break;
+          default:
+        }
+      }
+    },
     onActionEvent: (event) => {
       if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
     },
@@ -65,10 +92,18 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   return (
     <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
+      {' '}
       {/* chat header */}
       <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
-      <ChatBody messages={messages} loadMoreMessages={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} />
+      <ChatBody
+        messages={messages}
+        isShouldShowChatBubble={isShouldShowChatBubble}
+        isLoadingMessages={isLoading}
+        loadMoreMessages={fetchNextPage}
+        isLoading={isFetchingNextPage}
+        hasMore={hasNextPage}
+      />
       {/* chat input field  */}
       <ChatBottomBar chat={chat} />
     </div>

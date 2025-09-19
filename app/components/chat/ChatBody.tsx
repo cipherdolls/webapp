@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useLayoutEffect, useRef } from 'react';
+import React, { Fragment, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
@@ -12,10 +12,20 @@ interface ChatBodyProps {
   messages: Message[];
   loadMoreMessages: () => void;
   isLoading: boolean;
+  isLoadingMessages: boolean;
+  isShouldShowChatBubble: boolean
   hasMore: boolean;
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoading, hasMore }) => {
+function MessagesLoader() {
+  return (
+    <div className='flex flex-col mx-auto w-full h-full'>
+      <Icons.loader className='mx-auto my-auto size-10 animate-spin text-neutral-01' />
+    </div>
+  );
+}
+
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isShouldShowChatBubble, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
   const prevMessagesLengthRef = useRef<number>(0);
@@ -59,7 +69,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
       lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
     }
   }, []);
-  
 
   return (
     <div className='flex-1 flex overflow-auto shrink-0'>
@@ -68,7 +77,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
         onScroll={handleRootScroll}
         className='flex-1 overflow-auto scrollbar scrollbar-medium bg-white rounded-t-xl lg:rounded-none'
       >
-        {hasMore && (
+        {hasMore && !isLoadingMessages && (
           <div
             ref={infiniteRef}
             className={cn('flex justify-center items-center py-5', {
@@ -78,15 +87,17 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, loadMoreMessages, isLoadi
             <Icons.loader className='size-10 animate-spin text-neutral-01' />
           </div>
         )}
-        {messages.map((message, index) => {
+
+        {isLoadingMessages ? <MessagesLoader /> : messages.map((message, index) => {
           const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
           return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
         })}
-        {/* { (
-        <ChatBubble.Root>
-          <ChatBubble.Message isLoading />
-        </ChatBubble.Root>
-      )} */}
+
+        {isShouldShowChatBubble && (
+          <ChatBubble.Root>
+            <ChatBubble.Message isLoading />
+          </ChatBubble.Root>
+        )}
       </div>
     </div>
   );
@@ -97,6 +108,12 @@ export default ChatBody;
 const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(({ message, isNextDay }) => {
   const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
   const isSystemMessage = message.role === 'SYSTEM';
+  const isAssistantMessage = message.role === 'ASSISTANT';
+  
+  // Check if this is a recent assistant message (created within last 30 seconds)
+  const isRecentAssistantMessage = isAssistantMessage && 
+    message.createdAt && 
+    (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
 
   if (!message.content) return null;
   return (
@@ -105,9 +122,11 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
       {isNextDay && <ChatDateDivider date={message.createdAt} />}
       {/* chat bubble */}
       <ChatBubble.Root variant={bubbleVariant}>
-        <ChatBubble.Message asChild>
+        <ChatBubble.Message asChild className={cn(message.role === 'ASSISTANT' ? 'animate-message-assistant' : 'animate-message-user')}>
           <Link to={`messages/${message.id}`}>
-            <ChatBubble.Text>{message.content}</ChatBubble.Text>
+            <ChatBubble.Text animate={isRecentAssistantMessage}>
+              {message.content}
+            </ChatBubble.Text>
             {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
           </Link>
         </ChatBubble.Message>

@@ -37,7 +37,7 @@ export interface User {
   role: string;
   character: string;
   tokenBalance?: number;
-  tokenAllowance?: string;
+  tokenAllowance: number;
 }
 
 export interface TokenPermitsPaginated {
@@ -175,6 +175,7 @@ export interface Scenario {
   published?: boolean;
   userGender?: Gender;
   avatarGender?: Gender;
+  nsfw?: boolean;
 }
 
 export interface Chat {
@@ -212,6 +213,7 @@ export interface Message {
   ttsJob: TtsJob;
   embeddingJob: EmbeddingJob;
   chatCompletionJob: ChatCompletionJob;
+  transactionJob: TransactionJob;
 }
 
 export interface Firmware {
@@ -275,6 +277,25 @@ export interface ChatCompletionJob {
   timeTakenMs: number;
   paymentJob: PaymentJob;
   chatModel: ChatModel;
+}
+
+export interface TransactionJob {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TransactionLeg {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  to: string;
+  amountWei: string;
+  txHash: string;
+  type: string;
+  nonce: number;
+  timeTakenMs: number;
+  error: string | null;
 }
 
 export interface Doll {
@@ -370,4 +391,11 @@ export interface ProcessEvent {
   jobId: number;
   jobStatus: 'active' | 'completed' | 'failed' | 'retrying';
   resourceAttributes?: any;
+}
+
+
+export interface HttpError extends Error {
+  statusCode?: number;
+  code?: number | string;
+  data?: any;
 }

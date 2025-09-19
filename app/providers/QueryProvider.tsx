@@ -16,6 +16,8 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
+            retry: 1,
+            retryDelay: 500,
             // Don't refetch on window focus for better UX
             refetchOnWindowFocus: false,
             // Keep data for 5 minutes
@@ -23,7 +25,9 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             // Cache for 10 minutes
             gcTime: 10 * 60 * 1000,
           },
+          
           mutations: {
+            retry: 0,
             // Comment out global error handling to let components handle their own errors
             // onError: (error) => {
             //   // Global error handling disabled - handle in components

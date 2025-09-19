@@ -1,8 +1,8 @@
-import { Link, useRouteLoaderData } from 'react-router';
-import type { User } from '~/types';
+import { Link } from 'react-router';
 import { Icons } from './ui/icons';
 import * as Popover from '~/components/ui/popover';
 import { cn } from '~/utils/cn';
+import { useUser } from '~/hooks/queries/userQueries';
 
 type PopoverItem = {
   text: string;
@@ -19,8 +19,8 @@ type ViewButtonProps = {
 };
 
 export const ViewButton = ({ userId, popoverItems, className, isDataCard }: ViewButtonProps) => {
-  const me = useRouteLoaderData('routes/_main') as User;
-  if (me.role !== 'ADMIN' && me.id !== userId) {
+  const { data: me } = useUser();
+  if (!me || (me.role !== 'ADMIN' && me.id !== userId)) {
     return null;
   }
   return (
@@ -28,11 +28,11 @@ export const ViewButton = ({ userId, popoverItems, className, isDataCard }: View
       <Popover.Trigger className={cn('group navigation-exclude', className)}>
         <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
       </Popover.Trigger>
-      <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude'>
+      <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude animate-popover-toggle'>
         {popoverItems.map((item, index) => {
           const className = `cursor-pointer w-full py-3.5 px-3 navigation-exclude text-left ${
             item.isDelete ? 'hover:bg-specials-danger/10 text-specials-danger' : 'hover:bg-neutral-05 text-base-black'
-          } bg-white transition-colors text-body-md font-semibold rounded-[10px]`;
+          } bg-white transition-colors duration-200 text-body-md font-semibold rounded-[10px]`;
           
           if (item.href) {
             return (

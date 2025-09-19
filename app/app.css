@@ -110,6 +110,14 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-accordion-down: accordion-down 0.2s ease-out;
 
+  --animate-chat-toggle: chat-toggle 0.5s ease;
+  --animate-popover-toggle: popover-toggle 0.4s ease;
+  --animate-tooltip-toggle: tooltip-toggle 0.4s ease;
+  --animate-show-all: show-all 0.3s ease;
+
+  --animate-message-assistant: message-to-right 0.7s ease;
+  --animate-message-user: message-to-left 0.7s ease;
+
   @keyframes eye {
     0% {
       background-position: 0% 50%;
@@ -137,6 +145,95 @@
     }
     to {
       height: 0;
+    }
+  }
+
+  @keyframes chat-toggle {
+    0% {
+      opacity: 0;
+      transform: translateY(-20%);
+    }
+
+    50% {
+      transform: translateY(3%);
+      opacity: 0.7;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes show-all {
+    0% {
+      opacity: 0;
+      max-height: 0;
+    }
+
+    100% {
+      opacity: 1;
+      max-height: 100px;
+    }
+  }
+
+  @keyframes popover-toggle {
+    0% {
+      opacity: 0;
+      scale: 0.9;
+      transform: translateX(28%);
+    }
+
+    100% {
+      opacity: 1;
+      scale: 1;
+      transform: translateX(0%);
+    }
+  }
+
+  @keyframes tooltip-toggle {
+    0% {
+      opacity: 0;
+      scale: 0.9;
+    }
+
+    100% {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  @keyframes message-to-right {
+    0% {
+      opacity: 0;
+      transform: translateX(-10%);
+    }
+
+    50% {
+      transform: translateX(2%);
+      opacity: 0.6;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0%);
+    }
+  }
+
+  @keyframes message-to-left {
+    0% {
+      opacity: 0;
+      transform: translateX(10%);
+    }
+
+    50% {
+      transform: translateX(-2%);
+      opacity: 0.6;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0%);
     }
   }
 }
@@ -210,14 +307,14 @@
 
 html,
 body {
-  height: 100vh;
+  min-height: 100vh;
 
   background:
     radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
     linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
     linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%);
 
-  background-size: 100% 100%;
+  background-size: cover;
   background-blend-mode: multiply, overlay;
 }
 
@@ -261,3 +358,119 @@ input[type='number'] {
 .top-shadow {
   box-shadow: 0px -4px 24px 0px rgba(0, 0, 0, 0.04);
 }
+
+
+
+
+/* WEBSITE STYLES */
+
+/* LAYOUT STYLES */
+.container {
+  @apply mx-auto px-6;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+}
+
+.gradient-move {
+  background: linear-gradient(90deg, rgb(168, 85, 247), rgb(236, 72, 153), rgb(96, 165, 250), rgb(168, 85, 247));
+  background-size: 200% 100%;
+  color: white;
+}
+
+.gradient-move:hover {
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes custom-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-custom-pulse {
+  animation: custom-pulse 1s ease-in-out infinite;
+}
+
+@keyframes card-flip {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: rotateY(90deg) scale(0.8);
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+  }
+}
+
+.animate-card-flip {
+  animation: card-flip 0.6s ease-in-out;
+}
+
+@keyframes card-shuffle {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-20px) translateY(-10px) rotate(-5deg);
+  }
+  75% {
+    transform: translateX(20px) translateY(-10px) rotate(5deg);
+  }
+  100% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+}
+
+.animate-card-shuffle {
+  animation: card-shuffle 0.8s ease-in-out;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+
+

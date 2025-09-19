@@ -20,6 +20,7 @@ import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
 import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
@@ -29,7 +30,7 @@ export function meta({}: Route.MetaArgs) {
 export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
   const { data: aiProviders } = useAiProviders();
   const { data: sttProviders, isLoading } = useSttProviders();
-  const { data: chatData } = useChat(params.chatId);
+  const { data: chatData, refetch } = useChat(params.chatId);
   const chat = chatData;
 
   const me = useRouteLoaderData('routes/_main') as User;
@@ -51,7 +52,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
   if (!chat) return null;
 
   const handleEditChatClose = () => {
-    navigate(`/chats/${chat.id}`);
+    navigate(`${ROUTES.chats}/${chat.id}`);
   };
 
   const handleSttProviderChange = (sttProvider: SttProvider) => {
@@ -76,7 +77,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
     deleteChat(chat.id, {
       onSuccess: () => {
-        navigate(`/chats`, { replace: true });
+        navigate(`${ROUTES.chats}`, { replace: true });
       },
     });
   };
@@ -94,16 +95,16 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
             <button onClick={handleEditChatClose} className='md:hidden'>
               <Icons.chevronLeft />
             </button>
-            <div className='flex items-center gap-3'>
+            <div className='flex items-center gap-3 overflow-hidden'>
               <h3 className='text-heading-h3 text-base-black'>{chat.avatar.name}</h3>
               <span className='text-body-lg text-neutral-01'>•</span>
-              <p className='text-body-lg text-neutral-01'>{chat.avatar.shortDesc}</p>
+              <p className='text-body-lg text-neutral-01 truncate'>{chat.avatar.shortDesc}</p>
             </div>
           </div>
           <div className='flex flex-col flex-1 gap-8 overflow-y-auto scrollbar-medium pb-5 -mx-5 px-5'>
             {/* Avatar link */}
             <Link
-              to={`/avatars/${chat.avatar.id}`}
+              to={`${ROUTES.avatars}/${chat.avatar.id}`}
               className='flex-shrink-0 flex flex-col backdrop-blur-48 bg-gradient-1 rounded-xl overflow-hidden'
             >
               <div className='w-full h-[263px] flex items-center justify-center rounded-xl bg-neutral-04'>
@@ -128,7 +129,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} />}
+                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} refetch={refetch} />}
 
                   <button
                     onClick={() => {

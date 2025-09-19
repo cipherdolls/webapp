@@ -263,17 +263,19 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
                       <div className='flex items-center justify-between w-full'>
                         <div
-                          className={cn(
-                            'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                            (selectedImage || scenario?.picture) && 'divide-x divide-neutral-04 gap-4'
-                          )}
+                          className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
                         >
                           {selectedImage !== null && (
-                            <button type='button' className='pr-4 relative z-10' onClick={handleTrashClick}>
+                            <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
                               <Icons.trash className='text-black' />
                             </button>
                           )}
-                          <Icons.fileUpload className='cursor-pointer' onClick={() => fileInputRef.current?.click()} />
+                          {(selectedImage || scenario?.picture) &&
+                            <div className='h-6 w-px bg-neutral-04'/>
+                          }
+                          <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()}>
+                            <Icons.fileUpload />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -742,6 +744,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   selectedOptions={scenarioData.avatars}
                   onChange={(value) => updateScenarioData('avatars', value)}
                   placeholder='Select avatars for this scenario'
+                  defaultValue={Array.isArray(scenario?.avatars) ? scenario?.avatars.map((avatar) => avatar.id) : []}
                 />
                 {Array.isArray(scenarioData.avatars) &&
                   scenarioData.avatars.length > 0 &&
@@ -751,31 +754,38 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                <div className={cn('p-1 bg-neutral-05 grid grid-cols-2 rounded-xl', scenario?.published && 'opacity-50 cursor-not-allowed')}>
                   <button
                     type='button'
+                    disabled={scenario?.published}
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
-                      !scenarioData.published && 'bg-white'
+                      !scenarioData.published && 'bg-white',
+                      scenario?.published && 'cursor-not-allowed'
                     )}
-                    onClick={() => updateScenarioData('published', false)}
+                    onClick={() => !scenario?.published && updateScenarioData('published', false)}
                   >
                     🔒 Private
                   </button>
                   <button
                     type='button'
+                    disabled={scenario?.published}
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioData.published && 'bg-white'
+                      scenarioData.published && 'bg-white',
+                      scenario?.published && 'cursor-not-allowed'
                     )}
-                    onClick={() => updateScenarioData('published', true)}
+                    onClick={() => !scenario?.published && updateScenarioData('published', true)}
                   >
                     🌐 Public
                   </button>
                 </div>
                 <input type='hidden' name='published' value={scenarioData.published ? 'true' : 'false'} />
                 <p className='text-xs text-gray-500'>
-                  Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.
+                  {scenario?.published 
+                    ? 'If scenario is published it cannot be unpublished or deleted.'
+                    : 'Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.'
+                  }
                 </p>
               </Input.Root>
             </div>

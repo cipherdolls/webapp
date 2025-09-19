@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/_main._general.services.ai';
 import AiModelsTabs from '~/components/ai-services/AiModelsTabs';
 import AiProvidersTab from '~/components/ai-services/AiProvidersTab';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'AI Services' }];
@@ -21,7 +22,7 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
     if (mode === 'models' && !newSearchParams.has('tab')) {
       newSearchParams.set('tab', 'chat-models');
     }
-    navigate(`/services/ai?${newSearchParams.toString()}`, { replace: true });
+    navigate(`${ROUTES.services}/ai?${newSearchParams.toString()}`, { replace: true });
   };
 
   return (
@@ -34,7 +35,7 @@ export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
           <div className='flex items-center gap-2 bg-neutral-05 rounded-xl p-1'>
             <button
               onClick={() => handleViewModeChange('providers')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg duration-500 transition-colors ${
                 viewMode === 'providers' ? 'bg-white text-base-black shadow-sm' : 'text-neutral-01 hover:text-base-black'
               }`}
             >

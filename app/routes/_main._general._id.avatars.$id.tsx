@@ -1,9 +1,9 @@
-import { Link, Outlet, useNavigate } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS } from '~/constants';
+import { PATHS, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
@@ -12,19 +12,20 @@ import { ViewMore } from '~/view-more';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
-import { useUser } from '~/hooks/queries/userQueries';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import { formatModelName } from '~/utils/formatModelName';
 import { cn } from '~/utils/cn';
+import ErrorPage from '~/components/ErrorPage';
+import type { User } from '~/types';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
 export default function AvatarShow({ params }: Route.ComponentProps) {
+  const user = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
-  const { data: avatar } = useAvatar(params.id);
-  const { data: user } = useUser();
+  const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
   const { mutate: createChat } = useCreateChat();
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -57,7 +58,16 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     };
   }, []);
 
-  if (!avatar || !user) return null;
+
+  if(avatarLoading) {
+    return null;
+  }
+
+  if (avatarError || !avatar) {
+    return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
+  }
+
+
 
   const handleCreateChat = (scenarioId: string) => {
     createChat(
@@ -67,7 +77,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
       },
       {
         onSuccess: (newChat) => {
-          navigate(`/chats/${newChat.id}`);
+          navigate(`${ROUTES.chats}/${newChat.id}`);
         },
       }
     );
@@ -77,7 +87,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`${avatar.userId === user.id ? '/avatars?mine=true' : '/avatars'}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${avatar.userId === user.id ? `${ROUTES.avatars}?mine=true` : ROUTES.avatars}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full'/>
             <div className='flex sm:items-center sm:flex-row flex-col flex-wrap sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap hover:underline transition-all duration-200'>
@@ -114,7 +124,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             {/*</fetcher.Form>*/}
             {avatar.userId === user.id && (
               <>
-                <Link to={`/avatars/${avatar.id}/edit`}>
+                <Link to={`${ROUTES.avatars}/${avatar.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
                     Edit
                   </Button.Root>
@@ -130,7 +140,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                 {
                   type: 'link',
                   text: 'Edit',
-                  href: `/avatars/${avatar.id}/edit`,
+                  href: `${ROUTES.avatars}/${avatar.id}/edit`,
                   visible: user.id === avatar.userId,
                 },
                 {
@@ -183,7 +193,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                       <div className={'transition-all duration-500 ease-out'} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
-                            to={`/scenarios/${scenario.id}`}
+                            to={`${ROUTES.scenarios}/${scenario.id}`}
                             className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
                           >
                             <img
@@ -211,7 +221,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                             </div>
                             <div className='flex items-center gap-3'>
                               {scenario.chats && scenario.chats.length > 0 ? (
-                                <Link to={`/chats/${scenario.chats[0].id}`}>
+                                <Link to={`${ROUTES.chats}/${scenario.chats[0].id}`}>
                                   <Button.Root size='sm' className='px-5'>
                                     Continue Chat
                                   </Button.Root>
@@ -234,7 +244,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   <div className='flex flex-col items-center sm:gap-2 gap-1'>
                     <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
                     <Link
-                      to='/scenarios'
+                      to={ROUTES.scenarios}
                       className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
                     >
                       Add new scenario

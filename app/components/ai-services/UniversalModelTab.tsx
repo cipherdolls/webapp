@@ -14,6 +14,7 @@ import Table from '~/components/Table';
 import { chatModelColumns, embeddingModelColumns, reasoningModelColumns } from '~/components/ai-services/TableDefinitions';
 import type { UseInfiniteQueryResult } from '@tanstack/react-query';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { ROUTES } from '~/constants';
 
 type ModelData = ChatModel | EmbeddingModel;
 
@@ -32,10 +33,18 @@ function ModelSkeleton({ count = 3 }: { count?: number }) {
     <div className='flex flex-col gap-10 pb-5'>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
           <div className='flex flex-col gap-3'>
-            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='flex gap-2 items-center'>
+                <div className='w-6 h-6 rounded-lg bg-neutral-04'/>
+                <div className='w-32 h-6 rounded-lg bg-neutral-04'/>
+              </div>
+
+              <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
+            </div>
+
+            <div className='rounded-xl h-[110px] bg-neutral-04 w-full animate-pulse'></div>
+            <div className='rounded-xl h-[110px] bg-neutral-04 w-full animate-pulse'></div>
           </div>
         </div>
       ))}
@@ -99,13 +108,13 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
     let baseUrl;
     switch (tabType) {
       case 'chat-models':
-        baseUrl = '/services/ai/chat-models/new';
+        baseUrl = `${ROUTES.services}/ai/chat-models/new`;
         break;
       case 'embedding-models':
-        baseUrl = '/services/ai/embedding-models/new';
+        baseUrl = `${ROUTES.services}/ai/embedding-models/new`;
         break;
       default:
-        baseUrl = '/services/ai/reasoning-models/new';
+        baseUrl = `${ROUTES.services}/ai/reasoning-models/new`;
         break;
     }
     return `${baseUrl}?id=${providerId || ''}&modelName=${providerName || ''}`;
@@ -137,14 +146,14 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
                     extra={
                       <ViewButton
                         popoverItems={[
-                          { text: 'Edit AI Provider', href: `/services/ai/ai-providers/${group.provider?.id}/edit` },
+                          { text: 'Edit AI Provider', href: `${ROUTES.services}/ai/ai-providers/${group.provider?.id}/edit` },
                           {
                             text: `Add ${modelType}`,
                             href: addModelHref(group.provider?.id || '', group.provider?.name || ''),
                           },
                           {
                             text: 'Delete',
-                            href: `/services/ai/providers/delete?id=${group.provider?.id}&modelName=${group.provider?.name}`,
+                            href: `${ROUTES.services}/ai/providers/delete?id=${group.provider?.id}&modelName=${group.provider?.name}`,
                             isDelete: true,
                           },
                         ]}

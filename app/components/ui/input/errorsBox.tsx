@@ -26,9 +26,7 @@ function normalizeErrors(errors: unknown): string[] {
       return parsed.filter((e) => typeof e === 'string');
     }
     if (parsed && typeof parsed === 'object' && parsed !== null) {
-      return Object.values(parsed).map((v) =>
-        typeof v === 'string' ? v : JSON.stringify(v)
-      );
+      return Object.values(parsed).map((v) => (typeof v === 'string' ? v : JSON.stringify(v)));
     }
     return [errors];
   }
@@ -52,42 +50,32 @@ function normalizeErrors(errors: unknown): string[] {
       return normalizeErrors(errors.message);
     }
     // Otherwise, extract all string values from the object
-    return Object.values(errors).map((v) =>
-      typeof v === 'string' ? v : JSON.stringify(v)
-    );
+    return Object.values(errors).map((v) => (typeof v === 'string' ? v : JSON.stringify(v)));
   }
 
   // Fallback
   return ['Unknown error format'];
 }
 
-const ErrorsBox = memo(
-  ({
-    errors,
-    className,
-  }: {
-    errors?: unknown;
-    className?: string;
-  }) => {
-    const normalizedErrors = useMemo(() => normalizeErrors(errors), [errors]);
+const ErrorsBox = memo(({ errors, className }: { errors?: unknown; className?: string }) => {
+  const normalizedErrors = useMemo(() => normalizeErrors(errors), [errors]);
 
-    if (!normalizedErrors.length) return null;
+  if (!normalizedErrors.length) return null;
 
-    return (
-      <div className={cn('rounded-lg bg-specials-danger/10 p-3 pl-10 pr-7', className)}>
-        <ul className="flex flex-col gap-1 list-disc list-outside">
-          {normalizedErrors.map((error, index) => (
-            <li
-              key={`error-${index}-${typeof error === 'string' ? error.slice(0, 10) : index}`}
-              className="text-body-sm text-specials-danger"
-            >
-              {error}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-);
+  return (
+    <div className={cn('rounded-lg bg-specials-danger/10 p-3 pl-10 pr-7', className)}>
+      <ul className='flex flex-col gap-1 list-disc list-outside'>
+        {normalizedErrors.map((error, index) => (
+          <li
+            key={`error-${index}-${typeof error === 'string' ? error.slice(0, 10) : index}`}
+            className='text-body-sm text-specials-danger capitalize'
+          >
+            {error}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+});
 
 export default ErrorsBox;

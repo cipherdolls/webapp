@@ -11,6 +11,7 @@ import { useDeleteSttProvider } from '~/hooks/queries/sttMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import ModalSttProviderEdit from '~/components/ModalSttProviderEdit';
 import { useState } from 'react';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Provider' }];
@@ -51,7 +52,7 @@ export default function SttProviderId({ params }: Route.ComponentProps) {
 
     deleteSttProvider(sttProvider.id, {
       onSuccess: () => {
-        navigate('/services/stt', { replace: true });
+        navigate(`${ROUTES.services}/stt`, { replace: true });
       },
     });
   };
@@ -63,7 +64,7 @@ export default function SttProviderId({ params }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/services/stt`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${ROUTES.services}/stt`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>

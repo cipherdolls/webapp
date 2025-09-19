@@ -5,7 +5,7 @@ import { DataCard } from '~/components/DataCard';
 import type { TTableColumn } from '~/components/Table';
 import Table from '~/components/Table';
 import PlayerButton from '~/components/PlayerButton';
-import { PATHS } from '~/constants';
+import { PATHS, ROUTES } from '~/constants';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from '~/components/ui/InformationBadge';
@@ -13,19 +13,30 @@ import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useTtsProviders } from '~/hooks/queries/ttsQueries';
 import { useDeleteTtsProvider, useDeleteTtsVoice } from '~/hooks/queries/ttsMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
+import { Icons } from '~/components/ui/icons';
 
 interface EnhancedTtsVoice extends TtsVoice {
   providerName: string;
   providerId: string;
 }
 
-function TTSSkeleton({ count = 3 }: { count?: number }) {
+function TTSSkeleton({ count = 2 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-10 pb-5'>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
-          <div className='rounded-[10px] h-screen bg-gradient-1 w-full animate-pulse'></div>
+          <div className='flex flex-col gap-3'>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='flex gap-2 items-center'>
+                <div className='w-6 h-6 rounded-lg bg-neutral-04'/>
+                <div className='w-32 h-6 rounded-lg bg-neutral-04'/>
+              </div>
+
+              <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
+            </div>
+
+            <div className='rounded-xl h-[480px] bg-neutral-04 w-full animate-pulse'></div>
+          </div>
         </div>
       ))}
     </div>
@@ -107,7 +118,7 @@ export default function TtsProvidersIndex() {
       render: (data) => (
         <ViewButton
           popoverItems={[
-            { text: 'Edit', href: `/services/tts/tts-providers/${data.providerId}/tts-voices/${data.id}/edit` },
+            { text: 'Edit', href: `${ROUTES.services}/tts/tts-providers/${data.providerId}/tts-voices/${data.id}/edit` },
             { text: 'Delete', onClick: () => handleDeleteTtsVoice(data), isDelete: true },
           ]}
           className='flex items-center justify-center'
@@ -143,11 +154,11 @@ export default function TtsProvidersIndex() {
                       </div>
                       <ViewButton
                         popoverItems={[
-                          { text: 'Edit TTS Provider', href: `/services/tts/tts-providers/${ttsProvider.id}/edit` },
+                          { text: 'Edit TTS Provider', href: `${ROUTES.services}/tts/tts-providers/${ttsProvider.id}/edit` },
 
                           {
                             text: 'Add TTS Voice',
-                            href: `/services/tts/tts-providers/${ttsProvider.id}/tts-voice/new`,
+                            href: `${ROUTES.services}/tts/tts-providers/${ttsProvider.id}/tts-voice/new`,
                           },
                           {
                             text: 'Delete',

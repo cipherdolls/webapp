@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId';
 import { useEffect } from 'react';
 import { useChatStore } from '~/store/useChatStore';
@@ -9,13 +9,15 @@ import ChatJobErrors from '~/components/chat/ChatJobErrors';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { ChatJob, type ChatJobType } from '~/components/chat/types/chatState';
 import { useChat } from '~/hooks/queries/chatQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chats' }];
 }
 
 export default function ChatShow({ params }: Route.ComponentProps) {
-  const { data: chatData, isLoading: isLoadingChat } = useChat(params.chatId);
+  const { data: chatData, isLoading: isLoadingChat, error } = useChat(params.chatId);
+  const navigate = useNavigate();
 
   const chat = chatData;
 
@@ -41,6 +43,14 @@ export default function ChatShow({ params }: Route.ComponentProps) {
     enabled: !!chatData?.id,  
   });
 
+  // Redirect to chats index if chat doesn't exist or user doesn't have access
+  useEffect(() => {
+    if (!isLoadingChat && (error || !chat)) {
+      navigate(ROUTES.chats, { replace: true });
+    }
+  }, [chat, error, isLoadingChat, navigate]);
+
+  if (isLoadingChat) return null;
   if (!chat) return null;
 
   return (

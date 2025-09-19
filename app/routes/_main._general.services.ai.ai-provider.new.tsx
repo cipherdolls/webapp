@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.services.ai.ai-provider.new';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useCreateAiProvider } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New AI Provider' }];
@@ -52,7 +52,7 @@ export default function ApiProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(`${ROUTES.services}/ai`, { replace: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,16 +66,17 @@ export default function ApiProviderNew() {
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Create AI Provider</Drawer.Title>
-        <form onSubmit={handleSubmit} encType='multipart/form-data' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
+      <Modal.Content>
+        <Modal.Title>Create AI Provider</Modal.Title>
+        <Modal.Description className='sr-only'>Create AI Provider</Modal.Description>
+        <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={createAiProviderError} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -118,7 +119,7 @@ export default function ApiProviderNew() {
                 Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
@@ -130,7 +131,7 @@ export default function ApiProviderNew() {
                 API Key
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='apiKey'
                 name='apiKey'
                 type='text'
@@ -142,35 +143,26 @@ export default function ApiProviderNew() {
                 Base Path
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='basePath'
                 name='basePath'
                 type='text'
                 placeholder='Base path'
               />
             </Input.Root>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-            onClick={handleClose}
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

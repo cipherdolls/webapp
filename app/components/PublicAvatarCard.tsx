@@ -3,7 +3,7 @@ import { getPicture } from '~/utils/getPicture';
 import type { Avatar } from '~/types';
 import PlayerButton from '~/components/PlayerButton';
 import * as Button from '~/components/ui/button/button';
-import { PATHS } from '~/constants';
+import { PATHS, ROUTES } from '~/constants';
 
 interface PublicAvatarCardProps {
   avatar: Avatar;
@@ -12,7 +12,7 @@ interface PublicAvatarCardProps {
 const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
   return (
     <div className='bg-white rounded-xl overflow-hidden shadow-regular'>
-      <Link to={`/avatars/${avatar.id}`} className='block h-[152px] sm:h-[200px] rounded-xl bg-black'>
+      <Link to={`${ROUTES.avatars}/${avatar.id}`} className='block h-[152px] sm:h-[200px] rounded-xl bg-black'>
         <img
           src={getPicture(avatar, 'avatars', false)}
           srcSet={getPicture(avatar, 'avatars', true)}
@@ -32,7 +32,7 @@ const PublicAvatarCard = ({ avatar }: PublicAvatarCardProps) => {
           />
 
           {(avatar.chats?.length || 0) > 0 ? (
-            <Link to={`/chats/${avatar.chats?.[0]?.id}`}>
+            <Link to={`${ROUTES.chats}/${avatar.chats?.[0]?.id}`}>
               <Button.Root size='sm' className='px-5'>
                 Chat
               </Button.Root>

@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router';
 import { useDeleteAiProvider } from '~/hooks/queries/aiProviderMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import type { AiProvider } from '~/types';
+import { ROUTES } from '~/constants';
 
 function AiProviderSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -24,8 +25,17 @@ function AiProviderSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
           <div className='flex flex-col gap-3'>
-            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[110px] bg-gradient-1 w-full animate-pulse'></div>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='flex gap-2 items-center'>
+                <div className='w-6 h-6 rounded-lg bg-neutral-04'/>
+                <div className='w-32 h-6 rounded-lg bg-neutral-04'/>
+              </div>
+
+              <Icons.more className='text-pink-01 group-hover:text-base-black transition-colors' />
+            </div>
+
+            <div className='rounded-xl h-[110px] bg-neutral-04 w-full animate-pulse'></div>
+            <div className='rounded-xl h-[110px] bg-neutral-04 w-full animate-pulse'></div>
           </div>
         </div>
       ))}
@@ -87,18 +97,18 @@ const AiProvidersTab = () => {
                   extra={
                     <ViewButton
                       popoverItems={[
-                        { text: 'Edit AI Provider', href: `/services/ai/ai-providers/${aiProvider.id}/edit` },
+                        { text: 'Edit AI Provider', href: `${ROUTES.services}/ai/ai-providers/${aiProvider.id}/edit` },
                         {
                           text: 'Add Chat Model',
-                          href: `/services/ai/chat-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
+                          href: `${ROUTES.services}/ai/chat-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                         },
                         {
                           text: 'Add Embedding Model',
-                          href: `/services/ai/embedding-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
+                          href: `${ROUTES.services}/ai/embedding-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                         },
                         {
                           text: 'Add Reasoning Model',
-                          href: `/services/ai/reasoning-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
+                          href: `${ROUTES.services}/ai/reasoning-models/new?id=${aiProvider.id}&modelName=${aiProvider.name}`,
                         },
                         {
                           text: 'Delete',
@@ -185,11 +195,11 @@ const AiProvidersTab = () => {
                                     data={[
                                       {
                                         label: '$/Input',
-                                        value: <>${scientificNumConvert(chatModel.dollarPerInputToken)}</>,
+                                        value: <>${scientificNumConvert(chatModel.dollarPerInputToken  * 1000000)}</>,
                                       },
                                       {
                                         label: '$/Output',
-                                        value: <>${scientificNumConvert(chatModel.dollarPerOutputToken)}</>,
+                                        value: <>${scientificNumConvert(chatModel.dollarPerOutputToken  * 1000000)}</>,
                                       },
                                     ]}
                                   />
@@ -251,11 +261,11 @@ const AiProvidersTab = () => {
                                     data={[
                                       {
                                         label: '$/Input',
-                                        value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken)}</>,
+                                        value: <>${scientificNumConvert(embeddingModel.dollarPerInputToken  * 1000000)}</>,
                                       },
                                       {
                                         label: '$/Output',
-                                        value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken)}</>,
+                                        value: <>${scientificNumConvert(embeddingModel.dollarPerOutputToken  * 1000000)}</>,
                                       },
                                     ]}
                                   />
@@ -322,11 +332,11 @@ const AiProvidersTab = () => {
                                     data={[
                                       {
                                         label: '$/Input',
-                                        value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken)}</>,
+                                        value: <>${scientificNumConvert(reasoningModel.dollarPerInputToken * 1000000)}</>,
                                       },
                                       {
                                         label: '$/Output',
-                                        value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken)}</>,
+                                        value: <>${scientificNumConvert(reasoningModel.dollarPerOutputToken * 1000000)}</>,
                                       },
                                     ]}
                                   />

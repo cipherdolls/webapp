@@ -12,6 +12,7 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useChatModel } from '~/hooks/queries/aiProviderQueries';
 import { useUpdateChatModel } from '~/hooks/queries/aiProviderMutations';
 import { useState } from 'react';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Chat Model' }];
@@ -28,7 +29,7 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
   
 
   const handleClose = () => {
-    navigate(`/services/ai`);
+    navigate(`${ROUTES.services}/ai`);
   };
 
   if (isLoadingChatModel) return <div>Loading...</div>;
@@ -89,7 +90,7 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(chatModel.dollarPerInputToken)}
+                      defaultValue={scientificNumConvert(chatModel.dollarPerInputToken  * 1000000)}
                     />
                   </Input.Root>
 
@@ -104,7 +105,7 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(chatModel.dollarPerOutputToken)}
+                      defaultValue={scientificNumConvert(chatModel.dollarPerOutputToken  * 1000000)}
                     />
                   </Input.Root>
                 </div>

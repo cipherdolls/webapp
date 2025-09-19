@@ -4,8 +4,7 @@ import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { DollBody, Avatar } from '~/types';
 import type { Route } from './+types/_main._general.doll-bodies.$dollBodyId.edit';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
@@ -90,20 +89,21 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
   };
 
   const handleClose = () => {
-    navigate(`/doll-bodies/${dollBody.id}`);
+    navigate(`/doll-bodies/${dollBody.id}`, { replace: true });
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Edit Doll Body</Drawer.Title>
-        <fetcher.Form method='PATCH' encType='multipart/form-data' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
+      <Modal.Content>
+        <Modal.Title>Edit Doll Body</Modal.Title>
+        <Modal.Description className='sr-only'>Edit Doll Body</Modal.Description>
+        <fetcher.Form method='PATCH' encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='dollBodyId' value={dollBody.id} />
 
@@ -152,7 +152,7 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
             <Input.Root>
               <Input.Label htmlFor='name'>Name</Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
@@ -167,7 +167,7 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
               <Textarea.Textarea
                 id='description'
                 name='description'
-                className='w-full border border-neutral-04 py-3.5 px-3 text-base-black'
+                className='w-full py-3.5 px-3 text-base-black'
                 placeholder='Describe the doll body'
                 defaultValue={dollBody.description}
                 rows={5}
@@ -181,7 +181,7 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
                 id='avatarId'
                 name='avatarId'
                 defaultValue={dollBody.avatar.id}
-                className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                className='flex h-10 w-full rounded-md bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
                 {avatars.map((avatar: Avatar) => (
                   <option key={avatar.id} value={avatar.id} selected={avatar.id === dollBody.avatar.id}>
@@ -191,29 +191,20 @@ export default function DollBodyEdit({ loaderData }: Route.ComponentProps) {
               </select>
               <p className='text-xs text-gray-500'>Select the default avatar for this doll body.</p>
             </Input.Root>
-          </Drawer.Body>
+          </Modal.Body>
 
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-            onClick={handleClose}
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

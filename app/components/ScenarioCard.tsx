@@ -4,6 +4,7 @@ import { cn } from '~/utils/cn';
 import SelectAvatarModal from './SelectAvatarModal';
 import { getPicture } from '~/utils/getPicture';
 import { InformationBadge } from './ui/InformationBadge';
+import { ROUTES } from '~/constants';
 
 interface ScenarioCardProps {
   scenario: Scenario;
@@ -47,7 +48,7 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
   return (
     <div className={cn('flex flex-col rounded-xl overflow-hidden relative', isPublic ? cardClassName : myCardClassName)}>
       <div className={cn('relative h-[152px] w-full', (isPublic ? publicHidden : myHidden) ? 'hidden' : '')}>
-        <Link to={`/scenarios/${scenario.id}`}>
+        <Link to={`${ROUTES.scenarios}/${scenario.id}`}>
           <img
             src={getPicture(scenario, 'avatars', false)}
             srcSet={getPicture(scenario, 'avatars', true)}
@@ -57,7 +58,7 @@ const ScenarioCard = ({ scenario, index, showAll, totalScenarios, isPublic = fal
         </Link>
         <div className='absolute bottom-2.5 right-2.5'>{avatars && <SelectAvatarModal avatars={avatars} scenario={scenario} />}</div>
       </div>
-      <Link to={`/scenarios/${scenario.id}`}>
+      <Link to={`${ROUTES.scenarios}/${scenario.id}`}>
         <div className={cn(' flex-col gap-2 flex-1 p-5 bg-gradient-1', (isPublic ? publicHidden : myHidden) ? 'hidden' : 'flex')}>
           <div className='flex items-center gap-2'>
             <h6 className='text-body-md font-semibold text-base-black line-clamp-1 break-all'>{scenario.name}</h6>

@@ -11,11 +11,10 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
-import { useRouteLoaderData } from 'react-router';
-
-import type { Avatar, Gender, Scenario, TtsVoice, User } from '~/types';
+import type { Avatar, Gender, Scenario, TtsVoice } from '~/types';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 
 // TODO: Create all the scenarios or create a page with a new ui. 
 
@@ -29,7 +28,7 @@ interface AvatarEditModalProps {
 
 const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
 
-  const me = useRouteLoaderData('routes/_main') as User;
+  const { data: me } = useUser();
   
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({mine: 'true', published: 'true', limit: '100'});
   const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
@@ -208,6 +207,26 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                       </div>
                     </div>
                   </div>
+
+                  <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
+                    <div className='flex items-center justify-between w-full'>
+                      <div
+                        className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
+                      >
+                        {avatarData.picture !== null && (
+                          <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
+                            <Icons.trash className='text-black' />
+                          </button>
+                        )}
+                        {(avatarData.picture || avatar?.picture)  &&
+                          <div className='h-6 w-px bg-neutral-04'/>
+                        }
+                        <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()} >
+                          <Icons.fileUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className='grid grid-cols-1 gap-4'>
@@ -305,7 +324,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  userId={me.id}
+                  userId={me?.id || ''}
                   options={scenarios}
                   selectedOptions={avatarData.scenarios}
                   onChange={(scenarios) => updateAvatarData('scenarios', scenarios)}

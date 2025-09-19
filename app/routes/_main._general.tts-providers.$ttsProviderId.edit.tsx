@@ -11,6 +11,7 @@ import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
 import { useUpdateTtsProvider } from '~/hooks/queries/ttsMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit TTS Provider' }];
@@ -65,7 +66,7 @@ export default function TtsProviderEdit({ params }: Route.ComponentProps) {
       { ttsProviderId: params.ttsProviderId, formatData: formData },
       {
         onSuccess: () => {
-          navigate(`/services/tts`);
+          navigate(`${ROUTES.services}/tts`);
         },
       }
     );

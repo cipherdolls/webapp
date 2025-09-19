@@ -7,9 +7,11 @@ import { Buffer } from 'buffer';
 import { AudioPlayerProvider } from 'react-use-audio-player';
 import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import { wsURL } from '~/constants';
+import { ROUTES, wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
 import GlobalSubscriber from '~/mqtt/GlobalSubscriber';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -19,8 +21,9 @@ export async function clientLoader() {
 const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const me: User = loaderData;
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(undefined);
-  const [network, setNetwork] = useState<ethers.Network | undefined>(undefined);
   const navigate = useNavigate();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const queryClient = useQueryClient();
 
   // Initialize provider
   useEffect(() => {
@@ -32,9 +35,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
           // Create a new provider instance
           const providerInstance = new ethers.BrowserProvider(window.ethereum, 'any');
-          const network = await providerInstance.getNetwork();
           setProvider(providerInstance);
-          setNetwork(network);
         } catch (error) {
           console.error('Error connecting to wallet:', error);
         }
@@ -69,8 +70,10 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
     if (provider) {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('Accounts changed:', accounts);
-        localStorage.removeItem('token');
-        navigate('/');
+        // Clear all React Query cache when account changes
+        queryClient.clear();
+        clearAuth();
+        navigate(ROUTES.signIn);
       };
 
       // Subscribe to accountsChanged event directly from window.ethereum
@@ -81,11 +84,11 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       };
     }
-  }, [provider]);
+  }, [provider, queryClient, clearAuth, navigate]);
 
   return (
     <MainLayoutProviders>
-      <div className='flex sm:flex-row flex-col-reverse size-full'>
+      <div className='flex sm:flex-row flex-col-reverse size-full h-screen'>
         <Sidebar />
         <Outlet />
       </div>
@@ -99,7 +102,7 @@ export default MainLayout;
 // PROVIDERS WRAPPER
 
 export const MainLayoutProviders = ({ children }: { children: React.ReactNode }) => {
-  const localStorageToken = localStorage.getItem('token');
+  const token = useAuthStore((state) => state.token);
   const mqttConfig = useMemo(() => {
     const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
 
@@ -108,7 +111,7 @@ export const MainLayoutProviders = ({ children }: { children: React.ReactNode })
       options: {
         clientId,
         username: 'frontend',
-        password: localStorageToken?.replaceAll('"', ''),
+        password: token?.replaceAll('"', ''),
         keepAlive: 60,
         reconnectPeriod: 1000,
         connectTimeout: 30000,
@@ -127,7 +130,7 @@ export const MainLayoutProviders = ({ children }: { children: React.ReactNode })
         },
       },
     };
-  }, [localStorageToken]);
+  }, [token]);
 
   return (
     <MqttProvider config={mqttConfig}>

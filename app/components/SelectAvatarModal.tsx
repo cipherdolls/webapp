@@ -4,7 +4,7 @@ import type { Avatar, Scenario } from '~/types';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
 import { useState } from 'react';
-import { PICTURE_SIZE } from '~/constants';
+import { PICTURE_SIZE, ROUTES } from '~/constants';
 import { useUpdateAvatar } from '~/hooks/queries/avatarMutations';
 import ErrorsBox from './ui/input/errorsBox';
 
@@ -44,8 +44,6 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
     updateAvatar({ avatarId: avatar.id, formData });
   };
 
- 
-
   return (
     <Dialog.Root open={isDialogOpen} onOpenChange={handleOpenChange}>
       <Dialog.Trigger asChild>
@@ -59,7 +57,7 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
         <Dialog.Overlay className='bg-neutral-02 bg-opacity-50 fixed inset-0 z-[1000000]' />
 
         <Dialog.Content className='fixed inset-0 sm:top-2 sm:right-2 sm:bottom-2 sm:left-auto sm:max-w-[408px] w-full bg-white h-auto sm:rounded-xl shadow-bottom-level-2 overflow-auto pb-2 z-[1000000]'>
-          <Dialog.Title className='text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center px-5'>
+          <Dialog.Title className='text-heading-h4 sm:text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center px-5'>
             <Dialog.Close className='sm:hidden block'>
               <Icons.chevronLeft className='mr-3' />
             </Dialog.Close>
@@ -75,7 +73,7 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
                 <p>You don't have any avatars yet.</p>
                 <Button.Root className='mt-4 px-6' asChild>
                   <Dialog.Close asChild>
-                    <a href='/avatars/new'>Create an Avatar</a>
+                    <a href={`${ROUTES.avatars}/new`}>Create an Avatar</a>
                   </Dialog.Close>
                 </Button.Root>
               </div>
@@ -85,18 +83,18 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
                 return (
                   <div
                     key={index}
-                    className='p-3 rounded-xl hover:bg-neutral-05 transition-colors flex items-center justify-between gap-4 '
+                    className='p-3 rounded-xl hover:bg-neutral-05 transition-colors flex items-center justify-between gap-4'
                   >
-                    <div className='flex items-center gap-4'>
+                    <div className='flex items-center gap-4 min-w-0 '>
                       <img
                         src={getPicture(avatar, 'avatars', false, PICTURE_SIZE.avatar)}
                         srcSet={getPicture(avatar, 'avatars', true, PICTURE_SIZE.avatar)}
                         alt={avatar.name}
                         className='size-14 rounded-full object-cover'
                       />
-                      <div className='flex flex-col gap-05'>
+                      <div className='flex flex-col gap-0.5 min-w-0'>
                         <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.name}</p>
-                        <span className='text-body-sm text-neutral-01 text-left line-clamp-1'>{avatar.shortDesc}</span>
+                        <span className='text-body-sm text-neutral-01 text-left truncate'>{avatar.shortDesc}</span>
                       </div>
                     </div>
                     <Button.Root

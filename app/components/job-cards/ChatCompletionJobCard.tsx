@@ -62,32 +62,6 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
             },
           ]}
         />
-        <DataCard.ItemDataGrid
-          variant='secondary'
-          data={[
-            {
-              label: 'Cost',
-              value: `${formattedPaymentJob} LOV`,
-            },
-            {
-              label: 'txHash',
-              value: paymentJob?.txHash ? (
-                <>
-                  <a
-                    href={`https://optimistic.etherscan.io/tx/${paymentJob?.txHash}`}
-                    className='underline line-clamp-1 block truncate break-normal max-w-[244px]'
-                    target='_blank'
-                    rel='noreferrer noopener'
-                  >
-                    {paymentJob.txHash}
-                  </a>
-                </>
-              ) : (
-                'N/A'
-              ),
-            },
-          ]}
-        />
       </DataCard.Wrapper>
     </DataCard.Root>
   );

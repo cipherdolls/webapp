@@ -1,11 +1,24 @@
 import type { FC } from 'react';
+import { useState } from 'react';
+import { switchToOptimismNetwork } from '~/utils/networkUtils';
+import { toast } from 'sonner';
 
-interface NetworkWarningBannerProps {
-  onSwitchNetwork: () => void;
-  isLoading?: boolean;
-}
+export const NetworkWarningBanner: FC = () => {
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
 
-export const NetworkWarningBanner: FC<NetworkWarningBannerProps> = ({ onSwitchNetwork, isLoading = false }) => {
+  const handleSwitchNetwork = async () => {
+    setIsSwitchingNetwork(true);
+    try {
+      const result = await switchToOptimismNetwork();
+      if (!result.success) {
+        toast.error(result.error || 'Failed to switch network');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred while switching networks');
+    } finally {
+      setIsSwitchingNetwork(false);
+    }
+  };
   return (
     <div className='bg-base-white border border-neutral-04 rounded-xl p-4 mb-4'>
       <div className='flex items-start gap-3'>
@@ -16,11 +29,11 @@ export const NetworkWarningBanner: FC<NetworkWarningBannerProps> = ({ onSwitchNe
             You need to be on the Optimism network to create token permits. Please switch your network to continue.
           </p>
           <button
-            onClick={onSwitchNetwork}
-            disabled={isLoading}
+            onClick={handleSwitchNetwork}
+            disabled={isSwitchingNetwork}
             className='inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium'
           >
-            {isLoading ? (
+            {isSwitchingNetwork ? (
               <>
                 <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
                 Switching...

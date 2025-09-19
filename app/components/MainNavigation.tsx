@@ -1,13 +1,15 @@
-import { Link, NavLink, useNavigate, type NavLinkProps } from 'react-router';
+import { Link, NavLink, type NavLinkProps } from 'react-router';
 import { cn } from '~/utils/cn';
 import LogoSvg from '~/assets/svg/logo.svg';
 import DashboardSvg from '~/assets/svg/dashboard-icon.svg';
 import ChatsSvg from '~/assets/svg/chat.svg';
 import PreferencesSvg from '~/assets/svg/preferences.svg';
 import Logout from '~/assets/svg/logout.svg';
+import { ROUTES } from '~/constants';
+import { useAuthStore } from '~/store/useAuthStore';
 
 const MainNavigation = ({ className }: { className?: string }) => {
-  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
   return (
     <aside
       className={cn(
@@ -17,18 +19,18 @@ const MainNavigation = ({ className }: { className?: string }) => {
     >
       <div className='flex md:flex-col gap-4 px-2 h-full overflow-y-auto'>
         <div className='hidden justify-center shrink-0 h-24 md:flex  pt-7 pb-5'>
-          <Link to='/' className=' md:flex'>
+          <Link to={ROUTES.account} className=' md:flex'>
             <LogoSvg />
           </Link>
         </div>
 
         <nav className='flex justify-center flex-1 gap-5 px-5 md:flex-col md:gap-0.5 md:px-0'>
-          <NavLinkComponent to='/'>
+          <NavLinkComponent to={ROUTES.account}>
             <DashboardSvg />
             <span>Dashboard</span>
           </NavLinkComponent>
 
-          <NavLinkComponent to='/chats'>
+          <NavLinkComponent to={ROUTES.chats}>
             <span className='relative'>
               <ChatsSvg />
               <span className='absolute top-0 right-0 w-2.5 h-2.5 bg-[#03CC9C] rounded-full border border-white' />
@@ -44,11 +46,7 @@ const MainNavigation = ({ className }: { className?: string }) => {
 
         <div className='hidden h-24 shrink-0 md:block'>
           <button
-            onClick={() => {
-              localStorage.removeItem('token');
-              localStorage.removeItem('redirectAfterSignIn');
-              navigate('/signin');
-            }}
+            onClick={logout}
             className='flex flex-col gap-1 items-center justify-center w-full h-[72px] rounded-xl text-xs text-center font-semibold text-[#350D2A]/40 hover:bg-black/5 hover:text-black hover:cursor-pointer'
           >
             <Logout />
