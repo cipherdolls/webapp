@@ -8,6 +8,7 @@ import { getPicture } from '~/utils/getPicture';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS, ROUTES } from '~/constants';
 import * as Popover from '~/components/ui/popover';
+import * as RadioGroup from '~/components/ui/radio-group';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
@@ -70,8 +71,10 @@ export default function AvatarsShow() {
 
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
+  const searchQuery = searchParams.get('name') || '';
 
-  const hasActiveFilters = searchParams.size >= 1 || showMyAvatars;
+  // Check if there are any active filters (excluding the default published=true and mine toggle)
+  const hasActiveFilters = searchQuery.length > 0 || genderFilter !== 'All';
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -101,7 +104,7 @@ export default function AvatarsShow() {
   };
 
   const handleClearFilters = () => {
-    setSearchParams({});
+    setSearchParams({ published: 'true' });
   };
 
   return (
@@ -119,8 +122,8 @@ export default function AvatarsShow() {
 
       <div className='flex flex-col gap-5'>
         <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search avatars by name' />
-        <div className='flex flex-wrap gap-3 items-center justify-between'>
-          <div className='flex items-center gap-3'>
+        <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
+          <div className='flex flex-1 items-center gap-3'>
             <button
               onClick={handleToggle}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude ${
@@ -138,48 +141,49 @@ export default function AvatarsShow() {
             >
               <p className='text-body-md font-medium'>My Avatars</p>
             </button>
+          </div>
 
-            <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
-              <Popover.Trigger
-                className={`group navigation-exclude flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                  genderFilter !== 'All' ? 'bg-gradient-1 text-base-black' : 'text-base-black hover:bg-neutral-05'
-                }`}
+          <div className='flex items-center gap-3 md:justify-end md:flex-wrap'>
+            {hasActiveFilters && (
+              <button
+                onClick={handleClearFilters}
+                className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
               >
-                <p className='text-body-md font-medium capitalize'>{genderFilter === 'All' ? 'All genders' : genderFilter}</p>
-                <Icons.chevronDown className='size-6' />
+                <Icons.close className='size-4' />
+                <p className='text-body-md font-medium'>Clear filters</p>
+              </button>
+            )}
+
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
+                  <Icons.preferences className='size-4' />
+                  Filters
+                  <Icons.chevronDown className='size-4' />
+                </Button.Root>
               </Popover.Trigger>
-              <Popover.Content side='bottom' align='end' className='flex flex-col navigation-exclude !w-[200px]'>
-                <button
-                  onClick={() => handleFilterChange('All')}
-                  className={`cursor-pointer text-left w-full py-3.5 px-3 navigation-exclude ${genderFilter === 'All' ? 'bg-neutral-05' : 'hover:bg-neutral-05'} text-base-black bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
-                >
-                  All genders
-                </button>
-                <button
-                  onClick={() => handleFilterChange('Male')}
-                  className={`cursor-pointer text-left w-full py-3.5 px-3 navigation-exclude ${genderFilter === 'Male' ? 'bg-neutral-05' : 'hover:bg-neutral-05'} text-base-black bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
-                >
-                  Male
-                </button>
-                <button
-                  onClick={() => handleFilterChange('Female')}
-                  className={`cursor-pointer text-left w-full py-3.5 px-3 navigation-exclude ${genderFilter === 'Female' ? 'bg-neutral-05' : 'hover:bg-neutral-05'} text-base-black bg-white transition-colors text-body-md font-semibold rounded-[10px]`}
-                >
-                  Female
-                </button>
+              <Popover.Content className='w-64 p-0'>
+                <div className='p-4 space-y-6'>
+                  {/* Gender Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Gender</h4>
+                    <RadioGroup.Root value={genderFilter} onValueChange={handleFilterChange}>
+                      {(['All', 'Male', 'Female'] as const).map((filter) => (
+                        <div key={filter} className='flex items-center space-x-2'>
+                          <RadioGroup.Item value={filter} id={`gender-${filter}`}>
+                            <RadioGroup.Indicator />
+                          </RadioGroup.Item>
+                          <label htmlFor={`gender-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                            {filter === 'All' ? 'All genders' : filter}
+                          </label>
+                        </div>
+                      ))}
+                    </RadioGroup.Root>
+                  </div>
+                </div>
               </Popover.Content>
             </Popover.Root>
           </div>
-
-          {hasActiveFilters && (
-            <button
-              onClick={handleClearFilters}
-              className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer navigation-exclude text-red-600 hover:bg-red-50'
-            >
-              <Icons.close className='size-4' />
-              <p className='text-body-md font-medium'>Clear filters</p>
-            </button>
-          )}
         </div>
 
         {isLoading ? (
