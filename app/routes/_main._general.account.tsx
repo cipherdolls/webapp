@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router';
 import DashboardBanner from '~/components/dashboardBanner';
 import { Icons } from '~/components/ui/icons';
 import type { Route } from './+types/_main._general.account';
@@ -53,6 +54,7 @@ export default function Account() {
           <YourReferrals />
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }

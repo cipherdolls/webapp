@@ -37,6 +37,8 @@ export const ROUTES = {
   services: '/services',
   hardware: '/hardware',
   account: '/account',
+  accountAvatarsNew: '/account/avatars/new',
+  accountScenariosNew: '/account/scenarios/new',
 } as const;
 
 
