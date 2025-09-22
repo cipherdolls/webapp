@@ -43,8 +43,8 @@ export function useUpdateScenario() {
       return response.json();
     },
     onSuccess: (updatedScenario) => {
-      queryClient.setQueryData(['scenario', updatedScenario.id], updatedScenario);
-      queryClient.invalidateQueries({ queryKey: ['scenarios'] });
+      // queryClient.setQueryData(['scenario', updatedScenario.id], updatedScenario);
+      // queryClient.invalidateQueries({ queryKey: ['scenarios'] });
     },
   });
 }
@@ -64,6 +64,9 @@ export function useDeleteScenario() {
       }
 
       return { scenarioId };
+    },
+    onError: (error) => {
+      console.error('Error deleting scenario:', error);
     },
     onSuccess: ({ scenarioId }) => {
       queryClient.invalidateQueries({ queryKey: ['scenarios'] });

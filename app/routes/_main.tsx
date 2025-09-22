@@ -9,8 +9,7 @@ import { ethers } from 'ethers';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { ROUTES, wsURL } from '~/constants';
 import { MqttProvider } from '~/providers/MqttContext';
-import UserEventsToast from '~/components/UserEventsToast';
-import { useUser } from '~/hooks/queries/userQueries';
+import GlobalSubscriber from '~/mqtt/GlobalSubscriber';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -25,10 +24,6 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   const navigate = useNavigate();
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const queryClient = useQueryClient();
-
-  useUser({
-    initialData: loaderData?.user,
-  });
 
   // Initialize provider
   useEffect(() => {
@@ -97,7 +92,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         <Sidebar />
         <Outlet />
       </div>
-      <UserEventsToast user={me} />
+      <GlobalSubscriber userId={me.id} />
     </MainLayoutProviders>
   );
 };

@@ -8,6 +8,7 @@ export function useMessage(messageId: string) {
     queryKey: ['message', messageId],
     queryFn: () => fetchResource<Message>(`messages/${messageId}`),
     enabled: !!messageId,
+    refetchOnMount: 'always',
   });
 }
 
