@@ -1,38 +1,57 @@
-import { Link, Outlet, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { EmbeddingModel, User } from '~/types';
-import type { Route } from './+types/_main._general.ai-providers.$aiProviderId';
+import type { User } from '~/types';
+import type { Route } from './+types/_main._general.embedding-models.$id';
 import { getPicture } from '~/utils/getPicture';
-import EmbeddingModelDestroy from './embedding-models.$id.destroy';
-import DeleteModal from '~/components/ui/deleteModal';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatModelName } from '~/utils/formatModelName';
 import { ViewMore } from '~/view-more';
+import { useDeleteEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Embedding Model' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const res = await fetchWithAuth(`embedding-models/${params.id}`);
-  return await res.json();
-}
-
-export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
-  const embeddingModel: EmbeddingModel = loaderData;
+export default function aiProviderShow({ params }: Route.ComponentProps) {
+  const { data: embeddingModel } = useEmbeddingModel(params.id!);
   const me = useRouteLoaderData('routes/_main') as User;
+  const confirm = useConfirm();
+  const navigate = useNavigate();
+
+  const { mutate: deleteEmbeddingModel, isPending: isDeletingEmbeddingModel, error: deleteEmbeddingModelError } = useDeleteEmbeddingModel();
+
+  if (!embeddingModel) return null;
 
   const createdDate = formatDate(embeddingModel.createdAt);
   const updatedDate = formatDate(embeddingModel.updatedAt);
+  
+  const handleDeleteEmbeddingModel = async () => {
+    const result = await confirm({
+      title: `Delete embedding model ${formatModelName(embeddingModel.providerModelName)}?`,
+      body: 'By deleting a embedding model a chat will be deleted as well. You will no able to restore the data',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!result) return;
+
+    deleteEmbeddingModel(embeddingModel.id, {
+      onSuccess: () => {
+        navigate(`${ROUTES.services}/ai`);
+      },
+    });
+  };
 
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${ROUTES.services}/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
@@ -49,12 +68,14 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                   Edit
                 </Button.Root>
               </Link>
-              <DeleteModal
-                title={`Delete embedding model ${formatModelName(embeddingModel.providerModelName)}?`}
-                description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
+              <Button.Root
+                type='button'
+                variant='danger'
+                className=''
+                onClick={handleDeleteEmbeddingModel}
               >
-                <EmbeddingModelDestroy />
-              </DeleteModal>
+                <Icons.trash className='w-12' />
+              </Button.Root>
             </div>
           )}
           <div className='md:hidden flex text-base-black'>
@@ -67,18 +88,10 @@ export default function aiProviderShow({ loaderData }: Route.ComponentProps) {
                     href: `/embedding-models/${embeddingModel.id}/edit`,
                   },
                   {
-                    type: 'component',
+                    type: 'onClick',
                     text: 'Delete',
                     isDelete: true,
-                    component: (
-                      <DeleteModal
-                        title={`Delete embedding model ${formatModelName(embeddingModel.providerModelName)}?`}
-                        description='By deleting a embedding model a chat will be deleted as well. You will no able to restore the data'
-                        dropdown
-                      >
-                        <EmbeddingModelDestroy />
-                      </DeleteModal>
-                    ),
+                    onClick: handleDeleteEmbeddingModel,
                   },
                 ]}
               />

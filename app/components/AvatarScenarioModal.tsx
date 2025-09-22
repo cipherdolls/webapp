@@ -1,93 +1,175 @@
-import { useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
+import { useNavigate } from 'react-router';
+import type { Avatar, Scenario } from '~/types';
+import { useState, useCallback } from 'react';
+import { cn } from '~/utils/cn';
+import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
+import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
 import SelectionModal from './SelectionModal';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Avatar, Chat, User } from '~/types';
+import { getPicture } from '~/utils/getPicture';
+import { Icons } from './ui/icons';
+import { ROUTES } from '~/constants';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
   children: React.ReactNode;
-  chats?: Chat[];
 }
 
-const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, children, chats }) => {
-  const fetcher = useFetcher();
+const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, children }) => {
   const navigate = useNavigate();
-  const me = useRouteLoaderData('routes/_main') as User;
+  const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
+  const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
 
-  if (!avatar?.id) {
-    console.warn('AvatarScenarioModal: Invalid avatar prop provided');
-    return null;
-  }
+  const confirm = useConfirm();
 
-  const existingChatsByScenario = new Map<string, Chat>();
-  const avatarChats = chats?.filter((chat: Chat) => chat.avatar.id === avatar.id) ?? avatar.chats ?? [];
-  avatarChats.forEach((chat: Chat) => {
-    if (chat?.scenario?.id) {
-      existingChatsByScenario.set(chat.scenario.id, chat);
-    }
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+
+  //  TODO: Add filter to the scenarios on the backend to get only recommended scenarios for the avatar by avatarId
+  const {
+    data: scenariosData,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    error,
+  } = useInfiniteScenarios({
+    published: 'true',
+    name: searchTerm || '',
   });
 
-  const handleSave = async (selectedScenarioIds: string[]) => {
-    const selectedScenarioId = selectedScenarioIds[0];
-    if (!selectedScenarioId) return;
+  const scenarios = scenariosData?.pages.flatMap((page) => page.data) || [];
 
-    const existingChat = existingChatsByScenario.get(selectedScenarioId);
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
 
-    if (existingChat) {
-      navigate(`/chats/${existingChat.id}`);
-      return;
-    }
+  //  TODO: Move this logic to the backend of the delete avatar!!
+  const handleCreateChat = async () => {
+    if (selectedScenario) {
+      const hasChatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario.id);
 
-    const isScenarioAttached = avatar.scenarios?.some((s) => s.id === selectedScenarioId) ?? false;
-
-    if (!isScenarioAttached && avatar.userId === me.id) {
-      try {
-        const currentScenarioIds = avatar.scenarios?.map((s) => s.id) || [];
-        const updatedScenarioIds = [...currentScenarioIds, selectedScenarioId];
-
-        const avatarFormData = new FormData();
-        avatarFormData.append('avatarId', avatar.id);
-        avatarFormData.append('name', avatar.name);
-        avatarFormData.append('shortDesc', avatar.shortDesc);
-        avatarFormData.append('character', avatar.character);
-        avatarFormData.append('ttsVoiceId', avatar.ttsVoiceId);
-        avatarFormData.append('published', avatar.published.toString());
-        avatarFormData.append('language', avatar.language);
-        avatarFormData.append('gender', avatar.gender);
-        updatedScenarioIds.forEach((id) => {
-          avatarFormData.append('scenarioIds[]', id);
+      
+      if (hasChatWithSameScenario) {
+        const confirmResult = await confirm({
+          icon: '🗑️',
+          title: 'Delete Previous Chat?',
+          body: 'If you create a new chat with this scenario, your previous chat will be permanently deleted and cannot be restored. Do you want to continue?',
+          actionButton: 'Yes, Create New',
         });
 
-        const updateResponse = await fetchWithAuth(`avatars/${avatar.id}`, {
-          method: 'PATCH',
-          body: avatarFormData,
-        });
+        if (!confirmResult) return;
 
-        if (!updateResponse.ok) {
-          console.error('Failed to add scenario to avatar');
-        }
-      } catch (error) {
-        console.error('Error adding scenario to avatar:', error);
+        deleteChat(hasChatWithSameScenario.id, {
+          onSuccess: () => {
+            createChat(
+              { avatarId: avatar.id, scenarioId: selectedScenario.id },
+              {
+                onSuccess: (newChat) => {
+                  setSelectedScenario(null);
+                  navigate(`${ROUTES.chats}/${newChat.id}`);
+                  setIsOpen(false);
+                },
+              }
+            );
+          },
+        });
+      } else {
+        createChat(
+          { avatarId: avatar.id, scenarioId: selectedScenario.id },
+          {
+            onSuccess: (newChat) => {
+              setSelectedScenario(null);
+              navigate(`${ROUTES.chats}/${newChat.id}`);
+              setIsOpen(false);
+            },
+          }
+        );
       }
     }
-
-    const formData = new FormData();
-    formData.append('avatarId', avatar.id);
-    formData.append('scenarioId', selectedScenarioId);
-
-    fetcher.submit(formData, {
-      method: 'POST',
-      action: '/chats',
-    });
   };
 
-  const displayScenario = avatar.scenarios?.[0];
-
   return (
-    <SelectionModal type='avatar' avatar={avatar} scenario={displayScenario} onSave={handleSave} onClose={() => {}}>
+    <SelectionModal
+      type='scenario'
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      selectedAvatar={avatar}
+      selectedScenario={selectedScenario}
+      onSave={handleCreateChat}
+      onSearchChange={handleSearchChange}
+      isLoading={isLoading}
+      hasNextPage={hasNextPage}
+      fetchNextPage={fetchNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      items={scenarios}
+      renderItem={(item: Scenario) => {
+        
+        const isRecommended = item.avatars?.some((scenarioAvatar) => scenarioAvatar.id === avatar.id);
+        return (
+          <ScenarioItem
+            key={item.id}
+            item={item}
+            isSelected={selectedScenario?.id === item.id}
+            isRecommended={isRecommended ?? false}
+            onClick={() => setSelectedScenario(item)}
+          />
+        );
+      }}
+    >
       {children}
     </SelectionModal>
   );
 };
 
 export default AvatarScenarioModal;
+
+const ScenarioItem = ({
+  item,
+  isSelected,
+  isRecommended,
+  onClick,
+}: {
+  item: Scenario;
+  isSelected: boolean;
+  isRecommended: boolean;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      key={item.id}
+      onClick={onClick}
+      className={cn(
+        'flex items-start gap-3 p-3 rounded-xl border transition-all text-left w-full relative',
+        isSelected ? 'border-blue-500 bg-blue-50' : 'border-neutral-04 hover:border-neutral-03 hover:bg-neutral-05'
+      )}
+    >
+      <div className='relative'>
+        <img
+          src={getPicture(item, 'scenarios', false)}
+          srcSet={getPicture(item, 'scenarios', true)}
+          alt={item.name}
+          className='w-12 h-12 rounded-full object-cover'
+        />
+        {isSelected && (
+          <div className='absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center'>
+            <Icons.check className='w-3 h-3 text-white' />
+          </div>
+        )}
+      </div>
+
+      <div className='flex-1 min-w-0'>
+        <h4 className='font-semibold text-base-black truncate'>{item.name}</h4>
+        <p className='text-sm text-neutral-01 line-clamp-2'>{item.introduction}</p>
+      </div>
+
+      {isRecommended && (
+        <div className='absolute right-1 top-1 text-xs  h-5  rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
+          Recommended
+        </div>
+      )}
+    </button>
+  );
+};

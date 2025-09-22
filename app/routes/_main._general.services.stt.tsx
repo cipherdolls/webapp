@@ -4,22 +4,31 @@ import type { Route } from './+types/_main._general.services.stt';
 import { DataCard } from '~/components/DataCard';
 import Table, { type TTableColumn } from '~/components/Table';
 import { Fragment } from 'react/jsx-runtime';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import { getPicture } from '~/utils/getPicture';
 import { ViewButton } from '~/components/preferencesViewButton';
 import { InformationBadge } from '~/components/ui/InformationBadge';
-import React, { useEffect, useState } from 'react';
 import Tooltip from '~/components/ui/tooltip';
 import { Icons } from '~/components/ui/icons';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
+import { useSttProviders } from '~/hooks/queries/sttQueries';
+import { useDeleteSttProvider } from '~/hooks/queries/sttMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import ModalSttProviderEdit from '~/components/ModalSttProviderEdit';
+import { useState } from 'react';
+import { ROUTES } from '~/constants';
 
 function STTSkeleton({ count = 1 }: { count?: number }) {
   return (
     <div className='flex flex-col gap-10 pb-5'>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className='flex flex-col gap-4'>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full max-w-[200px] animate-pulse'></div>
-          <div className='rounded-[10px] h-[170px] bg-gradient-1 w-full animate-pulse'></div>
+          <div className='flex flex-col gap-3'>
+            <div className='flex justify-between items-center mb-1'>
+              <div className='w-[174px] h-6 rounded-lg bg-neutral-04'/>
+            </div>
+
+            <div className='rounded-xl h-[270px] md:h-[232px] bg-neutral-04 w-full animate-pulse'></div>
+          </div>
         </div>
       ))}
     </div>
@@ -30,26 +39,16 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'STT Providers' }];
 }
 
-export async function clientLoader() {
-  const res = await fetchWithAuth(`stt-providers`);
-  return await res.json();
-}
+export default function SttProvidersIndex() {
+  const { data: sttProvidersData, isLoading } = useSttProviders();
+  const { mutate: deleteSttProvider, isPending: isDeletingSttProvider } = useDeleteSttProvider();
+  const confirm = useConfirm();
 
-export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) {
-  const sttProviders: SttProvider[] = loaderData;
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  const [editSttProvider, setEditSttProvider] = useState<SttProvider | null>(null);
 
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
+  const sttProviders = sttProvidersData || [];
 
-      return () => clearTimeout(timer);
-    }
-  }, [loaderData]);
-
-  if (!hasInitiallyLoaded || !loaderData) {
+  if (isLoading) {
     return (
       <>
         <STTSkeleton />
@@ -57,6 +56,21 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
       </>
     );
   }
+
+  const handleShowEditModal = (provider: SttProvider) => setEditSttProvider(provider);
+  const handleCloseEditModal = () => setEditSttProvider(null);
+
+  const handleDeleteSttProvider = async (sttProvider: SttProvider) => {
+    const confirmResult = await confirm({
+      title: `Delete provider ${sttProvider.name}?`,
+      body: 'By deleting an STT provider all related data will be deleted as well. You will not be able to restore the data.',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+
+    if (!confirmResult) return;
+    deleteSttProvider(sttProvider.id);
+  };
 
   const columnProperties: Array<TTableColumn<SttProvider>> = [
     {
@@ -91,10 +105,10 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
           <span className='text-body-sm'>${data.dollarPerSecond * 60}</span>
           <ViewButton
             popoverItems={[
-              { text: 'Edit', href: `/services/stt/stt-providers/${data.id}/edit` },
+              { text: 'Edit', onClick: () => handleShowEditModal(data) },
               {
                 text: 'Delete',
-                href: `/services/stt/stt-providers/${data.id}/delete`,
+                onClick: () => handleDeleteSttProvider(data),
                 isDelete: true,
               },
             ]}
@@ -110,7 +124,14 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
     <>
       <DataCard.Root>
         <DataCard.Label className='flex gap-1 items-center'>
-          STT Providers <InformationBadge tooltipText='Services for converting speech to text.' />
+          STT Providers
+          <InformationBadge
+            tooltipText='Services for converting speech to text.'
+            side={{
+              default: 'top',
+              lg: 'right',
+            }}
+          />
         </DataCard.Label>
         <DataCard.Wrapper>
           {/* DESKTOP */}
@@ -118,7 +139,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
             wrapperClassName='hidden md:block'
             columns={columnProperties}
             data={sttProviders}
-            getRowUrl={(stt) => `/stt-providers/${stt.id}`}
+            getRowUrl={(stt) => `${ROUTES.services}/stt/${stt.id}`}
           />
 
           {/* MOBILE */}
@@ -126,7 +147,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
             {sttProviders.map((sttProvider, index) => {
               return (
                 <Fragment key={sttProvider.id}>
-                  <DataCard.Item key={sttProvider.id} href={`/stt-providers/${sttProvider.id}`}>
+                  <DataCard.Item key={sttProvider.id} href={`${ROUTES.services}/stt/${sttProvider.id}`}>
                     <DataCard.ItemLabel>
                       <div className='flex items-center justify-start gap-2'>
                         <div className='size-6'>
@@ -149,10 +170,10 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
 
                       <ViewButton
                         popoverItems={[
-                          { text: 'Edit', href: `/services/stt/stt-providers/${sttProvider.id}/edit` },
+                          { text: 'Edit', onClick: () => handleShowEditModal(sttProvider) },
                           {
                             text: 'Delete',
-                            href: `/services/stt/stt-providers/${sttProvider.id}/delete`,
+                            onClick: () => handleDeleteSttProvider(sttProvider),
                             isDelete: true,
                           },
                         ]}
@@ -183,6 +204,7 @@ export default function SttProvidersIndex({ loaderData }: Route.ComponentProps) 
           </div>
         </DataCard.Wrapper>
       </DataCard.Root>
+      <ModalSttProviderEdit sttProvider={editSttProvider} onClose={handleCloseEditModal} />
       <Outlet />
     </>
   );

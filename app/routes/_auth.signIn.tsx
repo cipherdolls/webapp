@@ -1,19 +1,14 @@
 import { ethers } from 'ethers';
-import { useLocalStorage } from 'usehooks-ts';
 import { useEffect, useState } from 'react';
 import HowItWorksModal from '~/components/howItWorksModal';
 import SignInPatterns from '~/components/ui/signInPatterns';
 import type { Route } from './+types/_auth.signIn';
-import { useFetcher, useNavigate } from 'react-router';
-import { apiUrl } from '~/constants';
-import Mixedbread from '../assets/logos/mixedbread.png';
-import Elevenlabs from '../assets/logos/elevenlabs.png';
-import Groq from '../assets/logos/groq.png';
-import Openrouter from '../assets/logos/openrouter.png';
-import Assembly from '../assets/logos/assembly.png';
+import { Link, redirect, useFetcher, useNavigate } from 'react-router';
+import { apiUrl, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import TermsOfServiceModal from '~/components/TermsOfServiceModal';
 import PrivacyPolicy from '~/components/PrivacyPolicyModal';
+import { useAuthStore } from '~/store/useAuthStore';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Sign In' }];
@@ -36,7 +31,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const timestamp = new Date().toISOString();
     const url = new URL(request.url);
     const domain = url.hostname;
-    
+
     const message = `
 ${domain} wants you to sign in with your Ethereum account:
 ${address}
@@ -66,12 +61,21 @@ Issued At: ${timestamp}
     return { token };
   } catch (error) {
     console.error('Error:', error);
+    return { error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 }
 
 export default function SignInRoute() {
   const fetcher = useFetcher();
-  const [token, setToken] = useLocalStorage('token', undefined);
+  const { 
+    token, 
+    setToken, 
+    verifyToken, 
+    redirectAfterSignIn, 
+    setRedirectAfterSignIn,
+    referralId,
+    setReferralId 
+  } = useAuthStore();
   const [connected, setConnected] = useState(false);
   const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
@@ -82,19 +86,18 @@ export default function SignInRoute() {
     if (hasNavigated) return;
 
     setHasNavigated(true);
-    const redirectUrl = localStorage.getItem('redirectAfterSignIn');
-    if (redirectUrl) {
-      localStorage.removeItem('redirectAfterSignIn');
-      navigate(redirectUrl);
+    if (redirectAfterSignIn) {
+      setRedirectAfterSignIn(null); // Clear from store
+      navigate(redirectAfterSignIn);
     } else {
-      navigate('/');
+      navigate(ROUTES.chats, { replace: true });
     }
   };
 
   useEffect(() => {
     if (fetcher.data?.token) {
       setToken(fetcher.data.token);
-      handleSuccessfulAuth();
+      // Don't call handleSuccessfulAuth here - let the token state update trigger it
     }
     if (fetcher.data?.error) {
       console.error('Sign-in error:', fetcher.data.error);
@@ -103,6 +106,21 @@ export default function SignInRoute() {
 
   useEffect(() => {
     checkConnection();
+
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          setConnected(false);
+        } else {
+          setConnected(true);
+        }
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -112,50 +130,31 @@ export default function SignInRoute() {
   }, [token]);
 
   useEffect(() => {
-    if (connected === true && token !== undefined) {
-      console.log('Connected and token is set');
+    if (connected === true && token !== undefined && token !== null) {
       handleSuccessfulAuth();
     }
     // eslint-disable-next-line
   }, [connected, token]);
 
   const checkConnection = async () => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const accounts = await provider.listAccounts();
-    if (accounts.length === 0) {
-      setConnected(false);
-    } else {
-      setConnected(true);
-    }
-  };
-
-  const verifyToken = async () => {
     try {
-      const localToken = localStorage.getItem('token')?.replaceAll('"', '');
-      const res = await fetch(`${apiUrl}/auth/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localToken}`,
-        },
-      });
+      if (!window.ethereum) {
+        setConnected(false);
+        return;
+      }
 
-      // If 200 => token is valid
-      if (res.status === 200) {
-        return true;
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length === 0) {
+        setConnected(false);
+      } else {
+        setConnected(true);
       }
-      // If 401 => token invalid
-      if (res.status === 401) {
-        localStorage.removeItem('token');
-        return false;
-      }
-      // Otherwise, some other error
-      return false;
-    } catch (err) {
-      console.error('Verify token error:', err);
-      return false;
+    } catch (error) {
+      setConnected(false);
     }
   };
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -168,11 +167,13 @@ export default function SignInRoute() {
 
   return (
     <>
-      <div className='flex flex-col justify-between py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
-        <div className='flex justify-center relative z-10'>
+      <div className='flex flex-col justify-center py-16 flex-1 gap-[76px] h-screen overflow-y-auto z-40'>
+        <div className='flex justify-center relative z-10 pb-5'>
           <div className='flex flex-col sm:gap-8 gap-5 items-center justify-center'>
-            <img src='/logo.svg' alt='Cipherdolls' className='sm:w-[234px] sm:h-8 w-[146px] h-5' width={234} height={32} />
-            <div className='mx-2 flex flex-col md:mx-auto md:flex-row'>
+            <Link to={ROUTES.index} >
+              <img src='/logo.svg' alt='Cipherdolls' className='w-56 md:w-72 h-auto' />
+            </Link>
+            <div className='mx-2 flex flex-col md:mx-auto md:flex-row relative'>
               <div className='order-2 rounded-b-xl w-full flex flex-col p-2 bg-white md:rounded-xl md:max-w-[600px] lg:max-w-[656px]'>
                 <iframe
                   className='w-full rounded-xl aspect-video min-h-[180px] max-h-[360px]'
@@ -184,7 +185,7 @@ export default function SignInRoute() {
 
                 <div className='px-4 py-6 flex flex-col gap-8 lg:py-10 lg:px-8 md:px-6 md:py-8'>
                   <p className='text-black text-body-md md:text-body-lg'>
-                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine)
+                    A connected crypto wallet in your browser is required to log in (new or empty wallets are fine).
                   </p>
                   <div className='flex flex-col gap-4'>
                     {!isLoading && !hasEthereum ? (
@@ -243,8 +244,8 @@ export default function SignInRoute() {
                 </div>
               </div>
 
-              <div className='mt-4 order-first flex justify-center items-end gap-1 md:gap-2 md:order-last md:flex-col md:justify-start'>
-                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:h-32 md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
+              <div className='md:absolute left-full top-5 flex  md:flex-col gap-2'>
+                <div className='bg-gradient-1 h-full rounded-t-xl w-1/2 flex flex-col gap-2 items-center py-4 px-4 md:px-5 md:h-32  md:justify-center md:rounded-t-none md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>🎉</h3>
                     <h3 className='text-lg font-semibold text-base-black md:text-heading-h3'>Free</h3>
@@ -252,26 +253,15 @@ export default function SignInRoute() {
 
                   <span className='text-body-sm text-center text-neutral-01'>Registration and usage</span>
                 </div>
-                <div className='bg-gradient-1 h-max rounded-t-xl w-1/2 flex flex-col gap-2 items-center justify-center py-4 px-5 md:rounded-t-none md:h-32 md:rounded-r-xl md:w-[136px]'>
+                <div className='bg-gradient-1 h-full rounded-t-xl w-1/2 flex flex-col gap-2 items-center  py-4 px-4 md:px-5 md:rounded-t-none md:h-32 md:justify-center md:rounded-r-xl md:w-[136px]'>
                   <div className='flex items-center gap-2 md:flex-col'>
                     <h3 className='text-lg md:text-heading-h3'>💶</h3>
                     <h3 className='text-lg md:text-heading-h3 font-semibold text-base-black'>1 LOV</h3>
                   </div>
-
                   <span className='text-body-sm text-center text-neutral-01'>For monthly usage</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className='relative z-10'>
-          <div className='flex justify-start gap-6 px-5 items-center mx-auto max-w-3xl md:max-w-max overflow-y-auto pb-2.5 md:justify-between lg:gap-20 lg:px-0'>
-            <img src={Mixedbread} alt='Mixedbread' draggable={'false'} className='object-cover select-none' />
-            <img src={Openrouter} alt='Openrouter' draggable={'false'} className='object-cover select-none' />
-            <img src={Groq} alt='Groq' draggable={'false'} className='object-cover select-none' />
-            <img src={Elevenlabs} alt='Elevenlabs' draggable={'false'} className='object-cover select-none' />
-            <img src={Assembly} alt='Assembly' draggable={'false'} className='object-cover select-none' />
           </div>
         </div>
       </div>

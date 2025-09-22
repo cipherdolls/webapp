@@ -5,10 +5,21 @@ import { formatModelName } from '~/utils/formatModelName';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatCompletionJobCard = ({ message }: { message: Message }) => {
-  const chatCompletionJob = message?.chatCompletionJob;
+  const { usdCost, paymentJob, chatModel, timeTakenMs, inputTokens, outputTokens, totalTokens } = message?.chatCompletionJob;
 
-  const formattedUsdCost = chatCompletionJob?.usdCost > 0 ? chatCompletionJob?.usdCost.toFixed(8) : 0;
-  const formattedPaymentJob = chatCompletionJob.paymentJob?.weiCost ? formatEther(chatCompletionJob.paymentJob?.weiCost) : 0;
+  if (!message?.chatCompletionJob.chatModel) {
+    return (
+      <DataCard.Root>
+        <DataCard.Label>Chat Completion Job</DataCard.Label>
+        <DataCard.Wrapper>
+          <p className='text-body-sm text-neutral-01 p-5 text-center'>No job data yet</p>
+        </DataCard.Wrapper>
+      </DataCard.Root>
+    );
+  }
+
+  const formattedUsdCost = usdCost > 0 ? usdCost.toFixed(8) : 0;
+  const formattedPaymentJob = paymentJob?.weiCost ? formatEther(paymentJob?.weiCost) : 0;
 
   return (
     <DataCard.Root>
@@ -18,11 +29,11 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'AI Provider',
-              value: chatCompletionJob.chatModel.aiProvider?.name,
+              value: chatModel.aiProvider?.name,
             },
             {
               label: 'Chat Model',
-              value: formatModelName(chatCompletionJob.chatModel.providerModelName),
+              value: formatModelName(chatModel.providerModelName),
             },
           ]}
         />
@@ -31,49 +42,23 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Time Taken',
-              value: `${chatCompletionJob.timeTakenMs} ms`,
+              value: `${timeTakenMs} ms`,
             },
             {
               label: 'Input Tokens',
-              value: scientificNumConvert(chatCompletionJob.inputTokens),
+              value: scientificNumConvert(inputTokens),
             },
             {
               label: 'Output Tokens',
-              value: scientificNumConvert(chatCompletionJob.outputTokens),
+              value: scientificNumConvert(outputTokens),
             },
             {
               label: 'Total Tokens',
-              value: scientificNumConvert(chatCompletionJob.totalTokens),
+              value: scientificNumConvert(totalTokens),
             },
             {
               label: 'Cost (USD)',
               value: `$${formattedUsdCost}`,
-            },
-          ]}
-        />
-        <DataCard.ItemDataGrid
-          variant='secondary'
-          data={[
-            {
-              label: 'Cost',
-              value: `${formattedPaymentJob} LOV`,
-            },
-            {
-              label: 'txHash',
-              value: chatCompletionJob.paymentJob?.txHash ? (
-                <>
-                  <a
-                    href={`https://optimistic.etherscan.io/tx/${chatCompletionJob.paymentJob?.txHash}`}
-                    className='underline line-clamp-1 block truncate break-normal max-w-[244px]'
-                    target='_blank'
-                    rel='noreferrer noopener'
-                  >
-                    {chatCompletionJob.paymentJob.txHash}
-                  </a>
-                </>
-              ) : (
-                'N/A'
-              ),
             },
           ]}
         />

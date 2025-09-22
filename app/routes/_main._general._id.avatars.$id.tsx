@@ -1,79 +1,44 @@
-import { Form, Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
-import type { Avatar, User } from '~/types';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS } from '~/constants';
-import DeleteAvatarModal from '~/components/deleteAvatarModal';
+import { PATHS, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import { ViewMore } from '~/view-more';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
+import { useAvatar } from '~/hooks/queries/avatarQueries';
+import { useCreateChat } from '~/hooks/queries/chatMutations';
+import { formatModelName } from '~/utils/formatModelName';
+import { cn } from '~/utils/cn';
+import ErrorPage from '~/components/ErrorPage';
+import type { User } from '~/types';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const avatarId = params.id;
-  const res = await fetchWithAuth(`avatars/${avatarId}`);
-  return await res.json();
-}
+export default function AvatarShow({ params }: Route.ComponentProps) {
+  const user = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+  const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
+  const { mutate: createChat } = useCreateChat();
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const avatarId = formData.get('avatarId');
-
-    const res = await fetchWithAuth(`avatars/${avatarId}`, {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      return await res.json();
-    }
-
-    const avatar: Avatar = await res.json();
-    return redirect(`/avatars/${avatar.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function AvatarShow({ loaderData }: Route.ComponentProps) {
-  const avatar: Avatar = loaderData;
-  const me = useRouteLoaderData('routes/_main') as User;
-  // const fetcher = useFetcher();
-  // const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const scenarios = avatar.scenarios ? avatar.scenarios : [];
+  const scenarios = avatar?.scenarios ? avatar.scenarios : [];
   const hasScenarios = scenarios.length > 0;
-  const isPublished = avatar.published;
+  const isPublished = avatar?.published;
 
   const sortedScenarios = useMemo(() => {
     return [...scenarios].sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
   }, [scenarios]);
-
-  // const handleCopyToClipboard = () => {
-  //   navigator.clipboard.writeText(avatar.character);
-  //   setCopied(true);
-  //
-  //   if (copyTimeoutRef.current) {
-  //     clearTimeout(copyTimeoutRef.current);
-  //   }
-  //
-  //   const timeoutId = setTimeout(() => setCopied(false), 2000);
-  //   copyTimeoutRef.current = timeoutId;
-  // };
 
   const getTextAfterThe = (text: string): string => {
     const words = text.split(' ');
@@ -93,16 +58,49 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
     };
   }, []);
 
+
+  if(avatarLoading) {
+    return null;
+  }
+
+  if (avatarError || !avatar) {
+    return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
+  }
+
+
+
+  const handleCreateChat = (scenarioId: string) => {
+    createChat(
+      {
+        avatarId: avatar.id,
+        scenarioId: scenarioId,
+      },
+      {
+        onSuccess: (newChat) => {
+          navigate(`${ROUTES.chats}/${newChat.id}`);
+        },
+      }
+    );
+  };
+
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`${avatar.userId === me.id ? '/avatars?mine=true' : '/avatars'}`} className='flex items-center gap-3 sm:gap-4'>
-            <Icons.chevronLeft />
-            <div className='flex sm:items-center sm:flex-row flex-col sm:gap-3 gap-1'>
-              <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap'>{avatar.name}</h3>
+          <Link to={`${avatar.userId === user.id ? `${ROUTES.avatars}?mine=true` : ROUTES.avatars}`} className='flex items-center gap-3 sm:gap-4'>
+            <Icons.chevronLeft className='hover:bg-white/40 rounded-full'/>
+            <div className='flex sm:items-center sm:flex-row flex-col flex-wrap sm:gap-3 gap-1'>
+              <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap hover:underline transition-all duration-200'>
+                {formatModelName(avatar.name)}
+              </h3>
               <span className='text-neutral-01 text-body-lg sm:block hidden'>•</span>
-              <span className='text-neutral-01 text-body-sm sm:text-body-lg'>{getTextAfterThe(avatar.shortDesc)}</span>
+              <span
+                className={cn('text-neutral-01 text-body-sm truncate max-w-60 sm:text-body-lg',
+                  avatar.userId !== user.id && 'max-w-72'
+                )}
+              >
+                {getTextAfterThe(avatar.shortDesc)}
+              </span>
             </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
@@ -124,14 +122,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
             {/*    Duplicate*/}
             {/*  </Button.Root>*/}
             {/*</fetcher.Form>*/}
-            {avatar.userId === me.id && (
+            {avatar.userId === user.id && (
               <>
-                <Link to={`/avatars/${avatar.id}/edit`}>
+                <Link to={`${ROUTES.avatars}/${avatar.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
                     Edit
                   </Button.Root>
                 </Link>
-                <DeleteAvatarModal />
+                <DeleteAvatarModal avatarId={avatar.id} />
               </>
             )}
           </div>
@@ -142,8 +140,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 {
                   type: 'link',
                   text: 'Edit',
-                  href: `/avatars/${avatar.id}/edit`,
-                  visible: me.id === avatar.userId,
+                  href: `${ROUTES.avatars}/${avatar.id}/edit`,
+                  visible: user.id === avatar.userId,
                 },
                 {
                   type: 'component',
@@ -173,8 +171,8 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   type: 'component',
                   text: 'Delete',
                   isDelete: true,
-                  component: <DeleteAvatarModal dropdown />,
-                  visible: me.id === avatar.userId,
+                  component: <DeleteAvatarModal dropdown avatarId={avatar.id} />,
+                  visible: user.id === avatar.userId,
                 },
               ]}
             />
@@ -195,7 +193,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                       <div className={'transition-all duration-500 ease-out'} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
-                            to={`/scenarios/${scenario.id}`}
+                            to={`${ROUTES.scenarios}/${scenario.id}`}
                             className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
                           >
                             <img
@@ -205,14 +203,14 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                               className='object-cover size-full'
                             />
 
-                            {avatar.userId === me.id && (
-                              <div className='absolute top-2 left-2 z-10'>
-                                <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                                  🌐
-                                  <span>By you</span>
-                                </div>
-                              </div>
-                            )}
+                            {/*{avatar.userId === user.id && (*/}
+                            {/*  <div className='absolute top-2 left-2 z-10'>*/}
+                            {/*    <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>*/}
+                            {/*      🌐*/}
+                            {/*      <span>By you</span>*/}
+                            {/*    </div>*/}
+                            {/*  </div>*/}
+                            {/*)}*/}
                           </Link>
 
                           <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
@@ -223,19 +221,15 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                             </div>
                             <div className='flex items-center gap-3'>
                               {scenario.chats && scenario.chats.length > 0 ? (
-                                <Link to={`/chats/${scenario.chats[0].id}`}>
+                                <Link to={`${ROUTES.chats}/${scenario.chats[0].id}`}>
                                   <Button.Root size='sm' className='px-5'>
                                     Continue Chat
                                   </Button.Root>
                                 </Link>
                               ) : (
-                                <Form method='POST' action='/chats'>
-                                  <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
-                                  <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                                  <Button.Root type='submit' size='sm' className='px-5'>
-                                    Chat
-                                  </Button.Root>
-                                </Form>
+                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(scenario.id)}>
+                                  Chat
+                                </Button.Root>
                               )}
                             </div>
                           </div>
@@ -250,7 +244,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                   <div className='flex flex-col items-center sm:gap-2 gap-1'>
                     <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
                     <Link
-                      to='/scenarios'
+                      to={ROUTES.scenarios}
                       className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
                     >
                       Add new scenario
@@ -280,7 +274,9 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                 )}
               </label>
               <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
-                <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                {avatar.introductionAudio && (
+                  <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.avatarAudio(avatar.id)} />
+                )}
               </div>
             </div>
             {avatar.gender && (
@@ -303,7 +299,7 @@ export default function AvatarShow({ loaderData }: Route.ComponentProps) {
                     {isPublished ? 'Published' : 'Your Special'}
                   </p>
                   <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
-                    {me.id === avatar.userId ? 'Made by you' : avatar.userId}
+                    {user.id === avatar.userId ? 'Made by you' : avatar.userId}
                   </span>
                 </div>
               </div>

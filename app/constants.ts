@@ -28,6 +28,19 @@ export const PATHS = {
   avatarAudio: (id: string) => `${apiUrl}/avatars/${id}/audio`,
 };
 
+export const ROUTES = {
+  index: '/',
+  signIn: '/signin',
+  chats: '/chats',
+  avatars: '/avatars',
+  scenarios: '/scenarios',
+  services: '/services',
+  hardware: '/hardware',
+  account: '/account',
+  accountAvatarsNew: '/account/avatars/new',
+  accountScenariosNew: '/account/scenarios/new',
+} as const;
+
 
 export const NETWORKS = {
   ETHEREUM_MAINNET: {
@@ -55,4 +68,10 @@ export const NETWORKS = {
 } as const;
 
 export const REQUIRED_NETWORK_FOR_TOKEN_PERMITS = NETWORKS.OPTIMISM;
+
+export const TOKEN_BALANCE = {
+  DECIMAL_PLACES: 3,
+  RATE_LIMIT_MS: 2000,
+  FEEDBACK_TIMEOUT_MS: 3000,
+} as const;
 

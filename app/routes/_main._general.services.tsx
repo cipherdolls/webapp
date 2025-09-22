@@ -5,6 +5,7 @@ import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { User } from '~/types';
 import { useEffect, useMemo, useState } from 'react';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Services' }];
@@ -15,33 +16,33 @@ const servicesNavItems = [
     label: 'AI',
     to: 'ai',
     link: 'AI Provider',
-    href: '/services/ai/ai-provider/new',
+    href: `${ROUTES.services}/ai/ai-provider/new`,
     infoMessage: 'ai-info-message',
     banner: {
       emoji: '🤖',
-      text: 'Tools with pricing for text processing, data analysis, and other AI tasks.',
+      text: 'Configure AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
     },
   },
   {
     label: 'TTS',
     to: 'tts',
     link: 'TTS Provider',
-    href: '/services/tts/tts-provider/new',
+    href: `${ROUTES.services}/tts/tts-provider/new`,
     infoMessage: 'tts-info-message',
     banner: {
       emoji: '🗣️',
-      text: 'Services for converting text to speech.',
+      text: 'Set up text-to-speech providers to generate natural AI voices for chat responses and audio content.',
     },
   },
   {
     label: 'STT',
     to: 'stt',
     link: 'STT Provider',
-    href: '/services/stt/stt-provider/new',
+    href: `${ROUTES.services}/stt/stt-provider/new`,
     infoMessage: 'stt-info-message',
     banner: {
       emoji: '👂',
-      text: 'Services for converting speech to text.',
+      text: 'Configure speech-to-text providers to enable voice input and audio transcription capabilities.',
     },
   },
 ];
@@ -72,8 +73,8 @@ export default function Services({ loaderData }: Route.ComponentProps) {
   };
 
   useEffect(() => {
-    if (location.pathname === '/services') {
-      navigate('/services/ai', { replace: true });
+    if (location.pathname === ROUTES.services) {
+      navigate(`${ROUTES.services}/ai`, { replace: true });
       return;
     }
 
@@ -85,7 +86,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold '>Services</h2>
         {(me.role === 'ADMIN' || activeItem?.to === 'scenarios') && activeItem?.link && (
-          <Link to={activeItem?.href || '/services/ai'}>
+          <Link to={activeItem?.href || `${ROUTES.services}/ai`}>
             <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
               <Button.Icon as={Icons.add} />
               {activeItem?.link}
@@ -103,8 +104,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
                 className={({ isActive }) =>
                   cn(
                     'relative text-body-lg text-neutral-01 px-1 pb-1.5',
-                    isActive &&
-                      'text-base-black after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-neutral-01 after:rounded-t-[3px]'
+                    isActive && 'text-base-black after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-neutral-01 after:rounded-t-[3px]'
                   )
                 }
               >

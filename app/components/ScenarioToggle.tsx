@@ -1,4 +1,5 @@
 import { useFetcher } from 'react-router';
+import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import type { Avatar, Chat } from '~/types';
 import { cn } from '~/utils/cn';
 
@@ -10,16 +11,10 @@ interface ScenarioToggleProps {
 }
 
 const ScenarioToggle = ({ chat, avatar, className, wideVariant = false }: ScenarioToggleProps) => {
-  const fetcher = useFetcher();
+  const { mutate: updateChat, error: updateChatError } = useUpdateChat();
 
   const handleScenarioChange = (scenarioId: string) => {
-    fetcher.submit(
-      { scenarioId },
-      {
-        method: 'PATCH',
-        action: `/chats/${chat.id}`,
-      }
-    );
+    updateChat({ chatId: chat.id, data: { scenarioId } });
   };
 
   return (

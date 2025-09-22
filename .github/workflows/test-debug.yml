@@ -1,0 +1,245 @@
+name: Test Debug & Maintenance
+
+# This workflow can be triggered manually for debugging purposes
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - metamask-only
+          - browser-only
+          - cache-only
+      debug_mode:
+        description: 'Enable debug mode'
+        required: false
+        default: false
+        type: boolean
+      clear_cache:
+        description: 'Clear all caches before running'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  CI: true
+
+jobs:
+  debug-tests:
+    name: Debug E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Clear caches if requested
+        if: ${{ github.event.inputs.clear_cache == 'true' }}
+        run: |
+          echo "🧹 Clearing all caches..."
+          rm -rf ~/.cache/ms-playwright
+          rm -rf testing/cache/synpress-cache
+          rm -rf node_modules/.cache
+          npm cache clean --force
+
+      - name: Install dependencies
+        run: |
+          npm ci --frozen-lockfile
+          
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install chromium
+          npx playwright install-deps chromium
+
+      - name: Debug environment info
+        run: |
+          echo "=== Environment Information ==="
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "OS: $(uname -a)"
+          echo "Available memory: $(free -h)"
+          echo "Available disk: $(df -h)"
+          echo ""
+          echo "=== Package Versions ==="
+          npm list @playwright/test @synthetixio/synpress --depth=0
+          echo ""
+          echo "=== Playwright Info ==="
+          npx playwright --version
+          echo ""
+          
+      - name: Start development server with debug
+        run: |
+          echo "🚀 Starting development server..."
+          if [ "${{ github.event.inputs.debug_mode }}" = "true" ]; then
+            DEBUG=* npm run dev &
+          else
+            npm run dev &
+          fi
+          echo "DEV_SERVER_PID=$!" >> $GITHUB_ENV
+          
+      - name: Enhanced server health check
+        run: |
+          echo "⏳ Waiting for development server..."
+          TIMEOUT=120
+          COUNT=0
+          
+          while [ $COUNT -lt $TIMEOUT ]; do
+            if curl -f http://localhost:5173 > /dev/null 2>&1; then
+              echo "✅ Server is ready after ${COUNT} seconds"
+              break
+            fi
+            
+            if [ $((COUNT % 10)) -eq 0 ] && [ $COUNT -gt 0 ]; then
+              echo "Still waiting for server... (${COUNT}s elapsed)"
+            fi
+            
+            sleep 1
+            COUNT=$((COUNT + 1))
+          done
+          
+          if [ $COUNT -eq $TIMEOUT ]; then
+            echo "❌ Server failed to start within ${TIMEOUT} seconds"
+            echo "=== Server logs ==="
+            jobs
+            ps aux | grep node
+            netstat -tulpn | grep 5173 || echo "Port 5173 not in use"
+            exit 1
+          fi
+          
+          # Additional server verification
+          echo "=== Server Response Headers ==="
+          curl -I http://localhost:5173
+          echo ""
+          echo "=== Server Status ==="
+          curl -s http://localhost:5173 | head -c 200
+
+      - name: Run cache setup (if needed)
+        if: ${{ github.event.inputs.test_type != 'browser-only' }}
+        run: |
+          echo "🔧 Setting up Synpress cache..."
+          npm run test:cache
+          
+          echo "=== Cache Status ==="
+          if [ -d "testing/cache/synpress-cache" ]; then
+            echo "✅ Cache directory exists"
+            find testing/cache/synpress-cache -type f | head -10
+            echo "Cache size: $(du -sh testing/cache/synpress-cache)"
+          else
+            echo "❌ Cache directory missing"
+          fi
+
+      - name: Run tests based on input
+        run: |
+          case "${{ github.event.inputs.test_type }}" in
+            "metamask-only")
+              echo "🧪 Running MetaMask tests only..."
+              npm run test:all-metamask
+              ;;
+            "browser-only")
+              echo "🌐 Running browser compatibility tests only..."
+              npm run test:browser
+              ;;
+            "cache-only")
+              echo "🔧 Cache setup already completed above"
+              ;;
+            "all"|*)
+              echo "🧪 Running all tests..."
+              npm run test:all-metamask
+              npm run test:browser
+              ;;
+          esac
+        env:
+          DEBUG: ${{ github.event.inputs.debug_mode == 'true' && '*' || '' }}
+
+      - name: Collect debug artifacts
+        if: always()
+        run: |
+          echo "📁 Collecting debug information..."
+          
+          # Create debug directory
+          mkdir -p debug-info
+          
+          # System info
+          echo "=== System Information ===" > debug-info/system-info.txt
+          uname -a >> debug-info/system-info.txt
+          echo "" >> debug-info/system-info.txt
+          free -h >> debug-info/system-info.txt
+          echo "" >> debug-info/system-info.txt
+          df -h >> debug-info/system-info.txt
+          
+          # Process info
+          echo "=== Running Processes ===" > debug-info/processes.txt
+          ps aux | grep -E "(node|chrome|playwright)" >> debug-info/processes.txt
+          
+          # Network info
+          echo "=== Network Status ===" > debug-info/network.txt
+          netstat -tulpn | grep -E "(5173|9222)" >> debug-info/network.txt || echo "No relevant ports found" >> debug-info/network.txt
+          
+          # NPM info
+          echo "=== Package Info ===" > debug-info/packages.txt
+          npm list --depth=0 >> debug-info/packages.txt 2>&1
+          
+          # Logs
+          if [ -f "npm-debug.log" ]; then
+            cp npm-debug.log debug-info/
+          fi
+          
+          # Playwright info
+          if [ -d "test-results" ]; then
+            echo "Test results directory exists with $(find test-results -type f | wc -l) files"
+          fi
+
+      - name: Upload debug artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: debug-info-${{ github.run_id }}
+          path: |
+            debug-info/
+            playwright-report/
+            test-results/
+            testing/cache/synpress-cache/
+          retention-days: 7
+
+      - name: Debug summary
+        if: always()
+        run: |
+          echo "# Debug Run Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Type:** ${{ github.event.inputs.test_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Debug Mode:** ${{ github.event.inputs.debug_mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Clear Cache:** ${{ github.event.inputs.clear_cache }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ **Status:** All tests completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Tests encountered issues" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Debug artifacts are available for download for 7 days.**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up processes..."
+          if [ ! -z "$DEV_SERVER_PID" ]; then
+            kill $DEV_SERVER_PID || true
+          fi
+          pkill -f "vite" || true
+          pkill -f "react-router" || true
+          pkill -f "playwright" || true
+          pkill -f "chrome" || true

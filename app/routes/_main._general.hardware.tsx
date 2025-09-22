@@ -4,6 +4,7 @@ import { cn } from '~/utils/cn';
 import { Icons } from '~/components/ui/icons';
 import type { User } from '~/types';
 import { useEffect, useMemo } from 'react';
+import { ROUTES } from '~/constants';
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Hardware' }];
 }
@@ -12,7 +13,7 @@ const hardwareNavItems = [
   {
     label: 'Doll Bodies',
     to: 'doll-bodies',
-    href: '/hardware/doll-bodies/new',
+    href: `${ROUTES.hardware}/doll-bodies/new`,
     banner: {
       emoji: '🗣️',
       text: '',
@@ -31,8 +32,8 @@ export default function Hardware() {
   const me = useRouteLoaderData('routes/_main') as User;
 
   useEffect(() => {
-    if (location.pathname === '/hardware') {
-      navigate('/hardware/doll-bodies', { replace: true });
+    if (location.pathname === ROUTES.hardware) {
+      navigate(`${ROUTES.hardware}/doll-bodies`, { replace: true });
     }
   }, [location.pathname, navigate]);
 

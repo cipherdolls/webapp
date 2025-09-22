@@ -1,51 +1,29 @@
-import { redirect, useFetcher, useNavigate } from 'react-router';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import { useNavigate } from 'react-router';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import type { TtsProvider } from '~/types';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import type { Route } from './+types/_main._general.services.tts.tts-provider.new';
+import { useCreateTtsProvider } from '~/hooks/queries/ttsMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Provider' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const res = await fetchWithAuth('tts-providers', {
-      method: request.method,
-      body: formData,
-    });
 
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    const ttsProvider: TtsProvider = await res.json();
-    return redirect(`/tts-providers/${ttsProvider.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
 
 export default function TtsProviderNew() {
-  const fetcher = useFetcher();
+  const { mutate: createTtsProvider, isPending: isCreatingTtsProvider, error: errorCreateTtsProvider } = useCreateTtsProvider();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
-  const errors = fetcher.data?.errors;
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -76,21 +54,33 @@ export default function TtsProviderNew() {
   };
 
   const handleClose = () => {
-    navigate(`/services/tts`);
+    navigate(`${ROUTES.services}/tts`, { replace: true });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+
+    createTtsProvider(formData, {
+      onSuccess: (data) => {
+        navigate(`/tts-providers/${data.id}`);
+      },
+    });
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Create TTS Provider</Drawer.Title>
-        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-3'>
-            <ErrorsBox errors={errors} />
+      <Modal.Content>
+        <Modal.Title>Create TTS Provider</Modal.Title>
+        <Modal.Description className='sr-only'>Create TTS Provider</Modal.Description>
+        <form onSubmit={handleSubmit} method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
+            <ErrorsBox errors={errorCreateTtsProvider} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
                 <label
@@ -132,7 +122,7 @@ export default function TtsProviderNew() {
                 Name
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
@@ -144,7 +134,7 @@ export default function TtsProviderNew() {
                 API Key
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='apiKey'
                 name='apiKey'
                 type='text'
@@ -156,7 +146,7 @@ export default function TtsProviderNew() {
                 Dollar per character
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='dollarPerCharacter'
                 name='dollarPerCharacter'
                 type='number'
@@ -169,35 +159,26 @@ export default function TtsProviderNew() {
                 Hostname
               </Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='hostname'
                 name='hostname'
                 type='text'
                 placeholder='Hostname'
               />
             </Input.Root>
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Save
             </Button.Root>
-          </Drawer.Footer>
-        </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-            onClick={handleClose}
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+          </Modal.Footer>
+        </form>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

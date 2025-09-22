@@ -1,43 +1,64 @@
-import { Link, Outlet, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { ChatModel, User } from '~/types';
+import type { User } from '~/types';
 import type { Route } from './+types/_main._general.reasoning-models.$id';
 import { getPicture } from '~/utils/getPicture';
-import DeleteModal from '~/components/ui/deleteModal';
-import ReasoningModelDestroy from './reasoning-models.$id.destroy';
 import { formatDate } from '~/utils/date.utils';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatModelName } from '~/utils/formatModelName';
 import { ViewMore } from '~/view-more';
+import { useReasoningModel } from '~/hooks/queries/aiProviderQueries';
+import { useDeleteReasoningModel } from '~/hooks/queries/aiProviderMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Reasoning Model' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const res = await fetchWithAuth(`reasoning-models/${params.id}`);
-  return await res.json();
-}
-
-export default function ReasoningModelShow({ loaderData }: Route.ComponentProps) {
-  const reasoningModel: ChatModel = loaderData;
+export default function ReasoningModelShow({ params }: Route.ComponentProps) {
+  const { data: reasoningModel, isLoading } = useReasoningModel(params.id);
+  const { mutate: deleteReasoningModel, isPending: isDeletingReasoningModel, error: deleteReasoningModelError } = useDeleteReasoningModel();
   const me = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+  const confirm = useConfirm();
 
-  const createdDate = formatDate(reasoningModel.createdAt);
-  const updatedDate = formatDate(reasoningModel.updatedAt);
+  const handleClose = () => {
+    navigate(`${ROUTES.services}/ai`);
+  };
+
+  const createdDate = formatDate(reasoningModel?.createdAt || '');
+  const updatedDate = formatDate(reasoningModel?.updatedAt || '');
 
   const formatResponseTime = (time: number | null | undefined) => {
     if (!time && time !== 0) return 'N/A';
     return `${time} ms`;
   };
 
+  if (isLoading) return null;
+
+  if (!reasoningModel) return <div>Reasoning model not found</div>;
+
+  const handleDeleteReasoningModel = async () => {
+    const confirmResult = await confirm({
+      title: `Delete reasoning model ${formatModelName(reasoningModel?.providerModelName)}?`,
+      body: 'By deleting a reasoning model the associated data will be deleted as well. You will not be able to restore the data',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+    });
+    if (!confirmResult) return;
+
+    deleteReasoningModel(params.id, {
+      onSuccess: () => handleClose(),
+    });
+  };
+
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`/services/ai`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${ROUTES.services}/ai`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3'>
               <h3 className='font-semibold text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
@@ -54,12 +75,9 @@ export default function ReasoningModelShow({ loaderData }: Route.ComponentProps)
                   Edit
                 </Button.Root>
               </Link>
-              <DeleteModal
-                title={`Delete reasoning model ${formatModelName(reasoningModel.providerModelName)}?`}
-                description='By deleting a reasoning model the associated data will be deleted as well. You will not be able to restore the data'
-              >
-                <ReasoningModelDestroy />
-              </DeleteModal>
+              <Button.Root type='button' variant='danger' onClick={handleDeleteReasoningModel}>
+                <Icons.trash className='w-12' />
+              </Button.Root>
             </div>
           )}
           <div className='md:hidden flex text-base-black'>
@@ -72,18 +90,10 @@ export default function ReasoningModelShow({ loaderData }: Route.ComponentProps)
                     href: `/reasoning-models/${reasoningModel.id}/edit`,
                   },
                   {
-                    type: 'component',
+                    type: 'onClick',
                     text: 'Delete',
                     isDelete: true,
-                    component: (
-                      <DeleteModal
-                        title={`Delete reasoning model ${formatModelName(reasoningModel.providerModelName)}?`}
-                        description='By deleting a reasoning model the associated data will be deleted as well. You will not be able to restore the data'
-                        dropdown
-                      >
-                        <ReasoningModelDestroy />
-                      </DeleteModal>
-                    ),
+                    onClick: handleDeleteReasoningModel,
                   },
                 ]}
               />

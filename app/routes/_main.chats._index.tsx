@@ -1,30 +1,35 @@
 import ChatWelcome from '~/components/chat/ChatWelcome';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Route } from './+types/_main.chats._index';
+import ChatWelcomeEmpty from '~/components/chat/ChatWelcomeEmpty';
 import { useMediaQuery } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
+import { useChats } from '~/hooks/queries/chatQueries';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
+import { useUser } from '~/hooks/queries/userQueries';
 
-export async function clientLoader() {
-  const [chats, avatars] = await Promise.all([
-    fetchWithAuth('chats').then((res) => res.json()),
-    fetchWithAuth('avatars').then((res) => res.json()),
-  ]);
+export default function ChatsIndex() {
+  const { data: chatsData } = useChats();
+  const { data: avatarsData } = useAvatars({ published: 'true' });
+  const { data: user, isLoading: isUserLoading } = useUser();
 
-  return { chats, avatars };
-}
-
-export default function ChatsIndex({ loaderData }: Route.ComponentProps) {
-  const { chats, avatars } = loaderData;
+  const navigate = useNavigate()
   const isDesktopView = useMediaQuery('(min-width: 1024px)');
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (chats.length > 0 && isDesktopView) {
-      const firstChat = chats[0];
-      navigate(`/chats/${firstChat.id}`);
+    if (chatsData && chatsData.length > 0 && isDesktopView) {
+      const firstChat = chatsData[0];
+      navigate(`${ROUTES.chats}/${firstChat.id}`);
     }
-  }, [chats, isDesktopView, navigate]);
+  }, [chatsData, isDesktopView, navigate]);
 
-  return <ChatWelcome chats={chats} avatars={avatars} />;
+  if (!user) return null;
+
+  // Show empty welcome if no chats exist
+  if (!chatsData || chatsData.length === 0) {
+    return <ChatWelcomeEmpty avatars={avatarsData?.data || []} user={user} />;
+  }
+
+  // Show regular welcome if user has chats
+  return <ChatWelcome chats={chatsData || []} avatars={avatarsData?.data || []} />;
 }

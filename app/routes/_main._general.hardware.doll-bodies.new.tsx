@@ -3,8 +3,7 @@ import { redirect, useFetcher, useNavigate } from 'react-router';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general.hardware.doll-bodies.new';
 import * as Button from '~/components/ui/button/button';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Drawer from '~/components/ui/drawer';
+import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useState, useRef } from 'react';
@@ -12,15 +11,13 @@ import type { Avatar } from '~/types';
 import * as Textarea from '~/components/ui/input/textarea';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Doll Body' }];
 }
 
-export async function clientLoader() {
-  const res = await fetchWithAuth('avatars');
-  return await res.json();
-}
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
@@ -38,15 +35,15 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
 
     const dollBody = await res.json();
-    return redirect(`/hardware/doll-bodies`);
+    return redirect(`${ROUTES.hardware}/doll-bodies`);
   } catch (error: any) {
     console.error(error);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
 
-export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
-  const avatars = loaderData as Avatar[];
+export default function DollBodyNew() {
+  const { data: avatars, isLoading: isLoadingAvatars } = useAvatars();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -56,7 +53,7 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
   const errors = fetcher.data?.errors;
 
   const handleClose = () => {
-    navigate(`/hardware/doll-bodies`);
+    navigate(`${ROUTES.hardware}/doll-bodies`, { replace: true });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,16 +85,17 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <Drawer.Root
+    <Modal.Root
       defaultOpen
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Drawer.Content>
-        <Drawer.Title>Create Doll Body</Drawer.Title>
-        <fetcher.Form method='post' encType='multipart/form-data' className='size-full flex flex-col'>
-          <Drawer.Body className='flex flex-col gap-4 md:gap-6'>
+      <Modal.Content>
+        <Modal.Title>Create Doll Body</Modal.Title>
+        <Modal.Description className='sr-only'>Create Doll Body</Modal.Description>
+        <fetcher.Form method='post' encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+          <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <div className='flex flex-col items-center justify-center mb-10'>
               <div className='relative'>
@@ -139,7 +137,7 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
             <Input.Root>
               <Input.Label htmlFor='name'>Name</Input.Label>
               <Input.Input
-                className='text-base-black border border-neutral-04 py-3.5 px-3'
+                className='text-base-black py-3.5 px-3'
                 id='name'
                 name='name'
                 type='text'
@@ -153,7 +151,7 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
               <Textarea.Textarea
                 id='description'
                 name='description'
-                className='w-full border border-neutral-04 py-3.5 px-3'
+                className='w-full py-3.5 px-3'
                 placeholder='Describe the doll body'
                 rows={5}
               />
@@ -165,10 +163,10 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
               <select
                 id='avatarId'
                 name='avatarId'
-                className='flex h-10 w-full rounded-md border border-neutral-04 bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                className='flex h-10 w-full rounded-md bg-transparent px-3 py-2 text-sm placeholder:text-neutral-01 focus:outline-none focus:ring-2 focus:ring-neutral-03 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
                 <option value=''>Select an avatar</option>
-                {avatars.map((avatar) => (
+                {avatars?.data.map((avatar) => (
                   <option key={avatar.id} value={avatar.id}>
                     {avatar.name}
                   </option>
@@ -176,29 +174,20 @@ export default function DollBodyNew({ loaderData }: Route.ComponentProps) {
               </select>
               <p className='text-xs text-gray-500'>Select the default avatar for this doll body.</p>
             </Input.Root>
-          </Drawer.Body>
+          </Modal.Body>
 
-          <Drawer.Footer>
-            <Dialog.Close asChild>
-              <Button.Root aria-label='Close' className='sm:hidden block w-full'>
-                Close
+          <Modal.Footer>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' aria-label='Close' className='w-full'>
+                Cancel
               </Button.Root>
-            </Dialog.Close>
+            </Modal.Close>
             <Button.Root type='submit' className='w-full'>
               Create Doll Body
             </Button.Root>
-          </Drawer.Footer>
+          </Modal.Footer>
         </fetcher.Form>
-        <Dialog.Close asChild>
-          <button
-            className='absolute focus:outline-none -left-[78px] top-4.5 size-10 bg-white rounded-full items-center justify-center z-10 sm:flex hidden'
-            aria-label='Close'
-            onClick={handleClose}
-          >
-            <Icons.close className='text-base-black' />
-          </button>
-        </Dialog.Close>
-      </Drawer.Content>
-    </Drawer.Root>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

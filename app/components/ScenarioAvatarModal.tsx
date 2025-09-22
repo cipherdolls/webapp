@@ -1,7 +1,14 @@
-import { useFetcher, useNavigate, useRouteLoaderData } from 'react-router';
+import {  useNavigate } from 'react-router';
 import SelectionModal from './SelectionModal';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Chat, Scenario, User } from '~/types';
+import type { Avatar, Chat, Scenario } from '~/types';
+import { cn } from '~/utils/cn';
+import { getPicture } from '~/utils/getPicture';
+import { Icons } from './ui/icons';
+import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useState, useCallback } from 'react';
+import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
+import { ROUTES } from '~/constants';
 
 interface ScenarioAvatarModalProps {
   scenario: Scenario;
@@ -10,101 +17,161 @@ interface ScenarioAvatarModalProps {
 }
 
 const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, children, chats }) => {
-  const fetcher = useFetcher();
   const navigate = useNavigate();
-  const me = useRouteLoaderData('routes/_main') as User;
+  const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
+  const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
 
-  if (!scenario?.id) {
-    console.warn('ScenarioAvatarModal: Invalid scenario prop provided');
-    return null;
-  }
+  const confirm = useConfirm();
 
-  const existingChatsByAvatar = new Map<string, Chat>();
-  const scenarioChats = chats?.filter((chat) => chat.scenario.id === scenario.id) ?? scenario.chats ?? [];
-  scenarioChats.forEach((chat) => {
-    if (chat.avatar?.id) {
-      existingChatsByAvatar.set(chat.avatar.id, chat);
-    }
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+
+  //  TODO: Add filter to the scenarios on the backend to get only recommended scenarios for the avatar by avatarId
+  const {
+    data: avatarsData,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    error,
+  } = useInfiniteAvatars({
+    published: 'true',
+    name: searchTerm || '',
   });
 
-  const handleSave = async (selectedAvatarIds: string[]) => {
-    const selectedAvatarId = selectedAvatarIds[0];
-    if (!selectedAvatarId) return;
+  const avatars = avatarsData?.pages.flatMap((page) => page.data) || [];
 
-    const existingChat = existingChatsByAvatar.get(selectedAvatarId);
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
 
-    if (existingChat) {
-      navigate(`/chats/${existingChat.id}`);
-      return;
-    }
+  //  TODO: Move this logic to the backend of the delete avatar!!
 
-    const isAvatarAttached = scenario.avatars?.some((a) => a.id === selectedAvatarId);
+  const handleCreateChat = async () => {
+    if (selectedAvatar) {
+      const hasChatWithSameScenario = selectedAvatar.chats?.find((chat) => chat.scenarioId === scenario.id);
 
-    if (!isAvatarAttached && scenario.userId === me.id) {
-      try {
-        const currentAvatarIds = scenario.avatars?.map((a) => a.id) || [];
-        const updatedAvatarIds = [...currentAvatarIds, selectedAvatarId];
+      console.log(hasChatWithSameScenario);
 
-        const scenarioFormData = new FormData();
-        scenarioFormData.append('scenarioId', scenario.id);
-        scenarioFormData.append('name', scenario.name);
-        scenarioFormData.append('systemMessage', scenario.systemMessage);
-        scenarioFormData.append('chatModelId', scenario.chatModel.id);
-        scenarioFormData.append('embeddingModelId', scenario.embeddingModel.id);
-        scenarioFormData.append('temperature', scenario.temperature.toString());
-        scenarioFormData.append('topP', scenario.topP.toString());
-        scenarioFormData.append('frequencyPenalty', scenario.frequencyPenalty.toString());
-        scenarioFormData.append('presencePenalty', scenario.presencePenalty.toString());
-        if (scenario.reasoningModel) {
-          scenarioFormData.append('reasoningModelId', scenario.reasoningModel.id);
-        }
-        if (scenario.introduction) {
-          scenarioFormData.append('introduction', scenario.introduction);
-        }
-        if (scenario.published !== undefined) {
-          scenarioFormData.append('published', scenario.published.toString());
-        }
-        if (scenario.userGender) {
-          scenarioFormData.append('userGender', scenario.userGender);
-        }
-        if (scenario.avatarGender) {
-          scenarioFormData.append('avatarGender', scenario.avatarGender);
-        }
-
-        updatedAvatarIds.forEach((id) => {
-          scenarioFormData.append('avatarIds[]', id);
+      if (hasChatWithSameScenario) {
+        const confirmResult = await confirm({
+          icon: '🗑️',
+          title: 'Delete Previous Chat?',
+          body: 'If you create a new chat with this scenario, your previous chat will be permanently deleted and cannot be restored. Do you want to continue?',
+          actionButton: 'Yes, Create New',
         });
 
-        const updateResponse = await fetchWithAuth(`scenarios/${scenario.id}`, {
-          method: 'PATCH',
-          body: scenarioFormData,
-        });
+        if (!confirmResult) return;
 
-        if (!updateResponse.ok) {
-          console.error('Failed to add avatar to scenario');
-        }
-      } catch (error) {
-        console.error('Error adding avatar to scenario:', error);
+        deleteChat(hasChatWithSameScenario.id, {
+          onSuccess: () => {
+            createChat(
+              { avatarId: selectedAvatar.id, scenarioId: scenario.id },
+              {
+                onSuccess: (newChat) => {
+                  setSelectedAvatar(null);
+                  navigate(`${ROUTES.chats}/${newChat.id}`);
+                  setIsOpen(false);
+                },
+              }
+            );
+          },
+        });
+      } else {
+        createChat(
+          { avatarId: selectedAvatar.id, scenarioId: scenario.id },
+          {
+            onSuccess: (newChat) => {
+              setSelectedAvatar(null);
+              navigate(`${ROUTES.chats}/${newChat.id}`);
+              setIsOpen(false);
+            },
+          }
+        );
       }
     }
-
-    const formData = new FormData();
-    formData.append('avatarId', selectedAvatarId);
-    formData.append('scenarioId', scenario.id);
-
-    fetcher.submit(formData, {
-      method: 'POST',
-      action: '/chats',
-    });
   };
 
-  const displayAvatar = scenario.avatars?.[0];
-
   return (
-    <SelectionModal type='scenario' scenario={scenario} avatar={displayAvatar} onSave={handleSave} onClose={() => {}}>
+    <SelectionModal
+    type='avatar'
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      selectedAvatar={selectedAvatar}
+      selectedScenario={scenario}
+      onSave={handleCreateChat}
+      onSearchChange={handleSearchChange}
+      isLoading={isLoading}
+      hasNextPage={hasNextPage}
+      fetchNextPage={fetchNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      items={avatars}
+      renderItem={(item: Avatar) => {
+        const isRecommended = item.scenarios?.some((avatarScenario) => avatarScenario.id === scenario.id);
+        return (
+          <AvatarItem
+            key={item.id}
+            item={item}
+            isSelected={selectedAvatar?.id === item.id}
+            isRecommended={isRecommended ?? false}
+            onClick={() => setSelectedAvatar(item)}
+          />
+        );
+      }}
+    >
       {children}
     </SelectionModal>
   );
 };
 
 export default ScenarioAvatarModal;
+
+const AvatarItem = ({
+  item,
+  isSelected,
+  isRecommended,
+  onClick,
+}: {
+  item: Avatar;
+  isSelected: boolean;
+  isRecommended: boolean;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      key={item.id}
+      onClick={onClick}
+      className={cn(
+        'flex items-start gap-3 p-3 rounded-xl border transition-all text-left w-full relative',
+        isSelected ? 'border-blue-500 bg-blue-50' : 'border-neutral-04 hover:border-neutral-03 hover:bg-neutral-05'
+      )}
+    >
+      <div className='relative'>
+        <img
+          src={getPicture(item, 'avatars', false)}
+          srcSet={getPicture(item, 'avatars', true)}
+          alt={item.name}
+          className='w-12 h-12 rounded-full object-cover'
+        />
+        {isSelected && (
+          <div className='absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center'>
+            <Icons.check className='w-3 h-3 text-white' />
+          </div>
+        )}
+      </div>
+
+      <div className='flex-1 min-w-0'>
+        <h4 className='font-semibold text-base-black truncate'>{item.name}</h4>
+        <p className='text-sm text-neutral-01 line-clamp-2'>{item.shortDesc}</p>
+      </div>
+
+      {isRecommended && (
+        <div className='absolute right-1 top-1 text-xs  h-5  rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
+          Recommended
+        </div>
+      )}
+    </button>
+  );
+};

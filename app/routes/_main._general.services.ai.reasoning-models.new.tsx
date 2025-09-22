@@ -1,57 +1,39 @@
-import { redirect, useFetcher, useNavigate, useSearchParams } from 'react-router';
-import type { ChatModel } from '~/types';
+import { useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/_main._general.services.ai.reasoning-models.new';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
+import { useCreateReasoningModel } from '~/hooks/queries/aiProviderMutations';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Reasoning Model' }];
 }
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const jsonData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      jsonData[key] = value;
-    });
-
-    const res = await fetchWithAuth('reasoning-models', {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jsonData),
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-    const reasoningModel: ChatModel = await res.json();
-    return redirect(`/reasoning-models/${reasoningModel.id}`);
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
 
 export default function NewReasoningModel() {
+  const { mutate: createReasoningModel, isPending: isCreatingReasoningModel, error: createReasoningModelError } = useCreateReasoningModel();
   const [searchParams] = useSearchParams();
   const aiProviderId = searchParams.get('id') || '';
   const name = searchParams.get('modelName') || '';
-  const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const errors = fetcher.data?.errors;
+  const errors = createReasoningModelError;
 
   const handleClose = () => {
-    navigate(`/services/ai`, { replace: true });
+    navigate(`${ROUTES.services}/ai`, { replace: true });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const jsonData = Object.fromEntries(formData);
+    createReasoningModel(jsonData, {
+      onSuccess: () => handleClose(),
+    });
   };
 
   return (
@@ -64,7 +46,7 @@ export default function NewReasoningModel() {
       <Modal.Content>
         <Modal.Title>Add Reasoning Model for {name}</Modal.Title>
         <Modal.Description className='sr-only'>Add Reasoning Model for {name}</Modal.Description>
-        <fetcher.Form method='POST' className='w-full flex flex-col mt-[18px]'>
+        <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='aiProviderId' value={aiProviderId} />
@@ -134,7 +116,7 @@ export default function NewReasoningModel() {
               Save
             </Button.Root>
           </Modal.Footer>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

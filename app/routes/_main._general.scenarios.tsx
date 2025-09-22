@@ -1,33 +1,30 @@
-import { Link, NavLink, Outlet, useNavigate, useRouteLoaderData, useSearchParams } from 'react-router';
-import type { GenderFilter, ScenariosPaginated, User } from '~/types';
+import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
+import type { GenderFilter, User } from '~/types';
 import type { Route } from './+types/_main._general.scenarios';
-import { fetchPaginatedData } from '~/utils/fetchWithAuth';
-import SearchScenarios from '~/components/ui/search-scenarios';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { getPicture } from '~/utils/getPicture';
 import * as Popover from '~/components/ui/popover';
+import * as Switch from '~/components/ui/switch';
+import * as RadioGroup from '~/components/ui/radio-group';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import Tooltip from '~/components/ui/tooltip';
 import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
+import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
+import SearchInput from '~/components/ui/search-input';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { ROUTES } from '~/constants';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <div className='flex flex-col gap-10 pb-5 w-full'>
-      <div className='rounded-[10px] h-[52px] bg-gradient-1 w-full animate-pulse mb-8'></div>
+    <div className='flex flex-col gap-5 pb-5 w-full'>
       {Array.from({ length: count }).map((_, i) => (
-        <div className='flex flex-col gap-5' key={i}>
-          <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse max-w-[200px]'></div>
-          <div className='grid md:gap-5 gap-3.5 grid-cols-1 sm:grid-cols-2'>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-[212px] bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
-            <div className='rounded-[10px] h-6 bg-gradient-1 w-full animate-pulse'></div>
-          </div>
+        <div key={i} className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
+          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
         </div>
       ))}
     </div>
@@ -38,65 +35,45 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenarios' }];
 }
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-
-  // Default to published=true if no filter params provided
-  if (!searchParams.has('mine') && !searchParams.has('published')) {
-    searchParams.set('published', 'true');
-  }
-
-  // Add server-side sorting
-  searchParams.set('sortBy', 'updatedAt');
-  searchParams.set('sortOrder', 'desc');
-
-  const scenariosPaginated = await fetchPaginatedData<ScenariosPaginated>('scenarios', searchParams, 1, 10);
-
-  return {
-    scenariosPaginated,
-    searchParams: Object.fromEntries(searchParams.entries()),
-  };
-}
-
-export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
-  const { scenariosPaginated, searchParams: initialSearchParams } = loaderData;
-
+export default function ScenariosIndex() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const me = useRouteLoaderData('routes/_main') as User;
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const rawParams = Object.fromEntries(searchParams.entries());
 
   const showMyScenarios = searchParams.has('mine');
   const searchQuery = searchParams.get('name') || '';
   const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
   const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
+  const showNsfw = searchParams.has('nsfw');
+
+  const {
+    data: scenarios,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteScenarios({
+    ...rawParams,
+    ...(rawParams.mine === 'true' ? {} : { published: 'true' }),
+    nsfw: showNsfw ? 'true' : 'false',
+  });
+
+  const filteredAndSortedScenarios = useMemo(() => {
+    return scenarios?.pages.flatMap((page) => page.data) || [];
+  }, [scenarios]);
+
+  const [infiniteRef] = useInfiniteScroll({
+    loading: isFetchingNextPage,
+    hasNextPage: hasNextPage,
+    onLoadMore: fetchNextPage,
+    disabled: !!isError,
+  });
 
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All';
-
-  const fetchMoreWithParams = async (page: number) => {
-    // Use the initial search params from the loader which include all defaults and normalization
-    const currentSearchParams = new URLSearchParams(initialSearchParams);
-
-    // Override with any current URL changes (like search input)
-    for (const [key, value] of searchParams.entries()) {
-      currentSearchParams.set(key, value);
-    }
-
-    // Add server-side sorting
-    currentSearchParams.set('sortBy', 'updatedAt');
-    currentSearchParams.set('sortOrder', 'desc');
-
-    return fetchPaginatedData<ScenariosPaginated>('scenarios', currentSearchParams, page, 10);
-  };
-
-  const infiniteScroll = useInfiniteScroll({
-    initialData: scenariosPaginated.data,
-    initialMeta: scenariosPaginated.meta,
-    fetchMore: fetchMoreWithParams,
-    enabled: hasInitiallyLoaded,
-  });
+  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All' || showNsfw;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -109,12 +86,11 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       newSearchParams.set('mine', 'true');
     }
 
-    navigate(`/scenarios?${newSearchParams.toString()}`);
+    setSearchParams(newSearchParams);
   };
 
   const handleClearFilters = () => {
-    // Navigate to default state (public scenarios only)
-    navigate('/scenarios?published=true');
+    setSearchParams({ published: 'true' });
   };
 
   const handleUserGenderFilterChange = (filter: GenderFilter) => {
@@ -124,7 +100,8 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     } else {
       newSearchParams.set('userGender', filter);
     }
-    navigate(`/scenarios?${newSearchParams.toString()}`);
+    setSearchParams(newSearchParams);
+    setPopoverOpen(false);
   };
 
   const handleAvatarGenderFilterChange = (filter: GenderFilter) => {
@@ -134,38 +111,26 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
     } else {
       newSearchParams.set('avatarGender', filter);
     }
-    navigate(`/scenarios?${newSearchParams.toString()}`);
+    setSearchParams(newSearchParams);
+    setPopoverOpen(false);
   };
 
-  const filteredAndSortedScenarios = useMemo(() => {
-    return infiniteScroll.data;
-  }, [infiniteScroll.data]);
-
-  useEffect(() => {
-    if (loaderData) {
-      const timer = setTimeout(() => {
-        setHasInitiallyLoaded(true);
-      }, 500);
-
-      return () => clearTimeout(timer);
+  const handleNsfwToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (showNsfw) {
+      newSearchParams.delete('nsfw');
+    } else {
+      newSearchParams.set('nsfw', 'true');
     }
-  }, [loaderData]);
-
-  if (!hasInitiallyLoaded || !loaderData) {
-    return (
-      <>
-        <ScenarioSkeleton />
-        <Outlet />
-      </>
-    );
-  }
+    setSearchParams(newSearchParams);
+  };
 
   return (
     <div className='w-full'>
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold '>Scenarios</h2>
 
-        <NavLink to={'/scenarios/new'}>
+        <NavLink to={`${ROUTES.scenarios}/new`}>
           <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
             <Button.Icon as={Icons.add} />
             Add New Scenario
@@ -174,7 +139,7 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchScenarios />
+        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search scenarios by name' />
         <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
           <div className='flex flex-1 items-center gap-3'>
             <button
@@ -206,163 +171,188 @@ export default function ScenariosIndex({ loaderData }: Route.ComponentProps) {
                 <p className='text-body-md font-medium'>Clear filters</p>
               </button>
             )}
-            <Popover.Root>
-              <Popover.Trigger asChild>
-                <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
-                  <Icons.preferences className='size-4' />
-                  User Gender: {userGenderFilter}
-                  <Icons.chevronDown className='size-4' />
-                </Button.Root>
-              </Popover.Trigger>
-              <Popover.Content className='w-48 p-0'>
-                <div className='p-1'>
-                  {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => handleUserGenderFilterChange(filter)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                        userGenderFilter === filter ? 'bg-gradient-1 text-base-black font-medium' : 'text-neutral-01 hover:bg-neutral-05'
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </Popover.Content>
-            </Popover.Root>
 
             <Popover.Root>
               <Popover.Trigger asChild>
                 <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
                   <Icons.preferences className='size-4' />
-                  Avatar Gender: {avatarGenderFilter}
+                  Filters
                   <Icons.chevronDown className='size-4' />
                 </Button.Root>
               </Popover.Trigger>
-              <Popover.Content className='w-48 p-0'>
-                <div className='p-1'>
-                  {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => handleAvatarGenderFilterChange(filter)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                        avatarGenderFilter === filter ? 'bg-gradient-1 text-base-black font-medium' : 'text-neutral-01 hover:bg-neutral-05'
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </Popover.Content>
-            </Popover.Root>
-          </div>
-        </div>
-        <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
-          {filteredAndSortedScenarios.length === 0 ? (
-            <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
-              {showMyScenarios ? 'No scenarios found.' : 'No published scenarios found.'}
-            </p>
-          ) : (
-            filteredAndSortedScenarios.map((scenario) => (
-              <div className='transition-all duration-500 ease-out' key={scenario.id}>
-                <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                  <Link to={`/scenarios/${scenario.id}`} className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
-                    <img
-                      src={getPicture(scenario, 'scenarios', false)}
-                      srcSet={getPicture(scenario, 'scenarios', true)}
-                      alt={`${scenario.name} picture`}
-                      className='object-cover size-full'
-                    />
-                    {!showMyScenarios && me.id === scenario.userId && (
-                      <div className='absolute top-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                          🌐
-                          <span>By you</span>
+              <Popover.Content className='w-64 p-0'>
+                <div className='p-4 space-y-6'>
+                  {/* User Gender Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>User Gender</h4>
+                    <RadioGroup.Root value={userGenderFilter} onValueChange={handleUserGenderFilterChange}>
+                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                        <div key={filter} className='flex items-center space-x-2'>
+                          <RadioGroup.Item value={filter} id={`user-${filter}`}>
+                            <RadioGroup.Indicator />
+                          </RadioGroup.Item>
+                          <label htmlFor={`user-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                            {filter}
+                          </label>
                         </div>
-                      </div>
-                    )}
-                    {(scenario.userGender || scenario.avatarGender) && (
-                      <div className='absolute top-2 right-2 z-10'>
-                        <div className='flex items-center gap-1'>
-                          {scenario.userGender && (
-                            <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
-                              👤 {scenario.userGender}
-                            </div>
-                          )}
-                          {scenario.avatarGender && (
-                            <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
-                              🤖 {scenario.avatarGender}
-                            </div>
-                          )}
+                      ))}
+                    </RadioGroup.Root>
+                  </div>
+
+                  {/* Avatar Gender Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Avatar Gender</h4>
+                    <RadioGroup.Root value={avatarGenderFilter} onValueChange={handleAvatarGenderFilterChange}>
+                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                        <div key={filter} className='flex items-center space-x-2'>
+                          <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
+                            <RadioGroup.Indicator />
+                          </RadioGroup.Item>
+                          <label htmlFor={`avatar-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                            {filter}
+                          </label>
                         </div>
-                      </div>
-                    )}
-                  </Link>
-                  <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
-                    <div className='flex flex-col gap-1'>
-                      <div className='flex items-center gap-2'>
-                        <h4 className='text-heading-h4 text-base-black'>{scenario.name}</h4>
-                        <RecommendedBadge recommended={scenario.recommended} tooltipText='Recommended' className='pt-1' />
+                      ))}
+                    </RadioGroup.Root>
+                  </div>
 
-                        {scenario.chatModel.error && (
-                          <Tooltip
-                            side={'top'}
-                            trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                            content={scenario.chatModel.error}
-                            className='max-w-[350px]'
-                            popoverClassName='max-w-[320px]'
-                          />
-                        )}
-
-                        {scenario.embeddingModel.error && (
-                          <Tooltip
-                            side={'top'}
-                            trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                            content={scenario.embeddingModel.error}
-                            className='max-w-[350px]'
-                            popoverClassName='max-w-[320px]'
-                          />
-                        )}
-
-                        {scenario.reasoningModel?.error && (
-                          <Tooltip
-                            side={'top'}
-                            trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                            content={scenario.reasoningModel?.error}
-                            className='max-w-[350px]'
-                            popoverClassName='max-w-[320px]'
-                          />
-                        )}
-                      </div>
-                      {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
-                    </div>
+                  {/* NSFW Switch */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Content Filter</h4>
                     <div className='flex items-center gap-3'>
-                      <ScenarioAvatarModal scenario={scenario}>
-                        <Button.Root size='sm' className='px-5'>
-                          Chat
-                        </Button.Root>
-                      </ScenarioAvatarModal>
+                      <Switch.Root checked={showNsfw} onCheckedChange={() => handleNsfwToggle()}>
+                        <Switch.Thumb />
+                      </Switch.Root>
+                      <label className='text-sm text-neutral-01 cursor-pointer' onClick={handleNsfwToggle}>
+                        Show NSFW
+                      </label>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+              </Popover.Content>
+            </Popover.Root>
+          </div>
         </div>
-        {infiniteScroll.error && (
-          <div className='text-center text-red-500 py-4'>
-            <p>Failed to load scenarios: {infiniteScroll.error}</p>
-          </div>
-        )}
-        {infiniteScroll.loading && (
-          <div className='text-center py-4'>
-            <div className='inline-flex items-center gap-2'>
-              <Icons.loading className='size-4 animate-spin' />
-              <span className='text-neutral-01'>Loading more scenarios...</span>
+
+        {isLoading ? (
+          <ScenarioSkeleton />
+        ) : (
+          <>
+            <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
+              {filteredAndSortedScenarios.length === 0 ? (
+                <p className='text-body-md text-neutral-01 text-center md:col-span-2 col-span-1'>
+                  {showMyScenarios ? 'No scenarios found.' : 'No published scenarios found.'}
+                </p>
+              ) : (
+                filteredAndSortedScenarios.map((scenario) => (
+                  <div className='transition-all duration-500 ease-out' key={scenario.id}>
+                    <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                      <Link
+                        to={`${ROUTES.scenarios}/${scenario.id}`}
+                        className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'
+                      >
+                        <img
+                          src={getPicture(scenario, 'scenarios', false)}
+                          srcSet={getPicture(scenario, 'scenarios', true)}
+                          alt={`${scenario.name} picture`}
+                          className='object-cover size-full'
+                        />
+                        {!showMyScenarios && me.id === scenario.userId && (
+                          <div className='absolute top-2 left-2 z-10'>
+                            <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                              🌐
+                              <span>By you</span>
+                            </div>
+                          </div>
+                        )}
+                        {(scenario.userGender || scenario.avatarGender) && (
+                          <div className='absolute top-2 right-2 z-10'>
+                            <div className='flex items-center gap-1'>
+                              {scenario.userGender && (
+                                <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
+                                  👤 {scenario.userGender}
+                                </div>
+                              )}
+                              {scenario.avatarGender && (
+                                <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
+                                  🤖 {scenario.avatarGender}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </Link>
+                      <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
+                        <div className='flex flex-col gap-1'>
+                          <div className='flex items-center gap-2'>
+                            <h4 className='text-heading-h4 text-base-black'>{scenario.name}</h4>
+                            <RecommendedBadge recommended={scenario.recommended} tooltipText='Recommended' className='pt-1' />
+
+                            {scenario.chatModel.error && (
+                              <Tooltip
+                                side={'top'}
+                                trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                content={scenario.chatModel.error}
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+                            )}
+
+                            {scenario.embeddingModel.error && (
+                              <Tooltip
+                                side={'top'}
+                                trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                content={scenario.embeddingModel.error}
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+                            )}
+
+                            {scenario.reasoningModel?.error && (
+                              <Tooltip
+                                side={'top'}
+                                trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                content={scenario.reasoningModel?.error}
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+                            )}
+                          </div>
+                          {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
+                        </div>
+                        <div className='flex items-center gap-3'>
+                          <ScenarioAvatarModal scenario={scenario}>
+                            <Button.Root size='sm' className='px-5'>
+                              Chat
+                            </Button.Root>
+                          </ScenarioAvatarModal>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-          </div>
+
+            {isError && (
+              <div className='text-center text-red-500 py-4'>
+                <p>Failed to load scenarios: {isError}</p>
+              </div>
+            )}
+
+            {isFetchingNextPage && (
+              <div className='text-center py-4'>
+                <div className='inline-flex items-center gap-2'>
+                  <Icons.loading className='size-4 animate-spin' />
+                  <span className='text-neutral-01'>Loading more scenarios...</span>
+                </div>
+              </div>
+            )}
+
+            {hasNextPage && !isFetchingNextPage && <div ref={infiniteRef} className='h-4' />}
+          </>
         )}
-        {infiniteScroll.hasMore && !infiniteScroll.loading && <div ref={infiniteScroll.triggerRef} className='h-4' />}
+
         <Outlet />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useFetcher } from 'react-router';
+import { useNavigate } from 'react-router';
 import type { AiProvider, Scenario } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -12,18 +12,27 @@ import { formatModelName } from '~/utils/formatModelName';
 import * as Modal from '~/components/ui/new-modal';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import { cn } from '~/utils/cn';
+import { useUpdateScenario } from '~/hooks/queries/scenarioMutations';
 
-const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiProviders: AiProvider[] }) => {
-  const fetcher = useFetcher();
+interface EditScenarioModalProps {
+  scenario: Scenario;
+  aiProviders: AiProvider[]
+  refetch: () => void;
+}
+
+const EditScenarioModal = ({ scenario, aiProviders, refetch }: EditScenarioModalProps) => {
+
+  const { mutate: updateScenario, error: updateScenarioError  } = useUpdateScenario();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const [temperature, setTemperature] = useState(scenario.temperature);
   const [topP, setTopP] = useState(scenario.topP);
   const [frequencyPenalty, setFrequencyPenalty] = useState(scenario.frequencyPenalty);
   const [presencePenalty, setPresencePenalty] = useState(scenario.presencePenalty);
 
-  const errors = fetcher.data?.errors;
+
 
   interface Option {
     label: string;
@@ -64,8 +73,21 @@ const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiPr
     return res;
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    setIsOpen(false)
+    updateScenario({ scenarioId: scenario.id, formData },
+      {
+        onSuccess: () => {
+          refetch()
+        },
+      }
+    );
+  };
+
   return (
-    <Modal.Root>
+    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
       <Modal.Trigger asChild>
         <button className='opacity-50 transition-opacity hover:opacity-80'>
           <Icons.pen />
@@ -91,7 +113,7 @@ const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiPr
         </div>
 
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
-        <fetcher.Form method='PATCH' encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full'>
+        <form encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full' onSubmit={handleSubmit}>
           <input type='hidden' name='name' value={scenario.name} />
           <input type='hidden' name='embeddingModelId' value={scenario.embeddingModel.id} />
           <input type='hidden' name='reasoningModelId' value={scenario.reasoningModel?.id} />
@@ -102,7 +124,7 @@ const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiPr
           <input type='hidden' name='presencePenalty' value={presencePenalty} />
 
           <Modal.Body className={cn('flex gap-4 md:gap-6 flex-1', isExpanded ? 'flex-row' : 'flex-col')}>
-            <ErrorsBox errors={errors} />
+            <ErrorsBox errors={updateScenarioError} />
             <input type='hidden' name='scenarioId' value={scenario.id} />
 
             {isExpanded && (
@@ -277,7 +299,7 @@ const EditScenarioModal = ({ scenario, aiProviders }: { scenario: Scenario; aiPr
               </div>
             </div>
           </Modal.Body>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

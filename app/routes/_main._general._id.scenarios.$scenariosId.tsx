@@ -1,13 +1,11 @@
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { Form, Link, Outlet, useRouteLoaderData } from 'react-router';
+import { Form, Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import { getPicture } from '~/utils/getPicture';
-import type { Avatar, Scenario, User } from '~/types';
+import type { User } from '~/types';
 import DeleteModal from '~/components/ui/deleteModal';
-import ScenarioDestroy from './scenarios.$scenariosId.destroy';
 import { formatModelName } from '~/utils/formatModelName';
 import DetailCard from '~/components/ui/detail/detail-card';
 import DetailRow from '~/components/ui/detail/detail-row';
@@ -18,89 +16,92 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 import Tooltip from '~/components/ui/tooltip';
-import { useUserEvents } from '~/hooks/useUserEvents';
-import React from 'react';
+
+import React, { useMemo, useState } from 'react';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useScenario } from '~/hooks/queries/scenarioQueries';
+import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
+import { useCreateChat } from '~/hooks/queries/chatMutations';
+import ErrorPage from '~/components/ErrorPage';
+import { ROUTES } from '~/constants';
+import IntroductionSkeleton from '~/components/ui/IntroductionSkeleton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const scenarioId = params.scenariosId;
 
-  const [scenarioIdRes, mineAvatarsRes] = await Promise.all([fetchWithAuth(`scenarios/${scenarioId}`), fetchWithAuth('avatars?mine=true')]);
-
-  const scenario = await scenarioIdRes.json();
-  const mineAvatars = await mineAvatarsRes.json();
-
-  return { scenario, mineAvatars };
-}
-
-export async function clientAction({ request, params }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const scenarioId = params.scenariosId;
-    const action = formData.get('action');
-
-    if (action === 'RefreshIntroduction') {
-      const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
-        method: 'PATCH',
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const responseData = await res.json();
-        return {
-          errors: responseData.message || 'Request failed',
-        };
-      }
-
-      return await res.json();
-    }
-
-    return null;
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function ScenariosId({ loaderData }: Route.ComponentProps) {
-  const {
-    scenario,
-    mineAvatars,
-  }: {
-    scenario: Scenario;
-    mineAvatars: Avatar[] | { data: Avatar[]; meta: any };
-  } = loaderData;
-
+export default function ScenariosId({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
+  const navigate = useNavigate();
+  const { data: mineAvatarsData, isLoading: isLoadingMineAvatars } = useAvatars({ mine: 'true' });
+  const { data: scenarioData, isLoading, error: scenarioError } = useScenario(params.scenariosId);
+  const { mutate: deleteScenario } = useDeleteScenario();
+  const { mutate: createChat } = useCreateChat();
 
-  const mineAvatarsList = Array.isArray(mineAvatars) ? mineAvatars : mineAvatars.data;
+  const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
+  const scenario = useMemo(() => scenarioData || null, [scenarioData]);
+
+  const [showAll, setShowAll] = useState(false);
+
+  const mineAvatarsList = mineAvatars;
   const avatars = scenario?.avatars ? scenario.avatars : [];
   const hasAvatars = avatars.length > 0;
 
+  // useUserEvents(me.id, {
+  //   onProcessEvent: (processEvent) => {
+  //     if (
+  //       processEvent.resourceName === 'Scenario' &&
+  //       processEvent.resourceId === scenario?.id &&
+  //       processEvent.jobName === 'updated' &&
+  //       processEvent.jobStatus === 'completed'
+  //     ) {
+  //       window.location.reload();
+  //     }
+  //   },
+  // });
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (scenarioError || !scenario) {
+    return <ErrorPage code={scenarioError?.code} message={scenarioError?.message} />;
+  }
   const createdDate = formatDate(scenario.createdAt);
   const updatedDate = formatDate(scenario.updatedAt);
 
+  const handleDeleteScenario = () => {
+    deleteScenario(scenario.id, {
+      onSuccess: () => {
+        navigate(`${ROUTES.scenarios}?mine=true`);
+      },
+    });
+  };
 
-  useUserEvents(me.id, {
-    onProcessEvent: (processEvent) => {
-      if (processEvent.resourceName === 'Scenario' && 
-          processEvent.resourceId === scenario.id && 
-          processEvent.jobName === 'updated' && 
-          processEvent.jobStatus === 'completed') {
-        window.location.reload();
+  const handleShowAll = () => {
+    setShowAll(!showAll);
+  };
+
+  const handleCreateChat = (avatarId: string) => {
+    createChat(
+      {
+        avatarId: avatarId,
+        scenarioId: scenario.id,
+      },
+      {
+        onSuccess: (newChat) => {
+          navigate(`${ROUTES.chats}/${newChat.id}`);
+        },
       }
-    }
-  });
-
+    );
+  };
 
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
-          <Link to={`${scenario.userId === me.id ? '/scenarios?mine=true' : '/scenarios'}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link to={`${scenario.userId === me.id ? `${ROUTES.scenarios}?mine=true` : ROUTES.scenarios}`} className='flex items-center gap-3 sm:gap-4'>
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3 break-all flex-wrap'>
               <h3 className='font-semibold text-body-md text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
@@ -112,7 +113,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
           </Link>
 
           <div className='md:flex hidden items-center gap-3'>
-            {mineAvatarsList.length > 0 && (
+            {!isLoadingMineAvatars && mineAvatarsList.length > 0 && (
               <SelectAvatarModal
                 avatars={mineAvatarsList}
                 scenario={scenario}
@@ -125,13 +126,15 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             )}
             {me.id === scenario.userId && (
               <>
-                <Link to={`/scenarios/${scenario.id}/edit`}>
+                <Link to={`${ROUTES.scenarios}/${scenario.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
                     Edit
                   </Button.Root>
                 </Link>
                 <DeleteModal title={`Delete scenario ${scenario.name}?`} description='You will not be able to restore the data.'>
-                  <ScenarioDestroy />
+                  <Button.Root type='button' variant='danger' className='w-full' onClick={handleDeleteScenario}>
+                    Yes, delete
+                  </Button.Root>
                 </DeleteModal>
               </>
             )}
@@ -143,7 +146,7 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 {
                   type: 'link',
                   text: 'Edit',
-                  href: `/scenarios/${scenario.id}/edit`,
+                  href: `${ROUTES.scenarios}/${scenario.id}/edit`,
                   visible: me.id === scenario.userId,
                 },
                 {
@@ -162,7 +165,9 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                       title={`Delete scenario ${scenario.name}?`}
                       description='You will not be able to restore the data.'
                     >
-                      <ScenarioDestroy />
+                      <Button.Root type='button' variant='danger' className='w-full' onClick={handleDeleteScenario}>
+                        Yes, delete
+                      </Button.Root>
                     </DeleteModal>
                   ),
                   visible: me.id === scenario.userId,
@@ -174,7 +179,11 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
         <div className='flex flex-col-reverse rounded-xl divide-neutral-04 pb-2.5 gap-5 sm:flex-1 sm:backdrop-blur-none md:gap-0 sm:bg-none sm:rounded-none md:divide-x md:flex-row'>
           <div className='flex size-full flex-col gap-5 md:pr-4'>
             <DetailCard title='' copy={false} copyText={scenario.introduction} isScenario={true}>
-              {scenario.introduction && <ReactMarkdown>{scenario.introduction}</ReactMarkdown>}
+              {scenario.introduction && scenario.introduction.trim() ? (
+                <ReactMarkdown>{scenario.introduction}</ReactMarkdown>
+              ) : (
+                <IntroductionSkeleton />
+              )}
             </DetailCard>
 
             <div className={'bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col'}>
@@ -182,10 +191,10 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                 <div className='flex flex-col gap-5'>
                   <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2'>
                     {avatars.map((avatar, index) => (
-                      <div className={'transition-all duration-500 ease-out'} key={index}>
+                      <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
                         <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
                           <Link
-                            to={`/scenarios/${scenario.id}`}
+                            to={`${ROUTES.avatars}/${avatar.id}`}
                             className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
                           >
                             <img
@@ -195,37 +204,33 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                               className='object-cover size-full'
                             />
 
-                            <div className='absolute top-2 left-2 z-10'>
-                              <div className='flex items-center gap-2'>
-                                {avatar.userId === me.id && (
-                                  <span className='text-xs bg-neutral-04 text-neutral-01 px-2 py-1 rounded-full'>👤</span>
-                                )}
-                                {avatar.published && (
-                                  <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Published</span>
-                                )}
-                              </div>
-                            </div>
+                            {/*<div className='absolute top-2 left-2 z-10'>*/}
+                            {/*  <div className='flex items-center gap-2'>*/}
+                            {/*    {avatar.userId === me.id && (*/}
+                            {/*      <span className='text-xs bg-neutral-04 text-neutral-01 px-2 py-1 rounded-full'>👤</span>*/}
+                            {/*    )}*/}
+                            {/*    {avatar.published && (*/}
+                            {/*      <span className='px-2 py-1 text-xs bg-base-black text-white rounded-full'>Published</span>*/}
+                            {/*    )}*/}
+                            {/*  </div>*/}
+                            {/*</div>*/}
                           </Link>
 
                           <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
                             <div className='flex flex-col gap-1 min-w-0 flex-1'>
                               <h4 className='text-body-sm font-semibold text-base-black truncate'>{avatar.name}</h4>
 
-                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.character}</p>
+                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                             </div>
                             <div className='flex items-center gap-3'>
                               {avatar?.chats && avatar?.chats.length > 0 ? (
                                 <Button.Root size='sm' className='px-5' asChild>
-                                  <Link to={`/chats/${avatar.chats[0].id}`}>Continue Chat</Link>
+                                  <Link to={`${ROUTES.chats}/${avatar.chats[0].id}`}>Continue Chat</Link>
                                 </Button.Root>
                               ) : (
-                                <Form method='POST' action='/chats'>
-                                  <input hidden name='scenarioId' id='scenarioId' value={scenario.id} readOnly />
-                                  <input hidden name='avatarId' id='avatarId' value={avatar.id} readOnly />
-                                  <Button.Root type='submit' size='sm' className='px-5'>
-                                    Chat
-                                  </Button.Root>
-                                </Form>
+                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(avatar.id)}>
+                                  Chat
+                                </Button.Root>
                               )}
                             </div>
                           </div>
@@ -233,17 +238,28 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
                       </div>
                     ))}
                   </div>
+                  {avatars.length > 4 && (
+                    <div className='mx-auto -mt-2'>
+                      <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
+                        {showAll ? 'Collapse' : 'Show all'}
+                        <Button.Icon
+                          as={Icons.chevronDown}
+                          className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`}
+                        />
+                      </Button.Root>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
-                  <h1 className='text-heading-h2'>📚</h1>
+                  <h1 className='text-heading-h2'>🤖</h1>
                   <div className='flex flex-col items-center sm:gap-2 gap-1'>
-                    <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
+                    <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Avatars Yet</h4>
                     <Link
-                      to='/scenarios'
+                      to={ROUTES.avatars}
                       className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
                     >
-                      Add new scenario
+                      Add new avatar
                     </Link>
                   </div>
                 </div>
@@ -273,20 +289,20 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             <DetailCard isScenario title='Chat Model' className='pb-3'>
               <div className='flex flex-col'>
                 <div className='flex flex-col gap-4 pb-[18px]'>
-                  <DetailRow title='Name' value={formatModelName(scenario.chatModel.providerModelName)} />
-                  <DetailRow title='AI Provider Name' value={formatModelName(scenario.chatModel.aiProvider?.name)} />
-                  <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel.contextWindow)} token`} />
-                  <DetailRow title='Censored' value={scenario.chatModel.censored ? 'Yes' : 'No'} />
+                  <DetailRow title='Name' value={formatModelName(scenario.chatModel?.providerModelName || 'N/A')} />
+                  <DetailRow title='AI Provider Name' value={formatModelName(scenario.chatModel?.aiProvider?.name || 'N/A')} />
+                  <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel?.contextWindow || 0)} token`} />
+                  <DetailRow title='Censored' value={scenario.chatModel?.censored ? 'Yes' : 'No'} />
                   <DetailRow
                     title='Input Token Cost'
-                    value={`$${scientificNumConvert(scenario.chatModel.dollarPerInputToken * 1000000)}`}
+                    value={`$${scientificNumConvert((scenario.chatModel?.dollarPerInputToken || 0) * 1000000)}`}
                   />
                   <DetailRow
                     title='Output Token Cost'
-                    value={`$${scientificNumConvert(scenario.chatModel.dollarPerOutputToken * 1000000)}`}
+                    value={`$${scientificNumConvert((scenario.chatModel?.dollarPerOutputToken || 0) * 1000000)}`}
                   />
 
-                  {scenario.chatModel.error && (
+                  {scenario.chatModel?.error && (
                     <div className='flex gap-1 overflow-hidden'>
                       <DetailRow title='Embedding Error' value={''} />
                       <Tooltip
@@ -320,18 +336,18 @@ export default function ScenariosId({ loaderData }: Route.ComponentProps) {
             </DetailCard>
             <DetailCard isScenario title='Embedding Model'>
               <div className='flex flex-col gap-4'>
-                <DetailRow title='Name' value={formatModelName(scenario.embeddingModel.providerModelName)} />
-                <DetailRow title='AI Provider Name' value={formatModelName(scenario.embeddingModel.aiProvider?.name)} />
+                <DetailRow title='Name' value={formatModelName(scenario.embeddingModel?.providerModelName || 'N/A')} />
+                <DetailRow title='AI Provider Name' value={formatModelName(scenario.embeddingModel?.aiProvider?.name || 'N/A')} />
                 <DetailRow
                   title='Input Token Cost'
-                  value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerInputToken * 1000000)}`}
+                  value={`$${scientificNumConvert((scenario.embeddingModel?.dollarPerInputToken || 0) * 1000000)}`}
                 />
                 <DetailRow
                   title='Output Token Cost'
-                  value={`$${scientificNumConvert(scenario.embeddingModel.dollarPerOutputToken * 1000000)}`}
+                  value={`$${scientificNumConvert((scenario.embeddingModel?.dollarPerOutputToken || 0) * 1000000)}`}
                 />
 
-                {scenario.embeddingModel.error && (
+                {scenario.embeddingModel?.error && (
                   <div className='flex justify-between w-full gap-1 overflow-hidden'>
                     <DetailRow title='Embedding Error' value={''} />
 

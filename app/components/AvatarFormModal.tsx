@@ -11,24 +11,34 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
-import { useFetcher, useRouteLoaderData } from 'react-router';
+import type { Avatar, Gender, Scenario, TtsVoice } from '~/types';
+import { useTtsVoices } from '~/hooks/queries/ttsQueries';
+import { useScenarios } from '~/hooks/queries/scenarioQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 
-import type { Avatar, Gender, Scenario, TtsVoice, User } from '~/types';
+// TODO: Create all the scenarios or create a page with a new ui. 
 
 interface AvatarEditModalProps {
   avatar?: Avatar;
-  ttsVoices: TtsVoice[];
-  scenarios: Scenario[];
-  method: 'PATCH' | 'POST';
-  onClose: () => void;
+  onSubmit: (formData: FormData) => void;
+  isPending: boolean;
+  onClose: () => void;  
+  errors?: Error | null;
 }
 
-const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: AvatarEditModalProps) => {
-  const fetcher = useFetcher();
-  const me = useRouteLoaderData('routes/_main') as User;
+const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
+
+  const { data: me } = useUser();
+  
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({mine: 'true', published: 'true', limit: '100'});
+  const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
+
+  const scenarios = scenariosPaginated?.data || [];
+  const voices = ttsVoices || []
+
 
   const [avatarData, setAvatarData] = useState({
-    ttsVoice: avatar?.ttsVoice || (ttsVoices && ttsVoices.length > 0 ? ttsVoices[0] : null),
+    ttsVoice: avatar?.ttsVoice || (voices && voices.length > 0 ? voices[0] : null),
     picture: avatar?.picture ?? null,
     scenarios: Array.isArray(avatar?.scenarios) ? avatar.scenarios : [],
     published: avatar?.published || false,
@@ -38,8 +48,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const errors = fetcher.data?.errors;
-  const isNew = method === 'POST';
+  const isNew = !avatar;
 
   const updateAvatarData = (field: keyof typeof avatarData, value: any) => {
     setAvatarData((prev) => ({ ...prev, [field]: value }));
@@ -85,6 +94,13 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
     onClose && onClose();
   };
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    onSubmit(formData);
+  }
+
+
   return (
     <Modal.Root
       defaultOpen
@@ -110,7 +126,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
           </button>
         </div>
         <Modal.Description className='sr-only'>{avatar ? 'Edit avatar' : 'Create new avatar'}</Modal.Description>
-        <fetcher.Form method={method} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
+        <form onSubmit={handleSubmit} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
           <Modal.Body
             className={cn(
               'flex gap-4 md:gap-6 flex-1 overflow-auto scrollbar-medium -mx-8 px-8 [scrollbar-gutter:stable]',
@@ -191,6 +207,26 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
                       </div>
                     </div>
                   </div>
+
+                  <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
+                    <div className='flex items-center justify-between w-full'>
+                      <div
+                        className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
+                      >
+                        {avatarData.picture !== null && (
+                          <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
+                            <Icons.trash className='text-black' />
+                          </button>
+                        )}
+                        {(avatarData.picture || avatar?.picture)  &&
+                          <div className='h-6 w-px bg-neutral-04'/>
+                        }
+                        <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()} >
+                          <Icons.fileUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className='grid grid-cols-1 gap-4'>
@@ -267,7 +303,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
                 <Input.Label htmlFor='voice'>Voice</Input.Label>
                 <div className='flex items-center justify-between mb-3'>
                   <span className='text-sm text-gray-500'>Select a voice for the avatar</span>
-                  <SelectVoiceModal ttsVoices={ttsVoices} selectedVoice={avatarData.ttsVoice} onVoiceChange={handleVoiceChange} />
+                  <SelectVoiceModal ttsVoices={voices} selectedVoice={avatarData.ttsVoice} onVoiceChange={handleVoiceChange} />
                 </div>
                 {avatarData.ttsVoice && (
                   <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
@@ -288,7 +324,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
               <Input.Root>
                 <Input.Label htmlFor='scenarios'>Scenarios</Input.Label>
                 <Multiselect<Scenario>
-                  userId={me.id}
+                  userId={me?.id || ''}
                   options={scenarios}
                   selectedOptions={avatarData.scenarios}
                   onChange={(scenarios) => updateAvatarData('scenarios', scenarios)}
@@ -347,7 +383,7 @@ const AvatarEditModal = ({ avatar, ttsVoices, scenarios, method, onClose }: Avat
           </Modal.Footer>
 
           <input type='hidden' name='published' value={avatarData.published ? 'true' : 'false'} />
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

@@ -1,13 +1,15 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
-import { Icons } from './ui/icons';
 import type { ReactNode } from 'react';
+import { useAuthStore } from '~/store/useAuthStore';
+
 const SignOutModal = ({ children }: { children: ReactNode }) => {
+  const logout = useAuthStore((state) => state.logout);
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'>
+        <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-30'>
           <div
             className='absolute left-1/2 -translate-x-1/2
         w-[375px] h-[224px] sm:w-[480px] sm:h-[282px] 
@@ -28,7 +30,7 @@ const SignOutModal = ({ children }: { children: ReactNode }) => {
           />
         </Dialog.Overlay>
 
-        <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20'>
+        <Dialog.Content className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-30'>
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
           <div className='flex flex-col sm:gap-4.5 gap-3'>
             <div className='sm:text-heading-h1 text-heading-h2 text-center'>🏁</div>
@@ -39,13 +41,7 @@ const SignOutModal = ({ children }: { children: ReactNode }) => {
               </Dialog.Description>
             </div>
             <div className='sm:mt-[22px] mt-4.5 grid grid-cols-2 gap-2'>
-              <Button.Root
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  window.location.href = '/signin';
-                }}
-                variant='secondary'
-              >
+              <Button.Root onClick={logout} variant='secondary'>
                 Yes, Sign Out
               </Button.Root>
 

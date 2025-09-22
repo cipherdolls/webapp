@@ -4,8 +4,9 @@ import type { Avatar, Scenario } from '~/types';
 import { getPicture } from '~/utils/getPicture';
 import * as Button from '~/components/ui/button/button';
 import { useState } from 'react';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import { PICTURE_SIZE } from '~/constants';
+import { PICTURE_SIZE, ROUTES } from '~/constants';
+import { useUpdateAvatar } from '~/hooks/queries/avatarMutations';
+import ErrorsBox from './ui/input/errorsBox';
 
 interface SelectAvatarModalProps {
   avatars: Avatar[];
@@ -14,61 +15,33 @@ interface SelectAvatarModalProps {
 }
 
 const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarModalProps) => {
-  const [isSubmitting, setIsSubmitting] = useState<Record<string, boolean>>({});
-  const [successMessages, setSuccessMessages] = useState<Record<string, boolean>>({});
+  const { mutate: updateAvatar, isPending: isUpdatingAvatar, error: updateAvatarError } = useUpdateAvatar();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
-    if (!open) {
-      setIsSubmitting({});
-      setSuccessMessages({});
-      setErrorMessage(null);
-    }
   };
 
   const handleAddScenario = async (avatar: Avatar) => {
-    try {
-      setIsSubmitting((prev) => ({ ...prev, [avatar.id]: true }));
+    const existingScenarioIds = Array.isArray(avatar.scenarios) ? avatar.scenarios.map((s) => s.id) : [];
+    const scenarioIds = [...existingScenarioIds, scenario.id];
 
-      const scenarioExists = avatar.scenarios?.some((s) => s.id === scenario.id);
-      if (scenarioExists) {
-        setSuccessMessages((prev) => ({ ...prev, [avatar.id]: true }));
-        setIsSubmitting((prev) => ({ ...prev, [avatar.id]: false }));
-        return;
-      }
+    const formData = new FormData();
+    
+    // Add all the basic fields
+    formData.append('name', avatar.name);
+    formData.append('shortDesc', avatar.shortDesc);
+    formData.append('character', avatar.character);
+    formData.append('ttsVoiceId', avatar.ttsVoiceId);
+    formData.append('gender', avatar.gender || '');
+    formData.append('published', String(avatar.published));
+    
+    // Add each scenario ID as a separate field to create an array
+    scenarioIds.forEach((scenarioId) => {
+      formData.append('scenarioIds', scenarioId);
+    });
 
-      const existingScenarioIds = Array.isArray(avatar.scenarios) ? avatar.scenarios.map((s) => s.id) : [];
-      const scenarioIds = [...existingScenarioIds, scenario.id];
-
-      const response = await fetchWithAuth(`avatars/${avatar.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          name: avatar.name,
-          shortDesc: avatar.shortDesc,
-          character: avatar.character,
-          ttsVoiceId: avatar.ttsVoiceId,
-          gender: avatar.gender || null,
-          published: avatar.published,
-          scenarioIds,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        setSuccessMessages((prev) => ({ ...prev, [avatar.id]: true }));
-      } else {
-        const errorText = await response.text();
-        console.error('Error updating avatar:', errorText);
-      }
-    } catch (error) {
-      setErrorMessage('An unexpected error occurred');
-    } finally {
-      setIsSubmitting((prev) => ({ ...prev, [avatar.id]: false }));
-    }
+    updateAvatar({ avatarId: avatar.id, formData });
   };
 
   return (
@@ -84,7 +57,7 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
         <Dialog.Overlay className='bg-neutral-02 bg-opacity-50 fixed inset-0 z-[1000000]' />
 
         <Dialog.Content className='fixed inset-0 sm:top-2 sm:right-2 sm:bottom-2 sm:left-auto sm:max-w-[408px] w-full bg-white h-auto sm:rounded-xl shadow-bottom-level-2 overflow-auto pb-2 z-[1000000]'>
-          <Dialog.Title className='text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center px-5'>
+          <Dialog.Title className='text-heading-h4 sm:text-heading-h3 text-base-black py-4 sm:py-[26px] flex items-center px-5'>
             <Dialog.Close className='sm:hidden block'>
               <Icons.chevronLeft className='mr-3' />
             </Dialog.Close>
@@ -93,46 +66,44 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
           <Dialog.Description className='sr-only'>
             Select an avatar to add the scenario <strong>{scenario.name}</strong> to.
           </Dialog.Description>
-
-          {errorMessage && <div className='mb-4 p-3 bg-red-100 text-specials-danger rounded-lg'>{errorMessage}</div>}
-
+          <ErrorsBox errors={updateAvatarError} />
           <div className='flex flex-col px-2'>
             {avatars.length === 0 ? (
               <div className='py-6 text-center text-neutral-01'>
                 <p>You don't have any avatars yet.</p>
                 <Button.Root className='mt-4 px-6' asChild>
                   <Dialog.Close asChild>
-                    <a href='/avatars/new'>Create an Avatar</a>
+                    <a href={`${ROUTES.avatars}/new`}>Create an Avatar</a>
                   </Dialog.Close>
                 </Button.Root>
               </div>
             ) : (
               avatars.map((avatar, index) => {
-                const isScenarioAdded = avatar.scenarios?.some((s) => s.id === scenario.id) || successMessages[avatar.id];
+                const isScenarioAdded = avatar.scenarios?.some((s) => s.id === scenario.id);
                 return (
                   <div
                     key={index}
-                    className='p-3 rounded-xl hover:bg-neutral-05 transition-colors flex items-center justify-between gap-4 '
+                    className='p-3 rounded-xl hover:bg-neutral-05 transition-colors flex items-center justify-between gap-4'
                   >
-                    <div className='flex items-center gap-4'>
+                    <div className='flex items-center gap-4 min-w-0 '>
                       <img
                         src={getPicture(avatar, 'avatars', false, PICTURE_SIZE.avatar)}
                         srcSet={getPicture(avatar, 'avatars', true, PICTURE_SIZE.avatar)}
                         alt={avatar.name}
                         className='size-14 rounded-full object-cover'
                       />
-                      <div className='flex flex-col gap-05'>
+                      <div className='flex flex-col gap-0.5 min-w-0'>
                         <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.name}</p>
-                        <span className='text-body-sm text-neutral-01 text-left line-clamp-1'>{avatar.shortDesc}</span>
+                        <span className='text-body-sm text-neutral-01 text-left truncate'>{avatar.shortDesc}</span>
                       </div>
                     </div>
                     <Button.Root
                       variant={isScenarioAdded ? 'secondary' : 'primary'}
                       className='h-10 px-4'
-                      disabled={isScenarioAdded || isSubmitting[avatar.id]}
+                      disabled={isScenarioAdded || isUpdatingAvatar}
                       onClick={() => handleAddScenario(avatar)}
                     >
-                      {isSubmitting[avatar.id] ? <Icons.loading className='animate-spin size-4' /> : isScenarioAdded ? 'Added' : 'Add'}
+                      {isUpdatingAvatar ? <Icons.loading className='animate-spin size-4' /> : isScenarioAdded ? 'Added' : 'Add'}
                     </Button.Root>
                   </div>
                 );

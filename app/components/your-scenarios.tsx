@@ -1,25 +1,45 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
-import type { Chat, Scenario } from '~/types';
+import type { Chat } from '~/types';
 import * as Button from '~/components/ui/button/button';
-import { getPicture } from '~/utils/getPicture';
 import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
+import { useScenarios } from '~/hooks/queries/scenarioQueries';
+import DashboardCard from './DashboardCard';
+import { ROUTES } from '~/constants';
 
-const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Chat[] }) => {
+function YourScenariosSkeleton() {
+  return (
+    <div className='flex flex-col gap-5'>
+      <div className='rounded-[10px] h-6 bg-neutral-04 w-full animate-pulse max-w-[137px]'></div>
+      <div className='rounded-xl p-2 bg-neutral-05 w-full animate-pulse'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mt-12'>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+          <div className='rounded-[10px] h-[184px] bg-neutral-04 w-full animate-pulse'></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true' });
+
+  const scenarios = scenariosPaginated?.data || [];
+
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
-
-  const sortedScenarios = useMemo(() => {
-    return [...scenarios].sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [scenarios]);
 
   const handleShowAll = () => {
     setShowAll(!showAll);
   };
+
+  if (scenariosLoading) {
+    return <YourScenariosSkeleton />;
+  }
 
   return (
     <div className='flex flex-col gap-5'>
@@ -28,7 +48,7 @@ const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Ch
         {hasScenarios ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
-              <Link to={'/scenarios'} className='group '>
+              <Link to={ROUTES.scenarios} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -36,7 +56,7 @@ const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Ch
                   </span>
                 </div>
               </Link>
-              <Link to={'/scenarios/new'} className='group '>
+              <Link to={ROUTES.accountScenariosNew} className='group '>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -46,46 +66,25 @@ const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Ch
               </Link>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              {sortedScenarios.map((scenario, index) => (
+              {scenarios.map((scenario, index) => (
                 <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
-                  <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                    <Link
-                      to={`/scenarios/${scenario.id}`}
-                      className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
-                    >
-                      <img
-                        src={getPicture(scenario, 'scenarios', false)}
-                        srcSet={getPicture(scenario, 'scenarios', true)}
-                        alt={`${scenario.name} picture`}
-                        className='object-cover size-full'
-                      />
-
-                      <div className='absolute top-2 left-2 z-10'>
-                        <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                          🌐
-                          <span>By you</span>
-                        </div>
+                  <DashboardCard item={scenario} type='scenarios' to={`${ROUTES.scenarios}/${scenario.id}`}>
+                    <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                      <div className='flex items-center gap-2'>
+                        <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
                       </div>
-                    </Link>
-
-                    <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
-                      <div className='flex flex-col gap-1 min-w-0 flex-1'>
-                        <div className='flex items-center gap-2'>
-                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
-                        </div>
-                        {scenario.introduction && (
-                          <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
-                        )}
-                      </div>
-                      <div className='flex items-center gap-3'>
-                        <ScenarioAvatarModal scenario={scenario} chats={chats}>
-                          <Button.Root size='sm' className='px-5'>
-                            Chat
-                          </Button.Root>
-                        </ScenarioAvatarModal>
-                      </div>
+                      {scenario.introduction && (
+                        <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
+                      )}
                     </div>
-                  </div>
+                    <div className='flex items-center gap-3'>
+                      <ScenarioAvatarModal scenario={scenario} chats={chats}>
+                        <Button.Root size='sm' className='px-5'>
+                          Chat
+                        </Button.Root>
+                      </ScenarioAvatarModal>
+                    </div>
+                  </DashboardCard>
                 </div>
               ))}
             </div>
@@ -96,7 +95,7 @@ const YourScenarios = ({ scenarios, chats }: { scenarios: Scenario[]; chats?: Ch
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Scenarios Yet</h4>
               <Link
-                to='/scenarios'
+                to={ROUTES.accountScenariosNew}
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
                 Add new scenario

@@ -1,71 +1,46 @@
-import { Link, useNavigate, useRouteLoaderData, useSubmit } from 'react-router';
+import { Link, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { useAlert } from '~/providers/AlertDialogProvider';
-// ScenarioToggle removed - scenario switching disabled in running chats
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import ChatDestroy from './chats.$id.edit.destroy';
-import type { AiProvider, AiProvidersPaginated, Avatar, Chat, SttProvider, User } from '~/types';
-import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import type { SttProvider, User } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
 import * as Accordion from '@radix-ui/react-accordion';
 import DetailRow from '~/components/ui/detail/detail-row';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import Tooltip from '~/components/ui/tooltip';
-import React from 'react';
 import EditScenarioModal from '~/components/editScenarioModal';
+import { useDeleteChat } from '~/hooks/queries/chatMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useChat } from '~/hooks/queries/chatQueries';
+import { useUpdateChat } from '~/hooks/queries/chatMutations';
+import { useSttProviders } from '~/hooks/queries/sttQueries';
+import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
+import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
 }
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-  const [sttProvidersRes, aiProvidersRes] = await Promise.all([fetchWithAuth(`stt-providers`), fetchWithAuth('ai-providers')]);
+  
+export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
+  const { data: aiProviders } = useAiProviders();
+  const { data: sttProviders, isLoading } = useSttProviders();
+  const { data: chatData, refetch } = useChat(params.chatId);
+  const chat = chatData;
 
-  const { data }: AiProvidersPaginated = await aiProvidersRes.json();
-  const sttProviders = await sttProvidersRes.json();
-
-  const aiProviders = data;
-
-  return { sttProviders, aiProviders };
-}
-
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  try {
-    const formData = await request.formData();
-    const scenarioId = formData.get('scenarioId');
-
-    const res = await fetchWithAuth(`scenarios/${scenarioId}`, {
-      method: request.method,
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const responseData = await res.json();
-      return {
-        errors: responseData.message || 'Request failed',
-      };
-    }
-
-    return { success: true };
-  } catch (error: any) {
-    console.error(error);
-    return { error: 'Something went wrong. Please try again.' };
-  }
-}
-
-export default function ChatEdit({ loaderData }: Route.ComponentProps) {
-  const { sttProviders, aiProviders } = loaderData as { sttProviders: SttProvider[]; aiProviders: AiProvider[] };
-  const { chat, avatar } = useRouteLoaderData('routes/_main.chats.$chatId') as { chat: Chat; avatar: Avatar };
   const me = useRouteLoaderData('routes/_main') as User;
 
-  const submit = useSubmit();
+  const { mutate: updateChat, isPending: isUpdatingChat, error: errorUpdateChat } = useUpdateChat();
+  const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
+
   const navigate = useNavigate();
   const alert = useAlert();
+  const confirm = useConfirm();
 
   const { silentMode, toggleSilentMode } = useChatStore(
     useShallow((state) => ({
@@ -74,25 +49,39 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
     }))
   );
 
+  if (!chat) return null;
+
   const handleEditChatClose = () => {
-    navigate(`/chats/${chat.id}`);
+    navigate(`${ROUTES.chats}/${chat.id}`);
   };
 
   const handleSttProviderChange = (sttProvider: SttProvider) => {
-    submit(
-      { 
+    updateChat({
+      chatId: chat.id,
+      data: {
         sttProviderId: sttProvider.id,
         avatarId: chat.avatar.id,
         scenarioId: chat.scenario.id,
       },
-      {
-        method: 'PATCH',
-        action: `/chats/${chat.id}`,
-        navigate: false,
-      }
-    );
+    });
   };
 
+  const handleDeleteChat = async () => {
+    const confirmResult = await confirm({
+      icon: '🗑️',
+      title: 'Delete the Chats?',
+      body: 'You will no able to restore the data',
+      actionButton: 'Yes, Delete',
+    });
+    if (!confirmResult) return;
+
+    deleteChat(chat.id, {
+      onSuccess: () => {
+        navigate(`${ROUTES.chats}`, { replace: true });
+      },
+    });
+  };
+  
   return (
     <>
       <div className='pageModal'>
@@ -106,16 +95,16 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
             <button onClick={handleEditChatClose} className='md:hidden'>
               <Icons.chevronLeft />
             </button>
-            <div className='flex items-center gap-3'>
+            <div className='flex items-center gap-3 overflow-hidden'>
               <h3 className='text-heading-h3 text-base-black'>{chat.avatar.name}</h3>
               <span className='text-body-lg text-neutral-01'>•</span>
-              <p className='text-body-lg text-neutral-01'>{chat.avatar.shortDesc}</p>
+              <p className='text-body-lg text-neutral-01 truncate'>{chat.avatar.shortDesc}</p>
             </div>
           </div>
           <div className='flex flex-col flex-1 gap-8 overflow-y-auto scrollbar-medium pb-5 -mx-5 px-5'>
             {/* Avatar link */}
             <Link
-              to={`/avatars/${chat.avatar.id}`}
+              to={`${ROUTES.avatars}/${chat.avatar.id}`}
               className='flex-shrink-0 flex flex-col backdrop-blur-48 bg-gradient-1 rounded-xl overflow-hidden'
             >
               <div className='w-full h-[263px] flex items-center justify-center rounded-xl bg-neutral-04'>
@@ -140,7 +129,7 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               <div className='flex items-center justify-between'>
                 <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
                 <div className='flex gap-2'>
-                  {me.id === chat.scenario.userId && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders} />}
+                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} refetch={refetch} />}
 
                   <button
                     onClick={() => {
@@ -228,7 +217,8 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                                 side={'top'}
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={chat.scenario.chatModel.error}
-                                popoverClassName='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                                className='max-w-[350px]'
                               />
                               <DetailRow title='Chat Model Error' value={chat.scenario.chatModel.error} />
                             </div>
@@ -253,7 +243,8 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                                 side={'top'}
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={chat.scenario.embeddingModel.error}
-                                popoverClassName='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                                className='max-w-[350px]'
                               />
 
                               <DetailRow title='Embedding Error' value={chat.scenario.embeddingModel.error} />
@@ -281,7 +272,8 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
                                     side={'top'}
                                     trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                     content={chat.scenario.reasoningModel.error}
-                                    popoverClassName='max-w-[350px]'
+                                    popoverClassName='max-w-[320px]'
+                                    className='max-w-[350px]'
                                   />
 
                                   <DetailRow title='Reasoning Error' value={chat.scenario.reasoningModel.error} />
@@ -302,13 +294,13 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
               <Card.Label className='sm:text-heading-h4'>STT Provider</Card.Label>
               <Card.Main>
                 <div className='grid grid-cols-2 gap-1  p-1 min-w-[200px]'>
-                  {sttProviders.map((sttProvider) => (
+                  {sttProviders?.map((sttProvider) => (
                     <button
                       key={sttProvider.id}
                       onClick={() => handleSttProviderChange(sttProvider)}
                       className={cn(
                         'flex items-center justify-center flex-1 px-4 h-[40px] text-body-sm font-semibold rounded-[10px]',
-                        chat.sttProvider?.id === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
+                        chat.sttProviderId === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
                       )}
                     >
                       {sttProvider.name}
@@ -381,7 +373,9 @@ export default function ChatEdit({ loaderData }: Route.ComponentProps) {
             {/*</Card.Root>*/}
 
             <div className='pt-10 mt-auto'>
-              <ChatDestroy />
+              <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
+                {isDeletingChat ? <Icons.loading className='size-4' /> : 'Delete Chat'}
+              </Button.Root>
             </div>
           </div>
         </div>

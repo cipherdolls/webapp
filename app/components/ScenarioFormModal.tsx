@@ -1,6 +1,6 @@
-import { useFetcher, useRouteLoaderData } from 'react-router';
+import { useRouteLoaderData } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import type { AiProvider, Scenario, Gender, Avatar, User } from '~/types';
+import type { Scenario, Gender, Avatar, User } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
@@ -8,19 +8,32 @@ import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
 import Multiselect from '~/components/ui/input/multiselect';
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { formatModelName } from '~/utils/formatModelName';
 import * as Modal from '~/components/ui/new-modal';
 import { InformationBadge } from '~/components/ui/InformationBadge';
+import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 
 interface ScenarioFormModalProps {
   scenario?: Scenario;
-  aiProviders: AiProvider[];
-  avatars: Avatar[];
-  method: 'PATCH' | 'POST';
   onClose: () => void;
+  onSubmit: (formData: FormData) => void;
+  isLoading?: boolean;
+  errors?: Error | null;
+}
+
+interface Option {
+  label: string;
+  value: string;
+  recommended: boolean;
+}
+
+interface OptionGroup {
+  groupName: string;
+  options: Option[];
 }
 
 // Default scenario params for new scenarios
@@ -33,9 +46,14 @@ const defaultScenarioData = {
   presencePenalty: 0,
 };
 
-const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: ScenarioFormModalProps) => {
+const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: ScenarioFormModalProps) => {
+  const { data: avatarsData } = useAvatars({ mine: 'true', published: 'true', limit: '100' });
+  const { data: aiProvidersData } = useAiProviders();
+
+  const avatars = useMemo(() => avatarsData?.data || [], [avatarsData]);
+  const aiProviders = useMemo(() => aiProvidersData?.data || [], [aiProvidersData]);
+
   const me = useRouteLoaderData('routes/_main') as User;
-  const fetcher = useFetcher();
   const [selectedImage, setSelectedImage] = useState<string | null>(scenario?.picture ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
@@ -60,22 +78,10 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
       ? (scenario.avatars.map((scenarioAvatar) => avatars.find((avatar) => avatar.id === scenarioAvatar.id)).filter(Boolean) as Avatar[])
       : [],
   });
-  const [validationError, setValidationError] = useState<string[]>([]);
-  const isNew = method === 'POST';
+  const isNew = !scenario;
 
   const updateScenarioData = (field: keyof typeof scenarioData, value: any) => {
     setScenarioData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const errors = [...(fetcher.data?.errors || []), ...validationError];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    if (scenarioData.avatars.length === 0) {
-      e.preventDefault();
-      setValidationError(['Please select at least one avatar for this scenario.']);
-      return;
-    }
-    setValidationError([]);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,17 +116,6 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
     onClose?.();
   };
 
-  interface Option {
-    label: string;
-    value: string;
-    recommended: boolean;
-  }
-
-  interface OptionGroup {
-    groupName: string;
-    options: Option[];
-  }
-
   const getOptions = (forModel: 'chatModel' | 'embeddingModel' | 'reasoningModel'): OptionGroup[] => {
     let res: OptionGroup[] = [];
     if (!aiProviders) return res;
@@ -149,6 +144,12 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
     return res;
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    onSubmit(formData);
+  };
+
   return (
     <Modal.Root
       defaultOpen
@@ -174,12 +175,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
           </button>
         </div>
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
-        <fetcher.Form
-          method={method}
-          encType='multipart/form-data'
-          className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'
-          onSubmit={handleSubmit}
-        >
+        <form encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8' onSubmit={handleSubmit}>
           <input type='hidden' name='temperature' value={scenarioData.temperature} />
           <input type='hidden' name='topP' value={scenarioData.topP} />
           <input type='hidden' name='frequencyPenalty' value={scenarioData.frequencyPenalty} />
@@ -267,17 +263,19 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
                     <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
                       <div className='flex items-center justify-between w-full'>
                         <div
-                          className={cn(
-                            'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                            (selectedImage || scenario?.picture) && 'divide-x divide-neutral-04 gap-4'
-                          )}
+                          className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
                         >
                           {selectedImage !== null && (
-                            <button type='button' className='pr-4 relative z-10' onClick={handleTrashClick}>
+                            <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
                               <Icons.trash className='text-black' />
                             </button>
                           )}
-                          <Icons.fileUpload className='cursor-pointer' onClick={() => fileInputRef.current?.click()} />
+                          {(selectedImage || scenario?.picture) &&
+                            <div className='h-6 w-px bg-neutral-04'/>
+                          }
+                          <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()}>
+                            <Icons.fileUpload />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -746,6 +744,7 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
                   selectedOptions={scenarioData.avatars}
                   onChange={(value) => updateScenarioData('avatars', value)}
                   placeholder='Select avatars for this scenario'
+                  defaultValue={Array.isArray(scenario?.avatars) ? scenario?.avatars.map((avatar) => avatar.id) : []}
                 />
                 {Array.isArray(scenarioData.avatars) &&
                   scenarioData.avatars.length > 0 &&
@@ -755,47 +754,54 @@ const ScenarioFormModal = ({ scenario, aiProviders, avatars, method, onClose }: 
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                <div className={cn('p-1 bg-neutral-05 grid grid-cols-2 rounded-xl', scenario?.published && 'opacity-50 cursor-not-allowed')}>
                   <button
                     type='button'
+                    disabled={scenario?.published}
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
-                      !scenarioData.published && 'bg-white'
+                      !scenarioData.published && 'bg-white',
+                      scenario?.published && 'cursor-not-allowed'
                     )}
-                    onClick={() => updateScenarioData('published', false)}
+                    onClick={() => !scenario?.published && updateScenarioData('published', false)}
                   >
                     🔒 Private
                   </button>
                   <button
                     type='button'
+                    disabled={scenario?.published}
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioData.published && 'bg-white'
+                      scenarioData.published && 'bg-white',
+                      scenario?.published && 'cursor-not-allowed'
                     )}
-                    onClick={() => updateScenarioData('published', true)}
+                    onClick={() => !scenario?.published && updateScenarioData('published', true)}
                   >
                     🌐 Public
                   </button>
                 </div>
                 <input type='hidden' name='published' value={scenarioData.published ? 'true' : 'false'} />
                 <p className='text-xs text-gray-500'>
-                  Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.
+                  {scenario?.published 
+                    ? 'If scenario is published it cannot be unpublished or deleted.'
+                    : 'Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.'
+                  }
                 </p>
               </Input.Root>
             </div>
           </Modal.Body>
-          <ErrorsBox errors={errors.slice(0, 3)} className='mt-3' />
+          <ErrorsBox errors={errors} className='mt-3' />
           <Modal.Footer className={cn('flex-shrink-0 pt-7')}>
             <Modal.Close asChild>
               <Button.Root variant='secondary' aria-label='Close' className='w-full'>
                 Cancel
               </Button.Root>
             </Modal.Close>
-            <Button.Root type='submit' className='w-full'>
+            <Button.Root type='submit' className='w-full' disabled={isLoading}>
               {isNew ? 'Create Scenario' : 'Save'}
             </Button.Root>
           </Modal.Footer>
-        </fetcher.Form>
+        </form>
       </Modal.Content>
     </Modal.Root>
   );

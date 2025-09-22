@@ -49,21 +49,25 @@ const CHATS_STATE_CONFIGS: Record<ChatStateVariants, (avatars: Avatar[], chats?:
     title: `You Have ${avatars.length > 1 ? `${avatars.length} Avatars` : 'an Avatar'} to Chat`,
     footer: (
       <>
-        {avatars.length > 1 ? (
-          <AvatarSelectModal avatars={avatars}>
-            <Button.Root className='px-5'>Choose an Avatar</Button.Root>
-          </AvatarSelectModal>
-        ) : (
-          <Form method='POST' action='/chats'>
-            <input hidden name='avatarId' id='avatarId' value={avatars[0].id} readOnly />
-            {avatars[0].scenarios?.[0]?.id && (
-              <input hidden name='scenarioId' id='scenarioId' value={avatars[0].scenarios?.[0]?.id} readOnly />
-            )}
-            <Button.Root className='px-5 sm:h-12' type='submit' size='sm'>
-              Chat with Avatar
-            </Button.Root>
-          </Form>
-        )}
+        {<AvatarSelectModal avatars={avatars}>
+          <Button.Root className='px-5'>Choose Avatar</Button.Root>
+        </AvatarSelectModal>}
+
+        {/*{avatars.length > 1 ? (*/}
+        {/*  <AvatarSelectModal avatars={avatars}>*/}
+        {/*    <Button.Root className='px-5'>Choose an Avatar</Button.Root>*/}
+        {/*  </AvatarSelectModal>*/}
+        {/*) : (*/}
+        {/*  <Form method='POST' action='/chats'>*/}
+        {/*    <input hidden name='avatarId' id='avatarId' value={avatars[0].id} readOnly />*/}
+        {/*    {avatars[0].scenarios?.[0]?.id && (*/}
+        {/*      <input hidden name='scenarioId' id='scenarioId' value={avatars[0].scenarios?.[0]?.id} readOnly />*/}
+        {/*    )}*/}
+        {/*    <Button.Root className='px-5 sm:h-12' type='submit' size='sm'>*/}
+        {/*      Chat with Avatar*/}
+        {/*    </Button.Root>*/}
+        {/*  </Form>*/}
+        {/*)}*/}
       </>
     ),
   }),
@@ -80,12 +84,12 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chats, avatars }) => {
   return (
     <div
       className={cn(
-        'lex-1 size-full flex flex-col items-center justify-center text-center pb-24',
+        'flex-1 size-full flex flex-col items-center justify-center text-center pb-24',
         hasChats && 'border-l border-neutral-04'
       )}
     >
       {header && <div className='text-heading-h2 md:text-heading-h1 flex items-center justify-center mb-5 md:mb-8'>{header}</div>}
-      <h3 className='text-body-lg md:text-heading-h3 font-semibold'>{title}</h3>
+      <h3 className='text-body-lg px-2 md:text-heading-h3 font-semibold'>{title}</h3>
       {footer && <div className='mt-4 sm:mt-6'>{footer}</div>}
     </div>
   );

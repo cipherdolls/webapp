@@ -4,7 +4,6 @@ import { Icons } from '~/components/ui/icons';
 import { ChatState } from '~/components/chat/types/chatState';
 import AnimationRecording from '~/components/ui/AnimationRecording';
 import { cn } from '~/utils/cn';
-import { useFetcher } from 'react-router';
 import type { Chat } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
@@ -13,11 +12,13 @@ import { useAudioPlayerContext } from 'react-use-audio-player';
 
 interface MessageRecordingButtonProps {
   chat: Chat;
+  onSubmit: (formData: FormData) => void;
 }
 
 
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
-  chat
+  chat,
+  onSubmit
 }) => {
   const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(useShallow(state => ({
     currentChatState: state.currentChatState,
@@ -28,7 +29,6 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   
   const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null); 
-  const fetcher = useFetcher();
   const { stop } = useAudioPlayerContext();
   const alert = useAlert();
 
@@ -51,6 +51,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
           icon: "🎤 ❌",
           title: 'Microphone access required',
           body: 'Please allow access to your microphone in your browser settings for voice messages',
+          actionButton: undefined,
         });
         return
       };  
@@ -80,11 +81,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
     const formData = new FormData();
     formData.append('file', file);
     formData.append('chatId', chat.id);
-    fetcher.submit(formData, {
-      method: 'post',
-      action: '/messages/new',
-      encType: 'multipart/form-data',
-    });
+    onSubmit(formData);
   };
 
   const cleanUp = () => {
