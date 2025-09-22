@@ -20,7 +20,7 @@ const servicesNavItems = [
     infoMessage: 'ai-info-message',
     banner: {
       emoji: '🤖',
-      text: 'Configure AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
+      text: 'AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
     },
   },
   {
@@ -31,7 +31,7 @@ const servicesNavItems = [
     infoMessage: 'tts-info-message',
     banner: {
       emoji: '🗣️',
-      text: 'Set up text-to-speech providers to generate natural AI voices for chat responses and audio content.',
+      text: 'Services to converting text-to-speech generate natural AI voices for chat responses and audio content.',
     },
   },
   {
@@ -42,7 +42,7 @@ const servicesNavItems = [
     infoMessage: 'stt-info-message',
     banner: {
       emoji: '👂',
-      text: 'Configure speech-to-text providers to enable voice input and audio transcription capabilities.',
+      text: 'Services to converting speech-to-text provided enable voice input and audio transcription capabilities.',
     },
   },
 ];
@@ -123,9 +123,9 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               <span className='text-body-sm text-base-black'>{activeItem.banner.text}</span>
             </div>
 
-            <button onClick={() => handleClose(activeItem.infoMessage)} className='hover:opacity-50 transition-colors'>
-              <Icons.close />
-            </button>
+            {/*<button onClick={() => handleClose(activeItem.infoMessage)} className='hover:opacity-50 transition-colors'>*/}
+            {/*  <Icons.close />*/}
+            {/*</button>*/}
           </div>
         )}
 
