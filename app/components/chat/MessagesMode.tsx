@@ -43,18 +43,18 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       if (event.resourceName === 'Message') {
         switch (event.jobName) {
           case 'created':
-            if (event.jobStatus === 'active')  {
-              setIsShouldShowChatBubble(true)
+            if (event.jobStatus === 'active') {
+              setIsShouldShowChatBubble(true);
             }
             if (event.jobStatus === 'completed') {
               queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
             }
-            if (event.jobStatus === 'failed')  {
-              setIsShouldShowChatBubble(false)
+            if (event.jobStatus === 'failed') {
+              setIsShouldShowChatBubble(false);
             }
             break;
           case 'updated':
-            setIsShouldShowChatBubble(false)
+            setIsShouldShowChatBubble(false);
             const messageContent = event?.resourceAttributes?.content;
             if (!messageContent) return;
             queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
@@ -91,7 +91,9 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   };
 
   return (
-    <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>      {/* chat header */}
+    <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
+      {' '}
+      {/* chat header */}
       <ChatTopBar chat={chat} />
       {/* chat messages scroll */}
       <ChatBody

@@ -20,7 +20,7 @@ const servicesNavItems = [
     infoMessage: 'ai-info-message',
     banner: {
       emoji: '🤖',
-      text: 'Tools with pricing for text processing, data analysis, and other AI tasks.',
+      text: 'Configure AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
     },
   },
   {
@@ -31,7 +31,7 @@ const servicesNavItems = [
     infoMessage: 'tts-info-message',
     banner: {
       emoji: '🗣️',
-      text: 'Services for converting text to speech.',
+      text: 'Set up text-to-speech providers to generate natural AI voices for chat responses and audio content.',
     },
   },
   {
@@ -42,7 +42,7 @@ const servicesNavItems = [
     infoMessage: 'stt-info-message',
     banner: {
       emoji: '👂',
-      text: 'Services for converting speech to text.',
+      text: 'Configure speech-to-text providers to enable voice input and audio transcription capabilities.',
     },
   },
 ];

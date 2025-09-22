@@ -82,7 +82,6 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
       },
     });
   };
-  
 
   return (
     <>
@@ -298,26 +297,26 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                 </Card.Main>
               </Card.Root>
 
-              {/* STT Provider toggle  */}
-              <Card.Root className='sm:h-auto'>
-                <Card.Label className='sm:text-heading-h4'>STT Provider</Card.Label>
-                <Card.Main>
-                  <div className='grid grid-cols-2 gap-1  p-1 min-w-[200px]'>
-                    {sttProviders?.map((sttProvider) => (
-                      <button
-                        key={sttProvider.id}
-                        onClick={() => handleSttProviderChange(sttProvider)}
-                        className={cn(
-                          'flex items-center justify-center flex-1 px-4 h-[40px] text-body-sm font-semibold rounded-[10px]',
-                          chat.sttProvider?.id === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
-                        )}
-                      >
-                        {sttProvider.name}
-                      </button>
-                    ))}
-                  </div>
-                </Card.Main>
-              </Card.Root>
+            {/* STT Provider toggle  */}
+            <Card.Root className='sm:h-auto'>
+              <Card.Label className='sm:text-heading-h4'>STT Provider</Card.Label>
+              <Card.Main>
+                <div className='grid grid-cols-2 gap-1  p-1 min-w-[200px]'>
+                  {sttProviders?.map((sttProvider) => (
+                    <button
+                      key={sttProvider.id}
+                      onClick={() => handleSttProviderChange(sttProvider)}
+                      className={cn(
+                        'flex items-center justify-center flex-1 px-4 h-[40px] text-body-sm font-semibold rounded-[10px]',
+                        chat.sttProviderId === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
+                      )}
+                    >
+                      {sttProvider.name}
+                    </button>
+                  ))}
+                </div>
+              </Card.Main>
+            </Card.Root>
 
               {/* TODO: FINISH SILENT MODE PROCESS */}
               {/* Silent mode */}
@@ -353,33 +352,33 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                 </Card.Main>
               </Card.Root>
 
-              {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
-              {/* Doll */}
-              {/*<Card.Root className='sm:h-auto'>*/}
-              {/*  <div className='flex items-center justify-between'>*/}
-              {/*    <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>*/}
-              {/*  </div>*/}
-              {/*  <Card.Main>*/}
-              {/*    <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>*/}
-              {/*      <div className='text-4xl'>🤷‍♀️</div>*/}
-              {/*      <div className='flex flex-col flex-start gap-1 text-left'>*/}
-              {/*        <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>*/}
-              {/*        <button*/}
-              {/*          className='text-body-md text-neutral-01 text-left underline'*/}
-              {/*          onClick={() =>*/}
-              {/*            alert({*/}
-              {/*              icon: '👩 📱',*/}
-              {/*              title: 'How to Add a Doll',*/}
-              {/*              body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',*/}
-              {/*            })*/}
-              {/*          }*/}
-              {/*        >*/}
-              {/*          How to Add a Doll*/}
-              {/*        </button>*/}
-              {/*      </div>*/}
-              {/*    </div>*/}
-              {/*  </Card.Main>*/}
-              {/*</Card.Root>*/}
+            {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
+            {/* Doll */}
+            {/*<Card.Root className='sm:h-auto'>*/}
+            {/*  <div className='flex items-center justify-between'>*/}
+            {/*    <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>*/}
+            {/*  </div>*/}
+            {/*  <Card.Main>*/}
+            {/*    <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>*/}
+            {/*      <div className='text-4xl'>🤷‍♀️</div>*/}
+            {/*      <div className='flex flex-col flex-start gap-1 text-left'>*/}
+            {/*        <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>*/}
+            {/*        <button*/}
+            {/*          className='text-body-md text-neutral-01 text-left underline'*/}
+            {/*          onClick={() =>*/}
+            {/*            alert({*/}
+            {/*              icon: '👩 📱',*/}
+            {/*              title: 'How to Add a Doll',*/}
+            {/*              body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',*/}
+            {/*            })*/}
+            {/*          }*/}
+            {/*        >*/}
+            {/*          How to Add a Doll*/}
+            {/*        </button>*/}
+            {/*      </div>*/}
+            {/*    </div>*/}
+            {/*  </Card.Main>*/}
+            {/*</Card.Root>*/}
 
               <div className='pt-10 mt-auto'>
                 <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>

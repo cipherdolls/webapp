@@ -189,6 +189,7 @@ export interface Chat {
     chatCompletionJobs: number;
   };
   sttProvider?: SttProvider;
+  sttProviderId: string;
   avatar: Avatar;
   scenario: Scenario;
 }
