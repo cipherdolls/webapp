@@ -112,7 +112,6 @@
 
   --animate-popover-toggle: popover-toggle 0.3s ease;
   --animate-tooltip-toggle: tooltip-toggle 0.3s ease;
-  --animate-show-all: show-all 0.3s ease;
 
   @keyframes eye {
     0% {
@@ -141,18 +140,6 @@
     }
     to {
       height: 0;
-    }
-  }
-
-  @keyframes show-all {
-    0% {
-      opacity: 0;
-      max-height: 0;
-    }
-
-    100% {
-      opacity: 1;
-      max-height: 100px;
     }
   }
 

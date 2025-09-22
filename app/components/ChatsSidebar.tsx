@@ -7,7 +7,7 @@ import * as Button from './ui/button/button';
 import AvatarSelectModal from './AvatarSelectModal';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import React, { useState, useMemo, useEffect } from 'react';
-import { ROUTES } from '~/constants';
+import { ANIMATE_CHAT_ITEMS, ROUTES } from '~/constants';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
 
@@ -119,7 +119,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
           <div className={cn('flex-1 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none', chats.length !== 0 && 'sm:px-2')}>
             <div className='flex flex-col select-none'>
               {groupedChats.map((group, index) => (
-                <div key={group.avatar.id} className={cn(index + 1 !== groupedChats.length && 'mb-2')}>
+                <div key={group.avatar.id} className={cn('overflow-y-hidden', index + 1 !== groupedChats.length && 'mb-2')}>
                   <div
                     onClick={() => handleAvatarClick(group.avatar.id)}
                     className='relative z-20 flex items-center gap-3 cursor-pointer rounded-xl mb-2 hover:bg-neutral-05'
@@ -147,10 +147,11 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                   <AnimatePresence initial={false}>
                     {expandedAvatars.has(group.avatar.id) && (
                       <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.25 }}
+                        variants={ANIMATE_CHAT_ITEMS}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                        transition={ANIMATE_CHAT_ITEMS.transition}
                         key={group.avatar.id}
                         className='relative z-10 ml-4 space-y-1 border-l border-neutral-04 pl-3 pr-3 sm:pr-0'
                       >

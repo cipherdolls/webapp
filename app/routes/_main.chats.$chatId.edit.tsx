@@ -20,7 +20,7 @@ import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
 import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
-import { ROUTES } from '~/constants';
+import { ANIMATE_MODAL_RIGHT_SIDE, ROUTES } from '~/constants';
 import { motion } from 'framer-motion';
 
 export function meta({}: Route.MetaArgs) {
@@ -91,9 +91,10 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
           <motion.div
             className='pageModal-content'
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.25 }}
+            variants={ANIMATE_MODAL_RIGHT_SIDE}
+            initial='initial'
+            animate='animate'
+            transition={ANIMATE_MODAL_RIGHT_SIDE.transition}
           >
             <Button.Root size='icon' variant='white' className='pageModal-button-close' onClick={handleEditChatClose}>
               <Button.Icon as={Icons.close} />
