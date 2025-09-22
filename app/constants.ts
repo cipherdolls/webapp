@@ -1,5 +1,3 @@
-import type { Transition } from 'motion';
-
 export const apiUrl = import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com';
 export const wsURL = import.meta.env.VITE_WS_URL  || 'wss://mqtt.cipherdolls.com';
 
