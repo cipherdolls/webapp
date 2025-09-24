@@ -70,7 +70,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         },
                         {
                           label: 'Nonce',
-                          value: leg.nonce.toString(),
+                          value: leg.nonce?.toString() ?? 0,
                         },
                       ]}
                     />

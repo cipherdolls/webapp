@@ -11,7 +11,8 @@ import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 import { useMessage } from '~/hooks/queries/messageQueries';
-import { ROUTES } from '~/constants';
+import { ANIMATE_MODAL_RIGHT_SIDE, ROUTES } from '~/constants';
+import { motion } from 'framer-motion';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -74,7 +75,14 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
     <>
       <div className='pageModal'>
         <div className='pageModal-overlay' onClick={handleMessageClose}></div>
-        <div className='pageModal-content'>
+
+        <motion.div
+          className='pageModal-content'
+          variants={ANIMATE_MODAL_RIGHT_SIDE}
+          initial='initial'
+          animate='animate'
+          transition={ANIMATE_MODAL_RIGHT_SIDE.transition}
+        >
           <Button.Root
             size='icon'
             variant='white'
@@ -138,7 +146,7 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
               </div>
             </>
           )}
-        </div>
+        </motion.div>
       </div>
     </>
   );

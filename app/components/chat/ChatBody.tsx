@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
 import { cn } from '~/utils/cn';
+import { motion } from 'framer-motion';
 
 interface ChatBodyProps {
   messages: Message[];
@@ -122,13 +123,19 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
       {isNextDay && <ChatDateDivider date={message.createdAt} />}
       {/* chat bubble */}
       <ChatBubble.Root variant={bubbleVariant}>
-        <ChatBubble.Message asChild className={cn(message.role === 'ASSISTANT' ? 'animate-message-assistant' : 'animate-message-user')}>
-          <Link to={`messages/${message.id}`}>
-            <ChatBubble.Text animate={isRecentAssistantMessage}>
-              {message.content}
-            </ChatBubble.Text>
-            {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
-          </Link>
+        <ChatBubble.Message asChild>
+          <motion.div
+            initial={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-10%' : '10%' }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <Link to={`messages/${message.id}`}>
+              <ChatBubble.Text animate={isRecentAssistantMessage}>
+                {message.content}
+              </ChatBubble.Text>
+              {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
+            </Link>
+          </motion.div>
         </ChatBubble.Message>
       </ChatBubble.Root>
     </>
