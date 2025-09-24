@@ -2,7 +2,7 @@ import { Card } from '~/components/card';
 import { InformationBadge } from './ui/InformationBadge';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 import { Icons } from '~/components/ui/icons';
-import { useUser, useUserReferrals } from '~/hooks/queries/userQueries';
+import { useUser, useUserReferralsCount } from '~/hooks/queries/userQueries';
 import { useMediaQuery } from 'usehooks-ts';
 import { useAlert } from '~/providers/AlertDialogProvider';
 
@@ -21,11 +21,10 @@ function YourReferralsSkeleton() {
 export const YourReferrals = () => {
   const { copied, copyToClipboard } = useCopyToClipboard();
   const {data: user, isLoading: isUserLoading  } = useUser()
-  const { data: userWithReferrals } = useUserReferrals()
+  const { data: referralCount } = useUserReferralsCount();
   const alert = useAlert();
 
   const isMobileView = useMediaQuery('(max-width: 768px)');
-  const referralCount = userWithReferrals?.referralCount || 0;
   const userId = user?.id || '';
 
   const handleInviteCopy = async () => {
@@ -40,7 +39,7 @@ export const YourReferrals = () => {
     }
   };
 
-  if (isUserLoading || !user || !userWithReferrals) return <YourReferralsSkeleton />;
+  if (isUserLoading || !user || !referralCount) return <YourReferralsSkeleton />;
 
   return (
     <Card.Root className='lg:max-w-[352px]'>
