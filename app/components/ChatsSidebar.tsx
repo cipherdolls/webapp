@@ -97,6 +97,8 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
     });
   };
 
+  console.log(groupedChats)
+
   return (
     <div className={cn('pb-3 h-full shrink-0 flex flex-col md:pb-0', chats.length !== 0 ? 'px-2 w-full md:w-[348px]' : 'w-fit px-0')}>
       {isChatsLoading ? (
@@ -122,7 +124,7 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                 <div key={group.avatar.id} className={cn('overflow-y-hidden', index + 1 !== groupedChats.length && 'mb-2')}>
                   <div
                     onClick={() => handleAvatarClick(group.avatar.id)}
-                    className='relative z-20 flex items-center gap-3 cursor-pointer rounded-xl mb-2 hover:bg-neutral-05'
+                    className={cn('relative z-20 flex items-center gap-3 cursor-pointer rounded-xl hover:bg-neutral-05',index + 1 !== groupedChats.length && 'mb-2')}
                   >
                     <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
                       <AvatarCard.Avatar className='size-8' />
@@ -153,18 +155,18 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                         exit='exit'
                         transition={ANIMATE_CHAT_ITEMS.transition}
                         key={group.avatar.id}
-                        className='relative z-10 ml-4 space-y-1 border-l border-neutral-04 pl-3 pr-3 sm:pr-0'
+                        className='relative z-10 flex flex-col gap-px ml-4 space-y-1 border-l border-neutral-04 pl-3 pr-3 sm:pr-0'
                       >
                         {group.chats.map((chat) => (
                           <NavLink
                             key={chat.id}
                             to={`${ROUTES.chats}/${chat.id}`}
-                            className={({ isActive }) =>
-                              cn('block rounded-lg p-3 group transition-colors', {
-                                'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
-                                'hover:bg-neutral-04': !isActive,
-                              })
-                            }
+                            className={({ isActive }) => (
+                              cn('block rounded-lg m-px p-3 duration-300 transition-colors',
+                                isActive && ' border border-neutral-04 sm:bg-neutral-05',
+                                !isActive && 'border-transparent hover:bg-neutral-05'
+                              )
+                            )}
                           >
                             <div className='flex items-center gap-3'>
                               <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
