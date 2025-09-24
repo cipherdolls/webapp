@@ -7,7 +7,9 @@ import * as Button from './ui/button/button';
 import AvatarSelectModal from './AvatarSelectModal';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import React, { useState, useMemo, useEffect } from 'react';
-import { ROUTES } from '~/constants';
+import { ANIMATE_CHAT_ITEMS, ROUTES } from '~/constants';
+import { AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface ChatsSidebarProps {
   chats: Chat[];
@@ -95,6 +97,8 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
     });
   };
 
+  console.log(groupedChats)
+
   return (
     <div className={cn('pb-3 h-full shrink-0 flex flex-col md:pb-0', chats.length !== 0 ? 'px-2 w-full md:w-[348px]' : 'w-fit px-0')}>
       {isChatsLoading ? (
@@ -117,10 +121,10 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
           <div className={cn('flex-1 scrollbar-medium overflow-auto bg-gradient-1 rounded-xl sm:bg-none sm:rounded-none', chats.length !== 0 && 'sm:px-2')}>
             <div className='flex flex-col select-none'>
               {groupedChats.map((group, index) => (
-                <div key={group.avatar.id} className={cn(index + 1 !== groupedChats.length && 'mb-2')}>
+                <div key={group.avatar.id} className={cn('overflow-y-hidden', index + 1 !== groupedChats.length && 'mb-2')}>
                   <div
-                    className='flex items-center gap-3 cursor-pointer hover:bg-neutral-05 rounded-xl mb-2'
                     onClick={() => handleAvatarClick(group.avatar.id)}
+                    className={cn('relative z-20 flex items-center gap-3 cursor-pointer rounded-xl hover:bg-neutral-05',index + 1 !== groupedChats.length && 'mb-2')}
                   >
                     <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
                       <AvatarCard.Avatar className='size-8' />
@@ -142,38 +146,48 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                     </div>
                   </div>
 
-                  {expandedAvatars.has(group.avatar.id) && (
-                    <div className='ml-4 space-y-1 border-l border-neutral-04 pl-3 pr-3 animate-chat-toggle sm:pr-0'>
-                      {group.chats.map((chat) => (
-                        <NavLink
-                          key={chat.id}
-                          to={`${ROUTES.chats}/${chat.id}`}
-                          className={({ isActive }) =>
-                            cn('block rounded-lg p-3 group transition-colors', {
-                              'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
-                              'hover:bg-neutral-04': !isActive,
-                            })
-                          }
-                        >
-                          <div className='flex items-center gap-3'>
-                            <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
-                          </div>
-                          <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
-                        </NavLink>
-                      ))}
-
-                      <div className='pt-2'>
-                        <AvatarScenarioModal avatar={group.avatar}>
-                          <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
-                            <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
-                              <Icons.chat className='size-4' />
-                              <span className='text-body-sm font-medium'>New chat</span>
+                  <AnimatePresence initial={false}>
+                    {expandedAvatars.has(group.avatar.id) && (
+                      <motion.div
+                        variants={ANIMATE_CHAT_ITEMS}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                        transition={ANIMATE_CHAT_ITEMS.transition}
+                        key={group.avatar.id}
+                        className='relative z-10 flex flex-col gap-px ml-4 space-y-1 border-l border-neutral-04 pl-3 pr-3 sm:pr-0'
+                      >
+                        {group.chats.map((chat) => (
+                          <NavLink
+                            key={chat.id}
+                            to={`${ROUTES.chats}/${chat.id}`}
+                            className={({ isActive }) => (
+                              cn('block rounded-lg m-px p-3 duration-300 transition-colors',
+                                isActive && ' border border-neutral-04 sm:bg-neutral-05',
+                                !isActive && 'border-transparent hover:bg-neutral-05'
+                              )
+                            )}
+                          >
+                            <div className='flex items-center gap-3'>
+                              <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
                             </div>
-                          </button>
-                        </AvatarScenarioModal>
-                      </div>
-                    </div>
-                  )}
+                            <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
+                          </NavLink>
+                        ))}
+
+                        <div className='pt-2'>
+                          <AvatarScenarioModal avatar={group.avatar}>
+                            <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
+                              <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
+                                <Icons.chat className='size-4' />
+                                <span className='text-body-sm font-medium'>New chat</span>
+                              </div>
+                            </button>
+                          </AvatarScenarioModal>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
