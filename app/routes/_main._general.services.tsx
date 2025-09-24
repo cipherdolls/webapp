@@ -124,9 +124,9 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               <span className='text-body-sm text-base-black'>{activeItem.banner.text}</span>
             </div>
 
-            {/*<button onClick={() => handleClose(activeItem.infoMessage)} className='hover:opacity-50 transition-colors'>*/}
-            {/*  <Icons.close />*/}
-            {/*</button>*/}
+            <button onClick={() => handleClose(activeItem.infoMessage)} className='hover:opacity-50 transition-colors'>
+              <Icons.close />
+            </button>
           </div>
         )}
 
