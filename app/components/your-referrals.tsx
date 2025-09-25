@@ -32,10 +32,10 @@ export const YourReferrals = () => {
       await navigator.share({
         title: 'Join Cipherdolls',
         text: 'Join Cipherdolls with my link and get free tokens!',
-        url: `https://cipherdolls.com?referral=${userId}`,
+        url: `${window.location.origin}?referral=${userId}`,
       });
     } else {
-      await copyToClipboard(`www.cipherdolls.com?referral=${userId}`);
+      await copyToClipboard(`${window.location.origin}?referral=${userId}`);
     }
   };
 
@@ -74,7 +74,7 @@ export const YourReferrals = () => {
                       })}
                       className='cursor-pointer text-body-sm font-semibold text-base-black underline transition-colors hover:text-base-black/60'
                     >
-                      How does it works?
+                      How does it work?
                     </button>
                   </div>
 
