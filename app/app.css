@@ -184,7 +184,7 @@
 
 @layer components {
   .pageModal {
-    @apply fixed inset-0 z-20;
+    @apply fixed inset-0 z-[21];
   }
   .pageModal-overlay {
     @apply bg-neutral-02 absolute inset-0 z-40 cursor-pointer;
