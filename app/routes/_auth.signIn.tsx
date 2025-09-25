@@ -31,6 +31,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const timestamp = new Date().toISOString();
     const url = new URL(request.url);
     const domain = url.hostname;
+    const params = new URLSearchParams(window.location.search);
+    const referral = params.get('referral');
 
     const message = `
 ${domain} wants you to sign in with your Ethereum account:
@@ -47,7 +49,7 @@ Issued At: ${timestamp}
     `.trim();
 
     const signedMessage = await signer.signMessage(message);
-    const signinRes = await fetch(`${apiUrl}/auth/signin`, {
+    const signinRes = await fetch(referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ signedMessage, message, address }),
@@ -85,10 +87,16 @@ export default function SignInRoute() {
   const handleSuccessfulAuth = () => {
     if (hasNavigated) return;
 
+    const params = new URLSearchParams(window.location.search);
+    const referral = params.get('referral');
+
     setHasNavigated(true);
     if (redirectAfterSignIn) {
       setRedirectAfterSignIn(null); // Clear from store
       navigate(redirectAfterSignIn);
+    } else if (referral) {
+      setReferralId(referral)
+      navigate(ROUTES.chats, { replace: true });
     } else {
       navigate(ROUTES.chats, { replace: true });
     }

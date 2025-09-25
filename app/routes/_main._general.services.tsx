@@ -20,7 +20,7 @@ const servicesNavItems = [
     infoMessage: 'ai-info-message',
     banner: {
       emoji: '🤖',
-      text: 'Configure AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
+      text: 'AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
     },
   },
   {
