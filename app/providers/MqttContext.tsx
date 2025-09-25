@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import mqtt from 'mqtt';
 import { Buffer } from 'buffer';
-
+import { useAuthStore } from '~/store/useAuthStore';
 
 export interface MqttMessage {
   topic: string;
@@ -42,7 +42,6 @@ export interface MqttConfig {
   };
 }
 
-
 const MqttContext = createContext<MqttContextType | null>(null);
 
 interface MqttProviderProps {
@@ -60,9 +59,31 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
     error: null,
     reconnectAttempts: 0,
   });
+  const logout = useAuthStore((state) => state.logout);
 
   const updateConnectionState = (updates: Partial<MqttConnectionState>) => {
-    setConnectionState(prev => ({ ...prev, ...updates }));
+    setConnectionState((prev) => ({ ...prev, ...updates }));
+  };
+
+  const isAuthenticationError = (error: Error): boolean => {
+    const errorMessage = error.message?.toLowerCase() || '';
+    const authErrorPatterns = [
+      'connection refused: not authorized',
+      'connection refused: bad user name or password',
+      'connection refused: identifier rejected',
+      'not authorized',
+      'bad username or password',
+      'authentication failed',
+      'unauthorized',
+      'authentication error',
+      'mqtt authentication failed',
+      'websocket connection failed',
+      'connection refused',
+      'invalid credentials',
+      'access denied',
+    ];
+
+    return authErrorPatterns.some((pattern) => errorMessage.includes(pattern));
   };
 
   const handleMessage = useCallback((topic: string, payload: Buffer) => {
@@ -73,7 +94,7 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
     };
 
     const subscriptions = subscriptionsRef.current.get(topic) || [];
-    subscriptions.forEach(subscription => {
+    subscriptions.forEach((subscription) => {
       try {
         subscription.callback(message);
       } catch (error) {
@@ -119,7 +140,7 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
 
       client.on('reconnect', () => {
         // console.log('MQTT reconnecting...');
-        setConnectionState(prev => ({
+        setConnectionState((prev) => ({
           ...prev,
           isConnecting: true,
           error: null,
@@ -129,6 +150,13 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
 
       client.on('error', (error) => {
         console.error('MQTT error:', error);
+
+        if (isAuthenticationError(error)) {
+          console.warn('MQTT authentication failed, signing out user');
+          logout().catch(console.error);
+          return;
+        }
+
         updateConnectionState({
           isConnected: false,
           isConnecting: false,
@@ -140,10 +168,18 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
 
       clientRef.current = client;
     } catch (error) {
+      const errorInstance = error instanceof Error ? error : new Error('Unknown connection error');
+
+      if (isAuthenticationError(errorInstance)) {
+        console.warn('MQTT authentication failed during connection, signing out user');
+        logout().catch(console.error);
+        return;
+      }
+
       updateConnectionState({
         isConnected: false,
         isConnecting: false,
-        error: error instanceof Error ? error.message : 'Unknown connection error',
+        error: errorInstance.message,
       });
       throw error;
     }
@@ -164,7 +200,7 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
 
   const subscribe = useCallback((topic: string, callback: (message: MqttMessage) => void) => {
     const subscription: MqttSubscription = { topic, callback };
-    
+
     // Add to subscriptions map
     const existingSubscriptions = subscriptionsRef.current.get(topic) || [];
     existingSubscriptions.push(subscription);
@@ -190,13 +226,13 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
     // Return unsubscribe function
     return () => {
       const subscriptions = subscriptionsRef.current.get(topic) || [];
-      const filteredSubscriptions = subscriptions.filter(sub => sub.callback !== callback);
-      
+      const filteredSubscriptions = subscriptions.filter((sub) => sub.callback !== callback);
+
       // Update subscription count
       const currentCount = subscriptionCountRef.current.get(topic) || 0;
       const newCount = Math.max(0, currentCount - 1);
       subscriptionCountRef.current.set(topic, newCount);
-      
+
       if (newCount === 0) {
         // No more subscriptions for this topic, unsubscribe from MQTT
         subscriptionsRef.current.delete(topic);
@@ -226,7 +262,7 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
   useEffect(() => {
     if (connectionState.isConnected && clientRef.current) {
       const allTopics = Array.from(subscriptionsRef.current.keys());
-      allTopics.forEach(topic => {
+      allTopics.forEach((topic) => {
         const subscriptions = subscriptionsRef.current.get(topic) || [];
         if (subscriptions.length > 0) {
           // console.log(`[MqttContext] Re-subscribing to ${topic}`);
@@ -247,9 +283,9 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
     if (clientRef.current) {
       disconnect();
     }
-    
+
     connect().catch(console.error);
-    
+
     return () => {
       disconnect();
     };
@@ -263,11 +299,7 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
     getSubscriptions,
   };
 
-  return (
-    <MqttContext.Provider value={contextValue}>
-      {children}
-    </MqttContext.Provider>
-  );
+  return <MqttContext.Provider value={contextValue}>{children}</MqttContext.Provider>;
 };
 
 export const useMqtt = (): MqttContextType => {
