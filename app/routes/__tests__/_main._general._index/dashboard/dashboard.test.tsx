@@ -8,7 +8,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
-import { renderWithQuery, createMockUser, createMockUseUserResult } from '../test-utils';
+import { renderWithQuery, createMockUser, createMockUseUserResult, createMockUseUserReferralsCountResult } from '../test-utils';
 import Dashboard from '~/routes/_main._general.account';
 import type { NetworkState } from '~/hooks/useNetworkCheck';
 import type { User } from '~/types';
@@ -19,13 +19,15 @@ vi.mock('~/hooks/useNetworkCheck', () => ({
 
 vi.mock('~/hooks/queries/userQueries', () => ({
   useUser: vi.fn(),
+  useUserReferralsCount: vi.fn(),
 }));
 
 import { useNetworkCheck } from '~/hooks/useNetworkCheck';
-import { useUser } from '~/hooks/queries/userQueries';
+import { useUser, useUserReferralsCount } from '~/hooks/queries/userQueries';
 
 const mockUseNetworkCheck = useNetworkCheck as ReturnType<typeof vi.fn>;
 const mockUseUser = vi.mocked(useUser);
+const mockUseUserReferralsCount = vi.mocked(useUserReferralsCount);
 
 interface CreateMockNetworkStateOptions {
   isOnCorrectNetwork?: boolean;
@@ -93,6 +95,14 @@ describe('when dashboard loads', () => {
       isSuccess: true,
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
+
+    // Setup useUserReferralsCount mock
+    const mockReferralsResult = createMockUseUserReferralsCountResult({
+      data: 5,
+      isLoading: false,
+      isSuccess: true,
+    });
+    mockUseUserReferralsCount.mockReturnValue(mockReferralsResult);
   });
 
   it('should display dashboard content when network is correct', () => {
@@ -132,6 +142,14 @@ describe('when determining network warning visibility', () => {
       isSuccess: true,
     });
     mockUseUser.mockReturnValue(mockUseUserResult);
+
+    // Setup useUserReferralsCount mock
+    const mockReferralsResult = createMockUseUserReferralsCountResult({
+      data: 5,
+      isLoading: false,
+      isSuccess: true,
+    });
+    mockUseUserReferralsCount.mockReturnValue(mockReferralsResult);
   });
 
   it('should display network warning when user has MetaMask but wrong network', () => {
