@@ -10,7 +10,7 @@ const GlobalSubscriber = ({ userId }: { userId: string }) => {
   useUserEvents(userId, {
     onProcessEvent: (processEvent) => {
       console.log('processEvent', processEvent);
-      handleUserToasts(processEvent);
+
       handleUserEvent(queryClient, processEvent);
       handleMessageEvent(queryClient, processEvent);
       handleChatEvent(queryClient, processEvent);
@@ -26,8 +26,6 @@ const GlobalSubscriber = ({ userId }: { userId: string }) => {
 
 export default GlobalSubscriber;
 
-
-
 const STATUS: Record<ProcessEvent['jobStatus'], { icon: React.ReactNode; duration: number; desc: string }> = {
   completed: { icon: <Icons.thumb className='w-8 h-8 text-specials-success' />, duration: 5000, desc: 'Process finished successfully.' },
   failed: { icon: <Icons.warning className='w-8 h-8 text-specials-danger' />, duration: 8000, desc: 'Process failed.' },
@@ -38,7 +36,6 @@ const STATUS: Record<ProcessEvent['jobStatus'], { icon: React.ReactNode; duratio
 // USER TOASTS
 const handleUserToasts = (processEvent: ProcessEvent) => {
   if (processEvent.resourceName === 'User' || processEvent.resourceName === 'Message') return;
-
 
   const { resourceName, resourceId, jobName, jobStatus } = processEvent;
 
@@ -101,15 +98,10 @@ const handleMessageEvent = (qc: QueryClient, e: ProcessEvent) => {
 
     return {
       ...old,
-      pages: [
-        { ...first, data: [msg, ...firstData] },
-        ...old.pages.slice(1),
-      ],
+      pages: [{ ...first, data: [msg, ...firstData] }, ...old.pages.slice(1)],
     };
   });
 };
-
-
 
 const handleChatEvent = (qc: QueryClient, e: ProcessEvent) => {
   if (e.resourceName !== 'Chat' || !e.resourceAttributes) return;
@@ -117,10 +109,7 @@ const handleChatEvent = (qc: QueryClient, e: ProcessEvent) => {
   const chatId = (patch as any).id ?? e.resourceId;
   if (!chatId) return;
 
-  qc.setQueryData<Chat | undefined>(['chat', chatId], (old) =>
-    old ? { ...old, ...patch } : (patch as Chat)
-  );
-  
+  qc.setQueryData<Chat | undefined>(['chat', chatId], (old) => (old ? { ...old, ...patch } : (patch as Chat)));
 
   qc.setQueryData<Chat[] | undefined>(['chats'], (old) => {
     if (!old) return old;
@@ -134,9 +123,6 @@ const handleChatEvent = (qc: QueryClient, e: ProcessEvent) => {
   });
 };
 
-
-
-
 const handleAvatarEvent = (qc: QueryClient, e: ProcessEvent) => {
   if (e.resourceName !== 'Avatar' || !e.resourceAttributes) return;
 
@@ -144,54 +130,49 @@ const handleAvatarEvent = (qc: QueryClient, e: ProcessEvent) => {
   const avatarId = (patch as any).id ?? e.resourceId;
   if (!avatarId) return;
 
-  qc.setQueryData<Avatar | undefined>(['avatar', avatarId], (old) =>
-    old ? { ...old, ...patch } : (patch as Avatar)
-  );
+  qc.setQueryData<Avatar | undefined>(['avatar', avatarId], (old) => (old ? { ...old, ...patch } : (patch as Avatar)));
 
   // 2) Update in any lists under key ['avatars', ...]
-  qc.setQueriesData(
-    { predicate: ({ queryKey }) => Array.isArray(queryKey) && queryKey[0] === 'avatars' },
-    (old: any) => {
-      if (!old) return old;
+  qc.setQueriesData({ predicate: ({ queryKey }) => Array.isArray(queryKey) && queryKey[0] === 'avatars' }, (old: any) => {
+    if (!old) return old;
 
-      if (old?.pages && Array.isArray(old.pages)) {
-        let touched = false;
-        const pages = old.pages.map((page: any) => {
-          if (!Array.isArray(page?.data)) return page;
-          let changed = false;
-          const data = page.data.map((a: Avatar) => {
-            if (a.id !== avatarId) return a;
-            changed = true;
-            return { ...a, ...patch };
-          });
-          if (!changed) return page;
-          touched = true;
-          return { ...page, data };
-        });
-        return touched ? { ...old, pages } : old;
-      }
-
-      if (Array.isArray(old?.data)) {
+    if (old?.pages && Array.isArray(old.pages)) {
+      let touched = false;
+      const pages = old.pages.map((page: any) => {
+        if (!Array.isArray(page?.data)) return page;
         let changed = false;
-        const data = old.data.map((a: Avatar) => {
+        const data = page.data.map((a: Avatar) => {
           if (a.id !== avatarId) return a;
           changed = true;
           return { ...a, ...patch };
         });
-        return changed ? { ...old, data } : old;
-      }
-
-      if (Array.isArray(old)) {
-        let touched = false;
-        const next = old.map((a: Avatar) => {
-          if (a.id !== avatarId) return a;
-          touched = true;
-          return { ...a, ...patch };
-        });
-        return touched ? next : old;
-      }
-
-      return old;
+        if (!changed) return page;
+        touched = true;
+        return { ...page, data };
+      });
+      return touched ? { ...old, pages } : old;
     }
-  );
+
+    if (Array.isArray(old?.data)) {
+      let changed = false;
+      const data = old.data.map((a: Avatar) => {
+        if (a.id !== avatarId) return a;
+        changed = true;
+        return { ...a, ...patch };
+      });
+      return changed ? { ...old, data } : old;
+    }
+
+    if (Array.isArray(old)) {
+      let touched = false;
+      const next = old.map((a: Avatar) => {
+        if (a.id !== avatarId) return a;
+        touched = true;
+        return { ...a, ...patch };
+      });
+      return touched ? next : old;
+    }
+
+    return old;
+  });
 };
