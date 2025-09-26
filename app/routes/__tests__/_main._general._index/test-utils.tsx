@@ -578,6 +578,41 @@ export const createMockUseCreateTokenAllowanceResult = (overrides: any = {}) => 
   ...overrides,
 });
 
+/**
+ * Creates a mock UseQueryResult for useUserReferralsCount hook with proper typing
+ */
+export const createMockUseUserReferralsCountResult = (overrides: any = {}) => {
+  const baseResult = {
+    data: 0,
+    isPending: false,
+    isError: false,
+    error: null,
+    isSuccess: true,
+    isLoading: false,
+    isPaused: false,
+    isPlaceholderData: false,
+    isRefetching: false,
+    isStale: false,
+    status: 'success' as const,
+    fetchStatus: 'idle' as const,
+    dataUpdatedAt: Date.now(),
+    errorUpdatedAt: 0,
+    errorUpdateCount: 0,
+    failureCount: 0,
+    failureReason: null,
+    isFetched: true,
+    isFetchedAfterMount: true,
+    isFetching: false,
+    isInitialLoading: false,
+    isLoadingError: false,
+    isRefetchError: false,
+    isEnabled: true,
+    promise: Promise.resolve(0),
+    refetch: vi.fn(),
+  };
+  return { ...baseResult, ...overrides };
+};
+
 // ========================
 // MOCK COMPONENTS
 // ========================
