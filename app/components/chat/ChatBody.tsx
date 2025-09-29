@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
@@ -8,6 +8,8 @@ import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
 import { cn } from '~/utils/cn';
 import { motion } from 'framer-motion';
+import { useMediaQuery } from 'usehooks-ts';
+import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 
 interface ChatBodyProps {
   messages: Message[];
@@ -110,13 +112,24 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
   const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
   const isSystemMessage = message.role === 'SYSTEM';
   const isAssistantMessage = message.role === 'ASSISTANT';
-  
+
+  const [isCopied, setIsCopied] = useState(false);
+
+  const { copyToClipboard } = useCopyToClipboard();
   // Check if this is a recent assistant message (created within last 30 seconds)
   const isRecentAssistantMessage = isAssistantMessage && 
     message.createdAt && 
     (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
 
+  const handleCopy = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>, text: string) => {
+    e.preventDefault();
+    await copyToClipboard(text);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 1000);
+  }
+
   if (!message.content) return null;
+
   return (
     <>
       {/* divider between days */}
@@ -129,11 +142,18 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.25 }}
           >
-            <Link to={`messages/${message.id}`}>
+            <Link to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
               <ChatBubble.Text animate={isRecentAssistantMessage}>
                 {message.content}
               </ChatBubble.Text>
               {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
+
+              <div
+                onClick={(e) => handleCopy(e, message.content)}
+                className={cn('absolute flex justify-center items-center rounded-full border border-neutral-04 bg-white -bottom-3 p-0.5 group-hover:opacity-100 invisible group-hover:visible', message.role === 'ASSISTANT' ? '-right-2' : '-left-2')}
+              >
+                {isCopied ? <Icons.copied/> : <Icons.copy/>}
+              </div>
             </Link>
           </motion.div>
         </ChatBubble.Message>
