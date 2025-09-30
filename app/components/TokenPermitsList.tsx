@@ -123,7 +123,7 @@ const TokenPermitsList = () => {
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                  Create Permit
+                  Create Allowance
                 </span>
               </button>
             </CreateTokenAllowanceModal>
