@@ -5,14 +5,12 @@ import { setupServer } from 'msw/node';
 
 // Import all handlers from different test suites
 import { handlers } from './routes/__tests__/_main._general._index/mocks/handlers';
-import { authHandlers } from './routes/__tests__/_auth.signIn/mocks/handlers';
 
 expect.extend(matchers);
 
 // Combine all handlers into single server
 const allHandlers = [
   ...handlers,
-  ...authHandlers,
 ];
 
 const server = setupServer(...allHandlers);

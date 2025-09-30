@@ -10,7 +10,7 @@ test.describe('Network Warning Banner E2E Tests', () => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
 
     await test.step('Navigate to signin and connect wallet', async () => {
-      await page.goto('/signin');
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
 

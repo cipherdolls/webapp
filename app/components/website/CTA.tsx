@@ -1,7 +1,9 @@
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router';
-import { ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
+import { useWalletAuth } from '~/hooks/useWalletAuth';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useNavigate } from 'react-router';
+import { ROUTES } from '~/constants';
 
 const content = {
   title: (
@@ -17,6 +19,22 @@ const content = {
 };
 
 const CTA = () => {
+  const { signIn, isLoading, hasEthereum } = useWalletAuth();
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleStartChat = async () => {
+    if (isAuthenticated) {
+      navigate(ROUTES.chats);
+    } else {
+      if (!hasEthereum) {
+        alert('MetaMask not found. Please install MetaMask extension to continue.');
+        return;
+      }
+      await signIn();
+    }
+  };
+
   return (
     <section className='py-40'>
       <div className='container'>
@@ -52,11 +70,14 @@ const CTA = () => {
 
                 {/* Right Side - CTA Button */}
                 <div className='flex-shrink-0'>
-                  <Button.Root className='gradient-move px-8 transition-all duration-300 ease-in-out flex hover:shadow-xl hover:scale-105' asChild size='lg'>
-                    <Link to={ROUTES.signIn}>
-                      <span className='font-medium'>Start Chat for Free</span>
-                      <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
-                    </Link>
+                  <Button.Root
+                    className='gradient-move px-8 transition-all duration-300 ease-in-out flex hover:shadow-xl hover:scale-105'
+                    size='lg'
+                    onClick={handleStartChat}
+                    disabled={isLoading}
+                  >
+                    <span className='font-medium'>{isLoading ? 'Connecting...' : 'Start Chat for Free'}</span>
+                    <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
                   </Button.Root>
                 </div>
               </div>

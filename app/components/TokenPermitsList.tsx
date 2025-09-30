@@ -105,10 +105,10 @@ const TokenPermitsList = () => {
   return (
     <div className='flex flex-col gap-5'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-heading-h3 text-base-black'>Token Permits</h3>
+        <h3 className='text-heading-h3 text-base-black'>Token Allowance</h3>
         <div className='flex items-center gap-2'>
           <InformationBadge
-            tooltipText='Token permits allow the CipherDolls platform to spend your LOV tokens for chat functionality.'
+            tooltipText='Token Allowance allow the CipherDolls platform to spend your LOV tokens for chat functionality.'
             className='size-6 !max-w-[300px]'
             popoverClassName='max-w-[320px]'
             side='top'
@@ -169,7 +169,7 @@ const TokenPermitsList = () => {
                     <div
                       className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300'
                       style={{
-                         width: `${progressPercentage}%`,
+                        width: `${progressPercentage}%`,
                       }}
                     />
                   </div>
