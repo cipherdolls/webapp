@@ -69,20 +69,18 @@ Issued At: ${timestamp}
 
 export default function SignInRoute() {
   const fetcher = useFetcher();
-  const { 
-    token, 
-    setToken, 
-    verifyToken, 
-    redirectAfterSignIn, 
+  const {
+    setToken,
+    redirectAfterSignIn,
     setRedirectAfterSignIn,
-    referralId,
-    setReferralId 
+    setReferralId
   } = useAuthStore();
   const [connected, setConnected] = useState(false);
   const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [hasEthereum, setHasEthereum] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSuccessfulAuth = () => {
     if (hasNavigated) return;
@@ -102,16 +100,46 @@ export default function SignInRoute() {
     }
   };
 
+  // Consolidated authentication effect
   useEffect(() => {
-    if (fetcher.data?.token) {
-      setToken(fetcher.data.token);
-      // Don't call handleSuccessfulAuth here - let the token state update trigger it
-    }
-    if (fetcher.data?.error) {
-      console.error('Sign-in error:', fetcher.data.error);
-    }
-  }, [fetcher.data]);
+    const handleAuth = async () => {
+      if (fetcher.data?.error) {
+        console.error('Sign-in error:', fetcher.data.error);
+        return;
+      }
 
+      if (fetcher.data?.token && !isVerifying && !hasNavigated && connected) {
+        setIsVerifying(true);
+
+        const newToken = fetcher.data.token;
+        setToken(newToken);
+
+        // Verify the token directly
+        try {
+          const res = await fetch(`${apiUrl}/auth/verify`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+
+          if (res.ok) {
+            handleSuccessfulAuth();
+          }
+        } catch (error) {
+          console.error('Token verification failed:', error);
+        }
+
+        setIsVerifying(false);
+      }
+    };
+
+    handleAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data, connected, hasNavigated]);
+
+  // Initialize wallet connection and listen for account changes
   useEffect(() => {
     checkConnection();
 
@@ -130,19 +158,6 @@ export default function SignInRoute() {
       };
     }
   }, []);
-
-  useEffect(() => {
-    if (token) {
-      verifyToken();
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (connected === true && token !== undefined && token !== null) {
-      handleSuccessfulAuth();
-    }
-    // eslint-disable-next-line
-  }, [connected, token]);
 
   const checkConnection = async () => {
     try {

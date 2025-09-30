@@ -97,8 +97,6 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
     });
   };
 
-  console.log(groupedChats)
-
   return (
     <div className={cn('pb-3 h-full shrink-0 flex flex-col md:pb-0', chats.length !== 0 ? 'px-2 w-full md:w-[348px]' : 'w-fit px-0')}>
       {isChatsLoading ? (
