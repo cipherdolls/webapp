@@ -18,6 +18,7 @@ import { useDeleteAiProvider } from '~/hooks/queries/aiProviderMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import type { AiProvider } from '~/types';
 import { ROUTES } from '~/constants';
+import { useUser } from '~/hooks/queries/userQueries';
 
 function AiProviderSkeleton({ count = 3 }: { count?: number }) {
   return (
@@ -48,6 +49,7 @@ const AiProvidersTab = () => {
   const [searchParams] = useSearchParams();
   const searchName = searchParams.get('name') || '';
 
+  const {data: user, isLoading: isUserLoading } = useUser()
   const { mutate: deleteAiProvider, isPending: isDeletingAiProvider } = useDeleteAiProvider();
   const {
     data: aiProvidersData,
@@ -57,7 +59,20 @@ const AiProvidersTab = () => {
     fetchNextPage: aiProvidersFetchNextPage,
   } = useInfiniteAiProviders({ name: searchName });
 
+  const isAdmin = user?.role === 'ADMIN'
   const aiProviders = aiProvidersData?.pages.flatMap((page) => page.data) || [];
+
+  // Filter to show data without errors for default users
+  function filteredAiProvidersWithoutErrors(aiProviders: AiProvider[]): AiProvider[] {
+    return aiProviders.map((aiProvider) => ({
+      ...aiProvider,
+      chatModels: aiProvider.chatModels.filter((chatModel) => !chatModel.error),
+      embeddingModels: aiProvider.embeddingModels.filter((embeddingModel) => !embeddingModel.error),
+      reasoningModels: aiProvider.reasoningModels.filter((reasoningModel) => !reasoningModel.error),
+    }))
+  }
+
+  const filteredAiProviders = isAdmin ? aiProviders : filteredAiProvidersWithoutErrors(aiProviders)
 
   const [infiniteRef] = useInfiniteScroll({
     loading: aiProvidersLoading,
@@ -88,7 +103,7 @@ const AiProvidersTab = () => {
       ) : aiProviders.length === 0 ? (
         <p className='text-body-md text-neutral-01 text-center'>No AI providers found.</p>
       ) : (
-        aiProviders.map((aiProvider) => {
+        filteredAiProviders.map((aiProvider) => {
           return (
             <div key={aiProvider.id} className='flex flex-col gap-5'>
               <DataCard.Root>
