@@ -172,6 +172,15 @@ export default function ScenariosIndex() {
               </button>
             )}
 
+            <div className='flex items-center gap-2 px-3 py-2 bg-neutral-06 rounded-lg'>
+              <Switch.Root checked={showNsfw} onCheckedChange={() => handleNsfwToggle()}>
+                <Switch.Thumb />
+              </Switch.Root>
+              <label className='text-sm text-neutral-01 cursor-pointer' onClick={handleNsfwToggle}>
+                Show NSFW
+              </label>
+            </div>
+
             <Popover.Root>
               <Popover.Trigger asChild>
                 <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4'>
@@ -214,19 +223,6 @@ export default function ScenariosIndex() {
                         </div>
                       ))}
                     </RadioGroup.Root>
-                  </div>
-
-                  {/* NSFW Switch */}
-                  <div className='space-y-3'>
-                    <h4 className='text-sm font-medium text-base-black'>Content Filter</h4>
-                    <div className='flex items-center gap-3'>
-                      <Switch.Root checked={showNsfw} onCheckedChange={() => handleNsfwToggle()}>
-                        <Switch.Thumb />
-                      </Switch.Root>
-                      <label className='text-sm text-neutral-01 cursor-pointer' onClick={handleNsfwToggle}>
-                        Show NSFW
-                      </label>
-                    </div>
                   </div>
                 </div>
               </Popover.Content>
