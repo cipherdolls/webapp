@@ -16,17 +16,17 @@ test('should connect wallet and sign in to CipherDolls', async ({ context, page,
   const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
 
   await test.step('Navigate to signin page', async () => {
-    await page.goto('/signin');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
   });
 
   await test.step('Verify signin form is available', async () => {
-    await expectElementVisible(page, SELECTORS.SIGNIN_FORM, 'Sign In Form');
+    await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Form');
   });
 
   await test.step('Connect wallet', async () => {
-    await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+    await page.locator(SELECTORS.START_CHAT_BUTTON).click();
 
     await metamask.connectToDapp();
 
@@ -42,7 +42,7 @@ test('should connect wallet and sign in to CipherDolls', async ({ context, page,
   const responsePromise = page.waitForResponse((response) => response.url().includes('/auth/signin')).catch(() => null);
 
   await test.step('Complete authentication flow', async () => {
-    await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+    await page.locator(SELECTORS.START_CHAT_BUTTON).click();
 
     await handleSignatureWithCleanup(page, metamask, 'MetaMask Docs Test');
 

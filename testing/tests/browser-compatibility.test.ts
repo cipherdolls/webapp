@@ -10,7 +10,7 @@ test.describe('Browser Compatibility Tests', () => {
     });
 
     await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin');
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       await page.waitForTimeout(600);

@@ -30,7 +30,6 @@ export const PATHS = {
 
 export const ROUTES = {
   index: '/',
-  signIn: '/signin',
   chats: '/chats',
   avatars: '/avatars',
   scenarios: '/scenarios',

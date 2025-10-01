@@ -43,7 +43,7 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
           <div className='flex flex-col sm:gap-6 gap-4'>
             <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center font-semibold'>
-              Create Token Permit
+              Create Token Allowance
             </Dialog.Title>
 
             <div className='flex flex-col gap-6'>
