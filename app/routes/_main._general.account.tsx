@@ -54,12 +54,12 @@ export default function Account() {
           <TokenBalance />
           <TokenPermitsList />
           <YourReferrals />
-          <SignOutModal>
-            <Button.Root variant='primary' className='w-full'>
-              <Icons.signOut className='fill-[#350D2A]/40' />
+          <SignOutModal >
+            <Button.Root variant='primary' className='w-full min-h-12'>
+              <Icons.signOut />
               Sign Out
             </Button.Root>
-          </SignOutModal>
+          </SignOutModal >
         </div>
       </div>
       <Outlet />

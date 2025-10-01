@@ -21,7 +21,7 @@ function YourReferralsSkeleton() {
 export const YourReferrals = () => {
   const { copied, copyToClipboard } = useCopyToClipboard();
   const {data: user, isLoading: isUserLoading  } = useUser()
-  const { data: referralCount } = useUserReferralsCount();
+  const { data: referralCount, isLoading: isReferralCountLoading } = useUserReferralsCount();
   const alert = useAlert();
 
   const isMobileView = useMediaQuery('(max-width: 768px)');
@@ -39,7 +39,7 @@ export const YourReferrals = () => {
     }
   };
 
-  if (isUserLoading || !user || !referralCount) return <YourReferralsSkeleton />;
+  if (isUserLoading || isReferralCountLoading || !user) return <YourReferralsSkeleton />;
 
   return (
     <Card.Root className='lg:max-w-[352px]'>
@@ -48,7 +48,7 @@ export const YourReferrals = () => {
         <InformationBadge className='size-6' side='top' tooltipText='Your personal referrals in Cipherdolls' popoverClassName='ml-auto' />
       </div>
 
-      {referralCount > 0 ? (
+      {(referralCount || 0) > 0 ? (
         <Card.Main className='max-h-max flex-none'>
           <Card.Content className='border-t-0'>
             <div className='sm:py-14'>
@@ -79,7 +79,7 @@ export const YourReferrals = () => {
                   </div>
 
                   <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>
-                    You Have {referralCount > 1 ? `${referralCount} Referrals` : `1 Referral`}
+                    You Have {(referralCount || 0) > 1 ? `${referralCount} Referrals` : `1 Referral`}
                   </h4>
 
                   <p className='text-center text-neutral-01'>
