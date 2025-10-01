@@ -19,7 +19,7 @@ interface ChatsSidebarProps {
 
 function SidebarSkeleton({ count = 15 }: { count?: number }) {
   return (
-    <div className='flex flex-col gap-2 w-full px-2 md:w-[348px]'>
+    <div className='flex flex-col gap-2 w-full px-2 md:w-[334px]'>
       <div className='px-3 py-[18px] flex items-center justify-between'>
         <h3 className='text-heading-h3'>Chats</h3>
 
