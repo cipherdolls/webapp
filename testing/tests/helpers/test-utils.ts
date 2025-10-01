@@ -2,9 +2,9 @@ import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
 export const UI_TEXTS = {
-  WALLET_REQUIRED: 'A connected crypto wallet in your browser is required to log in (new or empty wallets are fine).',
-  WALLET_CONNECT_NEW: 'Please connect your wallet to continue',
-  SIGN_IN_BUTTON: 'Sign In',
+  START_CHAT_FREE: 'Start Chat for Free',
+  GO_TO_CHATS: 'Go to Chats',
+  CONNECTING: 'Connecting...',
   HOW_IT_WORKS: 'How It Works',
   TERMS_OF_SERVICE: 'Terms of Service',
   PRIVACY_POLICY: 'Privacy Policy',
@@ -24,8 +24,8 @@ export const UI_TEXTS = {
 } as const;
 
 export const SELECTORS = {
-  SIGNIN_FORM: 'form',
-  SIGNIN_BUTTON: 'form button[type="submit"]',
+  HEADER_AUTH_BUTTON: 'header button:has-text("Start Chat for Free"), header button:has-text("Go to Chats")',
+  START_CHAT_BUTTON: 'button:has-text("Start Chat for Free")',
   VIDEO_IFRAME: 'iframe[title="YouTube video player"]',
   WARNING_BOX: '.bg-neutral-05',
   LOGO: 'img[alt="Cipherdolls"]',
@@ -169,7 +169,8 @@ export async function expectButtonState(
  */
 export async function connectWallet(page: Page, metamask: any, testContext: string) {
   try {
-    await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+    // Click the "Start Chat for Free" button in header
+    await page.locator(SELECTORS.START_CHAT_BUTTON).first().click();
 
     await metamask.connectToDapp();
 
@@ -188,13 +189,13 @@ export async function connectWallet(page: Page, metamask: any, testContext: stri
 
 💡 Possible causes:
    1. MetaMask extension not loaded
-   2. Sign In button not found
+   2. "Start Chat for Free" button not found
    3. MetaMask popup didn't appear
    4. Connection was rejected
 
 📍 Debug steps:
    1. Check if MetaMask extension is installed
-   2. Verify Sign In button selector: ${SELECTORS.SIGNIN_BUTTON}
+   2. Verify button selector: ${SELECTORS.START_CHAT_BUTTON}
    3. Check browser console for errors
     `);
   }

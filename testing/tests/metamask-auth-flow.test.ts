@@ -5,18 +5,18 @@ import { SELECTORS, expectElementVisible, connectWallet, handleSignatureWithClea
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup));
 
-test.describe('SignIn Authentication Flow with Real MetaMask', () => {
+test.describe('Homepage Authentication Flow with Real MetaMask', () => {
   test('should handle wallet connection and disconnection', async ({ context, page, metamaskPage, extensionId }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
 
-    await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin');
+    await test.step('Navigate to homepage', async () => {
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
     });
 
-    await test.step('Verify signin form is available', async () => {
-      await expectElementVisible(page, SELECTORS.SIGNIN_FORM, 'Sign In Form');
+    await test.step('Verify auth button is available', async () => {
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Start Chat for Free Button');
     });
 
     await test.step('Connect wallet', async () => {
@@ -34,8 +34,8 @@ test.describe('SignIn Authentication Flow with Real MetaMask', () => {
   test('should handle complete authentication flow', async ({ context, page, metamaskPage, extensionId }) => {
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
 
-    await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin');
+    await test.step('Navigate to homepage', async () => {
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(600);
     });
@@ -43,7 +43,7 @@ test.describe('SignIn Authentication Flow with Real MetaMask', () => {
     await test.step('Monitor API calls', async () => {
       const signinResponsePromise = page.waitForResponse((response) => response.url().includes('/auth/signin')).catch(() => null);
 
-      await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+      await page.locator(SELECTORS.START_CHAT_BUTTON).first().click();
       await metamask.connectToDapp();
 
       await page.evaluate(() => {
@@ -54,7 +54,7 @@ test.describe('SignIn Authentication Flow with Real MetaMask', () => {
 
       await page.waitForTimeout(1000);
 
-      await page.locator(SELECTORS.SIGNIN_BUTTON).click();
+      await page.locator(SELECTORS.START_CHAT_BUTTON).first().click();
 
       await handleSignatureWithCleanup(page, metamask, 'Complete Authentication Flow');
 

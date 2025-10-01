@@ -48,12 +48,11 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     const referral = params.get('referral');
     if (referral) {
       useAuthStore.getState().setReferralId(referral);
-      throw redirect(`${ROUTES.signIn}?invitedBy=${referral}`);
     }
 
     const currentUrl = window.location.pathname + window.location.search;
     useAuthStore.getState().setRedirectAfterSignIn(currentUrl);
-    throw redirect(ROUTES.signIn);
+    throw redirect(ROUTES.index);
   }
 
   // 2) Merge Authorization header with any custom headers
@@ -77,7 +76,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     if (!stillValid) {
       const currentUrl = window.location.pathname + window.location.search;
       useAuthStore.getState().setRedirectAfterSignIn(currentUrl);
-      throw redirect(ROUTES.signIn);
+      throw redirect(ROUTES.index);
     }
   }
 

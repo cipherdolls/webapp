@@ -9,7 +9,7 @@ const { expect } = test;
 test.describe('SignIn Page with Real MetaMask - Conditional Logic', () => {
   test('should show active form when MetaMask is available', async ({ page }) => {
     await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin');
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(600);
     });
@@ -36,12 +36,12 @@ test.describe('SignIn Page with Real MetaMask - Conditional Logic', () => {
     });
 
     await test.step('Verify Sign In form and button', async () => {
-      await expectElementVisible(page, SELECTORS.SIGNIN_FORM, 'Sign In Form');
-      await expectButtonState(page, UI_TEXTS.SIGN_IN_BUTTON, 'enabled', {
-        selector: SELECTORS.SIGNIN_BUTTON,
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Form');
+      await expectButtonState(page, UI_TEXTS.START_CHAT_FREE, 'enabled', {
+        selector: SELECTORS.START_CHAT_BUTTON,
       });
 
-      const signInButton = page.locator(SELECTORS.SIGNIN_BUTTON);
+      const signInButton = page.locator(SELECTORS.START_CHAT_BUTTON);
       const buttonType = await signInButton.getAttribute('type');
       if (buttonType !== 'submit') {
         throw new Error(`
@@ -58,7 +58,7 @@ Actual: type="${buttonType}"
 
   test('should display proper page elements with MetaMask', async ({ page }) => {
     await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin');
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
     });
 
@@ -68,12 +68,13 @@ Actual: type="${buttonType}"
       await expectElementVisible(page, SELECTORS.VIDEO_IFRAME, 'YouTube Tutorial Video');
     });
 
-    await test.step('Verify wallet connection message', async () => {
-      await expectTextVisible(page, UI_TEXTS.WALLET_REQUIRED, {
-        testName: 'Wallet Required Message Check',
-        timeout: 5000,
-      });
-    });
+    // Wallet connection message is now shown via alert, not on page
+    // await test.step('Verify wallet connection message', async () => {
+    //   await expectTextVisible(page, UI_TEXTS.WALLET_REQUIRED, {
+    //     testName: 'Wallet Required Message Check',
+    //     timeout: 5000,
+    //   });
+    // });
 
     await test.step('Check modal buttons', async () => {
       const modalButtons = [
@@ -127,11 +128,11 @@ Found: Not visible
     const metamask = new MetaMask(context, metamaskPage, 'TestPassword123', extensionId);
 
     await test.step('Navigate and verify initial state', async () => {
-      await page.goto('/signin');
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
 
-      await expectElementVisible(page, SELECTORS.SIGNIN_BUTTON, 'Sign In Button (Initial State)');
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Button (Initial State)');
     });
 
     await test.step('Connect wallet and verify state change', async () => {
@@ -139,7 +140,7 @@ Found: Not visible
 
       await page.waitForTimeout(2000);
 
-      await expectElementVisible(page, SELECTORS.SIGNIN_BUTTON, 'Sign In Button (After Connection)');
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Button (After Connection)');
     });
 
     console.log('✅ Wallet connection state changes verified');
@@ -147,14 +148,14 @@ Found: Not visible
 
   test('should show disabled button during loading state', async ({ page }) => {
     await test.step('Navigate to signin page', async () => {
-      await page.goto('/signin');
+      await page.goto('/');
 
       await page.waitForTimeout(600);
       await page.waitForLoadState('networkidle');
     });
 
     await test.step('Verify button state after loading', async () => {
-      await expectButtonState(page, UI_TEXTS.SIGN_IN_BUTTON, 'enabled', { selector: SELECTORS.SIGNIN_BUTTON });
+      await expectButtonState(page, UI_TEXTS.START_CHAT_FREE, 'enabled', { selector: SELECTORS.START_CHAT_BUTTON });
     });
 
     console.log('✅ Loading state button behavior verified');

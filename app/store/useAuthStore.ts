@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         const { token, clearAuth } = get();
-        
+
         try {
           // Optionally call logout endpoint if it exists
           if (token) {
@@ -64,17 +64,15 @@ export const useAuthStore = create<AuthStore>()(
         } finally {
           // Always clear auth state
           clearAuth();
-          
-          // These are now handled by Zustand persist automatically
-          
-          // Redirect to sign in
-          window.location.href = ROUTES.signIn;
+
+          // Redirect to homepage
+          window.location.href = ROUTES.index;
         }
       },
 
       verifyToken: async () => {
         const { token, clearAuth } = get();
-        
+
         if (!token) {
           return false;
         }

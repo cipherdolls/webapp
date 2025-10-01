@@ -22,7 +22,9 @@ import type { Avatar, Scenario } from '~/types';
 import Subtitle from './components/Subtitle';
 import * as Button from '~/components/ui/button/button';
 import { useAudioPlayer } from 'react-use-audio-player';
-import { Link } from 'react-router';
+import { useWalletAuth } from '~/hooks/useWalletAuth';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useNavigate } from 'react-router';
 
 const content = {
   title: 'Step Into Their World',
@@ -110,12 +112,27 @@ function getScenarioColorClassUnique(name: string, usedIndexes: Set<number>): st
 
 const Avatars = ({ avatars }: { avatars: any }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const { signIn, isLoading: isAuthLoading, hasEthereum } = useWalletAuth();
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
   const { isPlaying, load, stop, getPosition, duration } = useAudioPlayer();
   const progressDivRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number>(0);
 
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const handleStartChat = async () => {
+    if (isAuthenticated) {
+      navigate(ROUTES.chats);
+    } else {
+      if (!hasEthereum) {
+        alert('MetaMask not found. Please install MetaMask extension to continue.');
+        return;
+      }
+      await signIn();
+    }
+  };
 
   const nextSlide = () => {
     handleStopVoice();
@@ -345,8 +362,14 @@ const Avatars = ({ avatars }: { avatars: any }) => {
                                   </div>
                                 </div>
                               </Button.Root>
-                              <Button.Root className='px-10 gradient-move font-medium w-full' variant='secondary' size='md' asChild>
-                                <Link to={ROUTES.signIn}>Start Chat for Free</Link>
+                              <Button.Root
+                                className='px-10 gradient-move font-medium w-full'
+                                variant='secondary'
+                                size='md'
+                                onClick={handleStartChat}
+                                disabled={isAuthLoading}
+                              >
+                                {isAuthLoading ? 'Connecting...' : 'Start Chat for Free'}
                               </Button.Root>
                             </div>
                           </div>
