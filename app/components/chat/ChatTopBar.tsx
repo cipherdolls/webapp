@@ -4,6 +4,8 @@ import type { Chat } from '~/types';
 import { Icons } from '../ui/icons';
 import AvatarPicture from '../AvatarPicture';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
+import { motion } from 'framer-motion';
+import ChatEventsPanel from './ChatEventsPanel';
 
 interface ChatTopBarProps {
   chat: Chat;
@@ -26,9 +28,15 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
       </div>
       {/* <ChatDestroy /> */}
       <div className='flex gap-3 items-center'>
-        <Link to={`${ROUTES.chats}/${chat.id}/edit`} className=' text-base-black shrink-0'>
-          <Icons.gear />
-        </Link>
+        <ChatEventsPanel chatId={chat.id} />
+        <motion.div
+          whileHover={{ transform: 'rotate(35deg)', opacity: 0.6 }}
+          transition={{ duration: 0.25 }}
+        >
+          <Link to={`${ROUTES.chats}/${chat.id}/edit`} className=' text-base-black shrink-0'>
+            <Icons.gear />
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export default function AccountScenarioNew() {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(ROUTES.scenarios);
+    navigate(ROUTES.account);
   };
 
   const handleSubmit = (formData: FormData) => {

@@ -1,6 +1,8 @@
 import React from 'react';
 import * as Button from '~/components/ui/button/button';
-import { Link } from 'react-router';
+import { useWalletAuth } from '~/hooks/useWalletAuth';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useNavigate } from 'react-router';
 import { ROUTES } from '~/constants';
 
 const navigationItems = [
@@ -31,11 +33,27 @@ const navigationItems = [
 ];
 
 const Header = () => {
+  const { signIn, isLoading, error, hasEthereum } = useWalletAuth();
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+
   const handleNavigationItemClick = (e: React.MouseEvent<HTMLButtonElement>, elementId: string) => {
     e.preventDefault();
     document.getElementById(elementId)?.scrollIntoView({
       behavior: 'smooth',
     });
+  };
+
+  const handleStartChat = async () => {
+    if (isAuthenticated) {
+      navigate(ROUTES.chats);
+    } else {
+      if (!hasEthereum) {
+        alert('MetaMask not found. Please install MetaMask extension to continue.');
+        return;
+      }
+      await signIn();
+    }
   };
 
   return (
@@ -62,9 +80,19 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className=''>
-            <Button.Root className='gradient-move px-6 md:px-8 md:py-5.5' size='sm' asChild>
-              <Link to={ROUTES.signIn}>Start Chat for Free</Link>
+            <Button.Root
+              className='gradient-move px-6 md:px-8 md:py-5.5'
+              size='sm'
+              onClick={handleStartChat}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Connecting...' : isAuthenticated ? 'Go to Chats' : 'Start Chat for Free'}
             </Button.Root>
+            {error && (
+              <div className='absolute top-full right-0 mt-2 text-red-600 text-sm bg-white p-2 rounded shadow-lg'>
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>

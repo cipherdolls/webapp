@@ -53,7 +53,7 @@ async function cleanupContext(context: any, mainPage: any, testName: string) {
 test.describe('Scenario Creation E2E Tests', () => {
   // Helper function for authentication flow
   async function authenticateAndNavigateToScenarios(page: any, metamask: any, testContext: string) {
-    await page.goto('/signin');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
 

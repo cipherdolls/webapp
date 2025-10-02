@@ -20,7 +20,7 @@ const servicesNavItems = [
     infoMessage: 'ai-info-message',
     banner: {
       emoji: '🤖',
-      text: 'Configure AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
+      text: 'AI providers and models for intelligent chat responses, data analysis, and automated tasks.',
     },
   },
   {
@@ -31,7 +31,7 @@ const servicesNavItems = [
     infoMessage: 'tts-info-message',
     banner: {
       emoji: '🗣️',
-      text: 'Set up text-to-speech providers to generate natural AI voices for chat responses and audio content.',
+      text: 'Services to converting text-to-speech generate natural AI voices for chat responses and audio content.',
     },
   },
   {
@@ -42,7 +42,7 @@ const servicesNavItems = [
     infoMessage: 'stt-info-message',
     banner: {
       emoji: '👂',
-      text: 'Configure speech-to-text providers to enable voice input and audio transcription capabilities.',
+      text: 'Services to converting speech-to-text provided enable voice input and audio transcription capabilities.',
     },
   },
 ];
@@ -104,7 +104,8 @@ export default function Services({ loaderData }: Route.ComponentProps) {
                 className={({ isActive }) =>
                   cn(
                     'relative text-body-lg text-neutral-01 px-1 pb-1.5',
-                    isActive && 'text-base-black after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-neutral-01 after:rounded-t-[3px]'
+                    isActive &&
+                      'text-base-black after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-neutral-01 after:rounded-t-[3px]'
                   )
                 }
               >

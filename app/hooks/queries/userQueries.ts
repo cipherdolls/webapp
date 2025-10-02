@@ -10,3 +10,14 @@ export function useUser(options?: Omit<UseQueryOptions<User, Error, User, ['user
     ...options
   });
 }
+
+export function useUserReferralsCount(): UseQueryResult<number, Error> {
+  const { data: user } = useUser()
+
+  return useQuery({
+    queryKey: ['user-referrals'],
+    queryFn: () => fetchResource<User>(`users/${user?.id}`),
+    select: (user) => user.referralCount || 0,
+    enabled: !!user,
+  });
+}

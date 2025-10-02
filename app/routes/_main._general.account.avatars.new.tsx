@@ -12,13 +12,9 @@ export default function AccountAvatarNew() {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(ROUTES.avatars);
+    navigate(ROUTES.account);
   };
-  const {
-    mutate: createAvatar,
-    isPending: createAvatarIsPending,
-    error: createAvatarError,
-  } = useCreateAvatar();
+  const { mutate: createAvatar, isPending: createAvatarIsPending, error: createAvatarError } = useCreateAvatar();
 
   const handleSubmit = (formData: FormData) => {
     createAvatar(formData, {
@@ -28,12 +24,5 @@ export default function AccountAvatarNew() {
     });
   };
 
-  return (
-    <AvatarFormModal
-      onSubmit={handleSubmit}
-      isPending={createAvatarIsPending}
-      onClose={handleClose}
-      errors={createAvatarError}
-    />
-  );
+  return <AvatarFormModal onSubmit={handleSubmit} isPending={createAvatarIsPending} onClose={handleClose} errors={createAvatarError} />;
 }

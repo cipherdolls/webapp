@@ -30,7 +30,6 @@ export const PATHS = {
 
 export const ROUTES = {
   index: '/',
-  signIn: '/signin',
   chats: '/chats',
   avatars: '/avatars',
   scenarios: '/scenarios',
@@ -74,4 +73,22 @@ export const TOKEN_BALANCE = {
   RATE_LIMIT_MS: 2000,
   FEEDBACK_TIMEOUT_MS: 3000,
 } as const;
+
+
+/*             Animations              */
+
+export const ANIMATE_CHAT_ITEMS = {
+  initial: { opacity: 0, height: 0 },
+  animate: { opacity: 1, height: 'auto'},
+  exit: { opacity: 0, height: 0 },
+  transition: { duration: 0.25 }
+}
+
+export const ANIMATE_MODAL_RIGHT_SIDE = {
+  initial: { opacity: 1, x: 100 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.25 },
+}
+
+
 

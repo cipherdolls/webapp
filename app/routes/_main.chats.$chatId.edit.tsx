@@ -20,7 +20,8 @@ import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
 import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
-import { ROUTES } from '~/constants';
+import { ANIMATE_MODAL_RIGHT_SIDE, ROUTES } from '~/constants';
+import { motion } from 'framer-motion';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat edit' }];
@@ -81,213 +82,220 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
       },
     });
   };
-  
+
   return (
     <>
       <div className='pageModal'>
         <div className='pageModal-overlay' onClick={handleEditChatClose}></div>
-        <div className='pageModal-content'>
-          <Button.Root size='icon' variant='white' className='pageModal-button-close' onClick={handleEditChatClose}>
-            <Button.Icon as={Icons.close} />
-          </Button.Root>
-          {/* page modal header */}
-          <div className='pageModal-header'>
-            <button onClick={handleEditChatClose} className='md:hidden'>
-              <Icons.chevronLeft />
-            </button>
-            <div className='flex items-center gap-3 overflow-hidden'>
-              <h3 className='text-heading-h3 text-base-black'>{chat.avatar.name}</h3>
-              <span className='text-body-lg text-neutral-01'>•</span>
-              <p className='text-body-lg text-neutral-01 truncate'>{chat.avatar.shortDesc}</p>
+
+          <motion.div
+            className='pageModal-content'
+            variants={ANIMATE_MODAL_RIGHT_SIDE}
+            initial='initial'
+            animate='animate'
+            transition={ANIMATE_MODAL_RIGHT_SIDE.transition}
+          >
+            <Button.Root size='icon' variant='white' className='pageModal-button-close' onClick={handleEditChatClose}>
+              <Button.Icon as={Icons.close} />
+            </Button.Root>
+            {/* page modal header */}
+            <div className='pageModal-header'>
+              <button onClick={handleEditChatClose} className='md:hidden'>
+                <Icons.chevronLeft />
+              </button>
+              <div className='flex items-center gap-3 overflow-hidden'>
+                <h3 className='text-heading-h3 text-base-black'>{chat.avatar.name}</h3>
+                <span className='text-body-lg text-neutral-01'>•</span>
+                <p className='text-body-lg text-neutral-01 truncate'>{chat.avatar.shortDesc}</p>
+              </div>
             </div>
-          </div>
-          <div className='flex flex-col flex-1 gap-8 overflow-y-auto scrollbar-medium pb-5 -mx-5 px-5'>
-            {/* Avatar link */}
-            <Link
-              to={`${ROUTES.avatars}/${chat.avatar.id}`}
-              className='flex-shrink-0 flex flex-col backdrop-blur-48 bg-gradient-1 rounded-xl overflow-hidden'
-            >
-              <div className='w-full h-[263px] flex items-center justify-center rounded-xl bg-neutral-04'>
-                {chat.avatar.picture ? (
-                  <img
-                    src={getPicture(chat.avatar, 'avatars', false)}
-                    srcSet={getPicture(chat.avatar, 'avatars', true)}
-                    alt={chat.avatar.name}
-                    className='size-full object-cover rounded-lg'
-                  />
-                ) : (
-                  <Icons.fileUploadIcon />
-                )}
-              </div>
-              <p className='w-full flex justify-center items-center gap-2 text-body-sm text-base-black font-semibold py-4'>
-                Go to Avatar Page <Icons.chevronRight />
-              </p>
-            </Link>
-
-            {/* scenario toggle  */}
-            <Card.Root className='sm:h-auto'>
-              <div className='flex items-center justify-between'>
-                <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
-                <div className='flex gap-2'>
-                  {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} refetch={refetch} />}
-
-                  <button
-                    onClick={() => {
-                      alert({
-                        icon: '🎭',
-                        title: 'Scenarios',
-                        body: (
-                          <>
-                            💅🏻 Easy Talk - focused on casual topics with cheerful, warm, and concise responses.
-                            <br />
-                            <br />
-                            🧐 Deep Talk - focused on meaningful topics, fostering connection through introspection and insightful
-                            exchanges.
-                            <br />
-                            <br />
-                            🔥 Sexy Talk - focused on building rapport with compliments, innuendos and flirting.
-                          </>
-                        ),
-                      });
-                    }}
-                  >
-                    <Icons.information className='text-pink-01' />
-                  </button>
-                </div>
-              </div>
-
-              <Card.Main>
-                <div className='m-1 mb-0.5 block h-[200px] sm:h-[152px] rounded-xl relative'>
-                  {chat.scenario.picture ? (
-                    <div className='size-full'>
-                      <img
-                        src={getPicture(chat.scenario, 'scenarios', false)}
-                        srcSet={getPicture(chat.scenario, 'scenarios', true)}
-                        alt={chat.scenario.name}
-                        className='size-full object-cover rounded-xl'
-                      />
-                    </div>
+            <div className='flex flex-col flex-1 gap-8 overflow-y-auto scrollbar-medium pb-5 -mx-5 px-5'>
+              {/* Avatar link */}
+              <Link
+                to={`${ROUTES.avatars}/${chat.avatar.id}`}
+                className='flex-shrink-0 flex flex-col backdrop-blur-48 bg-gradient-1 rounded-xl overflow-hidden'
+              >
+                <div className='w-full h-[263px] flex items-center justify-center rounded-xl bg-neutral-04'>
+                  {chat.avatar.picture ? (
+                    <img
+                      src={getPicture(chat.avatar, 'avatars', false)}
+                      srcSet={getPicture(chat.avatar, 'avatars', true)}
+                      alt={chat.avatar.name}
+                      className='size-full object-cover rounded-lg'
+                    />
                   ) : (
-                    <div className='flex items-center justify-center size-full'>
-                      <Icons.fileUploadIcon />
-                    </div>
+                    <Icons.fileUploadIcon />
                   )}
                 </div>
+                <p className='w-full flex justify-center items-center gap-2 text-body-sm text-base-black font-semibold py-4'>
+                  Go to Avatar Page <Icons.chevronRight />
+                </p>
+              </Link>
 
-                <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
-                  <div className='p-4 flex gap-2 items-center justify-between'>
-                    <div>
-                      <h4 className='text-body-md font-semibold text-base-black'>{chat.scenario.name}</h4>
-                      <p className='text-body-sm text-neutral-01'>Current scenario</p>
-                    </div>
-                    <div className='text-xs text-neutral-01 bg-neutral-05 px-3 py-1 rounded-full'>Active</div>
+              {/* scenario toggle  */}
+              <Card.Root className='sm:h-auto'>
+                <div className='flex items-center justify-between'>
+                  <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
+                  <div className='flex gap-2'>
+                    {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} refetch={refetch} />}
+
+                    <button
+                      onClick={() => {
+                        alert({
+                          icon: '🎭',
+                          title: 'Scenarios',
+                          body: (
+                            <>
+                              💅🏻 Easy Talk - focused on casual topics with cheerful, warm, and concise responses.
+                              <br />
+                              <br />
+                              🧐 Deep Talk - focused on meaningful topics, fostering connection through introspection and insightful
+                              exchanges.
+                              <br />
+                              <br />
+                              🔥 Sexy Talk - focused on building rapport with compliments, innuendos and flirting.
+                            </>
+                          ),
+                        });
+                      }}
+                    >
+                      <Icons.information className='text-pink-01' />
+                    </button>
+                  </div>
+                </div>
+
+                <Card.Main>
+                  <div className='m-1 mb-0.5 block h-[200px] sm:h-[152px] rounded-xl relative'>
+                    {chat.scenario.picture ? (
+                      <div className='size-full'>
+                        <img
+                          src={getPicture(chat.scenario, 'scenarios', false)}
+                          srcSet={getPicture(chat.scenario, 'scenarios', true)}
+                          alt={chat.scenario.name}
+                          className='size-full object-cover rounded-xl'
+                        />
+                      </div>
+                    ) : (
+                      <div className='flex items-center justify-center size-full'>
+                        <Icons.fileUploadIcon />
+                      </div>
+                    )}
                   </div>
 
-                  <div className='w-full  border border-neutral-04' />
+                  <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
+                    <div className='p-4 flex gap-2 items-center justify-between'>
+                      <div>
+                        <h4 className='text-body-md font-semibold text-base-black'>{chat.scenario.name}</h4>
+                        <p className='text-body-sm text-neutral-01'>Current scenario</p>
+                      </div>
+                      <div className='text-xs text-neutral-01 bg-neutral-05 px-3 py-1 rounded-full'>Active</div>
+                    </div>
 
-                  <Accordion.Root type='single' collapsible className='w-full p-3'>
-                    <Accordion.Item value='details'>
-                      <Accordion.Trigger className='flex py-3 -my-3 items-center justify-center w-full  text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
-                        <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
-                        <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
-                        <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-                      </Accordion.Trigger>
+                    <div className='w-full  border border-neutral-04' />
 
-                      <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
-                        <div className='flex flex-col gap-4 pt-[18px]'>
-                          {/*Chat model*/}
-                          <DetailRow title='Chat Model' value={chat.scenario.chatModel.providerModelName} />
-                          <DetailRow
-                            title='Input Token Cost'
-                            value={`${scientificNumConvert(chat.scenario.chatModel.dollarPerInputToken * 1000000)} $`}
-                          />
-                          <DetailRow
-                            title='Output Token Cost'
-                            value={`${scientificNumConvert(chat.scenario.chatModel.dollarPerOutputToken * 1000000)} $`}
-                          />
+                    <Accordion.Root type='single' collapsible className='w-full p-3'>
+                      <Accordion.Item value='details'>
+                        <Accordion.Trigger className='flex py-3 -my-3 items-center justify-center w-full  text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
+                          <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
+                          <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
+                          <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
+                        </Accordion.Trigger>
 
-                          <DetailRow title='Temperature' value={chat.scenario.temperature} />
-                          <DetailRow title='TopP' value={chat.scenario.topP} />
-                          <DetailRow title='Frequency Penalty' value={chat.scenario.frequencyPenalty} />
-                          <DetailRow title='Presence Penalty' value={chat.scenario.presencePenalty} />
+                        <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
+                          <div className='flex flex-col gap-4 pt-[18px]'>
+                            {/*Chat model*/}
+                            <DetailRow title='Chat Model' value={chat.scenario.chatModel.providerModelName} />
+                            <DetailRow
+                              title='Input Token Cost'
+                              value={`${scientificNumConvert(chat.scenario.chatModel.dollarPerInputToken * 1000000)} $`}
+                            />
+                            <DetailRow
+                              title='Output Token Cost'
+                              value={`${scientificNumConvert(chat.scenario.chatModel.dollarPerOutputToken * 1000000)} $`}
+                            />
 
-                          {chat.scenario.chatModel.error && (
-                            <div className='flex gap-1'>
-                              <Tooltip
-                                side={'top'}
-                                trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                content={chat.scenario.chatModel.error}
-                                popoverClassName='max-w-[320px]'
-                                className='max-w-[350px]'
-                              />
-                              <DetailRow title='Chat Model Error' value={chat.scenario.chatModel.error} />
-                            </div>
-                          )}
+                            <DetailRow title='Temperature' value={chat.scenario.temperature} />
+                            <DetailRow title='TopP' value={chat.scenario.topP} />
+                            <DetailRow title='Frequency Penalty' value={chat.scenario.frequencyPenalty} />
+                            <DetailRow title='Presence Penalty' value={chat.scenario.presencePenalty} />
 
-                          <div className='w-full  border border-neutral-04' />
+                            {chat.scenario.chatModel.error && (
+                              <div className='flex gap-1'>
+                                <Tooltip
+                                  side={'top'}
+                                  trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                  content={chat.scenario.chatModel.error}
+                                  popoverClassName='max-w-[320px]'
+                                  className='max-w-[350px]'
+                                />
+                                <DetailRow title='Chat Model Error' value={chat.scenario.chatModel.error} />
+                              </div>
+                            )}
 
-                          {/*Embedding*/}
-                          <DetailRow title='Embedding Model' value={chat.scenario.embeddingModel.providerModelName} />
-                          <DetailRow
-                            title='Input Token Cost'
-                            value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerInputToken * 1000000)} $`}
-                          />
-                          <DetailRow
-                            title='Output Token Cost'
-                            value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerOutputToken * 1000000)} $`}
-                          />
+                            <div className='w-full  border border-neutral-04' />
 
-                          {chat.scenario.embeddingModel.error && (
-                            <div className='flex gap-1'>
-                              <Tooltip
-                                side={'top'}
-                                trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                content={chat.scenario.embeddingModel.error}
-                                popoverClassName='max-w-[320px]'
-                                className='max-w-[350px]'
-                              />
+                            {/*Embedding*/}
+                            <DetailRow title='Embedding Model' value={chat.scenario.embeddingModel.providerModelName} />
+                            <DetailRow
+                              title='Input Token Cost'
+                              value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerInputToken * 1000000)} $`}
+                            />
+                            <DetailRow
+                              title='Output Token Cost'
+                              value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerOutputToken * 1000000)} $`}
+                            />
 
-                              <DetailRow title='Embedding Error' value={chat.scenario.embeddingModel.error} />
-                            </div>
-                          )}
+                            {chat.scenario.embeddingModel.error && (
+                              <div className='flex gap-1'>
+                                <Tooltip
+                                  side={'top'}
+                                  trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                  content={chat.scenario.embeddingModel.error}
+                                  popoverClassName='max-w-[320px]'
+                                  className='max-w-[350px]'
+                                />
 
-                          {/*Reasoning*/}
-                          {chat.scenario.reasoningModel && (
-                            <>
-                              <div className='w-full  border border-neutral-04' />
+                                <DetailRow title='Embedding Error' value={chat.scenario.embeddingModel.error} />
+                              </div>
+                            )}
 
-                              <DetailRow title='Reasoning Model' value={chat.scenario.reasoningModel.providerModelName} />
-                              <DetailRow
-                                title='Input Token Cost'
-                                value={`${scientificNumConvert(chat.scenario.reasoningModel.dollarPerInputToken * 1000000)} $`}
-                              />
-                              <DetailRow
-                                title='Output Token Cost'
-                                value={`${scientificNumConvert(chat.scenario.reasoningModel.dollarPerOutputToken * 1000000)} $`}
-                              />
+                            {/*Reasoning*/}
+                            {chat.scenario.reasoningModel && (
+                              <>
+                                <div className='w-full  border border-neutral-04' />
 
-                              {chat.scenario.reasoningModel.error && (
-                                <div className='flex gap-1'>
-                                  <Tooltip
-                                    side={'top'}
-                                    trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                    content={chat.scenario.reasoningModel.error}
-                                    popoverClassName='max-w-[320px]'
-                                    className='max-w-[350px]'
-                                  />
+                                <DetailRow title='Reasoning Model' value={chat.scenario.reasoningModel.providerModelName} />
+                                <DetailRow
+                                  title='Input Token Cost'
+                                  value={`${scientificNumConvert(chat.scenario.reasoningModel.dollarPerInputToken * 1000000)} $`}
+                                />
+                                <DetailRow
+                                  title='Output Token Cost'
+                                  value={`${scientificNumConvert(chat.scenario.reasoningModel.dollarPerOutputToken * 1000000)} $`}
+                                />
 
-                                  <DetailRow title='Reasoning Error' value={chat.scenario.reasoningModel.error} />
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  </Accordion.Root>
-                </div>
-              </Card.Main>
-            </Card.Root>
+                                {chat.scenario.reasoningModel.error && (
+                                  <div className='flex gap-1'>
+                                    <Tooltip
+                                      side={'top'}
+                                      trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                      content={chat.scenario.reasoningModel.error}
+                                      popoverClassName='max-w-[320px]'
+                                      className='max-w-[350px]'
+                                    />
+
+                                    <DetailRow title='Reasoning Error' value={chat.scenario.reasoningModel.error} />
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </Accordion.Content>
+                      </Accordion.Item>
+                    </Accordion.Root>
+                  </div>
+                </Card.Main>
+              </Card.Root>
 
             {/* STT Provider toggle  */}
             <Card.Root className='sm:h-auto'>
@@ -310,27 +318,27 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               </Card.Main>
             </Card.Root>
 
-            {/* TODO: FINISH SILENT MODE PROCESS */}
-            {/* Silent mode */}
-            <Card.Root className='sm:h-auto'>
-              <Card.Label className='sm:text-heading-h4'>Silent Mode</Card.Label>
-              <Card.Main>
-                <button
-                  className={cn('flex flex-row items-center gap-6 p-6 rounded-xl', {
-                    'shadow-regular bg-white': silentMode,
-                  })}
-                  onClick={() => toggleSilentMode()}
-                >
-                  <div className='text-4xl'> {silentMode ? '🤫' : '📣'}</div>
-                  <div className='flex flex-col gap-1 text-left'>
-                    <p className='text-body-lg font-semibold text-base-black'>Silent Mode is {silentMode ? 'On' : 'Off'}</p>
-                    <p className='text-body-md text-neutral-01'>An avatar will {silentMode && 'not'} speak</p>
-                  </div>
-                  <div
-                    className={cn('w-[40px] h-[24px] rounded-full bg-neutral-04 relative ml-auto', {
-                      '!bg-base-black': silentMode,
+              {/* TODO: FINISH SILENT MODE PROCESS */}
+              {/* Silent mode */}
+              <Card.Root className='sm:h-auto'>
+                <Card.Label className='sm:text-heading-h4'>Silent Mode</Card.Label>
+                <Card.Main>
+                  <button
+                    className={cn('flex flex-row items-center gap-6 p-6 rounded-xl', {
+                      'shadow-regular bg-white': silentMode,
                     })}
+                    onClick={() => toggleSilentMode()}
                   >
+                    <div className='text-4xl'> {silentMode ? '🤫' : '📣'}</div>
+                    <div className='flex flex-col gap-1 text-left'>
+                      <p className='text-body-lg font-semibold text-base-black'>Silent Mode is {silentMode ? 'On' : 'Off'}</p>
+                      <p className='text-body-md text-neutral-01'>An avatar will {silentMode && 'not'} speak</p>
+                    </div>
+                    <div
+                      className={cn('w-[40px] h-[24px] rounded-full bg-neutral-04 relative ml-auto', {
+                        '!bg-base-black': silentMode,
+                      })}
+                    >
                     <span
                       className={cn(
                         'absolute top-1 left-1 w-[16px] h-[16px] rounded-full bg-base-white shadow-regular transition-all duration-100',
@@ -339,10 +347,10 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                         }
                       )}
                     ></span>
-                  </div>
-                </button>
-              </Card.Main>
-            </Card.Root>
+                    </div>
+                  </button>
+                </Card.Main>
+              </Card.Root>
 
             {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
             {/* Doll */}
@@ -372,13 +380,13 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
             {/*  </Card.Main>*/}
             {/*</Card.Root>*/}
 
-            <div className='pt-10 mt-auto'>
-              <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
-                {isDeletingChat ? <Icons.loading className='size-4' /> : 'Delete Chat'}
-              </Button.Root>
+              <div className='pt-10 mt-auto'>
+                <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
+                  {isDeletingChat ? <Icons.loading className='size-4' /> : 'Delete Chat'}
+                </Button.Root>
+              </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
       </div>
     </>
   );
