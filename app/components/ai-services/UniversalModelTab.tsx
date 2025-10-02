@@ -15,6 +15,7 @@ import { chatModelColumns, embeddingModelColumns, reasoningModelColumns } from '
 import type { UseInfiniteQueryResult } from '@tanstack/react-query';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { ROUTES } from '~/constants';
+import { useUser } from '~/hooks/queries/userQueries';
 
 type ModelData = ChatModel | EmbeddingModel;
 
@@ -60,6 +61,9 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
     disabled: Boolean(queryProps.isFetchingNextPage || queryProps.error),
   });
 
+  const {data: user, isLoading: isUserLoading } = useUser()
+
+  const isAdmin = user?.role === 'ADMIN'
   const models: ModelData[] = useMemo(() => {
     if (!data) return [];
     if (Array.isArray(data)) return data;
@@ -69,21 +73,35 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
   }, [data]);
 
   const groupedModels = useMemo(() => {
-    const groups: { [providerId: string]: { provider: AiProvider | undefined; models: ModelData[] } } = {};
+    const groups: { [providerId: string]: { provider: AiProvider | undefined; models: ModelData[], hasError?: boolean } } = {};
 
     models.forEach((model) => {
       const providerId = model?.aiProvider?.id || 'unknown';
+
       if (!groups[providerId]) {
         groups[providerId] = {
           provider: model?.aiProvider,
           models: [],
         };
       }
+
+      if (!isAdmin && model.error) {
+        groups[providerId].hasError = true;
+        return
+      }
+
       groups[providerId].models.push(model);
     });
 
     return Object.values(groups);
   }, [models]);
+
+  // Filter to show data without errors for default users
+  function filteredAiModelsWithoutErrors(groupedModels: { provider: AiProvider | undefined, models: ModelData[], hasError?: boolean }[]) {
+    return groupedModels.filter((group) => !group.hasError && group.models.every((model) => !model.error))
+  }
+
+  const filteredGroupedAiModels = isAdmin ? groupedModels : filteredAiModelsWithoutErrors(groupedModels)
 
   // Get config based on tab type
   const modelType = tabType === 'chat-models' ? 'Chat model' : tabType === 'embedding-models' ? 'Embedding model' : 'Reasoning model';
@@ -135,10 +153,10 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
         <ModelSkeleton />
       ) : (
         <div className='flex flex-col gap-10 pb-5'>
-          {groupedModels.length === 0 ? (
+          {filteredGroupedAiModels.length === 0 ? (
             <p className='text-body-md text-neutral-01 text-center'>No {tabType.replace('-', ' ')} found.</p>
           ) : (
-            groupedModels.map((group) => (
+            filteredGroupedAiModels.map((group) => (
               <div key={group.provider?.id || 'unknown'} className='flex flex-col gap-5'>
                 <DataCard.Root>
                   <DataCard.Label
