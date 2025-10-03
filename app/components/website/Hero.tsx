@@ -43,10 +43,6 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
     if (isAuthenticated) {
       navigate(ROUTES.chats);
     } else {
-      if (!hasEthereum) {
-        alert('MetaMask not found. Please install MetaMask extension to continue.');
-        return;
-      }
       await signIn();
     }
   };

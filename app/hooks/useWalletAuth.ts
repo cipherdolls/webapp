@@ -3,12 +3,83 @@ import { useNavigate } from 'react-router';
 import { ethers } from 'ethers';
 import { apiUrl, ROUTES } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
+import { useAlert } from '~/providers/AlertDialogProvider';
 
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
+
+// Wallet auth error configurations
+const WALLET_AUTH_ERRORS = {
+  META_MASK_NOT_FOUND: {
+    icon: '🦊',
+    title: 'MetaMask Not Found',
+    body: 'MetaMask extension not found. Please install MetaMask and refresh the page.',
+    actionButton: {
+      label: 'Refresh Page',
+      action: () => window.location.reload()
+    }
+  },
+  CONNECTION_REJECTED: {
+    icon: '❌',
+    title: 'Connection Rejected',
+    body: 'MetaMask connection was rejected. Please try again and approve the connection in MetaMask.',
+    actionButton: {
+      label: 'Try Again',
+      action: () => {} // Will be set dynamically
+    }
+  },
+  SIGNATURE_TIMEOUT: {
+    icon: '⏰',
+    title: 'MetaMask Signature Timeout',
+    body: 'MetaMask signature is taking too long. Please open MetaMask manually, enter your password, and try signing in again.',
+    actionButton: {
+      label: 'Try Again',
+      action: () => {} // Will be set dynamically
+    }
+  },
+  NO_ACCOUNTS_FOUND: {
+    icon: '🔒',
+    title: 'No Accounts Found',
+    body: 'No MetaMask accounts found. Please unlock MetaMask and try again.',
+    actionButton: {
+      label: 'Try Again',
+      action: () => {} // Will be set dynamically
+    }
+  },
+  CONNECTION_FAILED: {
+    icon: '⚠️',
+    title: 'Connection Failed',
+    body: 'MetaMask connection failed. Please make sure MetaMask is unlocked and try again.',
+    actionButton: {
+      label: 'Try Again',
+      action: () => {} // Will be set dynamically
+    }
+  },
+  UNKNOWN_ERROR: {
+    icon: '❓',
+    title: 'Unknown Error',
+    body: 'An unknown error occurred. Please try again.',
+    actionButton: {
+      label: 'Try Again',
+      action: () => {} // Will be set dynamically
+    }
+  }
+} as const;
+
+// Helper function to show error alerts
+const showErrorAlert = async (alert: any, errorConfig: any, retryAction?: () => void) => {
+  const config = { ...errorConfig };
+  
+  // Set the retry action if provided
+  if (retryAction && config.actionButton) {
+    config.actionButton = { ...config.actionButton, action: retryAction };
+  }
+  
+  await alert(config);
+};
 
 interface UseWalletAuthReturn {
   signIn: () => Promise<void>;
@@ -23,6 +94,7 @@ export function useWalletAuth(): UseWalletAuthReturn {
   const [hasEthereum] = useState(typeof window !== 'undefined' && !!window.ethereum);
   const navigate = useNavigate();
   const { setToken, redirectAfterSignIn, setRedirectAfterSignIn, setReferralId } = useAuthStore();
+  const alert = useAlert();
 
   const signIn = async () => {
     setError(null);
@@ -31,7 +103,8 @@ export function useWalletAuth(): UseWalletAuthReturn {
     try {
       // Check for MetaMask
       if (!window.ethereum) {
-        throw new Error('MetaMask not found. Please install MetaMask extension.');
+        await showErrorAlert(alert, WALLET_AUTH_ERRORS.META_MASK_NOT_FOUND);
+        return;
       }
 
       // Request account access
@@ -66,8 +139,22 @@ Nonce: ${nonce}
 Issued At: ${timestamp}
       `.trim();
 
-      // Request signature
-      const signedMessage = await signer.signMessage(message);
+      // Request signature with timeout
+      let signedMessage;
+      try {
+        const signaturePromise = signer.signMessage(message);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Signature timeout')), 15000)
+        );
+        
+        signedMessage = await Promise.race([signaturePromise, timeoutPromise]);
+      } catch (signError) {
+        if (signError instanceof Error && signError.message === 'Signature timeout') {
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.SIGNATURE_TIMEOUT, () => signIn());
+          return;
+        }
+        throw signError;
+      }
 
       // Send to backend
       const signinRes = await fetch(
@@ -114,9 +201,33 @@ Issued At: ${timestamp}
         navigate(ROUTES.chats, { replace: true });
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      setError(errorMessage);
       console.error('Sign-in error:', err);
+      
+      // Handle specific error cases with user-friendly messages
+      if (err instanceof Error) {
+        if (err.message.includes('User rejected')) {
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_REJECTED, () => signIn());
+        } else if (err.message.includes('MetaMask not found')) {
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.META_MASK_NOT_FOUND);
+        } else if (err.message.includes('Signature timeout')) {
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.SIGNATURE_TIMEOUT, () => signIn());
+        } else if (err.message.includes('No accounts found')) {
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.NO_ACCOUNTS_FOUND, () => signIn());
+        } else {
+          // Custom error message for connection failed
+          await alert({
+            icon: '⚠️',
+            title: 'Connection Failed',
+            body: `MetaMask connection failed: ${err.message}. Please make sure MetaMask is unlocked and try again.`,
+            actionButton: {
+              label: 'Try Again',
+              action: () => signIn()
+            }
+          });
+        }
+      } else {
+        await showErrorAlert(alert, WALLET_AUTH_ERRORS.UNKNOWN_ERROR, () => signIn());
+      }
     } finally {
       setIsLoading(false);
     }

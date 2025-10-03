@@ -48,16 +48,12 @@ const Header = () => {
     if (isAuthenticated) {
       navigate(ROUTES.chats);
     } else {
-      if (!hasEthereum) {
-        alert('MetaMask not found. Please install MetaMask extension to continue.');
-        return;
-      }
       await signIn();
     }
   };
 
   return (
-    <header className='fixed top-0 left-0 right-0 bg-white/70 backdrop-blur-md border-b border-gray-200/50 z-100'>
+    <header className='fixed top-0 left-0 right-0 bg-white/70 backdrop-blur-md border-b border-gray-200/50 z-20'>
       <div className='container'>
         <div className='flex justify-between items-center h-16 gap-3'>
           {/* Logo */}
@@ -81,7 +77,7 @@ const Header = () => {
           {/* CTA Button */}
           <div className=''>
             <Button.Root
-              className='gradient-move px-6 md:px-8 md:py-5.5'
+              className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
               size='sm'
               onClick={handleStartChat}
               disabled={isLoading}
