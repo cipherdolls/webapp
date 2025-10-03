@@ -98,7 +98,7 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
 
   // Filter to show data without errors for default users
   function filteredAiModelsWithoutErrors(groupedModels: { provider: AiProvider | undefined, models: ModelData[], hasError?: boolean }[]) {
-    return groupedModels.filter((group) => !group.hasError && group.models.every((model) => !model.error))
+    return groupedModels.filter((group) => group.models.length > 0)
   }
 
   const filteredGroupedAiModels = isAdmin ? groupedModels : filteredAiModelsWithoutErrors(groupedModels)
