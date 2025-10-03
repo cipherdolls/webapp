@@ -31,7 +31,7 @@ const navigationItems = [
 ];
 
 const Header = () => {
-  const { signIn, isLoading, error, hasEthereum } = useWalletAuth();
+  const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
   const { isAuthenticated } = useAuthStore();
 
   const handleNavigationItemClick = (e: React.MouseEvent<HTMLButtonElement>, elementId: string) => {
@@ -63,20 +63,38 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className=''>
-            <Button.Root
-              className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
-              size='sm'
-              onClick={signIn}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Connecting...' : isAuthenticated ? 'Go to Chats' : 'Start Chat for Free'}
-            </Button.Root>
-            {error && (
-              <div className='absolute top-full right-0 mt-2 text-red-600 text-sm bg-white p-2 rounded shadow-lg'>
-                {error}
-              </div>
+          {/* CTA Buttons */}
+          <div className='flex items-center gap-3'>
+            {isAuthenticated ? (
+              <Button.Root
+                className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
+                size='sm'
+                onClick={signIn}
+                disabled={isLoading}
+              >
+                Go to Chats
+              </Button.Root>
+            ) : (
+              <>
+                {/* Guest SignIn Button */}
+                <Button.Root
+                  className='px-4 md:px-6 py-2 md:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 transition-colors text-sm font-medium rounded-lg'
+                  size='sm'
+                  onClick={signInAsGuest}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Connecting...' : 'Guest SignIn'}
+                </Button.Root>
+                {/* Guest SignIn Button */}
+                <Button.Root
+                  className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
+                  size='sm'
+                  onClick={signIn}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Connecting...' : isAuthenticated ? 'Go to Chats' : 'Start Chat for Free'}
+                </Button.Root>
+              </>
             )}
           </div>
         </div>

@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import { apiUrl, ROUTES } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
+import { burnerWalletManager } from '~/utils/burnerWallet';
 
 declare global {
   interface Window {
@@ -83,6 +84,7 @@ const showErrorAlert = async (alert: any, errorConfig: any, retryAction?: () => 
 
 interface UseWalletAuthReturn {
   signIn: () => Promise<void>;
+  signInAsGuest: () => Promise<void>;
   isLoading: boolean;
   error: string | null;
   hasEthereum: boolean;
@@ -239,8 +241,113 @@ Issued At: ${timestamp}
     }
   };
 
+  const signInAsGuest = async () => {
+    // If already authenticated, navigate to chats
+    if (isAuthenticated) {
+      navigate(ROUTES.chats);
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      // Get or create burner wallet
+      const wallet = burnerWalletManager.getOrCreateWallet();
+      console.log('🔑 Using burner wallet:', wallet.address);
+
+      // Get nonce from backend
+      const nonceRes = await fetch(`${apiUrl}/auth/nonce`);
+      const { nonce } = await nonceRes.json();
+
+      const timestamp = new Date().toISOString();
+      const url = new URL(window.location.href);
+      const domain = url.hostname;
+      const params = new URLSearchParams(window.location.search);
+      const referral = params.get('referral');
+
+      // Create sign-in message
+      const message = `
+${domain} wants you to sign in with your Ethereum account:
+${wallet.address}
+
+By signing this message, you prove ownership of this wallet
+and agree to our Terms of Service and Privacy Policy.
+
+URI: ${url.origin}
+Version: 1
+Chain ID: 10
+Nonce: ${nonce}
+Issued At: ${timestamp}
+      `.trim();
+
+      // Sign message with burner wallet
+      const signedMessage = await burnerWalletManager.signMessage(message);
+
+      // Send to backend
+      const signinRes = await fetch(
+        referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signedMessage, message, address: wallet.address }),
+        }
+      );
+
+      const signinData = await signinRes.json();
+      const token = signinData?.token;
+
+      if (!token) {
+        throw new Error('No token returned from signin');
+      }
+
+      // Store token
+      setToken(token);
+
+      // Verify token
+      const verifyRes = await fetch(`${apiUrl}/auth/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!verifyRes.ok) {
+        throw new Error('Token verification failed');
+      }
+
+      // Handle navigation
+      if (redirectAfterSignIn) {
+        const redirect = redirectAfterSignIn;
+        setRedirectAfterSignIn(null);
+        navigate(redirect);
+      } else if (referral) {
+        setReferralId(referral);
+        navigate(ROUTES.chats, { replace: true });
+      } else {
+        navigate(ROUTES.chats, { replace: true });
+      }
+    } catch (err) {
+      console.error('Guest sign-in error:', err);
+      
+      await alert({
+        icon: '⚠️',
+        title: 'Guest Sign-in Failed',
+        body: `Failed to sign in as guest: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`,
+        actionButton: {
+          label: 'Try Again',
+          action: () => signInAsGuest()
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     signIn,
+    signInAsGuest,
     isLoading,
     error,
     hasEthereum,
