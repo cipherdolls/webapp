@@ -1,9 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import * as Button from '~/components/ui/button/button';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
-import { useAuthStore } from '~/store/useAuthStore';
-import { useNavigate } from 'react-router';
-import { ROUTES } from '~/constants';
 
 const content = {
   title: (
@@ -20,16 +17,6 @@ const content = {
 
 const CTA = () => {
   const { signIn, isLoading, hasEthereum } = useWalletAuth();
-  const { isAuthenticated } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleStartChat = async () => {
-    if (isAuthenticated) {
-      navigate(ROUTES.chats);
-    } else {
-      await signIn();
-    }
-  };
 
   return (
     <section className='py-40'>
@@ -69,7 +56,7 @@ const CTA = () => {
                   <Button.Root
                     className='gradient-move px-8 transition-all duration-300 ease-in-out flex hover:shadow-xl hover:scale-105'
                     size='lg'
-                    onClick={handleStartChat}
+                    onClick={signIn}
                     disabled={isLoading}
                   >
                     <span className='font-medium'>{isLoading ? 'Connecting...' : 'Start Chat for Free'}</span>

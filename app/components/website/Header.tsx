@@ -2,8 +2,6 @@ import React from 'react';
 import * as Button from '~/components/ui/button/button';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
 import { useAuthStore } from '~/store/useAuthStore';
-import { useNavigate } from 'react-router';
-import { ROUTES } from '~/constants';
 
 const navigationItems = [
   {
@@ -35,21 +33,12 @@ const navigationItems = [
 const Header = () => {
   const { signIn, isLoading, error, hasEthereum } = useWalletAuth();
   const { isAuthenticated } = useAuthStore();
-  const navigate = useNavigate();
 
   const handleNavigationItemClick = (e: React.MouseEvent<HTMLButtonElement>, elementId: string) => {
     e.preventDefault();
     document.getElementById(elementId)?.scrollIntoView({
       behavior: 'smooth',
     });
-  };
-
-  const handleStartChat = async () => {
-    if (isAuthenticated) {
-      navigate(ROUTES.chats);
-    } else {
-      await signIn();
-    }
   };
 
   return (
@@ -79,7 +68,7 @@ const Header = () => {
             <Button.Root
               className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
               size='sm'
-              onClick={handleStartChat}
+              onClick={signIn}
               disabled={isLoading}
             >
               {isLoading ? 'Connecting...' : isAuthenticated ? 'Go to Chats' : 'Start Chat for Free'}

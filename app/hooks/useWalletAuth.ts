@@ -93,10 +93,16 @@ export function useWalletAuth(): UseWalletAuthReturn {
   const [error, setError] = useState<string | null>(null);
   const [hasEthereum] = useState(typeof window !== 'undefined' && !!window.ethereum);
   const navigate = useNavigate();
-  const { setToken, redirectAfterSignIn, setRedirectAfterSignIn, setReferralId } = useAuthStore();
+  const { isAuthenticated, setToken, redirectAfterSignIn, setRedirectAfterSignIn, setReferralId } = useAuthStore();
   const alert = useAlert();
 
   const signIn = async () => {
+    // If already authenticated, navigate to chats
+    if (isAuthenticated) {
+      navigate(ROUTES.chats);
+      return;
+    }
+
     setError(null);
     setIsLoading(true);
 
