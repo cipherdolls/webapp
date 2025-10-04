@@ -10,14 +10,16 @@ import TokenPermitsList from '~/components/TokenPermitsList';
 import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 import { YourReferrals } from '~/components/your-referrals';
-import { useUser } from '~/hooks/queries/userQueries';
+
+import SignOutModal from '~/components/signOutModal';
+import * as Button from '~/components/ui/button/button';
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: 'Account' },
     { name: 'description', content: 'Manage your avatars, scenarios and chats from your personal account' },
     { name: 'robots', content: 'noindex, nofollow' },
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
   ];
 }
 
@@ -52,6 +54,12 @@ export default function Account() {
           <TokenBalance />
           <TokenPermitsList />
           <YourReferrals />
+          <SignOutModal >
+            <Button.Root variant='primary' className='w-full min-h-12'>
+              <Icons.signOut />
+              Sign Out
+            </Button.Root>
+          </SignOutModal >
         </div>
       </div>
       <Outlet />

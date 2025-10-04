@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router';
 import { useMemo, useCallback } from 'react';
-import { Icons } from './ui/icons';
+import { Icons, type IconProps } from './ui/icons';
 import { cn } from '~/utils/cn';
 import SignOutModal from './signOutModal';
 import { ViewMore } from '~/view-more';
@@ -29,11 +29,6 @@ const SidebarItems = [
     href: ROUTES.services,
     icon: Icons.services,
     hideOnMobile: true,
-  },
-  {
-    name: 'Account',
-    href: ROUTES.account,
-    icon: Icons.account,
   },
   // {
   //   name: 'Hardware',
@@ -68,7 +63,7 @@ const Sidebar = ({ className }: { className?: string }) => {
   );
 
   const getNavLinkClassName = useCallback(
-    (item: (typeof SidebarItems)[0]) =>
+    (item: { name: string; href: string | null; icon: (props: IconProps) => React.JSX.Element; hideOnMobile?: boolean; showOnMobileOnly?: boolean }) =>
       ({ isActive }: { isActive: boolean }) => {
         return cn(
           'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
@@ -126,14 +121,18 @@ const Sidebar = ({ className }: { className?: string }) => {
             );
           })}
         </div>
-        <div className='sm:block hidden w-full'>
+        <NavLink to={ROUTES.account} className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account })}>
+          {<Icons.account />}
+          <span className='text-label font-semibold'>Account</span>
+        </NavLink>
+        {/* <div className='sm:block hidden w-full'>
           <SignOutModal>
             <button className='py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05'>
               <Icons.signOut className='fill-[#350D2A]/40' />
               Sign Out
             </button>
           </SignOutModal>
-        </div>
+        </div> */}
         {/* Optional for now */}
         {/* <div className="h-[34px] w-full sm:hidden" /> */}
       </div>

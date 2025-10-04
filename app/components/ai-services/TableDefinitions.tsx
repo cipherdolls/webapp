@@ -14,16 +14,18 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     label: 'Chat model',
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
+        {formatModelName(data.providerModelName)}
+        {!data.error && (
+          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
+        )}
         {data.error && (
           <Tooltip
             side={'top'}
             trigger={<Icons.warning className='size-4 text-specials-danger' />}
             content={data.error}
-            popoverClassName='max-w-[350px]'
+            className='max-w-[350px]'
           />
         )}
-        {formatModelName(data.providerModelName)}
-        <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
       </span>
     ),
     align: 'left',
@@ -75,6 +77,10 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     label: 'Embedding model',
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
+        {formatModelName(data.providerModelName)}
+        {!data.error && (
+          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
+        )}
         {data.error && (
           <Tooltip
             side={'top'}
@@ -83,8 +89,6 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
             className='max-w-[350px]'
           />
         )}
-        {formatModelName(data.providerModelName)}
-        <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
       </span>
     ),
     align: 'left',
@@ -136,6 +140,10 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
     label: 'Reasoning model',
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
+        {formatModelName(data.providerModelName)}
+        {!data.error && (
+          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
+        )}
         {data.error && (
           <Tooltip
             side={'top'}
@@ -144,8 +152,6 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
             className='max-w-[350px]'
           />
         )}
-        {formatModelName(data.providerModelName)}
-        <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
       </span>
     ),
     align: 'left',

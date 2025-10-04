@@ -9,17 +9,12 @@ import Features from '~/components/website/Features';
 import CTA from '~/components/website/CTA';
 import Footer from '~/components/website/Footer';
 import Header from '~/components/website/Header';
-import { apiUrl, ROUTES } from '~/constants';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
-
+import { apiUrl } from '~/constants';
+import type { Scenario } from '~/types';
 
 const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
-
-
-
-export async function clientLoader() {
+export async function loader() {
   const avatarRes = await fetch(`${apiUrl}/avatars/${FREYA_AVATAR_ID}`, {
     method: 'GET',
   });
@@ -33,27 +28,28 @@ export async function clientLoader() {
 
   const avatar = await avatarRes.json();
   const avatars = await avatarsRes.json();
-  const scenarios = await scenariosRes.json();  
+  const scenarios = await scenariosRes.json();
+
+  // Filter out scenarios with errors in their models. TODO: Change this logic on the backend
+  const scenariosWithoutErrors = {
+    ...scenarios,
+    data: scenarios.data.filter(
+      (scenario: Scenario) => !scenario.chatModel?.error && !scenario.embeddingModel?.error && !scenario.reasoningModel?.error
+    ),
+  };
+
   return {
     avatar,
     avatars,
-    scenarios,
+    scenarios: scenariosWithoutErrors,
   };
 }
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { avatar, avatars, scenarios } = loaderData;
 
-  const params = new URLSearchParams(window.location.search);
-  const navigate = useNavigate();
-
-  const referral = params.get('referral');
-
-  useEffect(() => {
-    if (referral) {
-      navigate(`${ROUTES.signIn}?referral=${referral}`)
-    }
-  }, [])
+  // Referral is now handled by useWalletAuth hook when user clicks "Start Chat for Free"
+  // No redirect needed here
 
   return (
     <>

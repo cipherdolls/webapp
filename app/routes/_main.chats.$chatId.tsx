@@ -50,8 +50,19 @@ export default function ChatShow({ params }: Route.ComponentProps) {
     }
   }, [chat, error, isLoadingChat, navigate]);
 
-  if (isLoadingChat) return null;
-  if (!chat) return null;
+  if (isLoadingChat || !chat) {
+    return (
+      <div className='flex-1 size-full flex flex-col items-center justify-center text-center pb-24 border-l border-neutral-04'>
+        <div className='animate-pulse space-y-6'>
+          <div className='w-16 h-16 bg-neutral-04 rounded-full mx-auto' />
+          <div className='space-y-3'>
+            <div className='h-6 bg-neutral-04 rounded w-48 mx-auto' />
+            <div className='h-4 bg-neutral-04 rounded w-32 mx-auto' />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

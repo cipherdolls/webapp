@@ -73,7 +73,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
         // Clear all React Query cache when account changes
         queryClient.clear();
         clearAuth();
-        navigate(ROUTES.signIn);
+        navigate(ROUTES.index);
       };
 
       // Subscribe to accountsChanged event directly from window.ethereum
