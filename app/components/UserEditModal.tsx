@@ -2,12 +2,19 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
-import type { Gender, User } from '~/types';
+import type { Avatar, Gender, User } from '~/types';
 import { useEffect, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { cn } from '~/utils/cn';
 import { useUpdateUser } from '~/hooks/queries/userMutations';
-  
+import * as Select from '~/components/ui/input/select';
+import { LANGUAGES } from '~/constants';
+
+type Language = {
+  code: string;
+  name: string;
+};
+
 interface UserEditModalProps {
   me: User;
   open?: boolean;
@@ -18,6 +25,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   const updateUserMutation = useUpdateUser();
   const [internalOpen, setInternalOpen] = useState(false);
   const [gender, setGender] = useState<Gender | null>(me.gender || null);
+  const [preferLanguage, setPreferLanguage] = useState<string>('EN');
   
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
@@ -41,6 +49,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
       name: data.name,
       character: data.character,
       gender: gender,
+      language: preferLanguage
     };
 
     updateUserMutation.mutate(updateData);
@@ -93,6 +102,30 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
                     placeholder='Felix'
                     defaultValue={me.name}
                   />
+                </Input.Root>
+
+                <Input.Root>
+                  <Input.Label htmlFor='preferLanguage'>Language for speaking</Input.Label>
+                  <Select.Root
+                    name='preferLanguage'
+                    defaultValue={preferLanguage.toLowerCase()}
+                    onValueChange={(value) => setPreferLanguage(value)}
+                  >
+                    <Select.Trigger
+                      id='preferLanguage'
+                      className='bg-gradient-1 border border-neutral-04 data-[state=open]:!bg-neutral-05 data-[state=open]:!outline data-[state=open]:!outline-neutral-05 transition-colors'
+                    >
+                      <Select.Value placeholder='Select prefer language for speaking' />
+                    </Select.Trigger>
+                    <Select.Content className='overflow-y-hidden max-h-[28vh]'>
+                      {LANGUAGES.map((lang) => (
+                        <Select.Item key={lang.code} value={lang.code}>
+                          <span className='font-medium'>{lang.code.toUpperCase()}</span> <span className='text-neutral-01'>- ({lang.name})</span>
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+                  <p className='text-xs text-gray-500'>Select your prefer language for chatting and speaking.</p>
                 </Input.Root>
 
                 <Input.Root>
