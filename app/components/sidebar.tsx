@@ -26,7 +26,7 @@ const SidebarItems = [
   },
   {
     name: 'Services',
-    href: ROUTES.services,
+    href: ROUTES.ai,
     icon: Icons.services,
     hideOnMobile: true,
   },
@@ -63,7 +63,13 @@ const Sidebar = ({ className }: { className?: string }) => {
   );
 
   const getNavLinkClassName = useCallback(
-    (item: { name: string; href: string | null; icon: (props: IconProps) => React.JSX.Element; hideOnMobile?: boolean; showOnMobileOnly?: boolean }) =>
+    (item: {
+      name: string;
+      href: string | null;
+      icon: (props: IconProps) => React.JSX.Element;
+      hideOnMobile?: boolean;
+      showOnMobileOnly?: boolean;
+    }) =>
       ({ isActive }: { isActive: boolean }) => {
         return cn(
           'sm:py-3 py-2 sm:px-0 px-2 transition-colors rounded-xl flex flex-col sm:gap-2 gap-1 sm:w-full items-center justify-center',
