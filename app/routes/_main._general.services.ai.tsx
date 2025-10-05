@@ -5,7 +5,15 @@ import AiProvidersTab from '~/components/ai-services/AiProvidersTab';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'AI Services' }];
+  return [
+    { title: 'AI Services - Configure Models & Providers | CipherDolls' },
+    {
+      name: 'description',
+      content: 'Configure AI chat models, embedding models, and reasoning models. Manage AI service providers and customize model settings for your AI conversations.',
+    },
+    { property: 'og:title', content: 'AI Services Configuration | CipherDolls' },
+    { name: 'robots', content: 'noindex' }, // Admin/configuration pages shouldn't be indexed
+  ];
 }
 
 export default function AiServicesIndex({ loaderData }: Route.ComponentProps) {
