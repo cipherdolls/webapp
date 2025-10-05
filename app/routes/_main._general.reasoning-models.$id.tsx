@@ -14,7 +14,10 @@ import { useConfirm } from '~/providers/AlertDialogProvider';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Reasoning Model' }];
+  return [
+    { title: 'Reasoning Model' },
+    { name: 'robots', content: 'noindex' },
+  ];
 }
 
 export default function ReasoningModelShow({ params }: Route.ComponentProps) {
