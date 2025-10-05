@@ -51,13 +51,14 @@ const Sidebar = ({ className }: { className?: string }) => {
 
   const menuItems = useMemo(
     () => [
+      { type: 'link' as const, text: 'Account', href: ROUTES.account, icon: Icons.account },
       { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
-      {
-        type: 'onClick' as const,
-        text: 'Sign Out',
-        onClick: logout,
-        icon: Icons.logout,
-      },
+      // {
+      //   type: 'onClick' as const,
+      //   text: 'Sign Out',
+      //   onClick: logout,
+      //   icon: Icons.logout,
+      // },
     ],
     [logout]
   );
@@ -127,7 +128,7 @@ const Sidebar = ({ className }: { className?: string }) => {
             );
           })}
         </div>
-        <NavLink to={ROUTES.account} className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account })}>
+        <NavLink to={ROUTES.account} className={cn('sm:block hidden w-full', getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account }))}>
           {<Icons.account />}
           <span className='text-label font-semibold'>Account</span>
         </NavLink>
