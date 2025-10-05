@@ -14,9 +14,11 @@ import { useDeleteChatModel } from '~/hooks/queries/aiProviderMutations';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Chat Model' }];
+  return [
+    { title: 'Chat Model' },
+    { name: 'robots', content: 'noindex' },
+  ];
 }
-
 
 export default function aiProviderShow({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
@@ -25,7 +27,6 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
 
   const { data: chatModel } = useChatModel(params.id!);
   const { mutate: deleteChatModel, isPending: isDeletingChatModel, error: deleteChatModelError } = useDeleteChatModel();
-
 
   if (!chatModel) return null;
 
@@ -75,12 +76,7 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
                   Edit
                 </Button.Root>
               </Link>
-              <Button.Root
-                type='button'
-                variant='danger'
-                className=''
-                onClick={handleDeleteChatModel}
-              >
+              <Button.Root type='button' variant='danger' className='' onClick={handleDeleteChatModel}>
                 <Icons.trash className='w-12' />
               </Button.Root>
             </div>
