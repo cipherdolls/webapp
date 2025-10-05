@@ -128,7 +128,7 @@ const Sidebar = ({ className }: { className?: string }) => {
             );
           })}
         </div>
-        <NavLink to={ROUTES.account} className={cn('sm:block hidden w-full', getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account }))}>
+        <NavLink to={ROUTES.account} className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account, hideOnMobile: true })}>
           {<Icons.account />}
           <span className='text-label font-semibold'>Account</span>
         </NavLink>

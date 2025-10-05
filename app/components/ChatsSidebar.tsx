@@ -133,10 +133,10 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                       </AvatarCard.Content>
                     </AvatarCard>
                     <div className='flex items-center gap-2 pr-2'>
-                      {group.chats.length > 1 && (
+                      {group.chats.length > 0 && (
                         <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
                       )}
-                      {group.chats.length > 1 && (
+                      {group.chats.length > 0 && (
                         <Icons.chevronDown
                           className={cn('size-4 text-neutral-01 transition-transform', {
                             'rotate-180': expandedAvatars.has(group.avatar.id),
