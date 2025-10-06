@@ -4,6 +4,7 @@ import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
 import { useUser } from '~/hooks/queries/userQueries';
 import { TOKEN_BALANCE } from '~/constants';
 import { useMemo, useCallback, useState, useEffect } from 'react';
+import { showToast } from '~/components/ui/toast';
 
 function TokenBalanceSkeleton() {
   return (
@@ -29,7 +30,6 @@ const TokenBalance = () => {
   const { data: user, isLoading: userLoading } = useUser();
   const refreshTokenBalanceMutation = useRefreshTokenBalance();
   const [lastRefreshTime, setLastRefreshTime] = useState(0);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
 
   const { isPending: isRefreshingBalance, isError, isSuccess, error } = refreshTokenBalanceMutation;
@@ -49,6 +49,15 @@ const TokenBalance = () => {
     refreshTokenBalanceMutation.mutate({
       userId: user.id,
       signerAddress: user.signerAddress,
+    }, {
+      onSuccess: () => {
+        showToast({
+          icon: <Icons.thumb className='w-8 h-8 text-specials-success' />,
+          title: 'User updated',
+          description: 'Balance refreshed successfully!',
+          duration: 3000,
+        })
+      }
     });
   }, [user, refreshTokenBalanceMutation, lastRefreshTime]);
 
@@ -69,14 +78,6 @@ const TokenBalance = () => {
     if (lastRefreshTime === 0) return true;
     return Date.now() - lastRefreshTime >= TOKEN_BALANCE.RATE_LIMIT_MS;
   }, [lastRefreshTime]);
-
-  useEffect(() => {
-    if (isSuccess && !showSuccess) {
-      setShowSuccess(true);
-      const timer = setTimeout(() => setShowSuccess(false), TOKEN_BALANCE.FEEDBACK_TIMEOUT_MS);
-      return () => clearTimeout(timer);
-    }
-  }, [isSuccess, showSuccess]);
 
   useEffect(() => {
     if (isError && !showError) {
@@ -108,10 +109,6 @@ const TokenBalance = () => {
         <div className='text-specials-danger text-sm absolute top-0 -translate-y-full right-0'>
           Error: {error?.message || 'Failed to refresh balance'}
         </div>
-      )}
-
-      {showSuccess && (
-        <div className='text-specials-success text-sm absolute top-0 -translate-y-full right-0'>Balance refreshed successfully!</div>
       )}
       <div className='grid grid-cols-1'>
         <div className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
