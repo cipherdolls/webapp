@@ -32,7 +32,7 @@ const navigationItems = [
 
 const Header = () => {
   const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isUsingBurnerWallet } = useAuthStore();
 
   const handleNavigationItemClick = (e: React.MouseEvent<HTMLButtonElement>, elementId: string) => {
     e.preventDefault();
@@ -42,7 +42,7 @@ const Header = () => {
   };
 
   return (
-    <header className='fixed top-0 left-0 right-0 bg-white/70 backdrop-blur-md border-b border-gray-200/50 z-20'>
+    <header className='fixed top-0 left-0 right-0 bg-white/70 backdrop-blur-md border-b border-gray-200/50 z-50'>
       <div className='container'>
         <div className='flex justify-between items-center h-16 gap-3'>
           {/* Logo */}
@@ -66,14 +66,27 @@ const Header = () => {
           {/* CTA Buttons */}
           <div className='flex items-center gap-3'>
             {isAuthenticated ? (
-              <Button.Root
-                className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
-                size='sm'
-                onClick={signIn}
-                disabled={isLoading}
-              >
-                Go to Chats
-              </Button.Root>
+              <>
+                {/* Continue as Guest Button - only show if using burner wallet */}
+                {isUsingBurnerWallet && (
+                  <Button.Root
+                    className='px-4 md:px-6 py-2 md:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 transition-colors text-sm font-medium rounded-lg'
+                    size='sm'
+                    onClick={() => window.location.href = '/chats'}
+                  >
+                    Continue as a guest
+                  </Button.Root>
+                )}
+                {/* Switch to MetaMask Button */}
+                <Button.Root
+                  className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
+                  size='sm'
+                  onClick={signIn}
+                  disabled={isLoading}
+                >
+                  {isUsingBurnerWallet ? 'Continue with MetaMask' : 'Go to Chats'}
+                </Button.Root>
+              </>
             ) : (
               <>
                 {/* Guest SignIn Button */}
@@ -83,18 +96,23 @@ const Header = () => {
                   onClick={signInAsGuest}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Connecting...' : 'Guest SignIn'}
+                  {isLoading ? 'Connecting...' : 'Continue as a guest'}
                 </Button.Root>
-                {/* Guest SignIn Button */}
+                {/* Main SignIn Button */}
                 <Button.Root
                   className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
                   size='sm'
                   onClick={signIn}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Connecting...' : isAuthenticated ? 'Go to Chats' : 'Start Chat for Free'}
+                  {isLoading ? 'Connecting...' : 'Start Chat for Free'}
                 </Button.Root>
               </>
+            )}
+            {error && (
+              <div className='absolute top-full right-0 mt-2 text-red-600 text-sm bg-white p-2 rounded shadow-lg'>
+                {error}
+              </div>
             )}
           </div>
         </div>
