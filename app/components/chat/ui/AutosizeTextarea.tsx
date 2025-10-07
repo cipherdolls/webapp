@@ -1,20 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { type RefObject, useEffect, useRef } from 'react';
 import { cn } from '~/utils/cn';
 
 interface AutosizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  textAreaRef: RefObject<HTMLTextAreaElement | null>;
   value?: string;
 }
 
-const AutosizeTextarea: React.FC<AutosizeTextareaProps> = ({ value, className, ...rest }) => {
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = '0px';
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
-    }
-  }, [value]);
-
+const AutosizeTextarea: React.FC<AutosizeTextareaProps> = ({ textAreaRef, value,  className, ...rest }) => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -22,6 +14,14 @@ const AutosizeTextarea: React.FC<AutosizeTextareaProps> = ({ value, className, .
       e.currentTarget.form?.requestSubmit();
     }
   };
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.focus()
+      textAreaRef.current.style.height = '0px';
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [value]);
 
   return (
     <textarea

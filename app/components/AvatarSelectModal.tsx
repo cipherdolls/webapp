@@ -104,7 +104,7 @@ const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({ avatars, children
   return (
     <Modal.Root>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
-      <Modal.Content className='max-sm:p-6' title={selectedAvatar ? `${selectedAvatar.name} - Choose Scenario` : 'Choose Avatar'}>
+      <Modal.Content className='overflow-x-hidden max-sm:p-6' title={selectedAvatar ? `${selectedAvatar.name} - Choose Scenario` : 'Choose Avatar'}>
         {!selectedAvatar ? (
           <>
             {availableAvatars.map((avatar) => (

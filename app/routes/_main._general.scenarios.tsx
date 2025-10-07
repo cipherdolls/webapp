@@ -322,6 +322,7 @@ export default function ScenariosIndex() {
                                 content={scenario.embeddingModel.error}
                                 className='max-w-[350px]'
                                 popoverClassName='max-w-[320px]'
+                                variant='light'
                               />
                             )}
 

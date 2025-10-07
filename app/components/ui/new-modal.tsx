@@ -41,7 +41,7 @@ const ModalContent = React.forwardRef<
           ref={forwardedRef}
           className={cn(
             // base
-            'relative w-full max-w-[480px] max-h-[calc(100vh-2rem)] overflow-y-auto p-8',
+            '@container relative w-full max-w-[480px] max-h-[calc(100vh-2rem)] overflow-y-auto p-8',
             'rounded-xl bg-white shadow-bottom-level-2',
             // focus
             'focus:outline-none',
@@ -65,7 +65,7 @@ const ModalTitle = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...rest }, forwardedRef) => {
-  return <DialogPrimitive.Title ref={forwardedRef} className={cn('text-heading-h2 text-base-black font-semibold', className)} {...rest} />;
+  return <DialogPrimitive.Title ref={forwardedRef} className={cn('@min-[350px]:text-heading-h2 text-heading-h3 text-base-black font-semibold', className)} {...rest} />;
 });
 ModalTitle.displayName = 'ModalTitle';
 

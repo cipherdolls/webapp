@@ -4,6 +4,7 @@ import * as Button from '~/components/ui/button/button';
 import { cn } from '~/utils/cn';
 import { useUnmount } from 'usehooks-ts';
 import { useAudioPlayerContext } from 'react-use-audio-player';
+import { useLocation, useParams } from 'react-router';
 
 const RADIUS = 16;
 const STROKE = 3;
@@ -17,6 +18,10 @@ type PlayerButtonProps = Omit<ComponentProps<typeof Button.Root>, 'onClick'> & {
 const PlayerButton: React.FC<PlayerButtonProps> = React.memo(({ audioSrc, className, ...restProps }) => {
   const circleRef = useRef<SVGCircleElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
+
+  const { search } = useLocation()
+  const params = new URLSearchParams(search);
+  const playSound = params.get('playSound') === 'true';
 
   const uid = useId();
   const taggedSrc = useMemo(() => `${audioSrc}#${uid}`, [audioSrc, uid]);
@@ -64,6 +69,12 @@ const PlayerButton: React.FC<PlayerButtonProps> = React.memo(({ audioSrc, classN
       format: 'mp3',
     });
   };
+
+  useEffect(() => {
+    if (playSound) {
+      load(taggedSrc, { initialVolume: 1, autoplay: true, format: 'mp3', });
+    }
+  }, [playSound]);
 
   useUnmount(() => {
     stop();
