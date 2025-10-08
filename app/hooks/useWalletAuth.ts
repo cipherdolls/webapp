@@ -121,15 +121,14 @@ Issued At: ${timestamp}
   };
 
   const handleSuccessfulAuth = async (token: string, isGuestSignIn: boolean = false) => {
-    // Store token and handle burner wallet
+    // Store token
     setToken(token);
     
     if (isGuestSignIn) {
       setUsingBurnerWallet(true);
     } else {
-      // Clear burner wallet and query cache when switching to MetaMask
+      // Clear burner wallet when switching to MetaMask
       clearBurnerWallet();
-      clearQueryCache();
     }
 
     // Verify token
@@ -145,18 +144,20 @@ Issued At: ${timestamp}
       throw new Error('Token verification failed');
     }
 
-    // Handle navigation
-    const referral = new URLSearchParams(window.location.search).get('referral');
-    if (redirectAfterSignIn) {
-      const redirect = redirectAfterSignIn;
-      setRedirectAfterSignIn(null);
-      navigate(redirect);
-    } else if (referral) {
-      setReferralId(referral);
-      navigate(ROUTES.chats, { replace: true });
-    } else {
-      navigate(ROUTES.chats, { replace: true });
-    }
+    // Navigate with full page reload to ensure fresh data
+    setTimeout(() => {
+      const referral = new URLSearchParams(window.location.search).get('referral');
+      if (redirectAfterSignIn) {
+        const redirect = redirectAfterSignIn;
+        setRedirectAfterSignIn(null);
+        window.location.href = redirect;
+      } else if (referral) {
+        setReferralId(referral);
+        window.location.href = ROUTES.chats;
+      } else {
+        window.location.href = ROUTES.chats;
+      }
+    }, 100);
   };
 
   const signIn = async () => {
