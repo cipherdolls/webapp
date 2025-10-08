@@ -13,9 +13,15 @@ import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 // EXTERNAL DEPENDENCY MOCKS - Following UNIT_TEST_FUNDAMENTALS.md
 // ========================
 
-vi.mock('react-router', () => ({
-  useNavigate: vi.fn(),
-}));
+vi.mock('react-router', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+    useLocation: vi.fn(() => ({ pathname: '/', search: '', hash: '', state: null, key: 'default' })),
+    useParams: vi.fn(() => ({})),
+  };
+});
 
 vi.mock('~/hooks/queries/avatarMutations', () => ({
   useCreateAvatar: vi.fn(),
