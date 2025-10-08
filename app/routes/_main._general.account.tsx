@@ -36,11 +36,7 @@ export default function Account() {
           <Icons.mobileLogo />
         </div>
 
-        <DashboardBanner
-          variant='welcome'
-          description={shouldShowNetworkWarning ? null : 'What do you want to start from?'}
-          showEditLink={true}
-        />
+        <DashboardBanner description={shouldShowNetworkWarning ? null : 'What do you want to start from?'} showEditLink={true} />
 
         {shouldShowNetworkWarning && <NetworkWarningBanner />}
       </div>
@@ -54,12 +50,12 @@ export default function Account() {
           <TokenBalance />
           <TokenPermitsList />
           <YourReferrals />
-          <SignOutModal >
+          <SignOutModal>
             <Button.Root variant='primary' className='w-full min-h-12'>
               <Icons.signOut />
               Sign Out
             </Button.Root>
-          </SignOutModal >
+          </SignOutModal>
         </div>
       </div>
       <Outlet />
