@@ -96,7 +96,7 @@ const Header = () => {
                   onClick={signInAsGuest}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Connecting...' : 'Continue as a guest'}
+                  {isLoading ? 'Connecting...' : 'Try as a Guest'}
                 </Button.Root>
                 {/* Main SignIn Button */}
                 <Button.Root
