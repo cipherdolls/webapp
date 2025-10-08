@@ -11,7 +11,7 @@ import Footer from '~/components/website/Footer';
 import Header from '~/components/website/Header';
 import { apiUrl } from '~/constants';
 import type { Scenario } from '~/types';
-
+import GuestMode from '~/components/website/GuestMode';
 const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
 export async function loader() {
@@ -61,6 +61,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <Steps />
         <Avatars avatars={avatars.data.slice(0, 4)} />
         <Scenarios scenarios={scenarios.data.slice(0, 5)} />
+        <GuestMode />
         <Features />
         <CTA />
       </div>

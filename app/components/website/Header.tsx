@@ -67,16 +67,6 @@ const Header = () => {
           <div className='flex items-center gap-3'>
             {isAuthenticated ? (
               <>
-                {/* Continue as Guest Button - only show if using burner wallet */}
-                {isUsingBurnerWallet && (
-                  <Button.Root
-                    className='px-4 md:px-6 py-2 md:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 transition-colors text-sm font-medium rounded-lg'
-                    size='sm'
-                    onClick={() => window.location.href = '/chats'}
-                  >
-                    Continue as a guest
-                  </Button.Root>
-                )}
                 {/* Switch to MetaMask Button */}
                 <Button.Root
                   className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
@@ -89,15 +79,6 @@ const Header = () => {
               </>
             ) : (
               <>
-                {/* Guest SignIn Button */}
-                <Button.Root
-                  className='px-4 md:px-6 py-2 md:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 transition-colors text-sm font-medium rounded-lg'
-                  size='sm'
-                  onClick={signInAsGuest}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Connecting...' : 'Try as a Guest'}
-                </Button.Root>
                 {/* Main SignIn Button */}
                 <Button.Root
                   className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
