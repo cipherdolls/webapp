@@ -12,6 +12,7 @@ import { MqttProvider } from '~/providers/MqttContext';
 import GlobalSubscriber from '~/mqtt/GlobalSubscriber';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useQueryClient } from '@tanstack/react-query';
+import { GuestModeBanner } from '~/components/GuestModeBanner';
 
 export async function clientLoader() {
   const res = await fetchWithAuth(`users/me`);
@@ -88,9 +89,12 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
 
   return (
     <MainLayoutProviders>
-      <div className='flex sm:flex-row flex-col-reverse size-full h-screen'>
-        <Sidebar />
-        <Outlet />
+      <div className='flex flex-col size-full h-screen'>
+        <GuestModeBanner />
+        <div className='flex sm:flex-row flex-col-reverse flex-1 overflow-hidden'>
+          <Sidebar />
+          <Outlet />
+        </div>
       </div>
       <GlobalSubscriber userId={me.id} />
     </MainLayoutProviders>

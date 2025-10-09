@@ -3,9 +3,6 @@ import * as Button from '~/components/ui/button/button';
 import type { Avatar } from '~/types';
 import ChatExample from './components/ChatExample';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
-import { useAuthStore } from '~/store/useAuthStore';
-import { useNavigate } from 'react-router';
-import { ROUTES } from '~/constants';
 
 const content = {
   title: 'Where Privacy Meets',
@@ -36,20 +33,6 @@ const content = {
 
 const Hero = ({ avatar }: { avatar: Avatar }) => {
   const { signIn, isLoading, hasEthereum } = useWalletAuth();
-  const { isAuthenticated } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleStartChat = async () => {
-    if (isAuthenticated) {
-      navigate(ROUTES.chats);
-    } else {
-      if (!hasEthereum) {
-        alert('MetaMask not found. Please install MetaMask extension to continue.');
-        return;
-      }
-      await signIn();
-    }
-  };
 
   return (
     <section className='pt-24 pb-16 min-h-screen flex items-center'>
@@ -99,7 +82,7 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
                 className='px-10 gradient-move font-medium'
                 variant='secondary'
                 size='lg'
-                onClick={handleStartChat}
+                onClick={signIn}
                 disabled={isLoading}
               >
                 {isLoading ? 'Connecting...' : content.cta.text}
