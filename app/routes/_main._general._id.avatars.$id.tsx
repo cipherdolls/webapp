@@ -2,6 +2,7 @@ import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import React, { useEffect, useMemo, useRef } from 'react';
+import Jazzicon from 'react-jazzicon';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
@@ -82,6 +83,9 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
       }
     );
   };
+
+  // Generate seed from user's signer address for Jazzicon
+  const creatorSeed = user.signerAddress ? parseInt(user.signerAddress.slice(2, 10), 16) : 0;
 
   return (
     <>
@@ -293,7 +297,11 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
               <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
-                <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
+                {user.signerAddress ? (
+                  <Jazzicon diameter={40} seed={creatorSeed} />
+                ) : (
+                  <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
+                )}
                 <div className='flex flex-col gap-1 min-w-0 flex-1'>
                   <p className='text-body-lg font-semibold text-base-black text-left truncate'>
                     {isPublished ? 'Published' : 'Your Special'}
