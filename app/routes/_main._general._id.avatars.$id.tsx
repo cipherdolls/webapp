@@ -59,16 +59,13 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     };
   }, []);
 
-
-  if(avatarLoading) {
+  if (avatarLoading) {
     return null;
   }
 
   if (avatarError || !avatar) {
     return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
   }
-
-
 
   const handleCreateChat = (scenarioId: string) => {
     createChat(
@@ -84,24 +81,38 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     );
   };
 
-  // Generate seed from user's signer address for Jazzicon
-  const creatorSeed = user.signerAddress ? parseInt(user.signerAddress.slice(2, 10), 16) : 0;
+  const getCreatorSeed = () => {
+    if (avatar.userId === user.id && user.signerAddress) {
+      return parseInt(user.signerAddress.slice(2, 10), 16);
+    }
+
+    let hash = 0;
+    const userId = avatar.userId || '';
+    for (let i = 0; i < userId.length; i++) {
+      hash = (hash << 5) - hash + userId.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  };
+
+  const creatorSeed = getCreatorSeed();
 
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`${avatar.userId === user.id ? `${ROUTES.avatars}?mine=true` : ROUTES.avatars}`} className='flex items-center gap-3 sm:gap-4'>
-            <Icons.chevronLeft className='hover:bg-white/40 rounded-full'/>
+          <Link
+            to={`${avatar.userId === user.id ? `${ROUTES.avatars}?mine=true` : ROUTES.avatars}`}
+            className='flex items-center gap-3 sm:gap-4'
+          >
+            <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex sm:items-center sm:flex-row flex-col flex-wrap sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap hover:underline transition-all duration-200'>
                 {formatModelName(avatar.name)}
               </h3>
               <span className='text-neutral-01 text-body-lg sm:block hidden'>•</span>
               <span
-                className={cn('text-neutral-01 text-body-sm truncate max-w-60 sm:text-body-lg',
-                  avatar.userId !== user.id && 'max-w-72'
-                )}
+                className={cn('text-neutral-01 text-body-sm truncate max-w-60 sm:text-body-lg', avatar.userId !== user.id && 'max-w-72')}
               >
                 {getTextAfterThe(avatar.shortDesc)}
               </span>
