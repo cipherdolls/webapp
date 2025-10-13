@@ -14,6 +14,8 @@ import { useDeleteTtsProvider, useDeleteTtsVoice } from '~/hooks/queries/ttsMuta
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
+import { useMediaQuery } from 'usehooks-ts';
+import { cn } from '~/utils/cn';
 
 type GenderFilter = 'all' | 'Female' | 'Male';
 
@@ -50,6 +52,8 @@ export default function TtsProvidersIndex() {
   const { mutate: deleteTtsProvider } = useDeleteTtsProvider();
   const { mutate: deleteTtsVoice } = useDeleteTtsVoice();
   const [genderFilter, setGenderFilter] = useState<GenderFilter>('all');
+
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   if (isLoading) {
     return (
@@ -104,36 +108,38 @@ export default function TtsProvidersIndex() {
               <DataCard.Root key={ttsProvider.id}>
                 <DataCard.Label
                   className='text-2xl font-semibold flex gap-2 sm:items-center'
+                  isExtraExpended={true}
                   extra={
-                    <div className='flex items-center gap-6'>
+                    <div className='flex items-center gap-2 sm:gap-6'>
                       {index === 0 && (
-                        <Button.Root variant='secondary' size='sm' className='px-2 sm:px-4 gap-2'>
+                        <Button.Root variant='secondary' size='sm' className='px-1 gap-1 sm:px-2 sm:gap-2'>
                           <button
                             onClick={() => setGenderFilter(genderFilter === 'Female' ? 'all' : 'Female')}
-                            className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors ${
-                              genderFilter === 'Female' ? 'bg-pink-01 text-white' : 'text-neutral-01 hover:text-base-black'
+                            className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors duration-300 ${
+                              genderFilter === 'Female' ? 'bg-white text-base-black' : 'text-neutral-01 hover:text-base-black'
                             }`}
                           >
-                            <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                            <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1 pb-1.5 rounded-full text-label text-base-black font-semibold'>
                               👩🏻
                             </div>
-                            <span className='text-body-sm font-medium'>Female</span>
+                            <span className='text-body-sm font-medium hidden md:block'>Female</span>
                           </button>
                           <div className='w-px h-4 bg-neutral-03' />
                           <button
                             onClick={() => setGenderFilter(genderFilter === 'Male' ? 'all' : 'Male')}
-                            className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors ${
-                              genderFilter === 'Male' ? 'bg-pink-01 text-white' : 'text-neutral-01 hover:text-base-black'
+                            className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors duration-300 ${
+                              genderFilter === 'Male' ? 'bg-white text-base-black' : 'text-neutral-01 hover:text-base-black'
                             }`}
                           >
-                            <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                            <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1 pb-1.5 rounded-full text-label text-base-black font-semibold'>
                               🧔🏻‍♂️
                             </div>
-                            <span className='text-body-sm font-medium'>Male</span>
+                            <span className='hidden text-body-sm font-medium md:block'>Male</span>
                           </button>
                         </Button.Root>
                       )}
-                      <div className='hidden items-center gap-2 text-body-sm sm:flex'>
+
+                      <div className='hidden items-center text-nowrap gap-2 text-body-sm sm:flex'>
                         <span className='text-base-black font-normal'>$/Character</span>
                         <span className='text-neutral-01 font-normal'>-</span>
                         <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
@@ -182,43 +188,55 @@ export default function TtsProvidersIndex() {
                     </div>
                   </div>
                 </DataCard.Label>
+
                 <DataCard.Wrapper>
                   {enhancedTtsVoices.length > 0 ? (
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2'>
-                      {filteredVoices.map((voice) => (
+                    <div className='relative grid gap-y-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 p-2 -mb-2'>
+                      {filteredVoices.map((voice, i) => (
                         <div
-                          key={voice.id}
-                          className='group flex items-center justify-between gap-3 p-3 rounded-lg hover:bg-neutral-05 transition-colors cursor-pointer'
+                          className={cn(
+                            'border-b border-neutral-04 pb-2 last:border-b-0 last:pb-0 lg:pb-0 lg:border-b-0',
+                            i >= (filteredVoices.length % 2 === 0 ? filteredVoices.length - 2 : filteredVoices.length - 1) &&
+                              'sm:border-b-0'
+                          )}
                         >
-                          <div className='flex items-center gap-3 flex-1 min-w-0'>
-                            <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(voice.id)} />
-                            <span className='font-semibold text-body-md flex items-center gap-2 truncate'>
-                              <span className='truncate'>{voice.name}</span>
-                              {voice.gender === 'Female' ? (
-                                <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold flex-shrink-0'>
-                                  👩🏻
-                                </div>
-                              ) : voice.gender === 'Male' ? (
-                                <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold flex-shrink-0'>
-                                  🧔🏻‍♂️
-                                </div>
-                              ) : null}
-                              <RecommendedBadge recommended={voice.recommended} tooltipText='Recommended' />
-                            </span>
+                          <div
+                            key={voice.id}
+                            className='group flex items-center justify-between gap-3 p-3 transition-colors duration-300 cursor-pointer  rounded-lg hover:bg-neutral-05'
+                          >
+                            <div className='flex items-center gap-3 flex-1 min-w-0'>
+                              <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(voice.id)} />
+                              <span className='font-semibold text-body-md flex items-center gap-2 truncate'>
+                                <span className='truncate'>{voice.name}</span>
+                                {voice.gender === 'Female' ? (
+                                  <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold flex-shrink-0'>
+                                    👩🏻
+                                  </div>
+                                ) : voice.gender === 'Male' ? (
+                                  <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold flex-shrink-0'>
+                                    🧔🏻‍♂️
+                                  </div>
+                                ) : null}
+                                <RecommendedBadge recommended={voice.recommended} tooltipText='Recommended' />
+                              </span>
+                            </div>
+                            <ViewButton
+                              popoverItems={[
+                                {
+                                  text: 'Edit',
+                                  href: `${ROUTES.services}/tts/tts-providers/${voice.providerId}/tts-voices/${voice.id}/edit`,
+                                },
+                                { text: 'Delete', onClick: () => handleDeleteTtsVoice(voice), isDelete: true },
+                              ]}
+                              className='flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition duration-300 border border-transparent hover:bg-white hover:border-neutral-04 rounded-full'
+                              isDataCard={true}
+                            />
                           </div>
-                          <ViewButton
-                            popoverItems={[
-                              {
-                                text: 'Edit',
-                                href: `${ROUTES.services}/tts/tts-providers/${voice.providerId}/tts-voices/${voice.id}/edit`,
-                              },
-                              { text: 'Delete', onClick: () => handleDeleteTtsVoice(voice), isDelete: true },
-                            ]}
-                            className='flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'
-                            isDataCard={true}
-                          />
+
+                          {isDesktop && <div className='w-full h-px bg-neutral-04 mt-2' />}
                         </div>
                       ))}
+                      <div className='absolute bottom-0 w-full h-3 bg-white z-50' />
                     </div>
                   ) : (
                     <DataCard.Text>No TTS Voices found</DataCard.Text>
