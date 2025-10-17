@@ -20,7 +20,7 @@ function YourReferralsSkeleton() {
 
 export const YourReferrals = () => {
   const { copied, copyToClipboard } = useCopyToClipboard();
-  const {data: user, isLoading: isUserLoading  } = useUser()
+  const { data: user, isLoading: isUserLoading } = useUser();
   const { data: referralCount, isLoading: isReferralCountLoading } = useUserReferralsCount();
   const alert = useAlert();
 
@@ -42,7 +42,7 @@ export const YourReferrals = () => {
   if (isUserLoading || isReferralCountLoading || !user) return <YourReferralsSkeleton />;
 
   return (
-    <Card.Root className='lg:max-w-[352px]'>
+    <Card.Root className='lg:max-w-[352px] sm:h-fit'>
       <div className='flex items-center justify-between'>
         <Card.Label>Your Referrals</Card.Label>
         <InformationBadge className='size-6' side='top' tooltipText='Your personal referrals in Cipherdolls' popoverClassName='ml-auto' />
