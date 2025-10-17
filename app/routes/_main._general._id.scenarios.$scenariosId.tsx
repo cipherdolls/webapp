@@ -1,7 +1,7 @@
 import type { Route } from './+types/_main._general._id.scenarios.$scenariosId';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { Form, Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import { getPicture } from '~/utils/getPicture';
 import type { User } from '~/types';
@@ -9,38 +9,39 @@ import DeleteModal from '~/components/ui/deleteModal';
 import { formatModelName } from '~/utils/formatModelName';
 import DetailCard from '~/components/ui/detail/detail-card';
 import DetailRow from '~/components/ui/detail/detail-row';
-import { formatNumberWithCommas } from '~/utils/formatNumberWithCommas';
 import { ViewMore } from '~/view-more';
-import * as Accordion from '@radix-ui/react-accordion';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
-import Tooltip from '~/components/ui/tooltip';
 
 import React, { useMemo, useState } from 'react';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
 import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
+import { useSponsorships } from '~/hooks/queries/sponsorshipQueries';
 import ErrorPage from '~/components/ErrorPage';
 import { ROUTES } from '~/constants';
 import IntroductionSkeleton from '~/components/ui/IntroductionSkeleton';
+import SponsorshipSection from '~/components/SponsorshipSection';
+import ModelTabsCard from '~/components/ModelTabsCard';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
 }
-
 
 export default function ScenariosId({ params }: Route.ComponentProps) {
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
   const { data: mineAvatarsData, isLoading: isLoadingMineAvatars } = useAvatars({ mine: 'true' });
   const { data: scenarioData, isLoading, error: scenarioError } = useScenario(params.scenariosId);
+  const { data: sponsorshipsData } = useSponsorships({ scenarioId: params.scenariosId });
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();
 
   const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
   const scenario = useMemo(() => scenarioData || null, [scenarioData]);
+  const sponsorships = useMemo(() => sponsorshipsData || [], [sponsorshipsData]);
+  const userHasSponsored = useMemo(() => sponsorships.some((s) => s.userId === me.id), [sponsorships, me.id]);
 
   const [showAll, setShowAll] = useState(false);
 
@@ -101,7 +102,10 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full'>
         <div className='flex items-center justify-between sm:px-0 px-4.5 gap-5'>
-          <Link to={`${scenario.userId === me.id ? `${ROUTES.scenarios}?mine=true` : ROUTES.scenarios}`} className='flex items-center gap-3 sm:gap-4'>
+          <Link
+            to={`${scenario.userId === me.id ? `${ROUTES.scenarios}?mine=true` : ROUTES.scenarios}`}
+            className='flex items-center gap-3 sm:gap-4'
+          >
             <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex items-center gap-3 break-all flex-wrap'>
               <h3 className='font-semibold text-body-md text-base-black hover:underline transition-all duration-200 sm:text-heading-h3'>
@@ -267,7 +271,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className='flex size-full flex-col gap-5 md:pl-4 md:max-w-[310px]'>
+          <div className='flex size-full flex-col gap-5 md:pl-4 md:max-w-[360px]'>
             <div className='relative'>
               <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
                 {scenario.picture ? (
@@ -286,113 +290,21 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 )}
               </label>
             </div>
-            <DetailCard isScenario title='Chat Model' className='pb-3'>
-              <div className='flex flex-col'>
-                <div className='flex flex-col gap-4 pb-[18px]'>
-                  <DetailRow title='Name' value={formatModelName(scenario.chatModel?.providerModelName || 'N/A')} />
-                  <DetailRow title='AI Provider Name' value={formatModelName(scenario.chatModel?.aiProvider?.name || 'N/A')} />
-                  <DetailRow title='Context Window' value={`${formatNumberWithCommas(scenario.chatModel?.contextWindow || 0)} token`} />
-                  <DetailRow title='Censored' value={scenario.chatModel?.censored ? 'Yes' : 'No'} />
-                  <DetailRow
-                    title='Input Token Cost'
-                    value={`$${scientificNumConvert((scenario.chatModel?.dollarPerInputToken || 0) * 1000000)}`}
-                  />
-                  <DetailRow
-                    title='Output Token Cost'
-                    value={`$${scientificNumConvert((scenario.chatModel?.dollarPerOutputToken || 0) * 1000000)}`}
-                  />
-
-                  {scenario.chatModel?.error && (
-                    <div className='flex gap-1 overflow-hidden'>
-                      <DetailRow title='Embedding Error' value={''} />
-                      <Tooltip
-                        side={'top'}
-                        trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                        content={scenario.chatModel.error}
-                        popoverClassName='max-w-[320px]'
-                        className={'max-w-[310px]'}
-                      />
-                    </div>
-                  )}
-                </div>
-                <Accordion.Root type='single' collapsible className='w-full'>
-                  <Accordion.Item value='parameters'>
-                    <Accordion.Trigger className='flex items-center justify-center w-full py-2 text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
-                      <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
-                      <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
-                      <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-                    </Accordion.Trigger>
-                    <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
-                      <div className='flex flex-col gap-4 pt-[18px]'>
-                        <DetailRow title='Temperature' value={scenario.temperature} />
-                        <DetailRow title='TopP' value={scenario.topP} />
-                        <DetailRow title='Frequency Penalty' value={scenario.frequencyPenalty} />
-                        <DetailRow title='Presence Penalty' value={scenario.presencePenalty} />
-                      </div>
-                    </Accordion.Content>
-                  </Accordion.Item>
-                </Accordion.Root>
-              </div>
-            </DetailCard>
-            <DetailCard isScenario title='Embedding Model'>
-              <div className='flex flex-col gap-4'>
-                <DetailRow title='Name' value={formatModelName(scenario.embeddingModel?.providerModelName || 'N/A')} />
-                <DetailRow title='AI Provider Name' value={formatModelName(scenario.embeddingModel?.aiProvider?.name || 'N/A')} />
-                <DetailRow
-                  title='Input Token Cost'
-                  value={`$${scientificNumConvert((scenario.embeddingModel?.dollarPerInputToken || 0) * 1000000)}`}
-                />
-                <DetailRow
-                  title='Output Token Cost'
-                  value={`$${scientificNumConvert((scenario.embeddingModel?.dollarPerOutputToken || 0) * 1000000)}`}
-                />
-
-                {scenario.embeddingModel?.error && (
-                  <div className='flex justify-between w-full gap-1 overflow-hidden'>
-                    <DetailRow title='Embedding Error' value={''} />
-
-                    <Tooltip
-                      side={'top'}
-                      trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                      content={scenario.embeddingModel.error}
-                      popoverClassName='max-w-[320px]'
-                      className={'max-w-[310px]'}
-                    />
-                  </div>
-                )}
-              </div>
-            </DetailCard>
-            <DetailCard isScenario title='Reasoning Model'>
-              {scenario.reasoningModel ? (
-                <div className='flex flex-col gap-4'>
-                  <DetailRow title='Name' value={formatModelName(scenario.reasoningModel.providerModelName)} />
-                  <DetailRow title='AI Provider Name' value={formatModelName(scenario.reasoningModel.aiProvider?.name)} />
-                  <DetailRow
-                    title='Input Token Cost'
-                    value={`$${scientificNumConvert(scenario.reasoningModel.dollarPerInputToken * 1000000)}`}
-                  />
-                  <DetailRow
-                    title='Output Token Cost'
-                    value={`$${scientificNumConvert(scenario.reasoningModel.dollarPerOutputToken * 1000000)}`}
-                  />
-
-                  {scenario.reasoningModel?.error && (
-                    <div className='flex gap-1 overflow-hidden'>
-                      <DetailRow title='Embedding Error' value={''} />
-                      <Tooltip
-                        side={'top'}
-                        trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                        content={scenario.reasoningModel.error}
-                        popoverClassName='max-w-[320px]'
-                        className={'max-w-[310px]'}
-                      />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className='text-neutral-01 text-body-sm'>No reasoning model configured</p>
-              )}
-            </DetailCard>
+            <ModelTabsCard
+              chatModel={scenario.chatModel}
+              embeddingModel={scenario.embeddingModel}
+              reasoningModel={scenario.reasoningModel}
+              temperature={scenario.temperature}
+              topP={scenario.topP}
+              frequencyPenalty={scenario.frequencyPenalty}
+              presencePenalty={scenario.presencePenalty}
+            />
+            <SponsorshipSection
+              scenarioId={scenario.id}
+              sponsorships={sponsorships}
+              currentUserId={me.id}
+              userHasSponsored={userHasSponsored}
+            />
             <DetailCard isScenario>
               <div className='flex flex-col gap-4'>
                 <DetailRow title='Created at: ' value={createdDate} />
