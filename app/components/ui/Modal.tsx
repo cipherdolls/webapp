@@ -22,19 +22,19 @@ const ModalRoot = ({
 const ModalContent = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className='bg-neutral-02 fixed inset-0 pointer-events-none z-40' />
+      <Dialog.Overlay className='animate-overlay-show bg-neutral-02 fixed inset-0 pointer-events-none z-40' />
       <Dialog.Content
         aria-describedby={undefined}
         className='max-h-[80%] sm:max-h-full fixed bottom-0 inset-x-0 sm:top-2 sm:right-2 sm:bottom-2 sm:left-auto sm:max-w-[408px] w-full h-auto z-50'
       >
         <Dialog.Close asChild>
           <Button.Root
-            className='hidden md:flex absolute right-full top-4.5 mr-4.5 shadow-bottom'
+            className='hidden group md:flex absolute right-full top-4.5 mr-4.5 shadow-bottom'
             size='icon'
             variant='white'
             aria-label='Close'
           >
-            <Button.Icon as={Icons.close} />
+            <Button.Icon className='transition-transform duration-250 group-hover:scale-125' as={Icons.close} />
           </Button.Root>
         </Dialog.Close>
 

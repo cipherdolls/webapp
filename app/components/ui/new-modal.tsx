@@ -16,9 +16,7 @@ const ModalOverlay = React.forwardRef<
       ref={forwardedRef}
       className={cn(
         // base
-        'fixed inset-0 z-50 flex flex-col items-center justify-center overflow-y-auto bg-neutral-02 p-4',
-        // animation
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'animate-overlay-show fixed inset-0 z-50 flex flex-col items-center justify-center overflow-y-auto bg-neutral-02 p-4',
         className
       )}
       {...rest}
@@ -65,7 +63,13 @@ const ModalTitle = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...rest }, forwardedRef) => {
-  return <DialogPrimitive.Title ref={forwardedRef} className={cn('@min-[350px]:text-heading-h2 text-heading-h3 text-base-black font-semibold', className)} {...rest} />;
+  return (
+    <DialogPrimitive.Title
+      ref={forwardedRef}
+      className={cn('@min-[350px]:text-heading-h2 text-heading-h3 text-base-black font-semibold', className)}
+      {...rest}
+    />
+  );
 });
 ModalTitle.displayName = 'ModalTitle';
 

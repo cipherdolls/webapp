@@ -38,7 +38,7 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
-      <Modal.Content title='Allowance History' className='pr-1'>
+      <Modal.Content title='Allowance History' className='animate-modal-right-show pr-1'>
         <div className='flex flex-col gap-3 divide-y divide-neutral-04 overflow-y-auto scrollbar-medium'>
           {isLoadingTokenPermits ? (
             <div className='flex items-center justify-center py-8'>

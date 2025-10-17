@@ -2,18 +2,14 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
-import type { Avatar, Gender, User } from '~/types';
+import type { Gender, User } from '~/types';
 import { useEffect, useState } from 'react';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { cn } from '~/utils/cn';
 import { useUpdateUser } from '~/hooks/queries/userMutations';
 import * as Select from '~/components/ui/input/select';
 import { LANGUAGES } from '~/constants';
-
-type Language = {
-  code: string;
-  name: string;
-};
+import { motion } from 'framer-motion';
 
 interface UserEditModalProps {
   me: User;
@@ -26,10 +22,10 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const [gender, setGender] = useState<Gender | null>(me.gender || null);
   const [preferLanguage, setPreferLanguage] = useState<string>('EN');
-  
+
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
-  const setOpenState = isControlled ? (onOpenChange || (() => {})) : setInternalOpen;
+  const setOpenState = isControlled ? onOpenChange || (() => {}) : setInternalOpen;
 
   useEffect(() => {
     if (updateUserMutation.isSuccess && !updateUserMutation.error) {
@@ -49,7 +45,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
       name: data.name,
       character: data.character,
       gender: gender,
-      language: preferLanguage
+      language: preferLanguage,
     };
 
     updateUserMutation.mutate(updateData);
@@ -58,24 +54,27 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   return (
     <Dialog.Root open={openState} onOpenChange={setOpenState}>
       <Dialog.Portal>
-        <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'>
+        <Dialog.Overlay className='animate-overlay-show sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'>
           <div
             className='absolute left-1/2 -translate-x-1/2
-        w-[375px] h-auto sm:w-[480px] sm:h-auto 
+        w-[375px] h-auto sm:w-[480px] sm:h-auto
         bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2
         rounded-xl pointer-events-none sm:block hidden'
           />
           <div
             className='absolute inset-0 bg-gradient-to-b from-neutral-02 to-neutral-02 sm:block hidden
-        [mask-image:linear-gradient(to_bottom,black_0%,black_100%),linear-gradient(to_right,black_0%,black_100%)] 
-        [mask-size:100%_100%,480px_282px] 
-        [mask-position:0_0,50%_50%] 
-        [mask-repeat:no-repeat] 
+        [mask-image:linear-gradient(to_bottom,black_0%,black_100%),linear-gradient(to_right,black_0%,black_100%)]
+        [mask-size:100%_100%,480px_282px]
+        [mask-position:0_0,50%_50%]
+        [mask-repeat:no-repeat]
         [mask-composite:exclude]'
           />
         </Dialog.Overlay>
 
-        <Dialog.Content data-testid="user-edit-modal" className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20 max-h-[80vh] overflow-y-auto'>
+        <Dialog.Content
+          data-testid='user-edit-modal'
+          className='animate-modal-show fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-20 max-h-[80vh] overflow-y-auto'
+        >
           <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
           <div className='flex flex-col sm:gap-4.5 gap-3'>
             <div className='sm:text-heading-h1 text-heading-h2 text-center'>✏️</div>
@@ -86,7 +85,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
               </Dialog.Description>
             </div>
 
-            <form role="form" onSubmit={handleSubmit} className='sm:mt-[22px] mt-4.5'>
+            <form role='form' onSubmit={handleSubmit} className='sm:mt-[22px] mt-4.5'>
               <div className='flex flex-col gap-4'>
                 {updateUserMutation.error && <ErrorsBox errors={[updateUserMutation.error.message]} className='mb-2' />}
 
@@ -117,10 +116,12 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
                     >
                       <Select.Value placeholder='Select prefer language for speaking' />
                     </Select.Trigger>
+
                     <Select.Content className='overflow-y-hidden max-h-[28vh]'>
                       {LANGUAGES.map((lang) => (
                         <Select.Item key={lang.code} value={lang.code}>
-                          <span className='font-medium'>{lang.code.toUpperCase()}</span> <span className='text-neutral-01'>- ({lang.name})</span>
+                          <span className='font-medium'>{lang.code.toUpperCase()}</span>{' '}
+                          <span className='text-neutral-01'>- ({lang.name})</span>
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -130,27 +131,30 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
 
                 <Input.Root>
                   <Input.Label htmlFor='gender'>Gender</Input.Label>
-                  <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <div className='relative p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
                     <button
                       type='button'
-                      className={cn(
-                        'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                        gender === 'Female' ? 'bg-white' : 'bg-transparent'
-                      )}
+                      className='relative z-10 flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors'
                       onClick={() => setGender('Female')}
                     >
                       👩🏻 Female
                     </button>
                     <button
                       type='button'
-                      className={cn(
-                        'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                        gender === 'Male' ? 'bg-white' : 'bg-transparent'
-                      )}
+                      className='relative z-10 flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors'
                       onClick={() => setGender('Male')}
                     >
                       🧔🏻‍♂ Male
                     </button>
+
+                    <motion.div
+                      layout
+                      transition={{ duration: 0.25 }}
+                      className={cn(
+                        'absolute top-1 w-1/2 max-w-[188px] h-10 bg-white rounded-xl',
+                        gender === 'Female' ? 'left-1' : 'right-1'
+                      )}
+                    />
                   </div>
                   <input type='hidden' name='gender' value={gender || ''} />
                 </Input.Root>

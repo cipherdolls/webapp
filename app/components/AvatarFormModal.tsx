@@ -16,26 +16,24 @@ import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 
-// TODO: Create all the scenarios or create a page with a new ui. 
+// TODO: Create all the scenarios or create a page with a new ui.
 
 interface AvatarEditModalProps {
   avatar?: Avatar;
   onSubmit: (formData: FormData) => void;
   isPending: boolean;
-  onClose: () => void;  
+  onClose: () => void;
   errors?: Error | null;
 }
 
 const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: AvatarEditModalProps) => {
-
   const { data: me } = useUser();
-  
-  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({mine: 'true', published: 'true', limit: '100'});
+
+  const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true', published: 'true', limit: '100' });
   const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
 
   const scenarios = scenariosPaginated?.data || [];
-  const voices = ttsVoices || []
-
+  const voices = ttsVoices || [];
 
   const [avatarData, setAvatarData] = useState({
     ttsVoice: avatar?.ttsVoice || (voices && voices.length > 0 ? voices[0] : null),
@@ -100,7 +98,6 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     onSubmit(formData);
   }
 
-
   return (
     <Modal.Root
       defaultOpen
@@ -110,7 +107,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     >
       <Modal.Content
         className={cn(
-          'overflow-y-auto flex flex-col scrollbar-medium ',
+          'animate-modal-show overflow-y-auto flex flex-col scrollbar-medium ',
           isExpanded ? 'max-w-none w-[90vw] h-screen' : 'max-h-[calc(100vh-104px)]'
         )}
       >
@@ -210,18 +207,22 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
 
                   <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
                     <div className='flex items-center justify-between w-full'>
-                      <div
-                        className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
-                      >
+                      <div className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'>
                         {avatarData.picture !== null && (
-                          <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
+                          <button
+                            type='button'
+                            className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
+                            onClick={handleTrashClick}
+                          >
                             <Icons.trash className='text-black' />
                           </button>
                         )}
-                        {(avatarData.picture || avatar?.picture)  &&
-                          <div className='h-6 w-px bg-neutral-04'/>
-                        }
-                        <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()} >
+                        {(avatarData.picture || avatar?.picture) && <div className='h-6 w-px bg-neutral-04' />}
+                        <button
+                          type='button'
+                          className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
+                          onClick={() => fileInputRef.current?.click()}
+                        >
                           <Icons.fileUpload />
                         </button>
                       </div>
