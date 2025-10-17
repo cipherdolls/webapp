@@ -1,6 +1,9 @@
 export const apiUrl = import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com';
 export const wsURL = import.meta.env.VITE_WS_URL || 'wss://mqtt.cipherdolls.com';
 
+export const uniswapUrl =
+  'https://app.uniswap.org/explore/pools/optimism/0x6d0f116c3c01fa4e20f1b122124927587e9e56d092513f444aba98811e59063d' as const;
+
 export const PICTURE_SIZE = {
   smallest: 'smallest',
   small: 'small',
@@ -119,15 +122,30 @@ export const LANGUAGES = [
 
 /*             Animations              */
 
+export const ANIMATE_DURATION = { duration: 0.25 };
+
+export const ANIMATE_OVERLAY = {
+  initial: { opacity: 0.3 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: ANIMATE_DURATION
+}
+
+export const ANIMATE_MODAL_SHOW_CENTER = {
+  initial: { scale: 1.2 },
+  animate: { scale: 1 },
+  transition: { duration: 0.35 }
+}
+
+export const ANIMATE_MODAL_SHOW_RIGHT = {
+  initial: { opacity: 0.5, transform: 'translateX(25%)' },
+  animate: { opacity: 1, transform: 'translateX(0%)' },
+  transition: { duration: 0.35 }
+}
+
 export const ANIMATE_CHAT_ITEMS = {
   initial: { opacity: 0, height: 0 },
   animate: { opacity: 1, height: 'auto' },
   exit: { opacity: 0, height: 0 },
-  transition: { duration: 0.25 },
-};
-
-export const ANIMATE_MODAL_RIGHT_SIDE = {
-  initial: { opacity: 1, x: 100 },
-  animate: { opacity: 1, x: 0 },
-  transition: { duration: 0.25 },
+  transition: ANIMATE_DURATION,
 };

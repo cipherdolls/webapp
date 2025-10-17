@@ -16,7 +16,7 @@ const ModalOverlay = React.forwardRef<
       ref={forwardedRef}
       className={cn(
         // base
-        'animate-overlay-show fixed inset-0 z-50 flex flex-col items-center justify-center overflow-y-auto bg-neutral-02 p-4',
+        'fixed inset-0 z-50 flex flex-col items-center justify-center overflow-y-auto bg-neutral-02 p-4',
         className
       )}
       {...rest}

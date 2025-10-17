@@ -107,7 +107,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     >
       <Modal.Content
         className={cn(
-          'animate-modal-show overflow-y-auto flex flex-col scrollbar-medium ',
+          'overflow-y-auto flex flex-col scrollbar-medium ',
           isExpanded ? 'max-w-none w-[90vw] h-screen' : 'max-h-[calc(100vh-104px)]'
         )}
       >
