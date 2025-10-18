@@ -2,9 +2,11 @@ import { Icons } from './ui/icons';
 import OP from '~/assets/svg/op-png.png';
 import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
 import { useUser } from '~/hooks/queries/userQueries';
-import { TOKEN_BALANCE } from '~/constants';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { TOKEN_BALANCE, uniswapUrl } from '~/constants';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { showToast } from '~/components/ui/toast';
+import { animate, motion, useMotionValue } from 'motion/react';
+import { formattedBalanceMotion } from '~/utils/formattedBalance';
 
 function TokenBalanceSkeleton() {
   return (
@@ -32,6 +34,9 @@ const TokenBalance = () => {
   const [lastRefreshTime, setLastRefreshTime] = useState(0);
   const [showError, setShowError] = useState(false);
 
+  const countTokens = useMotionValue(0);
+  const formattedBalance = formattedBalanceMotion(countTokens);
+
   const { isPending: isRefreshingBalance, isError, isSuccess, error } = refreshTokenBalanceMutation;
 
   const rawBalance = user?.tokenBalance || '0';
@@ -46,38 +51,33 @@ const TokenBalance = () => {
     }
 
     setLastRefreshTime(now);
-    refreshTokenBalanceMutation.mutate({
-      userId: user.id,
-      signerAddress: user.signerAddress,
-    }, {
-      onSuccess: () => {
-        showToast({
-          icon: <Icons.thumb className='w-8 h-8 text-specials-success' />,
-          title: 'User updated',
-          description: 'Balance refreshed successfully!',
-          duration: 3000,
-        })
+    refreshTokenBalanceMutation.mutate(
+      {
+        userId: user.id,
+        signerAddress: user.signerAddress,
+      },
+      {
+        onSuccess: () => {
+          showToast({
+            icon: <Icons.thumb className='w-8 h-8 text-specials-success' />,
+            title: 'User updated',
+            description: 'Balance refreshed successfully!',
+            duration: 3000,
+          });
+        },
       }
-    });
+    );
   }, [user, refreshTokenBalanceMutation, lastRefreshTime]);
-
-  const formattedBalance = useMemo(() => {
-    const numberValue =
-      typeof validatedBalance === 'string' ? parseFloat(validatedBalance) : typeof validatedBalance === 'number' ? validatedBalance : 0;
-    const roundedValue = Number(numberValue.toFixed(TOKEN_BALANCE.DECIMAL_PLACES));
-
-    return roundedValue > 0
-      ? numberValue.toLocaleString(undefined, {
-          maximumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
-          minimumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
-        })
-      : '0';
-  }, [validatedBalance]);
 
   const canRefresh = useMemo(() => {
     if (lastRefreshTime === 0) return true;
     return Date.now() - lastRefreshTime >= TOKEN_BALANCE.RATE_LIMIT_MS;
   }, [lastRefreshTime]);
+
+  useEffect(() => {
+    const controls = animate(countTokens, Number(validatedBalance), { duration: 2 });
+    return () => controls.stop();
+  }, [validatedBalance]);
 
   useEffect(() => {
     if (isError && !showError) {
@@ -95,14 +95,16 @@ const TokenBalance = () => {
     <div className='flex flex-col gap-5 relative'>
       <div className='flex items-center justify-between'>
         <h3 className='text-heading-h3 text-base-black'>Your Balance</h3>
-        <button
+        <motion.button
+          transition={{ duration: 1 }}
+          animate={isRefreshingBalance && { transform: 'rotate(-360deg)' }}
           onClick={handleRefreshBalance}
           disabled={isRefreshingBalance || !canRefresh}
           className='p-2 rounded-lg text-[#350D2A]/40 hover:text-[#350D2A] transition-all disabled:opacity-50'
           title='Refresh token balance'
         >
-          <Icons.refresh className={`w-5 h-5  ${isRefreshingBalance ? 'animate-spin' : ''}`} />
-        </button>
+          <Icons.refresh className='w-5 h-5' />
+        </motion.button>
       </div>
 
       {showError && (
@@ -110,21 +112,23 @@ const TokenBalance = () => {
           Error: {error?.message || 'Failed to refresh balance'}
         </div>
       )}
-      <div className='grid grid-cols-1'>
-        <div className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
-          <button className='sm:size-14 size-10 flex items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
-            <Icons.iconLogo className={'text-base-black'} />
-            <div className='absolute -bottom-1 -right-1 size-5 rounded-full flex items-center justify-center'>
-              <img src={OP} alt='OP' />
-            </div>
-          </button>
+      <a href={uniswapUrl} target={'_blank'}>
+        <div className='grid grid-cols-1'>
+          <div className='bg-white rounded-xl p-3 flex items-center gap-4 cursor-pointer hover:bg-white/80 hover:shadow-md transition-all'>
+            <button className='sm:size-14 size-10 flex items-center justify-center bg-gradient-1 backdrop-blur-48 rounded-full relative shrink-0'>
+              <Icons.iconLogo className={'text-base-black'} />
+              <div className='absolute -bottom-1 -right-1 size-5 rounded-full flex items-center justify-center'>
+                <img src={OP} alt='OP' />
+              </div>
+            </button>
 
-          <div className='flex justify-between text-heading-h3 font-semibold text-base-black'>
-            <span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</span>
-            <span className='text-neutral-01'>LOV</span>
+            <div className='flex justify-between text-heading-h3 font-semibold text-base-black'>
+              <motion.span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</motion.span>
+              <span className='text-neutral-01'>LOV</span>
+            </div>
           </div>
         </div>
-      </div>
+      </a>
     </div>
   );
 };
