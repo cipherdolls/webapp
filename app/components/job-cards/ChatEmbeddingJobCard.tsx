@@ -9,13 +9,17 @@ import { formatEther } from 'ethers';
 const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   const embeddingJob = message?.embeddingJob;
 
+  if (!embeddingJob) {
+    return null;
+  }
+
   const formattedUsdCost = embeddingJob?.usdCost > 0 ? embeddingJob?.usdCost.toFixed(8) : 0;
-  const formattedPaymentJob = embeddingJob.paymentJob?.weiCost ? formatEther(embeddingJob.paymentJob?.weiCost) : 0;
+  const formattedPaymentJob = embeddingJob?.paymentJob?.weiCost ? formatEther(embeddingJob.paymentJob.weiCost) : 0;
 
   return (
     <DataCard.Root>
       <div className='flex items-center gap-2'>
-        {embeddingJob?.embeddingModel.error && (
+        {embeddingJob?.embeddingModel?.error && (
           <Tooltip
             side={'top'}
             trigger={<Icons.warning className='size-5 text-specials-danger mb-4' />}
@@ -33,11 +37,11 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'AI Provider',
-              value: embeddingJob.embeddingModel?.aiProvider.name,
+              value: embeddingJob?.embeddingModel?.aiProvider?.name ?? 'N/A',
             },
             {
               label: 'Embedding Model',
-              value: formatModelName(embeddingJob.embeddingModel?.providerModelName),
+              value: embeddingJob?.embeddingModel?.providerModelName ? formatModelName(embeddingJob.embeddingModel.providerModelName) : 'N/A',
             },
           ]}
         />
@@ -46,7 +50,7 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Time Taken',
-              value: `${embeddingJob.timeTakenMs} ms`,
+              value: embeddingJob?.timeTakenMs ? `${embeddingJob.timeTakenMs} ms` : '--',
             },
             {
               label: 'Cost (USD)',
