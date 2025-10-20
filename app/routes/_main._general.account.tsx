@@ -46,7 +46,7 @@ export default function Account() {
           <YourAvatars />
           <YourScenarios />
         </div>
-        <div className='flex flex-col gap-5'>
+        <div className='flex flex-col gap-5 lg:sticky lg:top-4 lg:self-start'>
           <TokenBalance />
           <TokenPermitsList />
           <YourReferrals />
