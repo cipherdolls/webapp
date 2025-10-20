@@ -142,7 +142,16 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
   }) => {
     setIsPermitInProgress(true);
 
-    createTokenPermit(permitData, {
+    createTokenPermit({
+      owner: permitData.owner,
+      spender: permitData.spender,
+      value: permitData.value,
+      nonce: permitData.nonce,
+      deadline: permitData.deadline.toString(),
+      v: permitData.v.toString(),
+      r: permitData.r,
+      s: permitData.s,
+    }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['user'] });
         queryClient.invalidateQueries({ queryKey: ['me'] });

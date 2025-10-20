@@ -33,7 +33,7 @@ const navigationItems = [
 ];
 
 const Header = ({ isVerifying = false }: { isVerifying?: boolean }) => {
-  const { signIn, isLoading, error, hasEthereum, statusMessage } = useWalletAuth();
+  const { signIn, isLoading, error } = useWalletAuth();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -82,15 +82,11 @@ const Header = ({ isVerifying = false }: { isVerifying?: boolean }) => {
               onClick={handleCtaClick}
               disabled={isLoading || isVerifying}
             >
-              {isVerifying
+              {isVerifying || isLoading
                 ? 'Loading...'
-                : isLoading && statusMessage
-                  ? statusMessage
-                  : isLoading
-                    ? 'Connecting...'
-                    : isAuthenticated
-                      ? 'Go to Chats'
-                      : 'Start Chat for Free'}
+                : isAuthenticated
+                  ? 'Go to Chats'
+                  : 'Start Chat for Free'}
             </Button.Root>
             {error && <div className='absolute top-full right-0 mt-2 text-red-600 text-sm bg-white p-2 rounded shadow-lg'>{error}</div>}
           </div>

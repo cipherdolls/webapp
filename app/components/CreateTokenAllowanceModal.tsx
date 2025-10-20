@@ -3,7 +3,7 @@ import * as Button from '~/components/ui/button/button';
 import * as Slider from '~/components/ui/slider';
 import { PermitButton } from '~/components/buttons/PermitButton';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY } from '~/constants';
 import { motion } from 'motion/react';
 
@@ -24,11 +24,19 @@ interface CreateTokenAllowanceModalProps {
 
 const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: CreateTokenAllowanceModalProps) => {
   const [open, setOpen] = useState(false);
+  const [permitKey, setPermitKey] = useState(0); // Key to force PermitButton remount
 
   // Fibonacci sequence for fixed amounts
   const fibonacciAmounts = [1, 2, 3, 5, 8, 13, 21, 34, 55];
   const [selectedIndex, setSelectedIndex] = useState(4);
   const amount = fibonacciAmounts[selectedIndex];
+
+  // Reset PermitButton when modal is closed to clear any stale state
+  useEffect(() => {
+    if (!open) {
+      setPermitKey(prev => prev + 1);
+    }
+  }, [open]);
 
   const handlePermitSigned = (permit: any) => {
     onPermitSigned(permit);
@@ -109,6 +117,7 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
                   </Dialog.Close>
 
                   <PermitButton
+                    key={permitKey}
                     tokenAddress='0x77469eeb563a6035b7b898f6a392284371918045'
                     tokenName='cipherdolls'
                     tokenVersion='1'

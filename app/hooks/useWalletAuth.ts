@@ -86,33 +86,26 @@ interface UseWalletAuthReturn {
   isLoading: boolean;
   error: string | null;
   hasEthereum: boolean;
-  statusMessage: string;
 }
 
 export function useWalletAuth(): UseWalletAuthReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string>('');
   const [hasEthereum] = useState(typeof window !== 'undefined' && !!window.ethereum);
   const navigate = useNavigate();
-  const { isAuthenticated, setToken, redirectAfterSignIn, setRedirectAfterSignIn, setReferralId } = useAuthStore();
+  const { setToken, redirectAfterSignIn, setRedirectAfterSignIn, setReferralId } = useAuthStore();
   const alert = useAlert();
 
   const signIn = async () => {
     setError(null);
     setIsLoading(true);
-    setStatusMessage('Connecting to MetaMask...');
 
     try {
-      // Check for MetaMask
       if (!window.ethereum) {
         setIsLoading(false);
-        setStatusMessage('');
         await showErrorAlert(alert, WALLET_AUTH_ERRORS.META_MASK_NOT_FOUND);
         return;
       }
-
-      setStatusMessage('Opening MetaMask...');
 
       let accounts;
       try {
@@ -120,7 +113,6 @@ export function useWalletAuth(): UseWalletAuthReturn {
 
         if (!accounts || accounts.length === 0) {
           setIsLoading(false);
-          setStatusMessage('');
           await showErrorAlert(alert, WALLET_AUTH_ERRORS.NO_ACCOUNTS_FOUND, () => signIn());
           return;
         }
@@ -135,14 +127,12 @@ export function useWalletAuth(): UseWalletAuthReturn {
           errorMessage.includes('user cancelled')
         ) {
           setIsLoading(false);
-          setStatusMessage('');
           await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_REJECTED, () => signIn());
           return;
         }
 
         console.error('MetaMask permission error:', accountError);
         setIsLoading(false);
-        setStatusMessage('');
         await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_FAILED, () => signIn());
         return;
       }
@@ -173,8 +163,6 @@ Issued At: ${timestamp}
 
       let signedMessage;
       try {
-        setStatusMessage('Please sign the message in MetaMask...');
-
         const messageHex = ethers.hexlify(ethers.toUtf8Bytes(message));
 
         const signaturePromise = window.ethereum.request({
@@ -193,7 +181,6 @@ Issued At: ${timestamp}
 
         if (signError instanceof Error && signError.message === 'Signature timeout') {
           setIsLoading(false);
-          setStatusMessage('');
           await showErrorAlert(alert, WALLET_AUTH_ERRORS.SIGNATURE_TIMEOUT, () => signIn());
           return;
         }
@@ -205,19 +192,15 @@ Issued At: ${timestamp}
           errorMessage.includes('user cancelled')
         ) {
           setIsLoading(false);
-          setStatusMessage('');
           await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_REJECTED, () => signIn());
           return;
         }
 
         console.error('Signature error:', signError);
         setIsLoading(false);
-        setStatusMessage('');
         await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_FAILED, () => signIn());
         return;
       }
-
-      setStatusMessage('Authenticating...');
       const signinRes = await fetch(
         referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`,
         {
@@ -236,7 +219,6 @@ Issued At: ${timestamp}
 
       setToken(token);
 
-      setStatusMessage('Verifying token...');
       const verifyRes = await fetch(`${apiUrl}/auth/verify`, {
         method: 'POST',
         headers: {
@@ -248,8 +230,6 @@ Issued At: ${timestamp}
       if (!verifyRes.ok) {
         throw new Error('Token verification failed');
       }
-
-      setStatusMessage('Redirecting...');
       if (redirectAfterSignIn) {
         const redirect = redirectAfterSignIn;
         setRedirectAfterSignIn(null);
@@ -263,7 +243,6 @@ Issued At: ${timestamp}
     } catch (err) {
       console.error('Sign-in error:', err);
       setIsLoading(false);
-      setStatusMessage('');
 
       await alert({
         icon: '⚠️',
@@ -276,7 +255,6 @@ Issued At: ${timestamp}
       });
     } finally {
       setIsLoading(false);
-      setStatusMessage('');
     }
   };
 
@@ -285,6 +263,5 @@ Issued At: ${timestamp}
     isLoading,
     error,
     hasEthereum,
-    statusMessage,
   };
 }

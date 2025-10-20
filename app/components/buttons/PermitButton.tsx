@@ -40,7 +40,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
   onSigned,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
     if (!window.ethereum) {
@@ -48,12 +48,17 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
       return;
     }
 
-    try {
-      setError(undefined);
-      setLoading(true);
+    // Clear previous errors
+    setError(null);
+    setLoading(true);
 
+    try {
+      // Create a fresh provider instance for each attempt
       const provider = new ethers.BrowserProvider(window.ethereum);
+
+      // Request accounts - this will trigger MetaMask popup
       await provider.send('eth_requestAccounts', []);
+
       const signer = await provider.getSigner();
       const owner = await signer.getAddress();
       const network = await provider.getNetwork();
@@ -199,6 +204,10 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
 
       if (isUserCancellation) {
         setError('Signing canceled');
+        // Clear cancellation error after 2 seconds
+        setTimeout(() => {
+          setError(null);
+        }, 2000);
       } else {
         console.error(err);
         setError(err.message || 'Signing failed');
@@ -223,9 +232,8 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         </Button.Root>
       </div>
       {error && (
-        <div className='text-xs text-specials-danger bg-specials-danger/5 p-2 rounded-lg col-span-2'>
-          <p className='font-medium mb-1'>Error:</p>
-          <p>{error}</p>
+        <div className='text-sm text-specials-danger bg-specials-danger/5 p-2 rounded-lg col-span-2'>
+          <p className='inline-block'>{error}</p>
           {error.includes('network') && (
             <p className='mt-1 text-neutral-01'>Make sure you're connected to Optimism mainnet in your wallet.</p>
           )}
