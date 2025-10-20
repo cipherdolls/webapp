@@ -299,7 +299,8 @@ export interface TransactionLeg {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  to: string;
+  toAddress: string;
+  fromAddress: string;
   amountWei: string;
   txHash: string;
   type: string;

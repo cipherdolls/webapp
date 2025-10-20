@@ -27,7 +27,7 @@ const ChatTTSJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Time Taken',
-              value: `${ttsJob?.timeTakenMs ?? 0} ms`,
+              value: ttsJob?.timeTakenMs ? `${ttsJob.timeTakenMs} ms` : '--',
             },
             {
               label: 'Cost (USD)',

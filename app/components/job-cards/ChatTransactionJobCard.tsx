@@ -61,12 +61,16 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                           value: `${formatEther(leg.amountWei)} ETH`,
                         },
                         {
+                          label: 'From Address',
+                          value: <span className='line-clamp-1 block truncate break-normal max-w-[244px]'>{leg.fromAddress}</span>,
+                        },
+                        {
                           label: 'To Address',
-                          value: <span className='line-clamp-1 block truncate break-normal max-w-[244px]'>{leg.to}</span>,
+                          value: <span className='line-clamp-1 block truncate break-normal max-w-[244px]'>{leg.toAddress}</span>,
                         },
                         {
                           label: 'Time Taken',
-                          value: `${leg.timeTakenMs} ms`,
+                          value: leg.timeTakenMs ? `${leg.timeTakenMs} ms` : '--',
                         },
                         {
                           label: 'Nonce',
