@@ -179,6 +179,15 @@ export interface Scenario {
   nsfw?: boolean;
 }
 
+export interface Sponsorship {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  scenarioId: string;
+  user?: User;
+}
+
 export interface Chat {
   id: string;
   userId: string;
@@ -290,7 +299,8 @@ export interface TransactionLeg {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  to: string;
+  toAddress: string;
+  fromAddress: string;
   amountWei: string;
   txHash: string;
   type: string;

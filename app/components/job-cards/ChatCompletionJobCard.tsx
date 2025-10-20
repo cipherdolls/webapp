@@ -5,9 +5,9 @@ import { formatModelName } from '~/utils/formatModelName';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatCompletionJobCard = ({ message }: { message: Message }) => {
-  const { usdCost, paymentJob, chatModel, timeTakenMs, inputTokens, outputTokens, totalTokens } = message?.chatCompletionJob;
+  const chatCompletionJob = message?.chatCompletionJob;
 
-  if (!message?.chatCompletionJob.chatModel) {
+  if (!chatCompletionJob || !chatCompletionJob.chatModel) {
     return (
       <DataCard.Root>
         <DataCard.Label>Chat Completion Job</DataCard.Label>
@@ -18,8 +18,9 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
     );
   }
 
+  const { usdCost, paymentJob, chatModel, timeTakenMs, inputTokens, outputTokens, totalTokens } = chatCompletionJob;
   const formattedUsdCost = usdCost > 0 ? usdCost.toFixed(8) : 0;
-  const formattedPaymentJob = paymentJob?.weiCost ? formatEther(paymentJob?.weiCost) : 0;
+  const formattedPaymentJob = paymentJob?.weiCost ? formatEther(paymentJob.weiCost) : 0;
 
   return (
     <DataCard.Root>
@@ -42,7 +43,7 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
           data={[
             {
               label: 'Time Taken',
-              value: `${timeTakenMs} ms`,
+              value: timeTakenMs ? `${timeTakenMs} ms` : '--',
             },
             {
               label: 'Input Tokens',
