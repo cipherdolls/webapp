@@ -20,7 +20,7 @@ function YourReferralsSkeleton() {
 
 export const YourReferrals = () => {
   const { copied, copyToClipboard } = useCopyToClipboard();
-  const {data: user, isLoading: isUserLoading  } = useUser()
+  const { data: user, isLoading: isUserLoading } = useUser();
   const { data: referralCount, isLoading: isReferralCountLoading } = useUserReferralsCount();
   const alert = useAlert();
 
@@ -42,7 +42,7 @@ export const YourReferrals = () => {
   if (isUserLoading || isReferralCountLoading || !user) return <YourReferralsSkeleton />;
 
   return (
-    <Card.Root className='lg:max-w-[352px]'>
+    <Card.Root className='lg:max-w-[352px] sm:size-auto!'>
       <div className='flex items-center justify-between'>
         <Card.Label>Your Referrals</Card.Label>
         <InformationBadge className='size-6' side='top' tooltipText='Your personal referrals in Cipherdolls' popoverClassName='ml-auto' />
@@ -57,21 +57,25 @@ export const YourReferrals = () => {
                 <div className='flex sm:items-center flex-col gap-1 sm:gap-2'>
                   <div className='bg-neutral-05 flex justify-center gap-1 w-6/12 py-1.5 px-2 rounded-b-xl border border-neutral-04 border-t-0 absolute top-0 left-1/2 -translate-x-1/2'>
                     <button
-                      onClick={() => alert({
-                        icon: '🎁',
-                        title: 'Referrals rewards',
-                        body: (
-                          <p className='!text-body-md'>
-                            💰 Earn LOV tokens when your invited <br/>referral starts chatting.
-                            <br />
-                            <br />
-                            👤 Each active referral brings you a separate reward.
-                            <br />
-                            <br />
-                            🔥 The more referrals you invite, the more <br/>LOV tokens you collect!
-                          </p >
-                        ),
-                      })}
+                      onClick={() =>
+                        alert({
+                          icon: '🎁',
+                          title: 'Referrals rewards',
+                          body: (
+                            <p className='!text-body-md'>
+                              💰 Earn LOV tokens when your invited <br />
+                              referral starts chatting.
+                              <br />
+                              <br />
+                              👤 Each active referral brings you a separate reward.
+                              <br />
+                              <br />
+                              🔥 The more referrals you invite, the more <br />
+                              LOV tokens you collect!
+                            </p>
+                          ),
+                        })
+                      }
                       className='cursor-pointer text-body-sm font-semibold text-base-black underline transition-colors hover:text-base-black/60'
                     >
                       How does it work?
@@ -82,20 +86,19 @@ export const YourReferrals = () => {
                     You Have {(referralCount || 0) > 1 ? `${referralCount} Referrals` : `1 Referral`}
                   </h4>
 
-                  <p className='text-center text-neutral-01'>
-                    Continue invite your friends and get more LOV Tokens!
-                  </p>
+                  <p className='text-center text-neutral-01'>Continue invite your friends and get more LOV Tokens!</p>
 
                   <button
                     onClick={handleInviteCopy}
                     className='inline-flex w-fit justify-center text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2'
                   >
                     {copied ? (
-                      <span className='flex gap-1 items-center'>Copied <Icons.copied className='w-5 h-5'/></span>
+                      <span className='flex gap-1 items-center'>
+                        Copied <Icons.copied className='w-5 h-5' />
+                      </span>
                     ) : (
                       <span className='transition-opacity hover:opacity-80'>Copy Your Referral Link</span>
-                    )
-                    }
+                    )}
                   </button>
 
                   {/* TODO: add total earn LOV logic  */}
@@ -120,11 +123,12 @@ export const YourReferrals = () => {
                     className='inline-flex w-fit justify-center text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2'
                   >
                     {copied ? (
-                      <span className='flex gap-1 items-center'>Copied <Icons.copied className='w-5 h-5'/></span>
+                      <span className='flex gap-1 items-center'>
+                        Copied <Icons.copied className='w-5 h-5' />
+                      </span>
                     ) : (
                       <span className='transition-opacity hover:opacity-80'>Copy Your Referral Link</span>
-                    )
-                    }
+                    )}
                   </button>
                 </div>
               </div>

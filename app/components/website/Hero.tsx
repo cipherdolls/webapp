@@ -32,7 +32,7 @@ const content = {
 };
 
 const Hero = ({ avatar }: { avatar: Avatar }) => {
-  const { signIn, isLoading, hasEthereum } = useWalletAuth();
+  const { signIn, isLoading, hasEthereum, statusMessage } = useWalletAuth();
 
   return (
     <section className='pt-24 pb-16 min-h-screen flex items-center'>
@@ -85,7 +85,7 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
                 onClick={signIn}
                 disabled={isLoading}
               >
-                {isLoading ? 'Connecting...' : content.cta.text}
+                {isLoading && statusMessage ? statusMessage : isLoading ? 'Connecting...' : content.cta.text}
                 <ArrowRight />
               </Button.Root>
               <Button.Root
