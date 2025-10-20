@@ -115,12 +115,12 @@ const YourAvatars = () => {
       </div>
 
       {avatars.length > 4 && (
-        <motion.div layout transition={ANIMATE_DURATION} className='mx-auto -mt-2'>
+        <div className='mx-auto -mt-2'>
           <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
             {showAll ? 'Collapse' : 'Show all'}
             <Button.Icon as={Icons.chevronDown} className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
           </Button.Root>
-        </motion.div>
+        </div>
       )}
     </div>
   );
