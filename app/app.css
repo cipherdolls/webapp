@@ -223,10 +223,11 @@
 }
 
 @utility bg-gradient-talkMode {
-  background: radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%), linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%), linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%), #fff;
+  background:
+    radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
+    linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
+    linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%), #fff;
 }
-
-
 
 @utility message-corner {
   content: '';
@@ -291,9 +292,6 @@ input[type='number'] {
   box-shadow: 0px -4px 24px 0px rgba(0, 0, 0, 0.04);
 }
 
-
-
-
 /* WEBSITE STYLES */
 
 /* LAYOUT STYLES */
@@ -324,7 +322,8 @@ input[type='number'] {
 }
 
 @keyframes gradient-shift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -348,7 +347,8 @@ input[type='number'] {
 }
 
 @keyframes custom-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -396,13 +396,10 @@ input[type='number'] {
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+  display: none; /* Safari and Chrome */
 }
-
-
-

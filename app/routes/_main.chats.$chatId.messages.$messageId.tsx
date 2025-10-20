@@ -11,7 +11,7 @@ import ChatMessagePreview from '~/components/chat/ChatMessagePreview';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 import { useMessage } from '~/hooks/queries/messageQueries';
-import { ANIMATE_MODAL_RIGHT_SIDE, ROUTES } from '~/constants';
+import { ANIMATE_MODAL_SHOW_RIGHT, ROUTES } from '~/constants';
 import { motion } from 'framer-motion';
 
 export function meta({}: Route.MetaArgs) {
@@ -78,18 +78,18 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
 
         <motion.div
           className='pageModal-content'
-          variants={ANIMATE_MODAL_RIGHT_SIDE}
-          initial='initial'
-          animate='animate'
-          transition={ANIMATE_MODAL_RIGHT_SIDE.transition}
+          initial={ANIMATE_MODAL_SHOW_RIGHT.initial}
+          animate={ANIMATE_MODAL_SHOW_RIGHT.animate}
+          transition={ANIMATE_MODAL_SHOW_RIGHT.transition}
         >
           <Button.Root
+            onClick={handleMessageClose}
+            className='hidden group md:flex absolute right-full top-4.5 mr-4.5 shadow-bottom'
             size='icon'
             variant='white'
-            className='pageModal-button-close transition-colors hover:bg-white/80'
-            onClick={handleMessageClose}
+            aria-label='Close'
           >
-            <Button.Icon as={Icons.close} />
+            <Button.Icon className='transition-transform duration-250 group-hover:scale-125' as={Icons.close} />
           </Button.Root>
 
           {message && !isMessageLoading ? (

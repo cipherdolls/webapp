@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Chat, GroupedChatsByAvatar } from '~/types';
 import { cn } from '~/utils/cn';
 import { Link, NavLink } from 'react-router';
@@ -8,8 +8,9 @@ import AvatarCard from '~/components/AvatarCardReusable';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
-import { ANIMATE_CHAT_ITEMS, ROUTES } from '~/constants';
+import { ANIMATE_CHAT_ITEMS, ANIMATE_DURATION, ROUTES } from '~/constants';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useMediaQuery } from 'usehooks-ts';
 
 function YourChatsSkeleton() {
   return (
@@ -26,6 +27,12 @@ function YourChatsSkeleton() {
   );
 }
 
+interface ChatItemProps {
+  group: GroupedChatsByAvatar
+  expandedAvatar: string | undefined
+  handleAvatarClick: (avatarId: string) => void
+}
+
 const YourChats = () => {
   const [showAll, setShowAll] = useState(false);
   const [expandedAvatar, setExpandedAvatar] = useState<string>();
@@ -33,9 +40,14 @@ const YourChats = () => {
   const { data: chatsData, isLoading: chatsLoading } = useChats();
   const { data: avatarsData, isLoading: avatarsLoading } = useAvatars();
 
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const chats = chatsData || [];
   const avatars = avatarsData || [];
   const avatarsList = Array.isArray(avatars) ? avatars : avatars.data;
+
+  const defaultChatHeight = 88;
+  const initChatsContainerHeight = chats.length <= 2 ? defaultChatHeight : defaultChatHeight * 2;
 
   const groupedChats: GroupedChatsByAvatar[] = useMemo(() => {
     const avatarChatMap = new Map<string, Chat[]>();
@@ -76,6 +88,7 @@ const YourChats = () => {
   const handleAvatarClick = (avatarId: string) => {
     if (expandedAvatar === avatarId) return setExpandedAvatar('');
 
+    setShowAll(true);
     setExpandedAvatar(avatarId);
   };
 
@@ -84,227 +97,56 @@ const YourChats = () => {
       <h3 className='text-heading-h3 text-base-black'>Your Chats</h3>
 
       <motion.div
-        layout
-        transition={{ duration: 0.25 }}
+        initial={false}
+        animate={{ height: 'auto' }}
+        transition={ANIMATE_DURATION}
         className='grid grid-cols-1 md:grid-cols-2 gap-2 bg-gradient-1 rounded-xl overflow-y-hidden p-2 pt-2'
       >
         {groupedChats.length > 0 ? (
-          groupedChats.length <= 2 ? (
+         isMobile || groupedChats.length <= 2 ? (
             <>
               {groupedChats.map((group, index) => (
-                <div className='overflow-y-hidden' key={index}>
-                  <div
-                    className={cn(
-                      'flex items-center gap-3 select-none cursor-pointer bg-base-white hover:bg-white/80 rounded-xl',
-                    )}
-                    onClick={() => handleAvatarClick(group.avatar.id)}
-                  >
-                    <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
-                      <AvatarCard.Avatar className='size-8' />
-                      <AvatarCard.Content className='flex-1'>
-                        <AvatarCard.Name className='text-body-sm font-semibold' />
-                      </AvatarCard.Content>
-                    </AvatarCard>
-                    <div className='flex items-center gap-2 pr-2'>
-                      {group.chats.length > 1 && (
-                        <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
-                      )}
-                      {group.chats.length > 1 && (
-                        <Icons.chevronDown
-                          className={cn('size-4 text-neutral-01 duration-400 transition-transform', {
-                            'rotate-180': expandedAvatar === group.avatar.id,
-                          })}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <AnimatePresence initial={false}>
-                    {expandedAvatar === group.avatar.id && (
-                      <motion.div
-                        variants={ANIMATE_CHAT_ITEMS}
-                        initial='initial'
-                        animate='animate'
-                        exit='exit'
-                        transition={ANIMATE_CHAT_ITEMS.transition}
-                        className={cn('ml-4 space-y-1 border-l border-neutral-04 pl-3 pt-2 animate-chat-toggle')}
-                      >
-                        {group.chats.map((chat) => (
-                          <NavLink
-                            key={chat.id}
-                            to={`${ROUTES.chats}/${chat.id}`}
-                            className={({ isActive }) =>
-                              cn('block rounded-lg p-3 group transition-colors', {
-                                'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
-                                'hover:bg-white/80 ': !isActive,
-                              })
-                            }
-                          >
-                            <div className='flex items-center gap-3'>
-                              <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
-                            </div>
-                            <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
-                          </NavLink>
-                        ))}
-
-                        <div className='pt-2'>
-                          <AvatarScenarioModal avatar={group.avatar}>
-                            <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
-                              <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
-                                <Icons.chat className='size-4' />
-                                <span className='text-body-sm font-medium'>New chat</span>
-                              </div>
-                            </button>
-                          </AvatarScenarioModal>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                <div className={cn('overflow-y-hidden', !showAll && index >= 4 && 'hidden')} key={index}>
+                  <ChatItem
+                    group={group}
+                    expandedAvatar={expandedAvatar}
+                    handleAvatarClick={handleAvatarClick}
+                  />
                 </div>
               ))}
             </>
           ) : (
             <>
-              <motion.div layout={'position'} className='flex flex-col gap-2 overflow-y-hidden'>
+              <motion.div
+                initial={false}
+                animate={{ height: !showAll ? initChatsContainerHeight : 'auto' }}
+                transition={ANIMATE_DURATION}
+                className='flex flex-col overflow-y-hidden -mt-2'
+              >
                 {leftChatGroup.map((group, index) => (
-                  <div className={`${!showAll && index >= 2 && 'hidden'}`} key={index}>
-                    <div
-                      className='relative z-20 flex items-center gap-3 rounded-xl select-none cursor-pointer bg-base-white transition-colors duration-300 overflow-hidden hover:bg-white/80'
-                      onClick={() => handleAvatarClick(group.avatar.id)}
-                    >
-                      <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
-                        <AvatarCard.Avatar className='size-8' />
-                        <AvatarCard.Content className='flex-1'>
-                          <AvatarCard.Name className='text-body-sm font-semibold' />
-                        </AvatarCard.Content>
-                      </AvatarCard>
-                      <div className='flex items-center gap-2 pr-2'>
-                        {group.chats.length > 1 && (
-                          <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
-                        )}
-                        {group.chats.length > 1 && (
-                          <Icons.chevronDown
-                            className={cn('size-4 text-neutral-01 duration-400 transition-transform', {
-                              'rotate-180': expandedAvatar === group.avatar.id,
-                            })}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <AnimatePresence initial={false}>
-                      {expandedAvatar === group.avatar.id && (
-                        <motion.div
-                          variants={ANIMATE_CHAT_ITEMS}
-                          initial='initial'
-                          animate='animate'
-                          exit='exit'
-                          transition={ANIMATE_CHAT_ITEMS.transition}
-                          className={cn('relative z-10 ml-4 space-y-1 border-l border-neutral-04 pl-3 pt-2 animate-chat-toggle')}
-                        >
-                          {group.chats.map((chat) => (
-                            <NavLink
-                              key={chat.id}
-                              to={`${ROUTES.chats}/${chat.id}`}
-                              className={({ isActive }) =>
-                                cn('block rounded-lg p-3 group transition-colors', {
-                                  'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
-                                  'hover:bg-white/80 ': !isActive,
-                                })
-                              }
-                            >
-                              <div className='flex items-center gap-3'>
-                                <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
-                              </div>
-                              <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
-                            </NavLink>
-                          ))}
-
-                          <div className='pt-2'>
-                            <AvatarScenarioModal avatar={group.avatar}>
-                              <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
-                                <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
-                                  <Icons.chat className='size-4' />
-                                  <span className='text-body-sm font-medium'>New chat</span>
-                                </div>
-                              </button>
-                            </AvatarScenarioModal>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  <div className='pt-2' key={index}>
+                    <ChatItem
+                      group={group}
+                      expandedAvatar={expandedAvatar}
+                      handleAvatarClick={handleAvatarClick}
+                    />
                   </div>
                 ))}
               </motion.div>
 
-              <motion.div layout={'position'} className='flex flex-col gap-2 overflow-y-hidden'>
+              <motion.div
+                initial={false}
+                animate={{ height: !showAll ? initChatsContainerHeight : 'auto' }}
+                transition={ANIMATE_DURATION}
+                className='flex flex-col overflow-y-hidden -mt-2'
+              >
                 {rightChatGroup.map((group, index) => (
-                  <div className={`${!showAll && index >= 2 && 'hidden'}`} key={index}>
-                    <div
-                      className='relative z-20 flex items-center gap-3 select-none cursor-pointer bg-base-white hover:bg-white/80 rounded-xl'
-                      onClick={() => handleAvatarClick(group.avatar.id)}
-                    >
-                      <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
-                        <AvatarCard.Avatar className='size-8' />
-                        <AvatarCard.Content className='flex-1'>
-                          <AvatarCard.Name className='text-body-sm font-semibold' />
-                        </AvatarCard.Content>
-                      </AvatarCard>
-                      <div className='flex items-center gap-2 pr-2'>
-                        {group.chats.length > 1 && (
-                          <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
-                        )}
-                        {group.chats.length > 1 && (
-                          <Icons.chevronDown
-                            className={cn('size-4 text-neutral-01 duration-400 transition-transform', {
-                              'rotate-180': expandedAvatar === group.avatar.id,
-                            })}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <AnimatePresence initial={false}>
-                      {expandedAvatar === group.avatar.id && (
-                        <motion.div
-                          variants={ANIMATE_CHAT_ITEMS}
-                          initial='initial'
-                          animate='animate'
-                          exit='exit'
-                          transition={ANIMATE_CHAT_ITEMS.transition}
-                          className={cn('relative z-10 ml-4 space-y-1 border-l border-neutral-04 pl-3 pt-2 animate-chat-toggle')}
-                        >
-                          {group.chats.map((chat) => (
-                            <NavLink
-                              key={chat.id}
-                              to={`${ROUTES.chats}/${chat.id}`}
-                              className={({ isActive }) =>
-                                cn('block rounded-lg p-3 group transition-colors', {
-                                  'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
-                                  'hover:bg-white/80 ': !isActive,
-                                })
-                              }
-                            >
-                              <div className='flex items-center gap-3'>
-                                <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
-                              </div>
-                              <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
-                            </NavLink>
-                          ))}
-
-                          <div className='pt-2'>
-                            <AvatarScenarioModal avatar={group.avatar}>
-                              <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
-                                <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
-                                  <Icons.chat className='size-4' />
-                                  <span className='text-body-sm font-medium'>New chat</span>
-                                </div>
-                              </button>
-                            </AvatarScenarioModal>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  <div className='pt-2' key={index}>
+                    <ChatItem
+                      group={group}
+                      expandedAvatar={expandedAvatar}
+                      handleAvatarClick={handleAvatarClick}
+                    />
                   </div>
                 ))}
               </motion.div>
@@ -327,15 +169,87 @@ const YourChats = () => {
       </motion.div>
 
       {groupedChats.length > 4 && (
-        <motion.div layout transition={{ duration: 0.25 }} className='mx-auto -mt-2'>
+        <div className='mx-auto -mt-2'>
           <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>
             {showAll ? 'Collapse' : 'Show all'}
             <Button.Icon as={Icons.chevronDown} className={`size-6 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
           </Button.Root>
-        </motion.div>
+        </div>
       )}
     </div>
   );
 };
 
 export default YourChats;
+
+const ChatItem = ({ group, expandedAvatar, handleAvatarClick }: ChatItemProps) => {
+  return (
+    <>
+      <div
+        className='relative z-20 flex items-center gap-3 rounded-xl select-none cursor-pointer bg-base-white transition-colors duration-300 overflow-hidden hover:bg-white/80'
+        onClick={() => handleAvatarClick(group.avatar.id)}
+      >
+        <AvatarCard avatar={group.avatar} className='flex items-center gap-3 flex-1 select-none'>
+          <AvatarCard.Avatar className='size-8' />
+          <AvatarCard.Content className='flex-1'>
+            <AvatarCard.Name className='text-body-sm font-semibold' />
+          </AvatarCard.Content>
+        </AvatarCard>
+
+        <div className='flex items-center gap-2 pr-2'>
+          {group.chats.length > 0 && (
+            <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
+          )}
+          {group.chats.length > 0 && (
+            <Icons.chevronDown
+              className={cn('size-4 text-neutral-01 transition-transform', {
+                'rotate-180': expandedAvatar === group.avatar.id,
+              })}
+            />
+          )}
+        </div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {expandedAvatar === group.avatar.id && (
+          <motion.div
+            initial={ANIMATE_CHAT_ITEMS.initial}
+            animate={ANIMATE_CHAT_ITEMS.animate}
+            exit={ANIMATE_CHAT_ITEMS.exit}
+            transition={ANIMATE_CHAT_ITEMS.transition}
+            className={cn('relative z-10 ml-4 space-y-1 border-l border-neutral-04 pl-3 pt-2 animate-chat-toggle')}
+          >
+            {group.chats.map((chat) => (
+              <NavLink
+                key={chat.id}
+                to={`${ROUTES.chats}/${chat.id}`}
+                className={({ isActive }) =>
+                  cn('block rounded-lg p-3 group transition-colors', {
+                    'bg-white sm:bg-neutral-05 border border-neutral-04': isActive,
+                    'hover:bg-white/80 ': !isActive,
+                  })
+                }
+              >
+                <div className='flex items-center gap-3'>
+                  <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
+                </div>
+                <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
+              </NavLink>
+            ))}
+
+            <div className='pt-2'>
+              <AvatarScenarioModal avatar={group.avatar}>
+                <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
+                  <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
+                    <Icons.chat className='size-4' />
+                    <span className='text-body-sm font-medium'>New chat</span>
+                  </div>
+                </button>
+              </AvatarScenarioModal>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
