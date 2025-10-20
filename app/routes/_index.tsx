@@ -11,6 +11,8 @@ import Footer from '~/components/website/Footer';
 import Header from '~/components/website/Header';
 import { apiUrl } from '~/constants';
 import type { Scenario } from '~/types';
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '~/store/useAuthStore';
 
 const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
@@ -110,13 +112,20 @@ export async function loader() {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { avatar, avatars, scenarios } = loaderData;
+  const { verifyToken } = useAuthStore();
+  const [isVerifying, setIsVerifying] = useState(true);
 
-  // Referral is now handled by useWalletAuth hook when user clicks "Start Chat for Free"
-  // No redirect needed here
+  useEffect(() => {
+    const verify = async () => {
+      await verifyToken();
+      setIsVerifying(false);
+    };
+    verify();
+  }, [verifyToken]);
 
   return (
     <>
-      <Header />
+      <Header isVerifying={isVerifying} />
       <div>
         <Hero avatar={avatar} />
         <CompanyLogos />

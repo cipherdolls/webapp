@@ -16,7 +16,7 @@ const content = {
 };
 
 const CTA = () => {
-  const { signIn, isLoading, hasEthereum } = useWalletAuth();
+  const { signIn, isLoading, hasEthereum, statusMessage } = useWalletAuth();
 
   return (
     <section className='py-40'>
@@ -59,7 +59,7 @@ const CTA = () => {
                     onClick={signIn}
                     disabled={isLoading}
                   >
-                    <span className='font-medium'>{isLoading ? 'Connecting...' : 'Start Chat for Free'}</span>
+                    <span className='font-medium'>{isLoading && statusMessage ? statusMessage : isLoading ? 'Connecting...' : 'Start Chat for Free'}</span>
                     <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
                   </Button.Root>
                 </div>

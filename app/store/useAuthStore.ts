@@ -86,8 +86,16 @@ export const useAuthStore = create<AuthStore>()(
             },
           });
 
-          if (res.status === 200) {
-            return true;
+          if (res.status === 200 || res.status === 201) {
+            const data = await res.json();
+            if (data.token === 'valid') {
+              set((state) => {
+                state.isAuthenticated = true;
+              });
+              return true;
+            }
+            clearAuth();
+            return false;
           }
 
           if (res.status === 401) {
@@ -95,6 +103,7 @@ export const useAuthStore = create<AuthStore>()(
             return false;
           }
 
+          clearAuth();
           return false;
         } catch (error) {
           console.error('Token verification failed:', error);
