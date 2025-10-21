@@ -32,21 +32,18 @@ const content = {
 };
 
 const Hero = ({ avatar }: { avatar: Avatar }) => {
-  const { signIn, isLoading, hasEthereum, statusMessage } = useWalletAuth();
+  const { signIn, isLoading } = useWalletAuth();
 
   return (
     <section className='pt-24 pb-16 min-h-screen flex items-center'>
       <div className='container'>
         <div className='grid lg:grid-cols-2 gap-16 items-center'>
-          {/* Left Column - Content */}
           <div className='space-y-8'>
-            {/* Badge */}
             <div className='inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-full text-sm border border-gray-200/50'>
               <Shield className='w-4 h-4 text-green-600' />
               <span>{content.subtitle}</span>
             </div>
 
-            {/* Headline */}
             <div className='space-y-6'>
               <h1 className='text-5xl sm:text-6xl lg:text-7xl font-light text-gray-900 leading-tight'>
                 {content.title}
@@ -58,7 +55,6 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
               <p className='text-lg text-gray-600 leading-relaxed max-w-xl'>{content.description}</p>
             </div>
 
-            {/* Features */}
             <div className='flex flex-col sm:flex-row gap-6'>
               <div className='flex items-center space-x-3'>
                 <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center'>{content.features[0].icon}</div>
@@ -76,7 +72,6 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
               </div>
             </div>
 
-            {/* CTA Buttons */}
             <div className='flex flex-col sm:flex-row gap-5'>
               <Button.Root
                 className='px-10 gradient-move font-medium'
@@ -85,7 +80,7 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
                 onClick={signIn}
                 disabled={isLoading}
               >
-                {isLoading && statusMessage ? statusMessage : isLoading ? 'Connecting...' : content.cta.text}
+                {isLoading ? 'Loading...' : content.cta.text}
                 <ArrowRight />
               </Button.Root>
               <Button.Root
