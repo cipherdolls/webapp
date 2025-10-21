@@ -115,8 +115,8 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
                 {message.sttJob && <ChatSTTJobCard message={message} />}
                 {/* chat completion job */}
                 {message.chatCompletionJob && <ChatCompletionJobCard message={message} />}
-                {/* transaction job */}
-                {message.transactionJob && <ChatTransactionJobCard message={message} />}
+                {/* transactions */}
+                <ChatTransactionJobCard message={message} />
 
                 <div className='mt-auto pt-10'>
                   <Button.Root type='button' variant='danger' className='w-full px-10' onClick={handleMessageDelete}>
