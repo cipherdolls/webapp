@@ -48,7 +48,7 @@ const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({ scenarioId, spo
 
         <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
           <Dialog.Trigger asChild>
-            <Button.Root variant={userHasSponsored ? 'secondary' : 'primary'} disabled={isPending} className='w-full' size='md'>
+            <Button.Root variant={userHasSponsored ? 'secondary' : 'primary'} disabled={isPending} className='flex gap-2 w-full' size='md'>
               <Button.Icon as={userHasSponsored ? Icons.check : Icons.star} />
               {isPending ? 'Processing...' : userHasSponsored ? 'Sponsored' : 'Sponsor this Scenario'}
             </Button.Root>

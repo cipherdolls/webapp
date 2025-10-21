@@ -61,6 +61,7 @@ export const YourReferrals = () => {
                         alert({
                           icon: '🎁',
                           title: 'Referrals rewards',
+                          actionButton: '',
                           body: (
                             <p className='!text-body-md'>
                               💰 Earn LOV tokens when your invited <br />
