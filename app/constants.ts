@@ -134,13 +134,13 @@ export const ANIMATE_OVERLAY = {
 export const ANIMATE_MODAL_SHOW_CENTER = {
   initial: { scale: 1.2 },
   animate: { scale: 1 },
-  transition: { duration: 0.35 }
+  transition: { duration: 0.20 }
 }
 
 export const ANIMATE_MODAL_SHOW_RIGHT = {
   initial: { opacity: 0.5, transform: 'translateX(25%)' },
   animate: { opacity: 1, transform: 'translateX(0%)' },
-  transition: { duration: 0.35 }
+  transition: { duration: 0.20 }
 }
 
 export const ANIMATE_CHAT_ITEMS = {
@@ -148,4 +148,4 @@ export const ANIMATE_CHAT_ITEMS = {
   animate: { opacity: 1, height: 'auto' },
   exit: { opacity: 0, height: 0 },
   transition: ANIMATE_DURATION,
-};
+}

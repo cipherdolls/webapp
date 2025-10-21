@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn, cnExt } from '~/utils/cn';
+import { motion } from 'motion/react';
+import { ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY } from '~/constants';
 
 const ModalRoot = DialogPrimitive.Root;
 const ModalTrigger = DialogPrimitive.Trigger;
@@ -10,9 +12,10 @@ const ModalPortal = DialogPrimitive.Portal;
 const ModalOverlay = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...rest }, forwardedRef) => {
+>(({ children, className, ...rest }, forwardedRef) => {
   return (
     <DialogPrimitive.Overlay
+      asChild
       ref={forwardedRef}
       className={cn(
         // base
@@ -20,7 +23,15 @@ const ModalOverlay = React.forwardRef<
         className
       )}
       {...rest}
-    />
+    >
+      <motion.div
+        initial={ANIMATE_OVERLAY.initial}
+        animate={ANIMATE_OVERLAY.animate}
+        transition={ANIMATE_OVERLAY.transition}
+      >
+        {children}
+      </motion.div>
+    </DialogPrimitive.Overlay>
   );
 });
 ModalOverlay.displayName = 'ModalOverlay';
@@ -36,6 +47,7 @@ const ModalContent = React.forwardRef<
     <ModalPortal>
       <ModalOverlay className={overlayClassName}>
         <DialogPrimitive.Content
+          asChild
           ref={forwardedRef}
           className={cn(
             // base
@@ -51,7 +63,13 @@ const ModalContent = React.forwardRef<
           )}
           {...rest}
         >
-          {children}
+          <motion.div
+            initial={ANIMATE_MODAL_SHOW_CENTER.initial}
+            animate={ANIMATE_MODAL_SHOW_CENTER.animate}
+            transition={ANIMATE_MODAL_SHOW_CENTER.transition}
+          >
+            {children}
+          </motion.div>
         </DialogPrimitive.Content>
       </ModalOverlay>
     </ModalPortal>

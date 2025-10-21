@@ -149,6 +149,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                         alert({
                           icon: '🎭',
                           title: 'Scenarios',
+                          actionButton: '',
                           body: (
                             <>
                               💅🏻 Easy Talk - focused on casual topics with cheerful, warm, and concise responses.
