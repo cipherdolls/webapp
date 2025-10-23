@@ -5,6 +5,7 @@ import { useTransactions } from '~/hooks/queries/transactionQueries';
 import { formatEther } from 'ethers';
 import { Icons } from '~/components/ui/icons';
 import * as Accordion from '@radix-ui/react-accordion';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function formatTransactionType(type: string): string {
   return type
@@ -17,6 +18,16 @@ export function formatTransactionType(type: string): string {
 
 const ChatTransactionJobCard = ({ message }: { message: Message }) => {
   const { data: transactions, isLoading } = useTransactions(message.id);
+  const { data: user } = useUser();
+  const isAdmin = user?.role === 'ADMIN';
+
+  function formattedErrorsWithAuth(error: string): string {
+    if (isAdmin) {
+      return error
+    }
+
+    return 'Something went wrong. Please tell Cipherdolls support about this problem.';
+  }
 
   if (isLoading) {
     return null;
@@ -98,7 +109,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         {
                           label: 'Status',
                           value: transaction.error ? (
-                            <span className='text-specials-danger font-medium'>Error: {transaction.error}</span>
+                            <span className='text-specials-danger font-medium'>Error: {formatTransactionType(transaction.type)} - {formattedErrorsWithAuth(transaction.error)}</span>
                           ) : (
                             <span className='text-specials-success font-medium'>Success</span>
                           ),
