@@ -62,6 +62,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const [scenarioData, setScenarioData] = useState({
     picture: scenario?.picture ?? null,
     published: scenario?.published ?? false,
+    nsfw: scenario?.nsfw ?? false,
     userGender: scenario?.userGender ?? defaultScenarioData.userGender,
     avatarGender: scenario?.avatarGender ?? defaultScenarioData.avatarGender,
     temperature: scenario?.temperature ?? defaultScenarioData.temperature,
@@ -791,6 +792,36 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   {scenario?.published
                     ? 'If scenario is published it cannot be unpublished or deleted.'
                     : 'Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.'}
+                </p>
+              </Input.Root>
+
+              <Input.Root>
+                <Input.Label htmlFor='nsfw'>Content Rating</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      !scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', false)}
+                  >
+                    Safe for Work
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', true)}
+                  >
+                    🔞 NSFW
+                  </button>
+                </div>
+                <input type='hidden' name='nsfw' value={scenarioData.nsfw ? 'true' : 'false'} />
+                <p className='text-xs text-gray-500'>
+                  Mark this scenario as NSFW (Not Safe For Work) if it contains adult or mature content.
                 </p>
               </Input.Root>
             </div>
