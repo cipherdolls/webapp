@@ -113,43 +113,8 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
   const isSystemMessage = message.role === 'SYSTEM';
   const isAssistantMessage = message.role === 'ASSISTANT';
 
-  const timeoutRef = useRef<NodeJS.Timeout | number>(0);
-
-  const [isShouldShowCopyButton, setIsShouldShowCopyButton] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-
-  const navigate = useNavigate()
-  const { copyToClipboard } = useCopyToClipboard();
   // Check if this is a recent assistant message (created within last 30 seconds)
-  const isRecentAssistantMessage = isAssistantMessage && 
-    message.createdAt && 
-    (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
-
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      setIsShouldShowCopyButton(true);
-    }, 350)
-  }
-
-  const handleMouseLeave = () => {
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      setIsShouldShowCopyButton(false);
-    }, 200)
-  }
-
-  const handleCopy = async (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, text: string) => {
-    e.preventDefault();
-    await copyToClipboard(text);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 1000);
-  }
-
-  const handlePlaySound = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-    e.preventDefault()
-    navigate(`messages/${message.id}?playSound=true`)
-  }
+  const isRecentAssistantMessage = isAssistantMessage && message.createdAt && (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
 
   if (!message.content) return null;
 
@@ -165,42 +130,11 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.25 }}
           >
-            <Link onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
+            <Link to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
               <ChatBubble.Text animate={isRecentAssistantMessage}>
                 {message.content}
               </ChatBubble.Text>
               {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
-
-              <AnimatePresence initial={false}>
-                {isShouldShowCopyButton && (
-                  <motion.div
-                    initial={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-10%' : '10%', transform: 'scale(0.9)' }}
-                    animate={{ opacity: 1, x: 0, transform: 'scale(1)'}}
-                    exit={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-20%' : '20%', transform: 'scale(0.9)' }}
-                    transition={{ duration: 0.18 }}
-                    className={cn('pl-5  absolute top-1/2 -translate-y-1/2', message.role === 'ASSISTANT' ? '-right-12' : '-left-[68px]')}
-                  >
-                    <div
-                      className='flex flex-col gap-1.5 justify-center items-center rounded-full px-1 py-2 border border-neutral-04 bg-white'
-                    >
-                      <span
-                        onClick={(e) => handleCopy(e, message.content)}
-                        className='opacity-70 transition-opacity hover:opacity-100'
-                      >
-                        {isCopied ? <Icons.copied className='w-7 h-7'/> : <Icons.copy className='w-7 h-7'/>}
-                      </span>
-                      <div className='w-11/12 h-px bg-neutral-03'/>
-
-                      <span
-                        onClick={(e) => handlePlaySound(e)}
-                        className='opacity-60 transition-opacity hover:opacity-100'
-                      >
-                         <Icons.sound className='w-7 h-7'/>
-                      </span>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </Link>
           </motion.div>
         </ChatBubble.Message>
