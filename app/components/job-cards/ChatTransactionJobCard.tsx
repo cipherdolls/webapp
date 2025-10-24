@@ -63,11 +63,29 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                       },
                       {
                         label: 'From Address',
-                        value: <span>{transaction.fromAddress.slice(0, 12)}...</span>,
+                        value: transaction.fromAddress ? (
+                          <a
+                            href={`https://optimistic.etherscan.io/address/${transaction.fromAddress}`}
+                            className='underline'
+                            target='_blank'
+                            rel='noreferrer noopener'
+                          >
+                            {transaction.fromAddress.slice(0, 6)}...
+                          </a>
+                        ) : 'N/A'
                       },
                       {
                         label: 'To Address',
-                        value: <span>{transaction.toAddress.slice(0, 12)}...</span>,
+                        value: transaction.toAddress ? (
+                          <a
+                            href={`https://optimistic.etherscan.io/address/${transaction.toAddress}`}
+                            className='underline'
+                            target='_blank'
+                            rel='noreferrer noopener'
+                          >
+                            {transaction.toAddress.slice(0, 6)}...
+                          </a>
+                        ) : 'N/A'
                       },
                       {
                         label: 'Time Taken',
@@ -86,11 +104,11 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                             target='_blank'
                             rel='noreferrer noopener'
                           >
-                            {transaction.txHash.slice(0, 12)}...
+                            {transaction.txHash.slice(0, 6)}...
                           </a>
                         ) : (
                           'N/A'
-                        ),
+                        )
                       },
                       // {
                       //   label: 'Status',
