@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
 import type { User } from '~/types';
 import type { Route } from './+types/_main._general.avatars';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { getPicture } from '~/utils/getPicture';
@@ -61,6 +61,8 @@ export default function AvatarsShow() {
   const [searchParams, setSearchParams] = useSearchParams();
   const me = useRouteLoaderData('routes/_main') as User;
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const scrollContainerRef = React.useRef<HTMLElement | null>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
@@ -126,6 +128,28 @@ export default function AvatarsShow() {
 
   const handleClearFilters = () => {
     setSearchParams({ published: 'true' });
+  };
+
+  useEffect(() => {
+    const scrollContainer = document.querySelector('main.overflow-y-scroll') as HTMLElement;
+    scrollContainerRef.current = scrollContainer;
+
+    const handleScroll = () => {
+      if (scrollContainer) {
+        setShowBackToTop(scrollContainer.scrollTop > 300);
+      }
+    };
+
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  const scrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -299,6 +323,16 @@ export default function AvatarsShow() {
 
         <Outlet />
       </div>
+
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-6 right-6 z-50 p-3 bg-gradient-1 text-base-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${
+          showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+        aria-label='Back to top'
+      >
+        <Icons.chevronDown className='size-6 rotate-180' />
+      </button>
     </div>
   );
 }
