@@ -1,4 +1,4 @@
-import {  useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import SelectionModal from './SelectionModal';
 import type { Avatar, Chat, Scenario } from '~/types';
 import { cn } from '~/utils/cn';
@@ -6,7 +6,7 @@ import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import { ROUTES } from '~/constants';
 
@@ -48,12 +48,34 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
   }, []);
 
   //  TODO: Move this logic to the backend of the delete avatar!!
+  const handleItemSelect = (item: Avatar) => {
+    setSelectedAvatar(item);
+  };
+
+  // Auto-select first avatar when modal opens
+  useEffect(() => {
+    if (isOpen && !selectedAvatar) {
+      // First try to select from recommended avatars
+      if (scenario.avatars && scenario.avatars.length > 0) {
+        setSelectedAvatar(scenario.avatars[0]);
+      }
+      // If no recommended avatars, select first from all avatars
+      else if (avatars && avatars.length > 0) {
+        setSelectedAvatar(avatars[0]);
+      }
+    }
+  }, [isOpen, selectedAvatar, scenario.avatars, avatars]);
+
+  // Reset selection when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedAvatar(null);
+    }
+  }, [isOpen]);
 
   const handleCreateChat = async () => {
     if (selectedAvatar) {
       const hasChatWithSameScenario = selectedAvatar.chats?.find((chat) => chat.scenarioId === scenario.id);
-
-      console.log(hasChatWithSameScenario);
 
       if (hasChatWithSameScenario) {
         const confirmResult = await confirm({
@@ -96,7 +118,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
 
   return (
     <SelectionModal
-    type='avatar'
+      type='avatar'
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       selectedAvatar={selectedAvatar}
@@ -108,15 +130,17 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
       fetchNextPage={fetchNextPage}
       isFetchingNextPage={isFetchingNextPage}
       items={avatars}
-      renderItem={(item: Avatar) => {
-        const isRecommended = item.scenarios?.some((avatarScenario) => avatarScenario.id === scenario.id);
+      recommendedItems={scenario.avatars ?? []}
+      renderItem={(item: Avatar, isRecommended?: boolean) => {
+        const isRecommendedItem = isRecommended || scenario.avatars?.some((scenarioAvatar) => scenarioAvatar.id === item.id);
+        const isSelected = selectedAvatar?.id === item.id;
         return (
           <AvatarItem
             key={item.id}
             item={item}
-            isSelected={selectedAvatar?.id === item.id}
-            isRecommended={isRecommended ?? false}
-            onClick={() => setSelectedAvatar(item)}
+            isSelected={isSelected}
+            isRecommended={isRecommendedItem ?? false}
+            onClick={() => handleItemSelect(item)}
           />
         );
       }}

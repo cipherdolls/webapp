@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import type { Avatar, Scenario } from '~/types';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
@@ -46,12 +46,36 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
     setSearchTerm(value);
   }, []);
 
+  const handleItemSelect = (item: Scenario) => {
+    setSelectedScenario(item);
+  };
+
+  // Auto-select first scenario when modal opens
+  useEffect(() => {
+    if (isOpen && !selectedScenario) {
+      // First try to select from recommended scenarios
+      if (avatar.scenarios && avatar.scenarios.length > 0) {
+        setSelectedScenario(avatar.scenarios[0]);
+      }
+      // If no recommended scenarios, select first from all scenarios
+      else if (scenarios && scenarios.length > 0) {
+        setSelectedScenario(scenarios[0]);
+      }
+    }
+  }, [isOpen, selectedScenario, avatar.scenarios, scenarios]);
+
+  // Reset selection when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedScenario(null);
+    }
+  }, [isOpen]);
+
   //  TODO: Move this logic to the backend of the delete avatar!!
   const handleCreateChat = async () => {
     if (selectedScenario) {
       const hasChatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario.id);
 
-      
       if (hasChatWithSameScenario) {
         const confirmResult = await confirm({
           icon: '🗑️',
@@ -105,16 +129,17 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
       fetchNextPage={fetchNextPage}
       isFetchingNextPage={isFetchingNextPage}
       items={scenarios}
-      renderItem={(item: Scenario) => {
-        
-        const isRecommended = item.avatars?.some((scenarioAvatar) => scenarioAvatar.id === avatar.id);
+      recommendedItems={avatar.scenarios ?? []}
+      renderItem={(item: Scenario, isRecommended?: boolean) => {
+        const isRecommendedItem = isRecommended || avatar.scenarios?.some((scenarioAvatar) => scenarioAvatar.id === item.id);
+        const isSelected = selectedScenario?.id === item.id;
         return (
           <ScenarioItem
             key={item.id}
             item={item}
-            isSelected={selectedScenario?.id === item.id}
-            isRecommended={isRecommended ?? false}
-            onClick={() => setSelectedScenario(item)}
+            isSelected={isSelected}
+            isRecommended={isRecommendedItem ?? false}
+            onClick={() => handleItemSelect(item)}
           />
         );
       }}
@@ -145,6 +170,7 @@ const ScenarioItem = ({
         'flex items-start gap-3 p-3 rounded-xl border transition-all text-left w-full relative',
         isSelected ? 'border-blue-500 bg-blue-50' : 'border-neutral-04 hover:border-neutral-03 hover:bg-neutral-05'
       )}
+      disabled={isSelected}
     >
       <div className='relative'>
         <img
