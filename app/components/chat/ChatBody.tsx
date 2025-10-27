@@ -96,11 +96,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
           return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
         })}
 
-        {isShouldShowChatBubble && (
-          <ChatBubble.Root>
-            <ChatBubble.Message isLoading />
-          </ChatBubble.Root>
-        )}
+        {/*{isShouldShowChatBubble && (*/}
+        {/*  <ChatBubble.Root>*/}
+        {/*    <ChatBubble.Message isLoading />*/}
+        {/*  </ChatBubble.Root>*/}
+        {/*)}*/}
       </div>
     </div>
   );
