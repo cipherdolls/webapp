@@ -12,7 +12,72 @@ import Header from '~/components/website/Header';
 import { apiUrl } from '~/constants';
 import type { Scenario } from '~/types';
 import GuestMode from '~/components/website/GuestMode';
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '~/store/useAuthStore';
 const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
+
+export function meta() {
+  return [
+    { title: 'CipherDolls - Where Privacy Meets Anonymous AI Chat' },
+    {
+      name: 'description',
+      content: 'Chat with AI avatars without compromising your privacy. Completely anonymous, no personal data collected, no subscriptions. Pay only for what you use with LOV tokens. Unique AI personalities and custom scenarios.',
+    },
+    {
+      name: 'keywords',
+      content: 'privacy AI chat, anonymous AI chat, private AI conversations, LOV tokens, pay per message AI, Web3 AI chat, MetaMask AI chat, crypto AI chat, secure AI chat, confidential AI chat, avatar chat, AI roleplay, private chatbot',
+    },
+    // Open Graph
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'CipherDolls - Where Privacy Meets Anonymous AI Chat' },
+    {
+      property: 'og:description',
+      content: 'Chat with avatars without compromising your privacy. Completely anonymous AI chat with unique personalities. Pay per message with LOV tokens. No personal data, no subscriptions.',
+    },
+    { property: 'og:image', content: 'https://cipherdolls.com/logo.svg' },
+    { property: 'og:url', content: 'https://cipherdolls.com' },
+    { property: 'og:site_name', content: 'CipherDolls' },
+    // Twitter Card
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'CipherDolls - Privacy-First Anonymous AI Chat' },
+    {
+      name: 'twitter:description',
+      content: 'Chat with AI avatars without compromising your privacy. Completely anonymous, pay only for what you use with LOV tokens. No personal data collected.',
+    },
+    { name: 'twitter:image', content: 'https://cipherdolls.com/logo.svg' },
+    // Canonical
+    { tagName: 'link', rel: 'canonical', href: 'https://cipherdolls.com' },
+    // Structured Data
+    {
+      'script:ld+json': {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'CipherDolls',
+        description: 'Where Privacy Meets Anonymous AI Chat',
+        url: 'https://cipherdolls.com',
+        applicationCategory: 'CommunicationApplication',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+          description: 'Start chatting for free',
+        },
+        featureList: [
+          'Completely anonymous AI chat',
+          'No personal data collected',
+          'Pay only for what you use with LOV tokens',
+          'No subscriptions',
+          'MetaMask wallet integration',
+          'Custom AI avatars with unique personalities',
+          'Voice chat support',
+          'Custom conversation scenarios',
+          'Spending limit controls',
+          'Complete privacy guarantee',
+        ],
+      },
+    },
+  ];
+}
 
 export async function loader() {
   const avatarRes = await fetch(`${apiUrl}/avatars/${FREYA_AVATAR_ID}`, {
@@ -47,13 +112,20 @@ export async function loader() {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { avatar, avatars, scenarios } = loaderData;
+  const { verifyToken } = useAuthStore();
+  const [isVerifying, setIsVerifying] = useState(true);
 
-  // Referral is now handled by useWalletAuth hook when user clicks "Start Chat for Free"
-  // No redirect needed here
+  useEffect(() => {
+    const verify = async () => {
+      await verifyToken();
+      setIsVerifying(false);
+    };
+    verify();
+  }, [verifyToken]);
 
   return (
     <>
-      <Header />
+      <Header isVerifying={isVerifying} />
       <div>
         <Hero avatar={avatar} />
         <CompanyLogos />

@@ -111,17 +111,19 @@ export default function TtsProviderEdit({ params }: Route.ComponentProps) {
                   <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
                     <div className='flex items-center justify-between w-full'>
                       <div
-                        className={cn(
-                          'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                          (selectedImage || ttsProvider.picture) && 'divide-x divide-neutral-04 gap-4'
-                        )}
+                        className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
                       >
                         {selectedImage !== null && (
-                          <button type='button' className='pr-4 relative z-10' onClick={handleTrashClick}>
+                          <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
                             <Icons.trash className='text-black' />
                           </button>
                         )}
-                        <Icons.fileUpload className='cursor-pointer' onClick={() => fileInputRef.current?.click()} />
+                        {selectedImage &&
+                          <div className='h-6 w-px bg-neutral-04'/>
+                        }
+                        <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()} >
+                          <Icons.fileUpload />
+                        </button>
                       </div>
                     </div>
                   </div>

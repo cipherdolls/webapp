@@ -103,8 +103,7 @@ describe('DashboardBanner error handling', () => {
     mockUseUser.mockReturnValue(mockUseUserResult);
 
     const { container } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="This should not be visible on error"
         showEditLink={false}
       />
@@ -131,8 +130,7 @@ describe('DashboardBanner error handling', () => {
     mockUseUser.mockReturnValue(mockUseUserResult);
 
     const { container } = renderWithQuery(
-      <DashboardBanner 
-        variant="danger"
+      <DashboardBanner
         description="Server error occurred"
       />
     );
@@ -157,8 +155,7 @@ describe('DashboardBanner error handling', () => {
     mockUseUser.mockReturnValue(mockUseUserResult);
 
     const { container } = renderWithQuery(
-      <DashboardBanner 
-        variant="warning"
+      <DashboardBanner
         description="Network issues"
       />
     );
@@ -178,8 +175,7 @@ describe('DashboardBanner error handling', () => {
     mockUseUser.mockReturnValue(errorUseUserResult);
 
     const { container, rerender } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Loading..."
       />
     );
@@ -194,12 +190,11 @@ describe('DashboardBanner error handling', () => {
       isError: false,
       error: null,
     });
-    
+
     mockUseUser.mockReturnValue(loadingUseUserResult);
 
     rerender(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Loading..."
       />
     );
@@ -220,8 +215,7 @@ describe('DashboardBanner error handling', () => {
     mockUseUser.mockReturnValue(errorUseUserResult);
 
     const { container, rerender } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Recovery test"
       />
     );
@@ -237,19 +231,18 @@ describe('DashboardBanner error handling', () => {
       isSuccess: true,
       error: null,
     });
-    
+
     mockUseUser.mockReturnValue(successUseUserResult);
 
     rerender(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Recovery successful"
         showEditLink={true}
       />
     );
 
     // Should render normally after recovery
-    expect(screen.getByRole('heading')).toHaveTextContent('👋 Hey, Recovered User');
+    expect(screen.getByRole('heading')).toHaveTextContent('Hey, Recovered User');
     expect(screen.getByText('Recovery successful')).toBeInTheDocument();
     
     // ✅ INTEGRATION TEST: Real UserEditModal should be present but not visible
@@ -263,46 +256,6 @@ describe('DashboardBanner error handling', () => {
     // We test that the button exists - user interaction test would be separate
   });
 
-  it('should handle error state with different banner variants', async () => {
-    const mockUseUserResult = createMockUseUserResult({
-      data: undefined,
-      isPending: false,
-      isError: true,
-      error: new Error('Test error'),
-    });
-    
-    mockUseUser.mockReturnValue(mockUseUserResult);
-
-    // Test welcome variant
-    const { container: welcomeContainer, rerender } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
-        description="Welcome error"
-      />
-    );
-
-    errorAssertions.expectNullRender(welcomeContainer);
-
-    // Test danger variant  
-    rerender(
-      <DashboardBanner 
-        variant="danger"
-        description="Danger error"
-      />
-    );
-
-    errorAssertions.expectNullRender(welcomeContainer);
-
-    // Test warning variant
-    rerender(
-      <DashboardBanner 
-        variant="warning"
-        description="Warning error"
-      />
-    );
-
-    errorAssertions.expectNullRender(welcomeContainer);
-  });
 
   it('should handle error state with showEditLink enabled', async () => {
     const mockUseUserResult = createMockUseUserResult({
@@ -311,12 +264,11 @@ describe('DashboardBanner error handling', () => {
       isError: true,
       error: new Error('User load error'),
     });
-    
+
     mockUseUser.mockReturnValue(mockUseUserResult);
 
     const { container } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Error with edit link"
         showEditLink={true}
       />
@@ -333,12 +285,11 @@ describe('DashboardBanner error handling', () => {
       isError: true,
       error: new Error('Null description error'),
     });
-    
+
     mockUseUser.mockReturnValue(mockUseUserResult);
 
     const { container } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description={null}
       />
     );
@@ -355,12 +306,11 @@ describe('DashboardBanner error handling', () => {
       isSuccess: false,
       error: new Error('Initial error'),
     });
-    
+
     mockUseUser.mockReturnValue(errorUseUserResult);
 
     const { container, rerender } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Error state test"
       />
     );
@@ -376,12 +326,11 @@ describe('DashboardBanner error handling', () => {
       isSuccess: false,
       error: null,
     });
-    
+
     mockUseUser.mockReturnValue(loadingUseUserResult);
 
     rerender(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Loading after error"
       />
     );
@@ -400,12 +349,11 @@ describe('DashboardBanner error handling', () => {
       isSuccess: false,
       error: null,
     });
-    
+
     mockUseUser.mockReturnValue(initialUseUserResult);
 
     const { container } = renderWithQuery(
-      <DashboardBanner 
-        variant="welcome"
+      <DashboardBanner
         description="Initial state test"
       />
     );

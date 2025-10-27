@@ -10,6 +10,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { ANIMATE_CHAT_ITEMS, ROUTES } from '~/constants';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
+import AvatarPicture from '~/components/AvatarPicture';
+import { getPicture } from '~/utils/getPicture';
 
 interface ChatsSidebarProps {
   chats: Chat[];
@@ -131,10 +133,10 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                       </AvatarCard.Content>
                     </AvatarCard>
                     <div className='flex items-center gap-2 pr-2'>
-                      {group.chats.length > 1 && (
+                      {group.chats.length > 0 && (
                         <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{group.chats.length}</span>
                       )}
-                      {group.chats.length > 1 && (
+                      {group.chats.length > 0 && (
                         <Icons.chevronDown
                           className={cn('size-4 text-neutral-01 transition-transform', {
                             'rotate-180': expandedAvatars.has(group.avatar.id),
@@ -160,16 +162,29 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                             key={chat.id}
                             to={`${ROUTES.chats}/${chat.id}`}
                             className={({ isActive }) => (
-                              cn('block rounded-lg m-px p-3 duration-300 transition-colors',
+                              cn('flex gap-2 items-center rounded-lg m-px p-3 duration-300 transition-colors',
                                 isActive && ' border border-neutral-04 sm:bg-neutral-05',
                                 !isActive && 'border-transparent hover:bg-neutral-05'
                               )
                             )}
                           >
-                            <div className='flex items-center gap-3'>
-                              <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
+                            {chat.scenario.picture ? (
+                              <img
+                                src={getPicture(chat.scenario, 'scenarios', false)}
+                                srcSet={getPicture(chat.scenario, 'scenarios', true)}
+                                alt={chat.scenario.name}
+                                className='size-10 object-cover rounded-full'
+                              />
+                            ) : (
+                              <Icons.fileUploadIcon className='size-10 rounded-full border p-0.5 border-neutral-04 ' />
+                            )}
+
+                            <div className='flex flex-col'>
+                              <div className='flex items-center gap-3'>
+                                <span className='text-body-sm font-medium truncate'>{chat.scenario.name}</span>
+                              </div>
+                              <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
                             </div>
-                            <div className='text-xs text-neutral-01 mt-1 truncate'>{new Date(chat.updatedAt).toLocaleString()}</div>
                           </NavLink>
                         ))}
 

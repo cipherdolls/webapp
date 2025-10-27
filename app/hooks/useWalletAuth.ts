@@ -27,7 +27,7 @@ const WALLET_AUTH_ERRORS = {
   CONNECTION_REJECTED: {
     icon: '❌',
     title: 'Connection Rejected',
-    body: 'MetaMask connection was rejected. Please try again and approve the connection in MetaMask.',
+    body: 'You rejected the request in MetaMask. To sign in, please approve the connection and sign the message when MetaMask asks.',
     actionButton: {
       label: 'Try Again',
       action: () => {} // Will be set dynamically
@@ -35,8 +35,8 @@ const WALLET_AUTH_ERRORS = {
   },
   SIGNATURE_TIMEOUT: {
     icon: '⏰',
-    title: 'MetaMask Signature Timeout',
-    body: 'MetaMask signature is taking too long. Please open MetaMask manually, enter your password, and try signing in again.',
+    title: 'Waiting for MetaMask',
+    body: 'Please check your MetaMask extension. You may need to unlock it or approve the signature request. The MetaMask popup might be hidden behind other windows.',
     actionButton: {
       label: 'Try Again',
       action: () => {} // Will be set dynamically
@@ -171,16 +171,42 @@ Issued At: ${timestamp}
     setIsLoading(true);
 
     try {
-      // Check for MetaMask
       if (!window.ethereum) {
+        setIsLoading(false);
         await showErrorAlert(alert, WALLET_AUTH_ERRORS.META_MASK_NOT_FOUND);
         return;
       }
 
-      // Request account access
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      let accounts;
+      try {
+        accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-      // Get nonce from backend
+        if (!accounts || accounts.length === 0) {
+          setIsLoading(false);
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.NO_ACCOUNTS_FOUND, () => signIn());
+          return;
+        }
+      } catch (accountError: any) {
+        const errorMessage = accountError?.message?.toLowerCase() || '';
+        const errorCode = accountError?.code;
+
+        if (
+          errorCode === 4001 ||
+          errorMessage.includes('user rejected') ||
+          errorMessage.includes('user denied') ||
+          errorMessage.includes('user cancelled')
+        ) {
+          setIsLoading(false);
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_REJECTED, () => signIn());
+          return;
+        }
+
+        console.error('MetaMask permission error:', accountError);
+        setIsLoading(false);
+        await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_FAILED, () => signIn());
+        return;
+      }
+
       const nonceRes = await fetch(`${apiUrl}/auth/nonce`);
       const { nonce } = await nonceRes.json();
 
@@ -192,21 +218,44 @@ Issued At: ${timestamp}
       // Create sign-in message
       const message = getAuthMessage(address, nonce);
 
-      // Request signature with timeout
       let signedMessage;
       try {
-        const signaturePromise = signer.signMessage(message);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Signature timeout')), 15000)
+        const messageHex = ethers.hexlify(ethers.toUtf8Bytes(message));
+
+        const signaturePromise = window.ethereum.request({
+          method: 'personal_sign',
+          params: [messageHex, address],
+        });
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Signature timeout')), 60000)
         );
         
         signedMessage = await Promise.race([signaturePromise, timeoutPromise]) as string;
-      } catch (signError) {
+      } catch (signError: any) {
+        const errorMessage = signError?.message?.toLowerCase() || '';
+        const errorCode = signError?.code;
         if (signError instanceof Error && signError.message === 'Signature timeout') {
+          setIsLoading(false);
           await showErrorAlert(alert, WALLET_AUTH_ERRORS.SIGNATURE_TIMEOUT, () => signIn());
           return;
         }
-        throw signError;
+
+        if (
+          errorCode === 4001 ||
+          errorMessage.includes('user rejected') ||
+          errorMessage.includes('user denied') ||
+          errorMessage.includes('user cancelled')
+        ) {
+          setIsLoading(false);
+          await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_REJECTED, () => signIn());
+          return;
+        }
+
+        console.error('Signature error:', signError);
+        setIsLoading(false);
+        await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_FAILED, () => signIn());
+        return;
       }
 
       // Send to backend
@@ -230,32 +279,17 @@ Issued At: ${timestamp}
       await handleSuccessfulAuth(token, false);
     } catch (err) {
       console.error('Sign-in error:', err);
-      
-      // Handle specific error cases with user-friendly messages
-      if (err instanceof Error) {
-        if (err.message.includes('User rejected')) {
-          await showErrorAlert(alert, WALLET_AUTH_ERRORS.CONNECTION_REJECTED, () => signIn());
-        } else if (err.message.includes('MetaMask not found')) {
-          await showErrorAlert(alert, WALLET_AUTH_ERRORS.META_MASK_NOT_FOUND);
-        } else if (err.message.includes('Signature timeout')) {
-          await showErrorAlert(alert, WALLET_AUTH_ERRORS.SIGNATURE_TIMEOUT, () => signIn());
-        } else if (err.message.includes('No accounts found')) {
-          await showErrorAlert(alert, WALLET_AUTH_ERRORS.NO_ACCOUNTS_FOUND, () => signIn());
-        } else {
-          // Custom error message for connection failed
-          await alert({
-            icon: '⚠️',
-            title: 'Connection Failed',
-            body: `MetaMask connection failed: ${err.message}. Please make sure MetaMask is unlocked and try again.`,
-            actionButton: {
-              label: 'Try Again',
-              action: () => signIn()
-            }
-          });
+      setIsLoading(false);
+
+      await alert({
+        icon: '⚠️',
+        title: 'Connection Failed',
+        body: 'An unexpected error occurred during sign-in. Please try again.',
+        actionButton: {
+          label: 'Try Again',
+          action: () => signIn()
         }
-      } else {
-        await showErrorAlert(alert, WALLET_AUTH_ERRORS.UNKNOWN_ERROR, () => signIn());
-      }
+      });
     } finally {
       setIsLoading(false);
     }

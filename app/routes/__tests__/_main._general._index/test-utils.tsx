@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { User, Chat, AvatarsPaginated } from '~/types';
 import type { ReactElement, ReactNode } from 'react';
+import { BrowserRouter } from 'react-router';
 // Import global MSW server from setupTests
 import { server } from '../../../setupTests';
 
@@ -31,14 +32,22 @@ export function renderWithQuery(ui: ReactElement, options?: Omit<RenderOptions, 
   const queryClient = createTestQueryClient();
 
   return render(ui, {
-    wrapper: ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>,
+    wrapper: ({ children }) => (
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </BrowserRouter>
+    ),
     ...options,
   });
 }
 
 export function createWrapper(queryClient?: QueryClient) {
   const client = queryClient || createTestQueryClient();
-  return ({ children }: { children: ReactNode }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  return ({ children }: { children: ReactNode }) => (
+    <BrowserRouter>
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    </BrowserRouter>
+  );
 }
 
 // ========================
@@ -61,7 +70,11 @@ export function renderHookWithQuery<TResult, TProps>(
   const client = queryClient || createTestQueryClient();
 
   return renderHook(hook, {
-    wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    wrapper: ({ children }) => (
+      <BrowserRouter>
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      </BrowserRouter>
+    ),
     ...renderOptions,
   });
 }

@@ -7,7 +7,9 @@ import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import DashboardCard from './DashboardCard';
-import { ROUTES } from '~/constants';
+import { ANIMATE_DURATION, ROUTES } from '~/constants';
+import { motion } from 'motion/react';
+import { useMediaQuery } from 'usehooks-ts';
 
 function YourScenariosSkeleton() {
   return (
@@ -27,11 +29,16 @@ function YourScenariosSkeleton() {
 
 const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true' });
+  const isLaptop = useMediaQuery('(min-width: 640px) and (max-width: 1024px)');
+  const isMobile = useMediaQuery('(max-width: 640px)');
 
   const scenarios = scenariosPaginated?.data || [];
 
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
+
+  const defaultScenarioHeight = (isLaptop && 236) || (isMobile && 284) || 204;
+  const initScenariosContainerHeight = scenarios.length <= 2 ? defaultScenarioHeight : defaultScenarioHeight * 2;
 
   const handleShowAll = () => {
     setShowAll(!showAll);
@@ -44,7 +51,8 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
   return (
     <div className='flex flex-col gap-5'>
       <h3 className='text-heading-h3 text-base-black'>Your Scenarios</h3>
-      <div className={cn('bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col', hasScenarios && '!pt-0')}>
+
+      <div className={cn('bg-gradient-1 rounded-xl p-2 pt-2 flex flex-col overflow-y-hidden', hasScenarios && '!pt-0')}>
         {hasScenarios ? (
           <>
             <div className='grid grid-cols-2 divide-x py-4 divide-neutral-04'>
@@ -65,9 +73,15 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
                 </div>
               </Link>
             </div>
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+
+            <motion.div
+              initial={false}
+              animate={{ height: !showAll ? initScenariosContainerHeight : 'auto' }}
+              transition={ANIMATE_DURATION}
+              className='grid grid-cols-1 sm:grid-cols-2 gap-x-2 -mt-2'
+            >
               {scenarios.map((scenario, index) => (
-                <div className={`${!showAll && index >= 4 ? 'hidden' : 'transition-all duration-500 ease-out'}`} key={index}>
+                <div className='pt-2' key={index}>
                   <DashboardCard item={scenario} type='scenarios' to={`${ROUTES.scenarios}/${scenario.id}`}>
                     <div className='flex flex-col gap-1 min-w-0 flex-1'>
                       <div className='flex items-center gap-2'>
@@ -87,7 +101,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
                   </DashboardCard>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </>
         ) : (
           <div className='bg-gradient-1 rounded-xl py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6 col-span-2'>
@@ -104,6 +118,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
           </div>
         )}
       </div>
+
       {scenarios.length > 4 && (
         <div className='mx-auto -mt-2'>
           <Button.Root variant='secondary' className='px-4 h-10 gap-2' onClick={handleShowAll}>

@@ -38,7 +38,7 @@ export interface User {
   character: string;
   tokenBalance?: number;
   tokenAllowance: number;
-  referralCount?: number
+  referralCount?: number;
 }
 
 export interface TokenPermitsPaginated {
@@ -179,6 +179,15 @@ export interface Scenario {
   nsfw?: boolean;
 }
 
+export interface Sponsorship {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  scenarioId: string;
+  user?: User;
+}
+
 export interface Chat {
   id: string;
   userId: string;
@@ -280,6 +289,22 @@ export interface ChatCompletionJob {
   chatModel: ChatModel;
 }
 
+export interface Transaction {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  toAddress: string;
+  fromAddress: string;
+  amountWei: string;
+  txHash: string;
+  type: string;
+  nonce: number;
+  timeTakenMs: number;
+  error: string | null;
+  messageId: string;
+  processEvents?: ProcessEvent[];
+}
+
 export interface TransactionJob {
   id: string;
   createdAt: Date;
@@ -290,7 +315,8 @@ export interface TransactionLeg {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  to: string;
+  toAddress: string;
+  fromAddress: string;
   amountWei: string;
   txHash: string;
   type: string;
@@ -350,15 +376,17 @@ export interface Avatar {
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
-  introductionAudio: string
-  chats?: [{
-    id: string;
-    scenarioId: string;
-    sttProviderId: string; 
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-  }];
+  introductionAudio: string;
+  chats?: [
+    {
+      id: string;
+      scenarioId: string;
+      sttProviderId: string;
+      createdAt: Date;
+      updatedAt: Date;
+      userId: string;
+    },
+  ];
   language: string;
   scenarios?: Scenario[];
   gender: Gender;
@@ -393,7 +421,6 @@ export interface ProcessEvent {
   jobStatus: 'active' | 'completed' | 'failed' | 'retrying';
   resourceAttributes?: any;
 }
-
 
 export interface HttpError extends Error {
   statusCode?: number;

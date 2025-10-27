@@ -4,6 +4,11 @@ import { scientificNumConvert } from '~/utils/scientificNumConvert';
 
 const ChatSTTJobCard = ({ message }: { message: Message }) => {
   const sttJob = message?.sttJob;
+
+  if (!sttJob) {
+    return null;
+  }
+
   return (
     <DataCard.Root>
       <DataCard.Label>STT Job</DataCard.Label>
@@ -11,18 +16,18 @@ const ChatSTTJobCard = ({ message }: { message: Message }) => {
         <DataCard.ItemDataGrid data={[
           {
             label: 'STT Provider',
-            value: sttJob.sttProvider?.name,
-          },         
+            value: sttJob?.sttProvider?.name ?? 'N/A',
+          },
          ]} />
          <DataCard.Divider />
          <DataCard.ItemDataGrid data={[
           {
             label: 'Time Taken',
-            value: `${sttJob.timeTakenMs} ms`,
+            value: sttJob?.timeTakenMs ? `${sttJob.timeTakenMs} ms` : '--',
           },
           {
             label: 'Cost (USD)',
-            value: `$${scientificNumConvert(sttJob.usdCost)}`,
+            value: `$${scientificNumConvert(sttJob?.usdCost ?? 0)}`,
           },
          ]} />
       </DataCard.Wrapper>

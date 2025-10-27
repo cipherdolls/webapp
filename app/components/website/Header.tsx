@@ -2,6 +2,8 @@ import React from 'react';
 import * as Button from '~/components/ui/button/button';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
 import { useAuthStore } from '~/store/useAuthStore';
+import { useNavigate } from 'react-router';
+import { ROUTES } from '~/constants';
 
 const navigationItems = [
   {
@@ -30,15 +32,24 @@ const navigationItems = [
   },
 ];
 
-const Header = () => {
+const Header = ({ isVerifying = false }: { isVerifying?: boolean }) => {
   const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
   const { isAuthenticated, isUsingBurnerWallet } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleNavigationItemClick = (e: React.MouseEvent<HTMLButtonElement>, elementId: string) => {
     e.preventDefault();
     document.getElementById(elementId)?.scrollIntoView({
       behavior: 'smooth',
     });
+  };
+
+  const handleCtaClick = () => {
+    if (isAuthenticated) {
+      navigate(ROUTES.chats);
+    } else {
+      signIn();
+    }
   };
 
   return (
@@ -72,7 +83,7 @@ const Header = () => {
                   className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
                   size='sm'
                   onClick={signIn}
-                  disabled={isLoading}
+                  disabled={isLoading || isVerifying}
                 >
                   {isUsingBurnerWallet ? 'Continue with MetaMask' : 'Go to Chats'}
                 </Button.Root>
@@ -84,9 +95,9 @@ const Header = () => {
                   className='gradient-move px-6 md:px-8 md:py-5.5 min-w-[160px] md:min-w-[200px]'
                   size='sm'
                   onClick={signIn}
-                  disabled={isLoading}
+                  disabled={isLoading || isVerifying}
                 >
-                  {isLoading ? 'Connecting...' : 'Start Chat for Free'}
+                  {isVerifying || isLoading ? 'Loading...' : 'Start Chat for Free'}
                 </Button.Root>
               </>
             )}

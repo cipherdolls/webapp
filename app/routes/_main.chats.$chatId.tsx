@@ -11,8 +11,24 @@ import { ChatJob, type ChatJobType } from '~/components/chat/types/chatState';
 import { useChat } from '~/hooks/queries/chatQueries';
 import { ROUTES } from '~/constants';
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Chats' }];
+export function meta({ data }: Route.MetaArgs) {
+  const chatData = data as { data?: { avatar?: { name?: string } } } | undefined;
+  const avatarName = chatData?.data?.avatar?.name || 'AI Avatar';
+
+  return [
+    { title: `Chat with ${avatarName} - CipherDolls` },
+    {
+      name: 'description',
+      content: `Anonymous private conversation with ${avatarName}. Pay per message with LOV tokens. Voice chat and text messaging available.`,
+    },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: `Chat with ${avatarName} - CipherDolls` },
+    {
+      property: 'og:description',
+      content: `Have an anonymous conversation with ${avatarName}. Complete privacy guaranteed. Pay per message with LOV tokens.`,
+    },
+    { name: 'robots', content: 'noindex, nofollow' },
+  ];
 }
 
 export default function ChatShow({ params }: Route.ComponentProps) {
@@ -40,7 +56,7 @@ export default function ChatShow({ params }: Route.ComponentProps) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    enabled: !!chatData?.id,  
+    enabled: !!chatData?.id,
   });
 
   // Redirect to chats index if chat doesn't exist or user doesn't have access

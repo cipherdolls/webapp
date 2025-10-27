@@ -5,6 +5,35 @@ import type { Route } from './+types/root';
 import './app.css';
 import { CustomToaster } from './components/ui/toast';
 
+export function meta() {
+  return [
+    { charset: 'utf-8' },
+    { title: 'CipherDolls - Where Privacy Meets Anonymous AI Chat' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    {
+      name: 'description',
+      content: 'Chat with AI avatars without compromising your privacy. Completely anonymous, no personal data collected. Pay only for what you use with LOV tokens. No subscriptions.',
+    },
+    // Open Graph
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'CipherDolls - Where Privacy Meets Anonymous AI Chat' },
+    {
+      property: 'og:description',
+      content: 'Chat with avatars without compromising your privacy. Completely anonymous AI chat platform. Pay per message with LOV tokens. No personal data, no subscriptions.',
+    },
+    { property: 'og:image', content: 'https://cipherdolls.com/logo.svg' },
+    { property: 'og:url', content: 'https://cipherdolls.com' },
+    { property: 'og:site_name', content: 'CipherDolls' },
+    // Twitter Card
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'CipherDolls - Privacy-First Anonymous AI Chat' },
+    {
+      name: 'twitter:description',
+      content: 'Chat with AI avatars without compromising your privacy. Completely anonymous, pay per message with LOV tokens. No personal data collected.',
+    },
+    { name: 'twitter:image', content: 'https://cipherdolls.com/logo.svg' },
+  ];
+}
 
 export const links: Route.LinksFunction = () => [
   {
@@ -24,8 +53,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en' className='scroll-smooth'>
       <head>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
         <Meta />
         <Links />
       </head>

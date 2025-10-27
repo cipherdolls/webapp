@@ -2,6 +2,7 @@ import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
 import React, { useEffect, useMemo, useRef } from 'react';
+import Jazzicon from 'react-jazzicon';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
@@ -58,16 +59,13 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     };
   }, []);
 
-
-  if(avatarLoading) {
+  if (avatarLoading) {
     return null;
   }
 
   if (avatarError || !avatar) {
     return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
   }
-
-
 
   const handleCreateChat = (scenarioId: string) => {
     createChat(
@@ -83,21 +81,38 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     );
   };
 
+  const getCreatorSeed = () => {
+    if (avatar.userId === user.id && user.signerAddress) {
+      return parseInt(user.signerAddress.slice(2, 10), 16);
+    }
+
+    let hash = 0;
+    const userId = avatar.userId || '';
+    for (let i = 0; i < userId.length; i++) {
+      hash = (hash << 5) - hash + userId.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  };
+
+  const creatorSeed = getCreatorSeed();
+
   return (
     <>
       <div className='flex flex-col sm:gap-10 gap-4 md:gap-16 w-full '>
         <div className='flex items-center justify-between sm:px-0 px-4.5'>
-          <Link to={`${avatar.userId === user.id ? `${ROUTES.avatars}?mine=true` : ROUTES.avatars}`} className='flex items-center gap-3 sm:gap-4'>
-            <Icons.chevronLeft className='hover:bg-white/40 rounded-full'/>
+          <Link
+            to={`${avatar.userId === user.id ? `${ROUTES.avatars}?mine=true` : ROUTES.avatars}`}
+            className='flex items-center gap-3 sm:gap-4'
+          >
+            <Icons.chevronLeft className='hover:bg-white/40 rounded-full' />
             <div className='flex sm:items-center sm:flex-row flex-col flex-wrap sm:gap-3 gap-1'>
               <h3 className='text-body-sm font-semibold sm:text-heading-h3 text-base-black whitespace-nowrap hover:underline transition-all duration-200'>
                 {formatModelName(avatar.name)}
               </h3>
               <span className='text-neutral-01 text-body-lg sm:block hidden'>•</span>
               <span
-                className={cn('text-neutral-01 text-body-sm truncate max-w-60 sm:text-body-lg',
-                  avatar.userId !== user.id && 'max-w-72'
-                )}
+                className={cn('text-neutral-01 text-body-sm truncate max-w-60 sm:text-body-lg', avatar.userId !== user.id && 'max-w-72')}
               >
                 {getTextAfterThe(avatar.shortDesc)}
               </span>
@@ -293,7 +308,11 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
               <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
-                <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
+                {user.signerAddress ? (
+                  <Jazzicon diameter={40} seed={creatorSeed} />
+                ) : (
+                  <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
+                )}
                 <div className='flex flex-col gap-1 min-w-0 flex-1'>
                   <p className='text-body-lg font-semibold text-base-black text-left truncate'>
                     {isPublished ? 'Published' : 'Your Special'}

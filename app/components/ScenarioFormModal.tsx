@@ -1,6 +1,6 @@
 import { useRouteLoaderData } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import type { Scenario, Gender, Avatar, User } from '~/types';
+import type { Avatar, Gender, Scenario, User } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
@@ -62,6 +62,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const [scenarioData, setScenarioData] = useState({
     picture: scenario?.picture ?? null,
     published: scenario?.published ?? false,
+    nsfw: scenario?.nsfw ?? false,
     userGender: scenario?.userGender ?? defaultScenarioData.userGender,
     avatarGender: scenario?.avatarGender ?? defaultScenarioData.avatarGender,
     temperature: scenario?.temperature ?? defaultScenarioData.temperature,
@@ -262,18 +263,22 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     </label>
                     <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
                       <div className='flex items-center justify-between w-full'>
-                        <div
-                          className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'
-                        >
+                        <div className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'>
                           {selectedImage !== null && (
-                            <button type='button' className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
+                            <button
+                              type='button'
+                              className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
+                              onClick={handleTrashClick}
+                            >
                               <Icons.trash className='text-black' />
                             </button>
                           )}
-                          {(selectedImage || scenario?.picture) &&
-                            <div className='h-6 w-px bg-neutral-04'/>
-                          }
-                          <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()}>
+                          {(selectedImage || scenario?.picture) && <div className='h-6 w-px bg-neutral-04' />}
+                          <button
+                            type='button'
+                            className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
+                            onClick={() => fileInputRef.current?.click()}
+                          >
                             <Icons.fileUpload />
                           </button>
                         </div>
@@ -754,7 +759,9 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
-                <div className={cn('p-1 bg-neutral-05 grid grid-cols-2 rounded-xl', scenario?.published && 'opacity-50 cursor-not-allowed')}>
+                <div
+                  className={cn('p-1 bg-neutral-05 grid grid-cols-2 rounded-xl', scenario?.published && 'opacity-50 cursor-not-allowed')}
+                >
                   <button
                     type='button'
                     disabled={scenario?.published}
@@ -782,10 +789,39 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </div>
                 <input type='hidden' name='published' value={scenarioData.published ? 'true' : 'false'} />
                 <p className='text-xs text-gray-500'>
-                  {scenario?.published 
+                  {scenario?.published
                     ? 'If scenario is published it cannot be unpublished or deleted.'
-                    : 'Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.'
-                  }
+                    : 'Anyone in the system can use public scenarios. Once published, you will no longer be able to edit or delete your scenario.'}
+                </p>
+              </Input.Root>
+
+              <Input.Root>
+                <Input.Label htmlFor='nsfw'>Content Rating</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      !scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', false)}
+                  >
+                    Safe for Work
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', true)}
+                  >
+                    🔞 NSFW
+                  </button>
+                </div>
+                <input type='hidden' name='nsfw' value={scenarioData.nsfw ? 'true' : 'false'} />
+                <p className='text-xs text-gray-500'>
+                  Mark this scenario as NSFW (Not Safe For Work) if it contains adult or mature content.
                 </p>
               </Input.Root>
             </div>

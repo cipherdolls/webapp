@@ -33,7 +33,28 @@ function AvatarSkeleton({ count = 2 }: { count?: number }) {
 }
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Avatars' }];
+  return [
+    { title: 'Avatars - Unique Personalities & Voice Chat | CipherDolls' },
+    {
+      name: 'description',
+      content:
+        'Browse avatars with rich personalities and backstories. Unique voice patterns, emotional depth, and sophisticated conversation abilities. Create your own or choose from public avatars. No email required.',
+    },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'Avatars with Unique Personalities | CipherDolls' },
+    {
+      property: 'og:description',
+      content:
+        'Meticulously crafted avatars with unique personalities, voices, and conversation styles. Browse public avatars or create your own custom AI companions.',
+    },
+    { property: 'og:url', content: 'https://cipherdolls.com/avatars' },
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:title', content: 'Avatars | CipherDolls' },
+    {
+      name: 'keywords',
+      content: 'avatars, AI personalities, voice AI, custom AI characters, AI companions, roleplay AI, character AI',
+    },
+  ];
 }
 
 export default function AvatarsShow() {

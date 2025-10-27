@@ -32,7 +32,28 @@ function ScenarioSkeleton({ count = 2 }: { count?: number }) {
 }
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Scenarios' }];
+  return [
+    { title: 'Scenarios - Custom Roleplay & Conversation Settings | CipherDolls' },
+    {
+      name: 'description',
+      content:
+        'Create custom AI conversation scenarios and roleplay contexts. Choose from public scenarios or build your own unique interaction settings. Configure AI models, voice settings, and personality parameters for each scenario.',
+    },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'Scenarios - Custom Roleplay Settings | CipherDolls' },
+    {
+      property: 'og:description',
+      content:
+        'Explore and create custom AI scenarios with unique conversation contexts, roleplay settings, and AI model configurations. Anonymous and private.',
+    },
+    { property: 'og:url', content: 'https://cipherdolls.com/scenarios' },
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:title', content: 'Scenarios | CipherDolls' },
+    {
+      name: 'keywords',
+      content: 'AI scenarios, AI roleplay, custom AI contexts, AI conversation settings, AI story scenarios, character AI scenarios',
+    },
+  ];
 }
 
 export default function ScenariosIndex() {
@@ -301,6 +322,7 @@ export default function ScenariosIndex() {
                                 content={scenario.embeddingModel.error}
                                 className='max-w-[350px]'
                                 popoverClassName='max-w-[320px]'
+                                variant='light'
                               />
                             )}
 

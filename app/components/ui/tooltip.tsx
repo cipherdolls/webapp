@@ -26,6 +26,7 @@ type TooltipProps = {
   side?: TooltipSide | ResponsiveSide;
   align?: 'start' | 'center' | 'end';
   popoverClassName?: string;
+  variant?: 'light' | 'dark';
   className?: string;
 };
 
@@ -39,6 +40,7 @@ export const Tooltip = ({
   side = 'top',
   align = 'center',
   popoverClassName,
+  variant = 'dark',
   className,
 }: TooltipProps) => {
   const isResponsiveSide = typeof side === 'object';
@@ -93,6 +95,7 @@ export const Tooltip = ({
           delayDuration={delayDuration}
           side={currentSide}
           align={align}
+          variant={variant}
           className={className}
         />
       </div>
@@ -176,6 +179,7 @@ const DesktopView = ({
   delayDuration,
   side,
   align,
+  variant,
   className,
 }: Omit<TooltipProps, 'side'> & { side: TooltipSide }) => {
   return (
@@ -190,6 +194,7 @@ const DesktopView = ({
             align={align}
             className={cn(
               'z-50 overflow-hidden break-words backdrop-blur-xl rounded-[10px] bg-neutral-03 px-3 py-2 font-semibold text-label text-base-black animate-tooltip-toggle fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+              variant === 'light' && 'bg-white/80 border  border-neutral-04 shadow',
               className
             )}
             sideOffset={5}

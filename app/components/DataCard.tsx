@@ -22,6 +22,7 @@ interface DataCardLabelProps {
   children: React.ReactNode;
   className?: string;
   extra?: React.ReactNode;
+  isExtraExpended?: boolean;
 }
 
 interface DataCardWrapperProps {
@@ -100,11 +101,11 @@ const DataCardRoot: React.FC<DataCardRootProps> = ({ children, className }) => {
 };
 
 /** Label component for the DataCard */
-const DataCardLabel: React.FC<DataCardLabelProps> = ({ children, className, extra }) => {
+const DataCardLabel: React.FC<DataCardLabelProps> = ({ children, className, extra, isExtraExpended }) => {
   return (
     <div className={cnExt('flex items-center justify-between mb-4 px-0 gap-3', className)}>
       <h3 className={cn('text-heading-h3', className)}>{children}</h3>
-      {extra && <div className='flex items-end max-w-[40%] text-right'>{extra}</div>}
+      {extra && <div className={cn('flex items-end max-w-[40%] text-right', isExtraExpended && 'max-w-full')}>{extra}</div>}
     </div>
   );
 };

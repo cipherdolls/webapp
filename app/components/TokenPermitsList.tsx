@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
 
 import { Icons } from '~/components/ui/icons';
-import moment from 'moment';
 import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
@@ -13,6 +12,8 @@ import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 
 import * as Button from '~/components/ui/button/button';
+import { motion } from 'motion/react';
+import { uniswapUrl } from '~/constants';
 
 function TokenPermitsListSkeleton() {
   return (
@@ -154,7 +155,7 @@ const TokenPermitsList = () => {
             </div>
           </div>
         ) : (
-          <div className='p-3 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
+          <div className='p-3 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:shadow-md transition-all'>
             <div className='flex items-center gap-3'>
               <button className='sm:size-10 size-8 flex text-2xl items-center justify-center bg-black/5 backdrop-blur-48 rounded-full relative shrink-0'>
                 💰
@@ -166,12 +167,25 @@ const TokenPermitsList = () => {
 
                 <div className='space-y-2'>
                   <div className='w-full bg-neutral-04 rounded-full h-2'>
-                    <div
-                      className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300'
-                      style={{
-                        width: `${progressPercentage}%`,
-                      }}
-                    />
+                    <motion.div
+                      layout
+                      initial={{ width: '1px' }}
+                      animate={{ width: progressPercentage + '%' }}
+                      transition={{ duration: 1.5 }}
+                      className='h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full relative overflow-hidden'
+                    >
+                      <motion.div
+                        className='absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent'
+                        animate={{
+                          x: ['-100%', '200%'],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -191,10 +205,7 @@ const TokenPermitsList = () => {
         )}
       </div>
 
-      <a
-        href={'https://app.uniswap.org/explore/pools/optimism/0x6d0f116c3c01fa4e20f1b122124927587e9e56d092513f444aba98811e59063d'}
-        target={'_blank'}
-      >
+      <a href={uniswapUrl} target={'_blank'}>
         <Button.Root variant='primary' className='w-full'>
           Get LOV Token
         </Button.Root>

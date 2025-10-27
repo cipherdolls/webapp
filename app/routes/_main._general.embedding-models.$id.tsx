@@ -14,7 +14,10 @@ import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Embedding Model' }];
+  return [
+    { title: 'Embedding Model' },
+    { name: 'robots', content: 'noindex' },
+  ];
 }
 
 export default function aiProviderShow({ params }: Route.ComponentProps) {
