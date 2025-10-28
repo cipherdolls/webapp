@@ -21,7 +21,8 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
       <div className='flex items-center gap-2'>
         {embeddingJob?.embeddingModel?.error && (
           <Tooltip
-            side={'top'}
+            side='top'
+            variant='error'
             trigger={<Icons.warning className='size-5 text-specials-danger mb-4' />}
             content={embeddingJob.embeddingModel.error}
             popoverClassName='max-w-[320px]'

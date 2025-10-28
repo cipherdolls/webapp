@@ -228,7 +228,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                             {chat.scenario.chatModel.error && (
                               <div className='flex gap-1'>
                                 <Tooltip
-                                  side={'top'}
+                                  side='top'
+                                  variant='error'
                                   trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                   content={chat.scenario.chatModel.error}
                                   popoverClassName='max-w-[320px]'
@@ -254,7 +255,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                             {chat.scenario.embeddingModel.error && (
                               <div className='flex gap-1'>
                                 <Tooltip
-                                  side={'top'}
+                                  side='top'
+                                  variant='error'
                                   trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                   content={chat.scenario.embeddingModel.error}
                                   popoverClassName='max-w-[320px]'
@@ -283,7 +285,8 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                                 {chat.scenario.reasoningModel.error && (
                                   <div className='flex gap-1'>
                                     <Tooltip
-                                      side={'top'}
+                                      side='top'
+                                      variant='error'
                                       trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                       content={chat.scenario.reasoningModel.error}
                                       popoverClassName='max-w-[320px]'
