@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { apiUrl, ROUTES } from '~/constants';
+import { burnerWalletManager } from '~/utils/burnerWallet';
+import { clearQueryCache } from '~/utils/queryCache';
 
 interface AuthState {
   token: string | null;
@@ -10,6 +12,7 @@ interface AuthState {
   isOnboardWizardCompleted: boolean;
   redirectAfterSignIn: string | null;
   referralId: string | null;
+  isUsingBurnerWallet: boolean;
 }
 
 interface AuthActions {
@@ -21,6 +24,9 @@ interface AuthActions {
   setRedirectAfterSignIn: (url: string | null) => void;
   setReferralId: (id: string | null) => void;
   setOnboardWizardCompleted: (value: boolean) => void;
+  setUsingBurnerWallet: (value: boolean) => void;
+  clearBurnerWallet: () => void;
+  logoutFromBurnerWallet: () => void;
 }
 
 interface AuthStore extends AuthState, AuthActions {}
@@ -35,6 +41,7 @@ export const useAuthStore = create<AuthStore>()(
       isOnboardWizardCompleted: false,
       redirectAfterSignIn: null,
       referralId: null,
+      isUsingBurnerWallet: false,
 
       // Actions
       setToken: (token) =>
@@ -62,8 +69,9 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           console.warn('Logout API call failed:', error);
         } finally {
-          // Always clear auth state
+          // Always clear auth state and query cache
           clearAuth();
+          clearQueryCache(); // Clear React Query cache on logout
 
           // Redirect to homepage
           window.location.href = ROUTES.index;
@@ -140,6 +148,42 @@ export const useAuthStore = create<AuthStore>()(
         set((state) => {
           state.isOnboardWizardCompleted = value;
         }),
+
+      setUsingBurnerWallet: (value) =>
+        set((state) => {
+          state.isUsingBurnerWallet = value;
+        }),
+
+      clearBurnerWallet: () => {
+        // Clear burner wallet from localStorage
+        burnerWalletManager.clearWallet();
+        
+        // Update state
+        set((state) => {
+          state.isUsingBurnerWallet = false;
+        });
+      },
+
+      logoutFromBurnerWallet: () => {
+        // Clear burner wallet
+        burnerWalletManager.clearWallet();
+        
+        // Clear auth state
+        set((state) => {
+          state.token = null;
+          state.isAuthenticated = false;
+          state.isLoading = false;
+          state.redirectAfterSignIn = null;
+          state.referralId = null;
+          state.isUsingBurnerWallet = false;
+        });
+        
+        // Clear React Query cache
+        clearQueryCache();
+        
+        // Redirect to homepage
+        window.location.href = ROUTES.index;
+      },
     })),
     {
       name: 'auth-storage',
@@ -149,10 +193,19 @@ export const useAuthStore = create<AuthStore>()(
         isOnboardWizardCompleted: state.isOnboardWizardCompleted,
         redirectAfterSignIn: state.redirectAfterSignIn,
         referralId: state.referralId,
+        isUsingBurnerWallet: state.isUsingBurnerWallet,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Sync burner wallet state with localStorage
+        if (typeof window !== 'undefined' && state) {
+          const hasBurnerWallet = localStorage.getItem('burner_wallet') !== null;
+          state.isUsingBurnerWallet = hasBurnerWallet;
+        }
+      },
     }
   )
 );
+
 
 // Helper function to get token for fetchWithAuth
 export const getToken = () => useAuthStore.getState().token;
