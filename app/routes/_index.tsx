@@ -19,6 +19,8 @@ const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
 export function meta() {
   return [
+    { charset: 'utf-8' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
     { title: 'CipherDolls - Where Privacy Meets Anonymous AI Chat' },
     {
       name: 'description',
