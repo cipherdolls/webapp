@@ -9,6 +9,7 @@ import Features from '~/components/website/Features';
 import CTA from '~/components/website/CTA';
 import Footer from '~/components/website/Footer';
 import Header from '~/components/website/Header';
+import AIModelBanner from '~/components/website/AIModelBanner';
 import { apiUrl } from '~/constants';
 import type { Scenario } from '~/types';
 import GuestMode from '~/components/website/GuestMode';
@@ -18,6 +19,8 @@ const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
 export function meta() {
   return [
+    { charset: 'utf-8' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
     { title: 'CipherDolls - Where Privacy Meets Anonymous AI Chat' },
     {
       name: 'description',
@@ -80,20 +83,23 @@ export function meta() {
 }
 
 export async function loader() {
-  const avatarRes = await fetch(`${apiUrl}/avatars/${FREYA_AVATAR_ID}`, {
-    method: 'GET',
-  });
-  const avatarsRes = await fetch(`${apiUrl}/avatars`, {
-    method: 'GET',
-  });
+  const [avatarRes, avatarsRes, scenariosRes, aiProvidersRes, ttsProvidersRes, sttProvidersRes] = await Promise.all([
+    fetch(`${apiUrl}/avatars/${FREYA_AVATAR_ID}`, { method: 'GET' }),
+    fetch(`${apiUrl}/avatars`, { method: 'GET' }),
+    fetch(`${apiUrl}/scenarios`, { method: 'GET' }),
+    fetch(`${apiUrl}/ai-providers`, { method: 'GET' }),
+    fetch(`${apiUrl}/tts-providers`, { method: 'GET' }),
+    fetch(`${apiUrl}/stt-providers`, { method: 'GET' }),
+  ]);
 
-  const scenariosRes = await fetch(`${apiUrl}/scenarios`, {
-    method: 'GET',
-  });
-
-  const avatar = await avatarRes.json();
-  const avatars = await avatarsRes.json();
-  const scenarios = await scenariosRes.json();
+  const [avatar, avatars, scenarios, aiProvidersData, ttsProviders, sttProviders] = await Promise.all([
+    avatarRes.json(),
+    avatarsRes.json(),
+    scenariosRes.json(),
+    aiProvidersRes.json(),
+    ttsProvidersRes.json(),
+    sttProvidersRes.json(),
+  ]);
 
   // Filter out scenarios with errors in their models. TODO: Change this logic on the backend
   const scenariosWithoutErrors = {
@@ -107,11 +113,14 @@ export async function loader() {
     avatar,
     avatars,
     scenarios: scenariosWithoutErrors,
+    aiProviders: aiProvidersData.data || [],
+    ttsProviders: ttsProviders || [],
+    sttProviders: sttProviders || [],
   };
 }
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { avatar, avatars, scenarios } = loaderData;
+  const { avatar, avatars, scenarios, aiProviders, ttsProviders, sttProviders } = loaderData;
   const { verifyToken } = useAuthStore();
   const [isVerifying, setIsVerifying] = useState(true);
 
@@ -128,6 +137,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       <Header isVerifying={isVerifying} />
       <div>
         <Hero avatar={avatar} />
+        <AIModelBanner aiProviders={aiProviders} ttsProviders={ttsProviders} sttProviders={sttProviders} />
         <CompanyLogos />
         <HowItWorks />
         <Steps />
