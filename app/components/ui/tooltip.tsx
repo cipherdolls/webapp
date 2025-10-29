@@ -204,16 +204,16 @@ const DesktopView = ({
             side={side}
             align={align}
             className={cn(
-              'z-50 break-words backdrop-blur-xl shadow rounded-[10px] bg-neutral-03 px-3 py-2 font-semibold text-label text-base-black animate-tooltip-toggle fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-              variant === 'light' && 'bg-white/80 border  border-neutral-04',
-              variant === 'error' && 'bg-specials-danger/10 text-specials-danger border border-specials-danger',
+              'z-50 break-words backdrop-blur-xl shadow rounded-[10px] border-neutral-03 bg-neutral-03 px-3 py-2 font-semibold text-label text-base-black animate-tooltip-toggle fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+              variant === 'light' && 'bg-white/80  border-neutral-04',
+              variant === 'error' && 'bg-specials-danger/10 text-specials-danger border-specials-danger',
               className
             )}
             sideOffset={5}
           >
             {content}
             {side === 'top' && (
-              <div className={cn('absolute -bottom-[12px] left-1/2 transform rotate-180 -translate-x-1/2 w-0 h-0 border-6 border-transparent border-b-neutral-03 pointer-events-none',
+              <div className={cn('-z-10 absolute -bottom-3 left-1/2 transform rotate-180 -translate-x-1/2 w-0 h-0 border-6 border-transparent border-b-neutral-03 pointer-events-none',
                   variant === 'light' && 'border-b-white/80',
                   variant === 'error' && 'border-b-specials-danger'
                 )}

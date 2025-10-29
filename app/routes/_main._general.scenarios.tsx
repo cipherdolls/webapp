@@ -15,6 +15,7 @@ import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { ROUTES } from '~/constants';
+import { cn } from '~/utils/cn';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -283,18 +284,70 @@ export default function ScenariosIndex() {
                           </div>
                         )}
                         {(scenario.userGender || scenario.avatarGender) && (
-                          <div className='absolute top-2 right-2 z-10'>
+                          <div className='absolute bottom-2 left-2 z-10'>
                             <div className='flex items-center gap-1'>
-                              {scenario.userGender && (
-                                <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
-                                  👤 {scenario.userGender}
-                                </div>
-                              )}
-                              {scenario.avatarGender && (
-                                <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
-                                  🤖 {scenario.avatarGender}
-                                </div>
-                              )}
+
+                              <Tooltip
+                                side={'top'}
+                                variant='light'
+                                trigger={
+                                  <div className={cn('flex gap-1 py-1 px-2 rounded-full text-label text-base-black font-semibold',
+                                    scenario.userGender === 'Male' && 'bg-[#069cf3]' ,
+                                    scenario.userGender === 'Female' && 'bg-[#FF85B7]',
+                                    scenario.userGender === 'Other' && 'bg-gradient-1'
+                                  )}
+                                  >
+                                    { scenario.userGender === 'Male' && '🧔🏻‍♂️' ||
+                                      scenario.userGender === 'Female' && '👩🏻' ||
+                                      scenario.userGender === 'Other' && '👤'
+                                    }
+
+                                    <span>{scenario.userGender}</span>
+                                  </div>
+                                }
+                                content='User gender for this scenario'
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+
+                              <Tooltip
+                                side={'top'}
+                                variant='light'
+                                trigger={
+                                  <div className={cn('flex gap-1 py-1 px-2 rounded-full text-label text-base-black font-semibold',
+                                    scenario.avatarGender === 'Male' && 'bg-[#069cf3]',
+                                    scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',
+                                    scenario.avatarGender === 'Other' && 'bg-gradient-1'
+                                  )}
+                                  >
+                                    { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||
+                                      scenario.avatarGender === 'Female' && '👩🏻' ||
+                                      scenario.avatarGender === 'Other' && '🤖'
+                                    }
+
+                                    <span>{scenario.avatarGender}</span>
+                                  </div>
+                                }
+                                content='AI gender for this scenario'
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+
+                              {/*{scenario.avatarGender && (*/}
+                              {/*  <div className={cn('flex gap-1 py-1 px-2 rounded-full text-label text-base-black font-semibold',*/}
+                              {/*    scenario.avatarGender === 'Male' && 'bg-[#069cf3]',*/}
+                              {/*    scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',*/}
+                              {/*    scenario.avatarGender === 'Other' && 'bg-gradient-1'*/}
+                              {/*    )}*/}
+                              {/*  >*/}
+                              {/*    { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||*/}
+                              {/*      scenario.avatarGender === 'Female' && '👩🏻' ||*/}
+                              {/*      scenario.avatarGender === 'Other' && '🤖'*/}
+                              {/*    }*/}
+
+                              {/*    <span>{scenario.avatarGender}</span>*/}
+                              {/*  </div>*/}
+                              {/*)}*/}
                             </div>
                           </div>
                         )}
@@ -307,7 +360,8 @@ export default function ScenariosIndex() {
 
                             {scenario.chatModel.error && (
                               <Tooltip
-                                side={'top'}
+                                side='top'
+                                variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={scenario.chatModel.error}
                                 className='max-w-[350px]'
@@ -317,18 +371,19 @@ export default function ScenariosIndex() {
 
                             {scenario.embeddingModel.error && (
                               <Tooltip
-                                side={'top'}
+                                side='top'
+                                variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={scenario.embeddingModel.error}
                                 className='max-w-[350px]'
                                 popoverClassName='max-w-[320px]'
-                                variant='light'
                               />
                             )}
 
                             {scenario.reasoningModel?.error && (
                               <Tooltip
-                                side={'top'}
+                                side='top'
+                                variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={scenario.reasoningModel?.error}
                                 className='max-w-[350px]'
