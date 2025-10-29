@@ -1,22 +1,19 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
 import ChatDateDivider from './ui/ChatDateDivider';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
 import { cn } from '~/utils/cn';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useMediaQuery } from 'usehooks-ts';
-import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+import { motion } from 'framer-motion';
 
 interface ChatBodyProps {
   messages: Message[];
   loadMoreMessages: () => void;
   isLoading: boolean;
   isLoadingMessages: boolean;
-  isShouldShowChatBubble: boolean
   hasMore: boolean;
 }
 
@@ -28,7 +25,7 @@ function MessagesLoader() {
   );
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isShouldShowChatBubble, isLoading, hasMore }) => {
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
   const prevMessagesLengthRef = useRef<number>(0);
