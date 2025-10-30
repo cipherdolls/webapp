@@ -227,16 +227,17 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
                             <DataCard.Item collapsible href={getRowUrl(model)}>
                               <DataCard.ItemLabel>
                                 <span className='flex items-center gap-2'>
+                                  {formatModelName(model.providerModelName)}
+                                  <RecommendedBadge recommended={model.recommended} tooltipText='Recommended' />
                                   {model.error && (
                                     <Tooltip
-                                      side={'top'}
+                                      side='top'
+                                      variant='error'
                                       trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                       content={model.error}
                                       popoverClassName='max-w-[350px]'
                                     />
                                   )}
-                                  {formatModelName(model.providerModelName)}
-                                  <RecommendedBadge recommended={model.recommended} tooltipText='Recommended' />
                                 </span>
                               </DataCard.ItemLabel>
                               <DataCard.ItemCollapsibleContent>

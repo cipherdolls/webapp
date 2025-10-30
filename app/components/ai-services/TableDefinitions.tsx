@@ -20,7 +20,8 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
         )}
         {data.error && (
           <Tooltip
-            side={'top'}
+            side='top'
+            variant='error'
             trigger={<Icons.warning className='size-4 text-specials-danger' />}
             content={data.error}
             className='max-w-[350px]'
@@ -83,7 +84,8 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
         )}
         {data.error && (
           <Tooltip
-            side={'top'}
+            side='top'
+            variant='error'
             trigger={<Icons.warning className='size-4 text-specials-danger' />}
             content={data.error}
             className='max-w-[350px]'
@@ -146,7 +148,8 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
         )}
         {data.error && (
           <Tooltip
-            side={'top'}
+            side='top'
+            variant='error'
             trigger={<Icons.warning className='size-4 text-specials-danger' />}
             content={data.error}
             className='max-w-[350px]'
