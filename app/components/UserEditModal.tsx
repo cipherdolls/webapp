@@ -8,7 +8,7 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import { cn } from '~/utils/cn';
 import { useUpdateUser } from '~/hooks/queries/userMutations';
 import * as Select from '~/components/ui/input/select';
-import { ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY, LANGUAGES } from '~/constants';
+import { ANIMATE_DURATION, ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY, LANGUAGES } from '~/constants';
 import { motion } from 'framer-motion';
 
 interface UserEditModalProps {
@@ -158,7 +158,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
 
                       <motion.div
                         layout
-                        transition={{ duration: 0.25 }}
+                        transition={ANIMATE_DURATION}
                         className={cn(
                           'absolute top-1 w-1/2 max-w-[188px] h-10 bg-white rounded-xl',
                           gender === 'Female' ? 'left-1' : 'right-1'

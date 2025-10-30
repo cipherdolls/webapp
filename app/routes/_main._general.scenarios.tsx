@@ -235,6 +235,7 @@ export default function ScenariosIndex() {
                   <Icons.chevronDown className='size-4' />
                 </Button.Root>
               </Popover.Trigger>
+
               <Popover.Content className='w-64 p-0'>
                 <div className='p-4 space-y-6'>
                   {/* User Gender Filter */}
@@ -246,7 +247,7 @@ export default function ScenariosIndex() {
                           <RadioGroup.Item value={filter} id={`user-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`user-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                          <label htmlFor={`user-${filter}`} className='text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-out hover:text-base-black'>
                             {filter}
                           </label>
                         </div>
@@ -263,7 +264,7 @@ export default function ScenariosIndex() {
                           <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`avatar-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                          <label htmlFor={`avatar-${filter}`} className='text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-in hover:text-base-black'>
                             {filter}
                           </label>
                         </div>
@@ -310,68 +311,51 @@ export default function ScenariosIndex() {
                         {(scenario.userGender || scenario.avatarGender) && (
                           <div className='absolute bottom-2 left-2 z-10'>
                             <div className='flex items-center gap-1'>
+                              <div className='flex rounded-full overflow-hidden text-label text-base-black font-semibold'>
+                                <Tooltip
+                                  side='top'
+                                  variant='light'
+                                  trigger={
+                                    <div className={cn('flex py-1 px-2 gap-0.5',
+                                      scenario.userGender === 'Male' && 'bg-[#069cf3]' ,
+                                      scenario.userGender === 'Female' && 'bg-[#FF85B7]',
+                                      scenario.userGender === 'Other' && 'bg-gradient-1'
+                                    )}
+                                    >
+                                      { scenario.userGender === 'Male' && '🧔🏻‍♂️' ||
+                                        scenario.userGender === 'Female' && '👩🏻' ||
+                                        scenario.userGender === 'Other' && '👤'
+                                      }
+                                      <span>{scenario.userGender}</span>
+                                    </div>
+                                  }
+                                  content='User gender for this scenario'
+                                  className='max-w-[350px]'
+                                  popoverClassName='max-w-[320px]'
+                                />
 
-                              <Tooltip
-                                side={'top'}
-                                variant='light'
-                                trigger={
-                                  <div className={cn('flex gap-1 py-1 px-2 rounded-full text-label text-base-black font-semibold',
-                                    scenario.userGender === 'Male' && 'bg-[#069cf3]' ,
-                                    scenario.userGender === 'Female' && 'bg-[#FF85B7]',
-                                    scenario.userGender === 'Other' && 'bg-gradient-1'
-                                  )}
-                                  >
-                                    { scenario.userGender === 'Male' && '🧔🏻‍♂️' ||
-                                      scenario.userGender === 'Female' && '👩🏻' ||
-                                      scenario.userGender === 'Other' && '👤'
-                                    }
-
-                                    <span>{scenario.userGender}</span>
-                                  </div>
-                                }
-                                content='User gender for this scenario'
-                                className='max-w-[350px]'
-                                popoverClassName='max-w-[320px]'
-                              />
-
-                              <Tooltip
-                                side={'top'}
-                                variant='light'
-                                trigger={
-                                  <div className={cn('flex gap-1 py-1 px-2 rounded-full text-label text-base-black font-semibold',
-                                    scenario.avatarGender === 'Male' && 'bg-[#069cf3]',
-                                    scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',
-                                    scenario.avatarGender === 'Other' && 'bg-gradient-1'
-                                  )}
-                                  >
-                                    { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||
-                                      scenario.avatarGender === 'Female' && '👩🏻' ||
-                                      scenario.avatarGender === 'Other' && '🤖'
-                                    }
-
-                                    <span>{scenario.avatarGender}</span>
-                                  </div>
-                                }
-                                content='AI gender for this scenario'
-                                className='max-w-[350px]'
-                                popoverClassName='max-w-[320px]'
-                              />
-
-                              {/*{scenario.avatarGender && (*/}
-                              {/*  <div className={cn('flex gap-1 py-1 px-2 rounded-full text-label text-base-black font-semibold',*/}
-                              {/*    scenario.avatarGender === 'Male' && 'bg-[#069cf3]',*/}
-                              {/*    scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',*/}
-                              {/*    scenario.avatarGender === 'Other' && 'bg-gradient-1'*/}
-                              {/*    )}*/}
-                              {/*  >*/}
-                              {/*    { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||*/}
-                              {/*      scenario.avatarGender === 'Female' && '👩🏻' ||*/}
-                              {/*      scenario.avatarGender === 'Other' && '🤖'*/}
-                              {/*    }*/}
-
-                              {/*    <span>{scenario.avatarGender}</span>*/}
-                              {/*  </div>*/}
-                              {/*)}*/}
+                                <Tooltip
+                                  side='top'
+                                  variant='light'
+                                  trigger={
+                                    <div className={cn('flex py-1 px-2 gap-0.5',
+                                      scenario.avatarGender === 'Male' && 'bg-[#069cf3]',
+                                      scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',
+                                      scenario.avatarGender === 'Other' && 'bg-gradient-1'
+                                    )}
+                                    >
+                                      { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||
+                                        scenario.avatarGender === 'Female' && '👩🏻' ||
+                                        scenario.avatarGender === 'Other' && '🤖'
+                                      }
+                                      <span>{scenario.avatarGender}</span>
+                                    </div>
+                                  }
+                                  content='AI gender for this scenario'
+                                  className='max-w-[350px]'
+                                  popoverClassName='max-w-[320px]'
+                                />
+                              </div>
                             </div>
                           </div>
                         )}
