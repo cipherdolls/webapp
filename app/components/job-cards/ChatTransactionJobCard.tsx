@@ -39,7 +39,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
       <DataCard.Wrapper>
         <Accordion.Root type='single' collapsible className='w-full'>
           {transactions.map((transaction, index) => (
-            <Accordion.Item key={index} value={transaction.txHash}>
+            <Accordion.Item key={index} value={transaction.id}>
               {index > 0 && <DataCard.Divider />}
 
               <Accordion.Trigger

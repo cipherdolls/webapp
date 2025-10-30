@@ -5,8 +5,7 @@ import * as Textarea from '~/components/ui/input/textarea';
 import Multiselect from '~/components/ui/input/multiselect';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
-import { useRef, useState } from 'react';
-import SelectVoiceModal from '~/components/selectVoiceModal';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
@@ -15,6 +14,7 @@ import type { Avatar, Gender, Scenario, TtsVoice } from '~/types';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
+import { AnimatePresence, motion } from 'motion/react';
 
 // TODO: Create all the scenarios or create a page with a new ui.
 
@@ -46,7 +46,16 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isVoiceListExpanded, setIsVoiceListExpanded] = useState(false);
+  const [voiceGenderFilter, setVoiceGenderFilter] = useState<'All' | Gender>('All');
   const isNew = !avatar;
+
+  // Set default voice when voices are loaded
+  useEffect(() => {
+    if (!avatar?.ttsVoice && voices.length > 0 && !avatarData.ttsVoice) {
+      updateAvatarData('ttsVoice', voices[0]);
+    }
+  }, [voices, avatar?.ttsVoice]);
 
   const updateAvatarData = (field: keyof typeof avatarData, value: any) => {
     setAvatarData((prev) => ({ ...prev, [field]: value }));
@@ -55,6 +64,11 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   const handleVoiceChange = (voice: TtsVoice) => {
     updateAvatarData('ttsVoice', voice);
   };
+
+  const filteredVoices = useMemo(() => {
+    if (voiceGenderFilter === 'All') return voices;
+    return voices.filter((voice) => voice.gender === voiceGenderFilter);
+  }, [voices, voiceGenderFilter]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -301,25 +315,187 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
               </Input.Root>
 
               <Input.Root>
-                <Input.Label htmlFor='voice'>Voice</Input.Label>
-                <div className='flex items-center justify-between mb-3'>
-                  <span className='text-sm text-gray-500'>Select a voice for the avatar</span>
-                  <SelectVoiceModal ttsVoices={voices} selectedVoice={avatarData.ttsVoice} onVoiceChange={handleVoiceChange} />
+                <div className='flex items-center justify-between min-h-9'>
+                  <Input.Label htmlFor='voice' className='mb-0'>
+                    Voice
+                  </Input.Label>
+
+                  <AnimatePresence mode='wait'>
+                    {!isVoiceListExpanded ? (
+                      <motion.button
+                        key='change-button'
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        type='button'
+                        onClick={() => setIsVoiceListExpanded(true)}
+                        className='text-body-sm font-semibold text-neutral-01 hover:text-base-black transition-colors'
+                      >
+                        Change
+                      </motion.button>
+                    ) : (
+                      <motion.div
+                        key='gender-filter'
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className='flex items-center gap-1 p-1 bg-neutral-05 rounded-lg'
+                      >
+                        <button
+                          type='button'
+                          className={cn(
+                            'px-3 py-1.5 text-xs font-semibold rounded-md transition-colors',
+                            voiceGenderFilter === 'All' ? 'bg-white text-base-black' : 'text-neutral-01'
+                          )}
+                          onClick={() => setVoiceGenderFilter('All')}
+                        >
+                          All
+                        </button>
+                        <button
+                          type='button'
+                          className={cn(
+                            'px-2 py-1.5 text-xs font-semibold rounded-md transition-colors',
+                            voiceGenderFilter === 'Female' ? 'bg-white text-base-black' : 'text-neutral-01'
+                          )}
+                          onClick={() => setVoiceGenderFilter('Female')}
+                        >
+                          👩🏻
+                        </button>
+                        <button
+                          type='button'
+                          className={cn(
+                            'px-2 py-1.5 text-xs font-semibold rounded-md transition-colors',
+                            voiceGenderFilter === 'Male' ? 'bg-white text-base-black' : 'text-neutral-01'
+                          )}
+                          onClick={() => setVoiceGenderFilter('Male')}
+                        >
+                          🧔🏻‍♂️
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                {avatarData.ttsVoice && (
-                  <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                    <PlayerButton
-                      variant='white'
-                      className='shrink-0 shadow-bottom-level-1'
-                      audioSrc={PATHS.ttsVoice(avatarData.ttsVoice.id)}
-                    />
-                    <div className='flex flex-col gap-1'>
-                      <p className='text-body-lg font-semibold text-base-black'>{avatarData.ttsVoice.name}</p>
-                      <span className='text-body-md text-neutral-01'>{avatarData.ttsVoice.ttsProvider?.name || 'Voice Provider'}</span>
-                      <input type='hidden' name='ttsVoiceId' value={avatarData.ttsVoice.id} />
-                    </div>
-                  </div>
-                )}
+
+                <AnimatePresence mode='wait'>
+                  {!isVoiceListExpanded && avatarData.ttsVoice && (
+                    <motion.div
+                      key='selected-voice'
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      className='overflow-hidden'
+                    >
+                      <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
+                        <PlayerButton
+                          variant='white'
+                          className='shrink-0 shadow-bottom-level-1'
+                          audioSrc={PATHS.ttsVoice(avatarData.ttsVoice.id)}
+                        />
+                        <div className='flex flex-col gap-1 flex-1 min-w-0'>
+                          <p className='text-body-lg font-semibold text-base-black truncate'>{avatarData.ttsVoice.name}</p>
+                          <span className='text-body-md text-neutral-01 truncate'>
+                            {avatarData.ttsVoice.ttsProvider?.name || 'Voice Provider'}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {!isVoiceListExpanded && !avatarData.ttsVoice && (
+                    <motion.div
+                      key='no-voice'
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      className='overflow-hidden'
+                    >
+                      <div className='py-8 text-center bg-neutral-05 rounded-xl'>
+                        <p className='text-body-md text-neutral-01'>No voice selected</p>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {isVoiceListExpanded && (
+                    <motion.div
+                      key='voice-list'
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      className='overflow-hidden'
+                    >
+                      <div className='space-y-2'>
+                        <div className='max-h-[280px] overflow-y-auto scrollbar-medium space-y-2'>
+                          {filteredVoices.length === 0 ? (
+                            <div className='py-8 text-center'>
+                              <p className='text-body-md text-neutral-01'>No voices found for {voiceGenderFilter} gender</p>
+                            </div>
+                          ) : (
+                            filteredVoices.map((voice, index) => {
+                              const isSelected = avatarData.ttsVoice?.id === voice.id;
+                              return (
+                                <motion.button
+                                  key={voice.id}
+                                  initial={{ opacity: 0, y: -10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.15, delay: index * 0.02 }}
+                                  type='button'
+                                  className={cn(
+                                    'w-full py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular transition-all',
+                                    isSelected
+                                      ? voice.gender === 'Male'
+                                        ? 'male-gradient'
+                                        : voice.gender === 'Female'
+                                          ? 'female-gradient'
+                                          : 'voice-gradient'
+                                      : 'bg-neutral-05 hover:bg-neutral-04'
+                                  )}
+                                  onClick={() => handleVoiceChange(voice)}
+                                >
+                                  <PlayerButton
+                                    variant='white'
+                                    className='shrink-0 shadow-bottom-level-1'
+                                    audioSrc={PATHS.ttsVoice(voice.id)}
+                                  />
+                                  <div className='flex flex-col gap-1 flex-1 text-left min-w-0'>
+                                    <p className='text-body-lg font-semibold text-base-black line-clamp-1'>{voice.name}</p>
+                                    <span className='text-body-md text-neutral-01 capitalize'>{voice.ttsProvider.name}</span>
+                                  </div>
+                                  {isSelected && (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                      className='shrink-0'
+                                    >
+                                      <Icons.check className='text-base-black' />
+                                    </motion.div>
+                                  )}
+                                </motion.button>
+                              );
+                            })
+                          )}
+                        </div>
+
+                        <button
+                          type='button'
+                          onClick={() => setIsVoiceListExpanded(false)}
+                          className='w-full py-3 px-4 text-body-sm font-semibold text-base-black bg-neutral-05 hover:bg-neutral-04 rounded-xl transition-colors'
+                        >
+                          Done
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {avatarData.ttsVoice && <input type='hidden' name='ttsVoiceId' value={avatarData.ttsVoice.id} />}
+
+                <p className='text-xs text-gray-500 mt-2'>Select a voice for text-to-speech functionality.</p>
               </Input.Root>
 
               <Input.Root>
