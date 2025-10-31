@@ -326,7 +326,7 @@ export default function ScenariosIndex() {
                                         scenario.userGender === 'Female' && '👩🏻' ||
                                         scenario.userGender === 'Other' && '👤'
                                       }
-                                      <span>{scenario.userGender}</span>
+                                      {/*<span>{scenario.userGender}</span>*/}
                                     </div>
                                   }
                                   content='User gender for this scenario'
@@ -348,10 +348,10 @@ export default function ScenariosIndex() {
                                         scenario.avatarGender === 'Female' && '👩🏻' ||
                                         scenario.avatarGender === 'Other' && '🤖'
                                       }
-                                      <span>{scenario.avatarGender}</span>
+                                      {/*<span>{scenario.avatarGender}</span>*/}
                                     </div>
                                   }
-                                  content='AI gender for this scenario'
+                                  content='Avatar gender for this scenario'
                                   className='max-w-[350px]'
                                   popoverClassName='max-w-[320px]'
                                 />
