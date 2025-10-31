@@ -17,3 +17,13 @@ export function useChats() {
     queryFn: () => fetchResource<Chat[]>(`chats`),
   });
 }
+
+export function useChatSystemPrompt(chatId: string) {
+  return useQuery({
+    queryKey: ['chat', chatId, 'system-prompt'],
+    queryFn: () => fetchResource<{ systemPrompt: string; scenarioName: string }>(`chats/${chatId}/system-prompt`),
+    enabled: !!chatId,
+    staleTime: 0, // Don't cache on our side, it's cached in Redis. Reference: https://github.com/cipherdolls/webapp/pull/736#issuecomment-3471698321
+    gcTime: 0,
+  });
+}
