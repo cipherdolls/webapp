@@ -10,6 +10,7 @@ import SystemPromptModal from '../SystemPromptModal';
 import { useState } from 'react';
 import { Info } from 'lucide-react';
 import { Tooltip } from '../ui/tooltip';
+import { useChatSystemPrompt } from '~/hooks/queries/chatQueries';
 
 interface ChatTopBarProps {
   chat: Chat;
@@ -19,8 +20,14 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
   const { data: avatarData } = useAvatar(chat.avatar.id);
   const user = useRouteLoaderData('routes/_main') as User;
   const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState(false);
+  const { data: systemPromptData, refetch: refetchSystemPrompt } = useChatSystemPrompt(chat.id);
 
   const isAdmin = user?.role === 'ADMIN';
+
+  const handleOpenSystemPrompt = () => {
+    setIsSystemPromptModalOpen(true);
+    refetchSystemPrompt();
+  };
 
   return (
     <div className='flex items-center justify-between px-5 pt-3.5 lg:bg-white'>
@@ -42,7 +49,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           <Tooltip
             trigger={
               <button
-                onClick={() => setIsSystemPromptModalOpen(true)}
+                onClick={handleOpenSystemPrompt}
                 className='text-base-black shrink-0 hover:opacity-60 transition-opacity flex items-center'
                 aria-label='View System Prompt'
               >
@@ -59,12 +66,12 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           </Link>
         </motion.div>
       </div>
-      {isAdmin && (
+      {isAdmin && systemPromptData && (
         <SystemPromptModal
           isOpen={isSystemPromptModalOpen}
           onClose={() => setIsSystemPromptModalOpen(false)}
-          systemMessage={chat.scenario.systemMessage}
-          scenarioName={chat.scenario.name}
+          systemMessage={systemPromptData.systemPrompt}
+          scenarioName={systemPromptData.scenarioName}
         />
       )}
     </div>
