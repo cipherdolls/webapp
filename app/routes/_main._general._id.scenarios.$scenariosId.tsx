@@ -24,7 +24,6 @@ import { ROUTES } from '~/constants';
 import IntroductionSkeleton from '~/components/ui/IntroductionSkeleton';
 import SponsorshipSection from '~/components/SponsorshipSection';
 import ModelTabsCard from '~/components/ModelTabsCard';
-import SystemPromptModal from '~/components/SystemPromptModal';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -45,9 +44,6 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const userHasSponsored = useMemo(() => sponsorships.some((s) => s.userId === me.id), [sponsorships, me.id]);
 
   const [showAll, setShowAll] = useState(false);
-  const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState(false);
-
-  const isAdmin = me?.role === 'ADMIN';
 
   const mineAvatarsList = mineAvatars;
   const avatars = scenario?.avatars ? scenario.avatars : [];
@@ -164,12 +160,6 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                   scenario: scenario,
                 },
                 {
-                  type: 'onClick',
-                  text: 'View System Prompt',
-                  onClick: () => setIsSystemPromptModalOpen(true),
-                  visible: isAdmin,
-                },
-                {
                   type: 'component',
                   text: 'Delete',
                   isDelete: true,
@@ -194,22 +184,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
           <div className='flex size-full flex-col gap-5 md:pr-4'>
             <DetailCard title='' copy={false} copyText={scenario.introduction} isScenario={true}>
               {scenario.introduction && scenario.introduction.trim() ? (
-                <>
-                  <ReactMarkdown>{scenario.introduction}</ReactMarkdown>
-                  {isAdmin && (
-                    <div className='mt-4 flex items-center justify-center'>
-                      <Button.Root
-                        variant='ghost'
-                        size='sm'
-                        className='px-6 w-fit'
-                        onClick={() => setIsSystemPromptModalOpen(true)}
-                        title='View System Prompt (Admin Only)'
-                      >
-                        Show System Prompt
-                      </Button.Root>
-                    </div>
-                  )}
-                </>
+                <ReactMarkdown>{scenario.introduction}</ReactMarkdown>
               ) : (
                 <IntroductionSkeleton />
               )}
@@ -341,14 +316,6 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
         </div>
       </div>
       <Outlet />
-      {isAdmin && (
-        <SystemPromptModal
-          isOpen={isSystemPromptModalOpen}
-          onClose={() => setIsSystemPromptModalOpen(false)}
-          systemMessage={scenario.systemMessage}
-          scenarioName={scenario.name}
-        />
-      )}
     </>
   );
 }
