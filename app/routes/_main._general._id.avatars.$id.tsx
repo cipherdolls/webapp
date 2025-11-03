@@ -18,6 +18,9 @@ import { formatModelName } from '~/utils/formatModelName';
 import { cn } from '~/utils/cn';
 import ErrorPage from '~/components/ErrorPage';
 import type { User } from '~/types';
+import { motion } from 'motion/react';
+import { useTtsProvider } from '~/hooks/queries/ttsQueries';
+import { InformationBadge } from '~/components/ui/InformationBadge';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -28,6 +31,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
   const { mutate: createChat } = useCreateChat();
+  const {data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider('e6076349-a59e-4ec3-99fc-d2f0983827d9')
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -96,6 +100,8 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   };
 
   const creatorSeed = getCreatorSeed();
+
+  console.log(ttsProvider)
 
   return (
     <>
@@ -294,10 +300,46 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                 )}
               </div>
             </div>
+
+            {ttsProvider && (
+              <div className='flex flex-col gap-5'>
+                <div className='flex justify-between'>
+                  <h1 className='text-base-black text-heading-h3 font-semibold'>Voice & Provider</h1>
+                  <InformationBadge
+                    className='size-6'
+                    tooltipText={`${ttsProvider.name}: Real-time AI voice synthesis`}
+                    side={'top'}
+                  />
+                </div>
+
+                <div className='flex flex-col bg-gradient-1 px-5 py-[18px] rounded-xl gap-4 shadow-regular'>
+                  <div className='flex items-center gap-4'>
+                    <div className='size-10'>
+                      <img
+                        src={getPicture(ttsProvider, 'tts-providers', false)}
+                        srcSet={getPicture(ttsProvider, 'tts-providers', true)}
+                        alt={ttsProvider.name}
+                        className='size-full object-cover rounded-lg'
+                      />
+                    </div>
+
+                    <div className='flex flex-col gap-1 flex-1 min-w-0'>
+                      <p className='text-body-lg font-semibold text-base-black truncate'>{avatar.ttsVoice.name}</p>
+
+                      <div className='flex items-center gap-2 text-body-sm'>
+                        <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
+                        <span className='text-neutral-01 font-normal'>/Character</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {avatar.gender && (
               <div className='flex flex-col gap-5'>
                 <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
-                <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
+                <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
                   <h2 className='text-heading-h2'>{avatar.gender === 'Female' ? '👩🏻' : avatar.gender === 'Male' ? '🧔🏻‍♂' : '-'}</h2>
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.gender}</p>
@@ -305,9 +347,10 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                 </div>
               </div>
             )}
+
             <div className='flex flex-col gap-5'>
               <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
-              <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
+              <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
                 {user.signerAddress ? (
                   <Jazzicon diameter={40} seed={creatorSeed} />
                 ) : (
