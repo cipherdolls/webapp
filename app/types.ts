@@ -352,9 +352,9 @@ export interface PaymentJob {
   timeTakenMs: number;
 }
 
-export type Gender = 'Female' | 'Male' | 'Other';
+export type Gender = 'Female' | 'Male' | 'Diverse';
 
-export type GenderFilter = 'All' | 'Male' | 'Female' | 'Other';
+export type GenderFilter = 'All' | 'Male' | 'Female' | 'Diverse';
 
 export interface AvatarsPaginated {
   data: Avatar[];
