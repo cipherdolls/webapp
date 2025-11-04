@@ -452,7 +452,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Content>
                       <Select.Item value='Male'>Male</Select.Item>
                       <Select.Item value='Female'>Female</Select.Item>
-                      <Select.Item value='Other'>Other</Select.Item>
+                      <Select.Item value='Diverse'>Diverse</Select.Item>
                     </Select.Content>
                   </Select.Root>
                   <p className='text-xs text-gray-500'>Select the user gender for this scenario.</p>
@@ -474,7 +474,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Content>
                       <Select.Item value='Male'>Male</Select.Item>
                       <Select.Item value='Female'>Female</Select.Item>
-                      <Select.Item value='Other'>Other</Select.Item>
+                      <Select.Item value='Diverse'>Diverse</Select.Item>
                     </Select.Content>
                   </Select.Root>
                   <p className='text-xs text-gray-500'>Select the avatar gender for this scenario.</p>
