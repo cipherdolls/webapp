@@ -149,3 +149,39 @@ export const ANIMATE_CHAT_ITEMS = {
   exit: { opacity: 0, height: 0 },
   transition: ANIMATE_DURATION,
 }
+
+export const ANIMATE_POPOVER_CENTER = {
+  initial: { opacity: 0, scale: 0.9, y: '-10%' },
+  animate: { opacity: 1, scale: 1, y: '0%' },
+  exit: { opacity: 0, scale: 0.9, y: '-10' },
+}
+
+export const ANIMATE_POPOVER_RIGHT = {
+  initial: { opacity: 0, scale: 0.9, x: '28%' },
+  animate: { opacity: 1, scale: 1, x: '0%' },
+  exit: { opacity: 0, scale: 0, x: '28%' },
+}
+
+export const ANIMATE_POPOVER_LEFT = {
+  initial: { opacity: 0, scale: 0.9, x: '28%' },
+  animate: { opacity: 1, scale: 1, x: '0%' },
+  exit: { opacity: 0, scale: 0, x: '28%' },
+}
+
+export const ANIMATE_TOOLTIP_CENTER = {
+  initial: { opacity: 0, scale: 0.9, y: '10%' },
+  animate: { opacity: 1, scale: 1, y: '0%' },
+  exit: { opacity: 0, scale: 0.9, y: '10' },
+}
+
+export const ANIMATE_TOOLTIP_RIGHT = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0 },
+}
+
+export const ANIMATE_TOOLTIP_LEFT = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0 },
+}

@@ -24,6 +24,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
 
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   //  TODO: Add filter to the scenarios on the backend to get only recommended scenarios for the avatar by avatarId
@@ -77,6 +78,8 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
       const hasChatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario.id);
 
       if (hasChatWithSameScenario) {
+        setIsConfirmOpen(true);
+
         const confirmResult = await confirm({
           icon: '🗑️',
           title: 'Delete Previous Chat?',
@@ -84,7 +87,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
           actionButton: 'Yes, Create New',
         });
 
-        if (!confirmResult) return;
+        if (!confirmResult) return setIsConfirmOpen(false);
 
         deleteChat(hasChatWithSameScenario.id, {
           onSuccess: () => {
@@ -95,6 +98,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
                   setSelectedScenario(null);
                   navigate(`${ROUTES.chats}/${newChat.id}`);
                   setIsOpen(false);
+                  setIsConfirmOpen(false);
                 },
               }
             );
@@ -130,6 +134,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
       isFetchingNextPage={isFetchingNextPage}
       items={scenarios}
       recommendedItems={avatar.scenarios ?? []}
+      isOverlayed={isConfirmOpen}
       renderItem={(item: Scenario, isRecommended?: boolean) => {
         const isRecommendedItem = isRecommended || avatar.scenarios?.some((scenarioAvatar) => scenarioAvatar.id === item.id);
         const isSelected = selectedScenario?.id === item.id;
