@@ -42,8 +42,8 @@ const ProviderCard = ({ name, picture, id, models, type }: ProviderCardProps) =>
 
   return (
     <div className='flex-shrink-0 w-full h-full bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-neutral-04 transition-all duration-300 hover:scale-[1.02] flex flex-col overflow-hidden'>
-      <div className='flex items-start justify-between gap-3 mb-3'>
-        <div className='flex items-center gap-3 flex-1 min-w-0'>
+      <div className='flex flex-col gap-3 mb-3'>
+        <div className='flex items-center gap-3'>
           <div className='flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden bg-white shadow-regular border border-neutral-04 flex items-center justify-center'>
             <img
               src={getPicture({ id, picture: picture || '' }, typeMap[type], false, PICTURE_SIZE.small) as string}
@@ -53,24 +53,24 @@ const ProviderCard = ({ name, picture, id, models, type }: ProviderCardProps) =>
           </div>
           <div className='flex-1 min-w-0'>
             <h3 className='font-semibold text-lg text-base-black truncate'>{name}</h3>
-            <div className='flex flex-wrap gap-1 mt-1'>
-              {models.map((group, idx) => (
-                <span
-                  key={idx}
-                  className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border ${getCategoryColor(group.category)}`}
-                >
-                  {group.category}
-                </span>
-              ))}
-            </div>
+          </div>
+          <div className='flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 bg-neutral-05 rounded-lg flex-shrink-0'>
+            <ShieldCheck size={14} className='text-neutral-01 md:w-4 md:h-4' />
+            <span className='text-xs md:text-sm font-semibold text-base-black whitespace-nowrap'>
+              {totalModels} <span className='hidden md:inline 2xl:inline '>{totalModels === 1 ? 'Model' : 'Models'}</span>
+            </span>
           </div>
         </div>
 
-        <div className='flex items-center gap-1.5 px-3 py-1.5 bg-neutral-05 rounded-lg flex-shrink-0'>
-          <ShieldCheck size={16} className='text-neutral-01' />
-          <span className='text-sm font-semibold text-base-black'>
-            {totalModels} {totalModels === 1 ? 'Model' : 'Models'}
-          </span>
+        <div className='flex flex-wrap gap-1'>
+          {models.map((group, idx) => (
+            <span
+              key={idx}
+              className={`inline-block px-2 py-0.5 whitespace-nowrap rounded-full text-xs font-medium border ${getCategoryColor(group.category)}`}
+            >
+              {group.category}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -104,7 +104,6 @@ const AIModelBanner = ({ aiProviders, ttsProviders, sttProviders }: AIModelBanne
       loop: true,
       align: 'start',
       skipSnaps: false,
-      dragFree: true,
     },
     [Autoplay({ delay: 3000, stopOnInteraction: false })]
   );
@@ -216,16 +215,15 @@ const AIModelBanner = ({ aiProviders, ttsProviders, sttProviders }: AIModelBanne
         </button>
 
         <div className='overflow-hidden' ref={emblaRef}>
-          <div className='flex items-stretch gap-3 min-h-[240px]'>
+          <div className='flex min-h-[240px] -ml-3'>
             {allCards.map((card, idx) => (
               <div
                 key={`${card.id}-${idx}`}
-                className='flex-[0_0_100%] min-w-full sm:flex-[0_0_calc(50%-0.375rem)] sm:min-w-[calc(50%-0.375rem)] md:flex-[0_0_calc(33.333%-0.5rem)] md:min-w-[calc(33.333%-0.5rem)] lg:flex-[0_0_calc(25%-0.5625rem)] lg:min-w-[calc(25%-0.5625rem)] xl:flex-[0_0_calc(20%-0.6rem)] xl:min-w-[calc(20%-0.6rem)]'
+                className='flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] 2xl:flex-[0_0_20%] min-w-0 pl-3'
               >
                 <ProviderCard {...card} />
               </div>
             ))}
-            <div className='flex-[0_0_0.75rem] min-w-[0.75rem]' />
           </div>
         </div>
       </div>
