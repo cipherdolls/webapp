@@ -177,6 +177,7 @@ export interface Scenario {
   userGender?: Gender;
   avatarGender?: Gender;
   nsfw?: boolean;
+  sponsorships?: Sponsorship[];
 }
 
 export interface Sponsorship {

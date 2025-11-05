@@ -300,14 +300,31 @@ export default function ScenariosIndex() {
                           alt={`${scenario.name} picture`}
                           className='object-cover size-full'
                         />
-                        {!showMyScenarios && me.id === scenario.userId && (
-                          <div className='absolute top-2 left-2 z-10'>
-                            <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                              🌐
-                              <span>By you</span>
-                            </div>
+                        <div className='absolute top-2 left-2 z-10'>
+                          <div className='flex items-center gap-2'>
+                            {!showMyScenarios && me.id === scenario.userId && (
+                              <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                                🌐
+                                <span>By you</span>
+                              </div>
+                            )}
+                            {scenario.sponsorships && scenario.sponsorships.length > 0 && (
+                              <Tooltip
+                                side='top'
+                                variant='light'
+                                trigger={
+                                  <div className='flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 py-1 pl-1 pr-1.5 rounded-full text-label text-white font-semibold shadow-lg cursor-help'>
+                                    🎁
+                                    <span>Free to use</span>
+                                  </div>
+                                }
+                                content={`This scenario has ${scenario.sponsorships.length} ${scenario.sponsorships.length === 1 ? 'sponsor' : 'sponsors'}. You can use it without spending your own tokens!`}
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+                            )}
                           </div>
-                        )}
+                        </div>
                         {(scenario.userGender || scenario.avatarGender) && (
                           <div className='absolute bottom-2 left-2 z-10'>
                             <div className='flex items-center gap-1'>
