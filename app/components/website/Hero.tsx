@@ -1,8 +1,8 @@
-import { ArrowRight, Shield, Zap, ArrowDown } from 'lucide-react';
+import { Shield, Zap, ArrowDown } from 'lucide-react';
 import * as Button from '~/components/ui/button/button';
 import type { Avatar } from '~/types';
 import ChatExample from './components/ChatExample';
-import { useWalletAuth } from '~/hooks/useWalletAuth';
+import LoginButton from './LoginButton';
 
 const content = {
   title: 'Where Privacy Meets',
@@ -22,7 +22,7 @@ const content = {
     },
   ],
   cta: {
-    text: 'Start Chat for Free',
+    text: 'Log in',
     href: '/chat',
   },
   learnMore: {
@@ -32,8 +32,6 @@ const content = {
 };
 
 const Hero = ({ avatar }: { avatar: Avatar }) => {
-  const { signIn, isLoading } = useWalletAuth();
-
   return (
     <section className='pt-24 pb-16 min-h-screen flex items-center'>
       <div className='container'>
@@ -73,16 +71,7 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
             </div>
 
             <div className='flex flex-col sm:flex-row gap-5'>
-              <Button.Root
-                className='px-10 gradient-move font-medium'
-                variant='secondary'
-                size='lg'
-                onClick={signIn}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Loading...' : content.cta.text}
-                <ArrowRight />
-              </Button.Root>
+              <LoginButton className='min-w-[160px] md:min-w-[200px]' aria-label='Log in to start chatting' />
               <Button.Root
                 className='group px-6'
                 size='lg'

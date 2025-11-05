@@ -1,4 +1,4 @@
-import type { Route } from './+types/_index';
+import type { Route } from './+types/_website._index';
 import CompanyLogos from '~/components/website/CompanyLogos';
 import Avatars from '~/components/website/Avatars';
 import HowItWorks from '~/components/website/HowItWorks';
@@ -13,8 +13,6 @@ import AIModelBanner from '~/components/website/AIModelBanner';
 import { apiUrl } from '~/constants';
 import type { Scenario } from '~/types';
 import GuestMode from '~/components/website/GuestMode';
-import { useEffect, useState } from 'react';
-import { useAuthStore } from '~/store/useAuthStore';
 const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
 export function meta() {
@@ -121,20 +119,10 @@ export async function loader() {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { avatar, avatars, scenarios, aiProviders, ttsProviders, sttProviders } = loaderData;
-  const { verifyToken } = useAuthStore();
-  const [isVerifying, setIsVerifying] = useState(true);
-
-  useEffect(() => {
-    const verify = async () => {
-      await verifyToken();
-      setIsVerifying(false);
-    };
-    verify();
-  }, [verifyToken]);
 
   return (
     <>
-      <Header isVerifying={isVerifying} />
+      <Header/>
       <div>
         <Hero avatar={avatar} />
         <AIModelBanner aiProviders={aiProviders} ttsProviders={ttsProviders} sttProviders={sttProviders} />

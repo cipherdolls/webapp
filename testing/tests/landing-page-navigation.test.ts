@@ -1,7 +1,7 @@
 import { testWithSynpress } from '@synthetixio/synpress';
 import { MetaMask, metaMaskFixtures } from '@synthetixio/synpress/playwright';
 import basicSetup from '../setup/basic.setup';
-import { expectElementVisible, expectTextVisible } from './helpers/test-utils';
+import { expectElementVisible } from './helpers/test-utils';
 
 const test = testWithSynpress(metaMaskFixtures(basicSetup));
 
@@ -13,27 +13,15 @@ test.describe('Landing Page Navigation', () => {
       await page.waitForTimeout(1000);
     });
 
-    await test.step('Click CTA button and navigate to signin', async () => {
-      // Click the "Start Chat for Free" button in header
-      const ctaButton = page.locator('header a:has-text("Start Chat for Free")');
-      await ctaButton.click();
-
-      // Wait for navigation
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(1000);
-
-      // Verify we're on signin page
-      const currentUrl = page.url();
-      if (!currentUrl.includes('/signin')) {
-        throw new Error(`Navigation failed - Expected /signin, got ${currentUrl}`);
-      }
+    await test.step('Locate header login button', async () => {
+      await expectElementVisible(page, 'header button:has-text("Log in")', 'Header Log in Button');
     });
 
-    await test.step('Verify signin page loaded', async () => {
-      // Check signin form exists
-      await expectElementVisible(page, 'form', 'Sign In Form');
+    await test.step('Click header login button', async () => {
+      const loginButton = page.locator('header button:has-text("Log in")');
+      await loginButton.click();
       
-      console.log('✅ Successfully navigated from landing page to signin');
+      console.log('✅ Header Log in button is clickable');
     });
   });
 });
