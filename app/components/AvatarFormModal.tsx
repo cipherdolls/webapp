@@ -378,46 +378,29 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                   </AnimatePresence>
                 </div>
 
-                <AnimatePresence mode='wait'>
-                  {!isVoiceListExpanded && avatarData.ttsVoice && (
-                    <motion.div
-                      key='selected-voice'
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2, ease: 'easeInOut' }}
-                      className='overflow-hidden'
-                    >
-                      <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                        <PlayerButton
-                          variant='white'
-                          className='shrink-0 shadow-bottom-level-1'
-                          audioSrc={PATHS.ttsVoice(avatarData.ttsVoice.id)}
-                        />
-                        <div className='flex flex-col gap-1 flex-1 min-w-0'>
-                          <p className='text-body-lg font-semibold text-base-black truncate'>{avatarData.ttsVoice.name}</p>
-                          <span className='text-body-md text-neutral-01 truncate'>
-                            {avatarData.ttsVoice.ttsProvider?.name || 'Voice Provider'}
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+                {!isVoiceListExpanded && avatarData.ttsVoice && (
+                  <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
+                    <PlayerButton
+                      variant='white'
+                      className='shrink-0 shadow-bottom-level-1'
+                      audioSrc={PATHS.ttsVoice(avatarData.ttsVoice.id)}
+                    />
+                    <div className='flex flex-col gap-1 flex-1 min-w-0'>
+                      <p className='text-body-lg font-semibold text-base-black truncate'>{avatarData.ttsVoice.name}</p>
+                      <span className='text-body-md text-neutral-01 truncate'>
+                        {avatarData.ttsVoice.ttsProvider?.name || 'Voice Provider'}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
-                  {!isVoiceListExpanded && !avatarData.ttsVoice && (
-                    <motion.div
-                      key='no-voice'
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2, ease: 'easeInOut' }}
-                      className='overflow-hidden'
-                    >
-                      <div className='py-8 text-center bg-neutral-05 rounded-xl'>
-                        <p className='text-body-md text-neutral-01'>No voice selected</p>
-                      </div>
-                    </motion.div>
-                  )}
+                {!isVoiceListExpanded && !avatarData.ttsVoice && (
+                  <div className='py-8 text-center bg-neutral-05 rounded-xl'>
+                    <p className='text-body-md text-neutral-01'>No voice selected</p>
+                  </div>
+                )}
+
+                <AnimatePresence mode='wait' initial={false}>
 
                   {isVoiceListExpanded && (
                     <motion.div
