@@ -36,6 +36,7 @@ const TokenPermitsList = () => {
   // Always run hooks - move calculations above early return
   const permits = tokenPermitsPaginated?.data || [];
   const allowance = user?.tokenAllowance || 0;
+  const spendable = user?.tokenSpendable || 0;
   const firstPermit = permits[0];
   const hasPermits = permits.length > 0;
 
@@ -194,12 +195,17 @@ const TokenPermitsList = () => {
         )}
 
         {hasPermits && (
-          <div className='text-body-sm text-neutral-01 font-medium text-right mt-2 flex items-center justify-between gap-1'>
-            <div>
-              Remaining: <span className='text-base-black font-semibold'>{allowance ? formattedAllowance : '0.00'} LOV</span>
+          <div className='text-body-sm text-neutral-01 font-medium mt-2'>
+            <div className='flex items-center justify-between gap-1'>
+              <div>
+                Remaining: <span className='text-base-black font-semibold'>{allowance ? formattedAllowance : '0.00'} LOV</span>
+              </div>
+              <div>
+                Total: <span className='text-base-black font-semibold'>{formattedFirstPermitAmount} LOV</span>
+              </div>
             </div>
-            <div>
-              Total: <span className='text-base-black font-semibold'>{formattedFirstPermitAmount} LOV</span>
+            <div className='mt-1'>
+              Spendable: <span className='text-base-black font-semibold'>{formatAllowanceAmount(spendable)} LOV</span>
             </div>
           </div>
         )}

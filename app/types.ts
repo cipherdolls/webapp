@@ -38,6 +38,7 @@ export interface User {
   character: string;
   tokenBalance?: number;
   tokenAllowance: number;
+  tokenSpendable?: number;
   referralCount?: number;
 }
 

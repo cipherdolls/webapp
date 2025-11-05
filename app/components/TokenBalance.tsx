@@ -37,7 +37,7 @@ const TokenBalance = () => {
   const countTokens = useMotionValue(0);
   const formattedBalance = formattedBalanceMotion(countTokens);
 
-  const { isPending: isRefreshingBalance, isError, isSuccess, error } = refreshTokenBalanceMutation;
+  const { isPending: isRefreshingBalance, isError, error } = refreshTokenBalanceMutation;
 
   const rawBalance = user?.tokenBalance || '0';
   const validatedBalance = isValidTokenBalance(rawBalance) ? rawBalance : '0';
