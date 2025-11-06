@@ -489,6 +489,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                   selectedOptions={avatarData.scenarios}
                   onChange={(scenarios) => updateAvatarData('scenarios', scenarios)}
                   placeholder='Select scenarios for this avatar'
+                  forType='scenarios'
                   defaultValue={Array.isArray(avatar?.scenarios) ? avatar.scenarios.map((scenario) => scenario.id) : []}
                 />
                 {Array.isArray(avatarData.scenarios) &&
