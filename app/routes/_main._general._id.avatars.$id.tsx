@@ -31,7 +31,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
   const { mutate: createChat } = useCreateChat();
-  const {data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider('e6076349-a59e-4ec3-99fc-d2f0983827d9')
+  const {data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider(avatar?.ttsVoice.ttsProviderId || '')
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -100,8 +100,6 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   };
 
   const creatorSeed = getCreatorSeed();
-
-  console.log(ttsProvider)
 
   return (
     <>
