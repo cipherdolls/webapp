@@ -36,18 +36,18 @@ test.describe('SignIn Page with Real MetaMask - Conditional Logic', () => {
     });
 
     await test.step('Verify Sign In form and button', async () => {
-      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Form');
-      await expectButtonState(page, UI_TEXTS.START_CHAT_FREE, 'enabled', {
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Log in Button');
+      await expectButtonState(page, UI_TEXTS.LOGIN, 'enabled', {
         selector: SELECTORS.START_CHAT_BUTTON,
       });
 
       const signInButton = page.locator(SELECTORS.START_CHAT_BUTTON);
       const buttonType = await signInButton.getAttribute('type');
-      if (buttonType !== 'submit') {
+      if (buttonType !== 'button') {
         throw new Error(`
 ❌ BUTTON TYPE INCORRECT
 
-Expected: type="submit"
+Expected: type="button"
 Actual: type="${buttonType}"
 
 📍 Check: Sign In button configuration
@@ -132,7 +132,7 @@ Found: Not visible
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
 
-      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Button (Initial State)');
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Log in Button (Initial State)');
     });
 
     await test.step('Connect wallet and verify state change', async () => {
@@ -140,7 +140,7 @@ Found: Not visible
 
       await page.waitForTimeout(2000);
 
-      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Button (After Connection)');
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Log in Button (After Connection)');
     });
 
     console.log('✅ Wallet connection state changes verified');
@@ -155,7 +155,7 @@ Found: Not visible
     });
 
     await test.step('Verify button state after loading', async () => {
-      await expectButtonState(page, UI_TEXTS.START_CHAT_FREE, 'enabled', { selector: SELECTORS.START_CHAT_BUTTON });
+      await expectButtonState(page, UI_TEXTS.LOGIN, 'enabled', { selector: SELECTORS.START_CHAT_BUTTON });
     });
 
     console.log('✅ Loading state button behavior verified');

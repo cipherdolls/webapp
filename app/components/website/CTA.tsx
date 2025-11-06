@@ -1,6 +1,4 @@
-import { ArrowRight } from 'lucide-react';
-import * as Button from '~/components/ui/button/button';
-import { useWalletAuth } from '~/hooks/useWalletAuth';
+import LoginButton from './LoginButton';
 
 const content = {
   title: (
@@ -16,8 +14,6 @@ const content = {
 };
 
 const CTA = () => {
-  const { signIn, isLoading } = useWalletAuth();
-
   return (
     <section className='py-40'>
       <div className='container'>
@@ -45,15 +41,7 @@ const CTA = () => {
                 </div>
 
                 <div className='flex-shrink-0'>
-                  <Button.Root
-                    className='gradient-move px-8 transition-all duration-300 ease-in-out flex hover:shadow-xl hover:scale-105'
-                    size='lg'
-                    onClick={signIn}
-                    disabled={isLoading}
-                  >
-                    <span className='font-medium'>{isLoading ? 'Loading...' : 'Start Chat for Free'}</span>
-                    <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
-                  </Button.Root>
+                  <LoginButton className='min-w-[160px] md:min-w-[200px]' aria-label='Log in to start chatting' />
                 </div>
               </div>
             </div>

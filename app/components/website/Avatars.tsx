@@ -21,8 +21,8 @@ import { cn } from '~/utils/cn';
 import type { Avatar, Scenario } from '~/types';
 import Subtitle from './components/Subtitle';
 import * as Button from '~/components/ui/button/button';
+import LoginButton from './LoginButton';
 import { useAudioPlayer } from 'react-use-audio-player';
-import { useWalletAuth } from '~/hooks/useWalletAuth';
 
 const content = {
   title: 'Step Into Their World',
@@ -110,7 +110,6 @@ function getScenarioColorClassUnique(name: string, usedIndexes: Set<number>): st
 
 const Avatars = ({ avatars }: { avatars: any }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const { signIn, isLoading: isAuthLoading, hasEthereum } = useWalletAuth();
 
   const { isPlaying, load, stop, getPosition, duration } = useAudioPlayer();
   const progressDivRef = useRef<HTMLDivElement>(null);
@@ -346,15 +345,13 @@ const Avatars = ({ avatars }: { avatars: any }) => {
                                   </div>
                                 </div>
                               </Button.Root>
-                              <Button.Root
+                              <LoginButton
                                 className='px-10 gradient-move font-medium w-full'
                                 variant='secondary'
                                 size='md'
-                                onClick={signIn}
-                                disabled={isAuthLoading}
                               >
-                                {isAuthLoading ? 'Connecting...' : 'Start Chat for Free'}
-                              </Button.Root>
+                                Start Chat for Free
+                              </LoginButton>
                             </div>
                           </div>
                         </>
