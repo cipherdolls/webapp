@@ -775,6 +775,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   selectedOptions={scenarioData.avatars}
                   onChange={(value) => updateScenarioData('avatars', value)}
                   placeholder='Select avatars for this scenario'
+                  forType='avatars'
                   defaultValue={Array.isArray(scenario?.avatars) ? scenario?.avatars.map((avatar) => avatar.id) : []}
                 />
                 {Array.isArray(scenarioData.avatars) &&
