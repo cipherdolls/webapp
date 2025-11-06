@@ -20,13 +20,15 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
   const { data: avatarData } = useAvatar(chat.avatar.id);
   const user = useRouteLoaderData('routes/_main') as User;
   const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState(false);
-  const { data: systemPromptData, refetch: refetchSystemPrompt } = useChatSystemPrompt(chat.id);
+  const { data: systemPromptData } = useChatSystemPrompt(chat.id);
 
   const isAdmin = user?.role === 'ADMIN';
 
+  const systemPrompt = systemPromptData?.systemPrompt ?? chat.scenario.systemMessage;
+  const scenarioName = systemPromptData?.scenarioName ?? chat.scenario.name;
+
   const handleOpenSystemPrompt = () => {
     setIsSystemPromptModalOpen(true);
-    refetchSystemPrompt();
   };
 
   return (
@@ -66,12 +68,12 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           </Link>
         </motion.div>
       </div>
-      {isAdmin && systemPromptData && (
+      {isAdmin && (
         <SystemPromptModal
           isOpen={isSystemPromptModalOpen}
           onClose={() => setIsSystemPromptModalOpen(false)}
-          systemMessage={systemPromptData.systemPrompt}
-          scenarioName={systemPromptData.scenarioName}
+          systemMessage={systemPrompt}
+          scenarioName={scenarioName}
         />
       )}
     </div>

@@ -242,7 +242,7 @@ export default function ScenariosIndex() {
                   <div className='space-y-3'>
                     <h4 className='text-sm font-medium text-base-black'>User Gender</h4>
                     <RadioGroup.Root value={userGenderFilter} onValueChange={handleUserGenderFilterChange}>
-                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                      {(['All', 'Male', 'Female', 'Diverse'] as const).map((filter) => (
                         <div key={filter} className='flex items-center space-x-2'>
                           <RadioGroup.Item value={filter} id={`user-${filter}`}>
                             <RadioGroup.Indicator />
@@ -259,7 +259,7 @@ export default function ScenariosIndex() {
                   <div className='space-y-3'>
                     <h4 className='text-sm font-medium text-base-black'>Avatar Gender</h4>
                     <RadioGroup.Root value={avatarGenderFilter} onValueChange={handleAvatarGenderFilterChange}>
-                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
+                      {(['All', 'Male', 'Female', 'Diverse'] as const).map((filter) => (
                         <div key={filter} className='flex items-center space-x-2'>
                           <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
                             <RadioGroup.Indicator />
@@ -300,18 +300,35 @@ export default function ScenariosIndex() {
                           alt={`${scenario.name} picture`}
                           className='object-cover size-full'
                         />
-                        {!showMyScenarios && me.id === scenario.userId && (
-                          <div className='absolute top-2 left-2 z-10'>
-                            <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                              🌐
-                              <span>By you</span>
-                            </div>
+                        <div className='absolute top-2 left-2 z-10'>
+                          <div className='flex items-center gap-2'>
+                            {!showMyScenarios && me.id === scenario.userId && (
+                              <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                                🌐
+                                <span>By you</span>
+                              </div>
+                            )}
+                            {scenario.sponsorships && scenario.sponsorships.length > 0 && (
+                              <Tooltip
+                                side='top'
+                                variant='light'
+                                trigger={
+                                  <div className='flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 py-1 pl-1 pr-1.5 rounded-full text-label text-white font-semibold shadow-lg cursor-help'>
+                                    🎁
+                                    <span>Free to use</span>
+                                  </div>
+                                }
+                                content={`This scenario has ${scenario.sponsorships.length} ${scenario.sponsorships.length === 1 ? 'sponsor' : 'sponsors'}. You can use it without spending your own tokens!`}
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+                            )}
                           </div>
-                        )}
+                        </div>
                         {(scenario.userGender || scenario.avatarGender) && (
                           <div className='absolute bottom-2 left-2 z-10'>
                             <div className='flex items-center gap-1'>
-                              <div className='flex rounded-full overflow-hidden text-label text-base-black font-semibold'>
+                              <div className={cn('flex rounded-full overflow-hidden text-label text-base-black font-semibold', scenario.userGender === scenario.avatarGender && 'gap-px')}>
                                 <Tooltip
                                   side='top'
                                   variant='light'
@@ -319,14 +336,13 @@ export default function ScenariosIndex() {
                                     <div className={cn('flex py-1 px-2 gap-0.5',
                                       scenario.userGender === 'Male' && 'bg-[#069cf3]' ,
                                       scenario.userGender === 'Female' && 'bg-[#FF85B7]',
-                                      scenario.userGender === 'Other' && 'bg-gradient-1'
+                                      scenario.userGender === 'Diverse' && 'bg-gradient-1'
                                     )}
                                     >
                                       { scenario.userGender === 'Male' && '🧔🏻‍♂️' ||
                                         scenario.userGender === 'Female' && '👩🏻' ||
-                                        scenario.userGender === 'Other' && '👤'
+                                        scenario.userGender === 'Diverse' && '👤'
                                       }
-                                      {/*<span>{scenario.userGender}</span>*/}
                                     </div>
                                   }
                                   content='User gender for this scenario'
@@ -341,14 +357,13 @@ export default function ScenariosIndex() {
                                     <div className={cn('flex py-1 px-2 gap-0.5',
                                       scenario.avatarGender === 'Male' && 'bg-[#069cf3]',
                                       scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',
-                                      scenario.avatarGender === 'Other' && 'bg-gradient-1'
+                                      scenario.avatarGender === 'Diverse' && 'bg-gradient-1'
                                     )}
                                     >
                                       { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||
                                         scenario.avatarGender === 'Female' && '👩🏻' ||
-                                        scenario.avatarGender === 'Other' && '🤖'
+                                        scenario.avatarGender === 'Diverse' && '🤖'
                                       }
-                                      {/*<span>{scenario.avatarGender}</span>*/}
                                     </div>
                                   }
                                   content='Avatar gender for this scenario'

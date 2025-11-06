@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 
 export const UI_TEXTS = {
   START_CHAT_FREE: 'Start Chat for Free',
+  LOGIN: 'Log in',
   GO_TO_CHATS: 'Go to Chats',
   CONNECTING: 'Connecting...',
   HOW_IT_WORKS: 'How It Works',
@@ -24,8 +25,11 @@ export const UI_TEXTS = {
 } as const;
 
 export const SELECTORS = {
-  HEADER_AUTH_BUTTON: 'header button:has-text("Start Chat for Free"), header button:has-text("Go to Chats")',
-  START_CHAT_BUTTON: 'button:has-text("Start Chat for Free")',
+  HEADER_AUTH_BUTTON: 'header button:has-text("Log in"), header button:has-text("Go to Chats")',
+  START_CHAT_BUTTON: 'button:has-text("Log in")',
+  LOGIN_MODAL: '#login-modal',
+  LOGIN_MODAL_METAMASK_BUTTON: '#login-modal button[data-testid="login-modal-metamask"]',
+  LOGIN_MODAL_GUEST_BUTTON: '#login-modal button[data-testid="login-modal-guest"]',
   VIDEO_IFRAME: 'iframe[title="YouTube video player"]',
   WARNING_BOX: '.bg-neutral-05',
   LOGO: 'img[alt="Cipherdolls"]',
@@ -169,8 +173,12 @@ export async function expectButtonState(
  */
 export async function connectWallet(page: Page, metamask: any, testContext: string) {
   try {
-    // Click the "Start Chat for Free" button in header
+    // Click the "Log in" button in header
     await page.locator(SELECTORS.START_CHAT_BUTTON).first().click();
+
+    await expectElementVisible(page, SELECTORS.LOGIN_MODAL, 'Login Modal');
+
+    await page.locator(SELECTORS.LOGIN_MODAL_METAMASK_BUTTON).first().click();
 
     await metamask.connectToDapp();
 
@@ -189,9 +197,9 @@ export async function connectWallet(page: Page, metamask: any, testContext: stri
 
 💡 Possible causes:
    1. MetaMask extension not loaded
-   2. "Start Chat for Free" button not found
+   2. "Log in" button not found
    3. MetaMask popup didn't appear
-   4. Connection was rejected
+   4. Login modal MetaMask button unavailable
 
 📍 Debug steps:
    1. Check if MetaMask extension is installed

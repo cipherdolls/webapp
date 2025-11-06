@@ -59,6 +59,35 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const getRecommendedModelId = (modelType: 'chatModel' | 'embeddingModel' | 'reasoningModel'): string => {
+    if (!aiProviders || aiProviders.length === 0) return '';
+
+    for (const provider of aiProviders) {
+      const modelsArr =
+        (modelType === 'chatModel' && provider.chatModels) ||
+        (modelType === 'embeddingModel' && provider.embeddingModels) ||
+        (modelType === 'reasoningModel' && provider.reasoningModels);
+
+      if (modelsArr && modelsArr.length > 0) {
+        const recommendedModel = modelsArr.find((model) => model.recommended);
+        if (recommendedModel) {
+          return recommendedModel.id;
+        }
+      }
+    }
+    return '';
+  };
+
+  const defaultChatModelId = useMemo(() => scenario?.chatModel?.id ?? getRecommendedModelId('chatModel'), [scenario, aiProviders]);
+  const defaultEmbeddingModelId = useMemo(
+    () => scenario?.embeddingModel?.id ?? getRecommendedModelId('embeddingModel'),
+    [scenario, aiProviders]
+  );
+  const defaultReasoningModelId = useMemo(
+    () => scenario?.reasoningModel?.id ?? getRecommendedModelId('reasoningModel'),
+    [scenario, aiProviders]
+  );
+
   const [scenarioData, setScenarioData] = useState({
     picture: scenario?.picture ?? null,
     published: scenario?.published ?? false,
@@ -71,9 +100,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
     presencePenalty: scenario?.presencePenalty ?? defaultScenarioData.presencePenalty,
     name: scenario?.name ?? '',
     systemMessage: scenario?.systemMessage ?? '',
-    chatModelId: scenario?.chatModel?.id ?? '',
-    embeddingModelId: scenario?.embeddingModel?.id ?? '',
-    reasoningModelId: scenario?.reasoningModel?.id ?? '',
     refreshIntroduction: false,
     avatars: scenario?.avatars
       ? (scenario.avatars.map((scenarioAvatar) => avatars.find((avatar) => avatar.id === scenarioAvatar.id)).filter(Boolean) as Avatar[])
@@ -452,7 +478,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Content>
                       <Select.Item value='Male'>Male</Select.Item>
                       <Select.Item value='Female'>Female</Select.Item>
-                      <Select.Item value='Other'>Other</Select.Item>
+                      <Select.Item value='Diverse'>Diverse</Select.Item>
                     </Select.Content>
                   </Select.Root>
                   <p className='text-xs text-gray-500'>Select the user gender for this scenario.</p>
@@ -474,7 +500,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Content>
                       <Select.Item value='Male'>Male</Select.Item>
                       <Select.Item value='Female'>Female</Select.Item>
-                      <Select.Item value='Other'>Other</Select.Item>
+                      <Select.Item value='Diverse'>Diverse</Select.Item>
                     </Select.Content>
                   </Select.Root>
                   <p className='text-xs text-gray-500'>Select the avatar gender for this scenario.</p>
@@ -511,7 +537,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
               <Input.Root>
                 <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
-                <Select.Root name='chatModelId' defaultValue={scenario?.chatModel.id}>
+                <Select.Root name='chatModelId' key={defaultChatModelId} defaultValue={defaultChatModelId}>
                   <Select.Trigger
                     id='chatModelId'
                     className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
@@ -590,7 +616,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
               <Input.Root>
                 <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-                <Select.Root name='embeddingModelId' defaultValue={scenario?.embeddingModel.id}>
+                <Select.Root name='embeddingModelId' key={defaultEmbeddingModelId} defaultValue={defaultEmbeddingModelId}>
                   <Select.Trigger
                     id='embeddingModelId'
                     className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
@@ -615,7 +641,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
               <Input.Root>
                 <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-                <Select.Root name='reasoningModelId' defaultValue={scenario?.reasoningModel?.id}>
+                <Select.Root name='reasoningModelId' key={defaultReasoningModelId} defaultValue={defaultReasoningModelId}>
                   <Select.Trigger
                     id='reasoningModelId'
                     className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
