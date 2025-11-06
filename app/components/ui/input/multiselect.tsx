@@ -14,6 +14,7 @@ interface MultiselectProps<T extends Option = Option> {
   options: T[];
   selectedOptions: T[];
   onChange: (selected: T[]) => void;
+  forType: 'scenarios' | 'avatars';
   placeholder?: string;
   className?: string;
   defaultValue?: string[];
@@ -27,13 +28,16 @@ export const Multiselect = <T extends Option>({
   placeholder = 'Select options',
   className,
   defaultValue,
+  forType
 }: MultiselectProps<T>) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Because we use it for both scenarios and avatars, I renamed it
   const groupOptions = {
-    mineScenarios: options.filter((scenario) => scenario.userId === userId),
-    publicScenarios: options.filter((scenario) => scenario.userId !== userId),
+    mine: options.filter((item) => item.userId === userId),
+    public: options.filter((item) => item.userId !== userId),
+    forType
   };
 
   useEffect(() => {
@@ -113,10 +117,13 @@ export const Multiselect = <T extends Option>({
         <div className='absolute top-full left-0 right-0 z-[60] mt-1 bg-base-white shadow-bottom-level-1 rounded-xl border border-neutral-04'>
           <div className='max-h-60 w-full overflow-auto rounded-xl' role='listbox'>
             <div className='p-1 flex flex-col gap-1.5'>
-              {groupOptions.mineScenarios.length > 0 && (
+              {groupOptions.mine.length > 0 && (
                 <>
-                  <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>Your Scenarios</span>
-                  {groupOptions.mineScenarios.map((option) => {
+                  <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>
+                    Your {forType === 'scenarios' ? 'Scenarios' : 'Avatars'}
+                  </span>
+
+                  {groupOptions.mine.map((option) => {
                     const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
                     return (
                       <div
@@ -137,10 +144,13 @@ export const Multiselect = <T extends Option>({
                 </>
               )}
 
-              {groupOptions.publicScenarios.length > 0 && (
+              {groupOptions.public.length > 0 && (
                 <>
-                  <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>Public Scenarios</span>
-                  {groupOptions.publicScenarios.map((option) => {
+                  <span className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>
+                    Public {forType === 'scenarios' ? 'Scenarios' : 'Avatars'}
+                  </span>
+
+                  {groupOptions.public.map((option) => {
                     const isSelected = Array.isArray(selectedOptions) && selectedOptions.some((item) => item.id === option.id);
                     return (
                       <div
