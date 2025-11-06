@@ -3,6 +3,7 @@ import React, { type ReactNode, useState, useRef, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 import { ANIMATE_DURATION } from '~/constants';
 import * as Button from '~/components/ui/button/button';
+import { AnimatePresence } from 'framer-motion';
 
 const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
   const [showFull, setShowFull] = useState(false);
@@ -59,9 +60,9 @@ const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
 
         <motion.div
           initial={false}
-          animate={{ transform: !showFull && isShouldShowButton ? 'translateY(0%)' : 'translateY(120%)'}}
+          animate={{ transform: !showFull && isShouldShowButton ? 'translateY(0%)' : 'translateY(120%)' }}
           transition={ANIMATE_DURATION}
-          className={cn('absolute bottom-2 left-1/2 -translate-x-1/2 z-50 h-10')}
+          className={cn('absolute bottom-2 left-1/2 -translate-x-1/2 z-50 h-10', showFull && 'hidden')}
         >
           <Button.Root size={'sm'} className='w-[110px]'>
             Show full
