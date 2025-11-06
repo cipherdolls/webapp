@@ -16,7 +16,7 @@ test.describe('Homepage Authentication Flow with Real MetaMask', () => {
     });
 
     await test.step('Verify auth button is available', async () => {
-      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Start Chat for Free Button');
+      await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Log in Button');
     });
 
     await test.step('Connect wallet', async () => {
@@ -44,6 +44,8 @@ test.describe('Homepage Authentication Flow with Real MetaMask', () => {
       const signinResponsePromise = page.waitForResponse((response) => response.url().includes('/auth/signin')).catch(() => null);
 
       await page.locator(SELECTORS.START_CHAT_BUTTON).first().click();
+      await expectElementVisible(page, SELECTORS.LOGIN_MODAL, 'Login Modal');
+      await page.locator(SELECTORS.LOGIN_MODAL_METAMASK_BUTTON).first().click();
       await metamask.connectToDapp();
 
       await page.evaluate(() => {
@@ -55,6 +57,8 @@ test.describe('Homepage Authentication Flow with Real MetaMask', () => {
       await page.waitForTimeout(1000);
 
       await page.locator(SELECTORS.START_CHAT_BUTTON).first().click();
+      await expectElementVisible(page, SELECTORS.LOGIN_MODAL, 'Login Modal (signature step)');
+      await page.locator(SELECTORS.LOGIN_MODAL_METAMASK_BUTTON).first().click();
 
       await handleSignatureWithCleanup(page, metamask, 'Complete Authentication Flow');
 

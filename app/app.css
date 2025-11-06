@@ -317,6 +317,61 @@ input[type='number'] {
   animation: fade-in 0.5s ease-out forwards;
 }
 
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+.animate-overlay-fade {
+  animation: overlay-fade 0.3s ease-out forwards;
+  will-change: opacity, backdrop-filter;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-modal-fade {
+  animation: modal-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes bubble-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate3d(12px, -18px, 0) scale(1.05);
+  }
+
+  50% {
+    transform: translate3d(-16px, 10px, 0) scale(0.98);
+  }
+
+  75% {
+    transform: translate3d(18px, 16px, 0) scale(1.03);
+  }
+}
+
+.animate-float {
+  animation: bubble-float 18s ease-in-out infinite;
+  will-change: transform;
+}
+
 @keyframes custom-pulse {
   0%,
   100% {

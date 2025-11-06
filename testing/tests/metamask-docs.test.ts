@@ -21,12 +21,14 @@ test('should connect wallet and sign in to CipherDolls', async ({ context, page,
     await page.waitForTimeout(1000);
   });
 
-  await test.step('Verify signin form is available', async () => {
-    await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Sign In Form');
+  await test.step('Verify signin button is available', async () => {
+    await expectElementVisible(page, SELECTORS.START_CHAT_BUTTON, 'Log in Button');
   });
 
   await test.step('Connect wallet', async () => {
     await page.locator(SELECTORS.START_CHAT_BUTTON).click();
+    await expectElementVisible(page, SELECTORS.LOGIN_MODAL, 'Login Modal');
+    await page.locator(SELECTORS.LOGIN_MODAL_METAMASK_BUTTON).click();
 
     await metamask.connectToDapp();
 
@@ -43,6 +45,8 @@ test('should connect wallet and sign in to CipherDolls', async ({ context, page,
 
   await test.step('Complete authentication flow', async () => {
     await page.locator(SELECTORS.START_CHAT_BUTTON).click();
+    await expectElementVisible(page, SELECTORS.LOGIN_MODAL, 'Login Modal (Signature Step)');
+    await page.locator(SELECTORS.LOGIN_MODAL_METAMASK_BUTTON).click();
 
     await handleSignatureWithCleanup(page, metamask, 'MetaMask Docs Test');
 

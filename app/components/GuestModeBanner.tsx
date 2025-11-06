@@ -68,7 +68,7 @@ export const GuestModeBanner: React.FC = () => {
                onClick={handleConnectMetaMask}
                disabled={isLoading}
              >
-               {isLoading ? 'Connecting...' : 'Connect MetaMask'}
+               {isLoading ? 'Connecting...' : 'Continue with MetaMask'}
              </Button.Root>
           </div>
         </div>

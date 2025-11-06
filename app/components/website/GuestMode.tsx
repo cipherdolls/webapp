@@ -2,13 +2,13 @@ import React, { useRef, useEffect } from 'react';
 import { Play, Shield, Zap, ChevronUp, ChevronDown } from 'lucide-react';
 import * as Button from '~/components/ui/button/button';
 import { useAuthStore } from '~/store/useAuthStore';
-import { useWalletAuth } from '~/hooks/useWalletAuth';
 import { Link } from 'react-router';
 import { ROUTES } from '~/constants';
+import { useLoginModal } from '~/context/login-modal-context';
 
 const GuestMode = () => {
-  const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
   const { isAuthenticated, isUsingBurnerWallet } = useAuthStore();
+  const { open } = useLoginModal();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLDivElement>(null);
@@ -177,8 +177,8 @@ const GuestMode = () => {
 
             {/* Right - Actions */}
             <div>
-              <Button.Root size='lg' variant='white' className='px-10 md:px-20' onClick={signInAsGuest} disabled={isLoading}>
-                {isLoading ? 'Connecting...' : isUsingBurnerWallet ? 'Continue as a Guest' : 'Start a Guest Chat'}
+              <Button.Root size='lg' variant='white' className='px-10 md:px-20' onClick={open}>
+                {isUsingBurnerWallet ? 'Continue as a Guest' : 'Start a Guest Chat'}
               </Button.Root>
             </div>
           </div>
