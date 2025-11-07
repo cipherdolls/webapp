@@ -110,9 +110,6 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-accordion-down: accordion-down 0.2s ease-out;
 
-  --animate-popover-toggle: popover-toggle 0.3s ease;
-  --animate-tooltip-toggle: tooltip-toggle 0.3s ease;
-
   @keyframes eye {
     0% {
       background-position: 0% 50%;
@@ -140,32 +137,6 @@
     }
     to {
       height: 0;
-    }
-  }
-
-  @keyframes popover-toggle {
-    0% {
-      opacity: 0;
-      scale: 0.9;
-      transform: translateX(28%);
-    }
-
-    100% {
-      opacity: 1;
-      scale: 1;
-      transform: translateX(0%);
-    }
-  }
-
-  @keyframes tooltip-toggle {
-    0% {
-      opacity: 0;
-      scale: 0.9;
-    }
-
-    100% {
-      opacity: 1;
-      scale: 1;
     }
   }
 }

@@ -218,7 +218,7 @@ export default function ScenariosIndex() {
               </button>
             )}
 
-            <div className='flex items-center gap-2 px-3 py-2 bg-neutral-06 rounded-lg'>
+            <div className='flex items-center gap-2 px-3 py-2 bg-neutral-06 rounded-lg select-none'>
               <Switch.Root checked={showNsfw} onCheckedChange={() => handleNsfwToggle()}>
                 <Switch.Thumb />
               </Switch.Root>
@@ -247,7 +247,7 @@ export default function ScenariosIndex() {
                           <RadioGroup.Item value={filter} id={`user-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`user-${filter}`} className='text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-out hover:text-base-black'>
+                          <label htmlFor={`user-${filter}`} className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-out hover:text-base-black'>
                             {filter}
                           </label>
                         </div>
@@ -264,7 +264,7 @@ export default function ScenariosIndex() {
                           <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`avatar-${filter}`} className='text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-in hover:text-base-black'>
+                          <label htmlFor={`avatar-${filter}`} className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-in hover:text-base-black'>
                             {filter}
                           </label>
                         </div>

@@ -8,6 +8,7 @@ import { Icons } from './ui/icons';
 import { getPicture } from '~/utils/getPicture';
 import type { Avatar, Scenario } from '~/types';
 import { ThumbsUp } from 'lucide-react';
+import { cn } from '~/utils/cn';
 
 interface SelectionModalProps<T> {
   type: 'avatar' | 'scenario';
@@ -25,6 +26,7 @@ interface SelectionModalProps<T> {
   fetchNextPage: () => void;
   isFetchingNextPage: boolean;
   renderItem: (item: T, isRecommended?: boolean) => React.ReactNode;
+  isOverlayed?: boolean; // Optional prop to control the blur effect
 }
 
 const ITEMS_PER_PAGE = 4;
@@ -57,6 +59,7 @@ export function SelectionModal<T>({
   fetchNextPage,
   isFetchingNextPage,
   renderItem,
+  isOverlayed
 }: SelectionModalProps<T>) {
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounceValue(searchValue, DEBOUNCE_DELAY);
@@ -81,7 +84,7 @@ export function SelectionModal<T>({
   return (
     <Modal.Root open={isOpen} onOpenChange={onOpenChange}>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
-      <Modal.Content className='max-w-2xl'>
+      <Modal.Content className={cn('max-w-2xl', isOverlayed && 'blur-xs')}>
         <div className='relative h-32 -mx-8 -mt-8 mb-6'>
           <div className='absolute inset-0 bg-gradient-1 rounded-t-xl overflow-hidden'>
             {selectedScenario?.picture ? (

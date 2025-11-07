@@ -218,7 +218,7 @@ export default function AvatarsShow() {
                           <RadioGroup.Item value={filter} id={`gender-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`gender-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                          <label htmlFor={`gender-${filter}`} className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer'>
                             {filter === 'All' ? 'All genders' : filter}
                           </label>
                         </div>
