@@ -35,7 +35,7 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({ isOpen, onClose, 
             className='text-neutral-01 hover:text-base-black transition-colors'
             aria-label='Close'
           >
-            <Icons.close />
+            <Icons.close className='w-7 h-7'/>
           </button>
         </Modal.Close>
       </div>
@@ -81,13 +81,13 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({ isOpen, onClose, 
         >
           {copied ? (
             <>
-              <Icons.copied className='w-4 h-4' />
+              <Icons.copied className='w-5 h-5' />
               Copied!
             </>
           ) : (
             <>
-              <Icons.copy className='w-4 h-4' />
-              Copy to Clipboard
+              <Icons.copy className='w-5 h-5' />
+              Copy
             </>
           )}
         </Button.Root>
