@@ -42,6 +42,9 @@ const TokenBalance = () => {
   const rawBalance = user?.tokenBalance || '0';
   const validatedBalance = isValidTokenBalance(rawBalance) ? rawBalance : '0';
 
+  const rawSpendable = user?.tokenSpendable || '0';
+  const validatedSpendable = isValidTokenBalance(rawSpendable) ? rawSpendable : '0';
+
   const handleRefreshBalance = useCallback(() => {
     if (!user) return;
 
@@ -122,9 +125,15 @@ const TokenBalance = () => {
               </div>
             </button>
 
-            <div className='flex justify-between text-heading-h3 font-semibold text-base-black'>
-              <motion.span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</motion.span>
-              <span className='text-neutral-01'>LOV</span>
+            <div className='flex flex-col gap-1 flex-1'>
+              <div className='flex justify-between text-heading-h3 font-semibold text-base-black'>
+                <motion.span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</motion.span>
+                <span className='text-neutral-01'>LOV</span>
+              </div>
+              <div className='flex justify-between text-body-sm text-neutral-02'>
+                <span>Spendable:</span>
+                <span className='font-medium'>{validatedSpendable} LOV</span>
+              </div>
             </div>
           </div>
         </div>
