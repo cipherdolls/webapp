@@ -36,7 +36,7 @@ const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
         ref={contentRef}
         onClick={handleClick}
         className={cn(
-          'bg-gradient-1 group select-none p-5 flex flex-col gap-5 flex-1 text-body-md text-base-black rounded-xl overflow-hidden backdrop-blur-48',
+          'bg-gradient-1 break-all group select-none p-5 flex flex-col gap-5 flex-1 text-body-md text-base-black rounded-xl overflow-hidden backdrop-blur-48',
           !isContentTooSmall && 'cursor-pointer'
         )}
       >
