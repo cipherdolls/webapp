@@ -46,7 +46,10 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
         </div>
       </div>
       <div className='flex gap-3 items-center'>
-        <ChatEventsPanel chatId={chat.id} />
+        <div className='hidden md:block'>
+          <ChatEventsPanel chatId={chat.id} />
+        </div>
+
         {isAdmin && (
           <Tooltip
             trigger={
@@ -55,11 +58,11 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
                 className='text-base-black shrink-0 hover:opacity-60 transition-opacity flex items-center'
                 aria-label='View System Prompt'
               >
-                <Info size={20} />
+                <Info size={23} />
               </button>
             }
             content='View System Prompt (Admin Only)'
-            side='bottom'
+            side='left'
           />
         )}
         <motion.div whileHover={{ transform: 'rotate(35deg)', opacity: 0.6 }} transition={{ duration: 0.25 }}>
