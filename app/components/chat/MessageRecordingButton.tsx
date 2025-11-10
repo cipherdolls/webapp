@@ -13,12 +13,14 @@ import { useAudioPlayerContext } from 'react-use-audio-player';
 interface MessageRecordingButtonProps {
   chat: Chat;
   onSubmit: (formData: FormData) => void;
+  disabled?: boolean;
 }
 
 
 const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   chat,
-  onSubmit
+  onSubmit,
+  disabled = false
 }) => {
   const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(useShallow(state => ({
     currentChatState: state.currentChatState,
@@ -92,7 +94,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
   };
 
   return currentChatState === ChatState.userSpeaking ? (
-    <Button.Root size="icon" onClick={stopRecording} className={cn('relative z-[1]')} type="button">
+    <Button.Root size="icon" onClick={stopRecording} className={cn('relative z-[1]')} type="button" disabled={disabled}>
       <Button.Icon as={Icons.stopSound} />
       <AnimationRecording className="absolute top-1/2 left-1/2 -translate-1/2 -z-10" />
     </Button.Root>
@@ -100,7 +102,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
     <Button.Root
       size="icon"
       onClick={startRecording}
-      disabled={currentChatState === ChatState.error}
+      disabled={disabled || currentChatState === ChatState.error}
       type="button"
     >
       <Button.Icon as={Icons.microphone} />
