@@ -150,6 +150,9 @@ export default function ScenariosIndex() {
   };
 
   useEffect(() => {
+    // For cases when the user to redirect here from /account
+    scrollToTop();
+
     const scrollContainer = document.querySelector('main.overflow-y-scroll') as HTMLElement;
     scrollContainerRef.current = scrollContainer;
 
