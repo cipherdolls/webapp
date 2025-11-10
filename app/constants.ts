@@ -71,6 +71,7 @@ export const TOKEN_BALANCE = {
   DECIMAL_PLACES: 3,
   RATE_LIMIT_MS: 2000,
   FEEDBACK_TIMEOUT_MS: 3000,
+  MINIMUM_SPENDABLE: 0.1,
 } as const;
 
 export const LANGUAGES = [
@@ -128,60 +129,60 @@ export const ANIMATE_OVERLAY = {
   initial: { opacity: 0.3 },
   animate: { opacity: 1 },
   exit: { opacity: 0 },
-  transition: ANIMATE_DURATION
-}
+  transition: ANIMATE_DURATION,
+};
 
 export const ANIMATE_MODAL_SHOW_CENTER = {
   initial: { scale: 1.2 },
   animate: { scale: 1 },
-  transition: { duration: 0.20 }
-}
+  transition: { duration: 0.2 },
+};
 
 export const ANIMATE_MODAL_SHOW_RIGHT = {
   initial: { opacity: 0.5, transform: 'translateX(25%)' },
   animate: { opacity: 1, transform: 'translateX(0%)' },
-  transition: { duration: 0.20 }
-}
+  transition: { duration: 0.2 },
+};
 
 export const ANIMATE_CHAT_ITEMS = {
   initial: { opacity: 0, height: 0 },
   animate: { opacity: 1, height: 'auto' },
   exit: { opacity: 0, height: 0 },
   transition: ANIMATE_DURATION,
-}
+};
 
 export const ANIMATE_POPOVER_CENTER = {
   initial: { opacity: 0, scale: 0.9, y: '-10%' },
   animate: { opacity: 1, scale: 1, y: '0%' },
   exit: { opacity: 0, scale: 0.9, y: '-10' },
-}
+};
 
 export const ANIMATE_POPOVER_RIGHT = {
   initial: { opacity: 0, scale: 0.9, x: '28%' },
   animate: { opacity: 1, scale: 1, x: '0%' },
   exit: { opacity: 0, scale: 0, x: '28%' },
-}
+};
 
 export const ANIMATE_POPOVER_LEFT = {
   initial: { opacity: 0, scale: 0.9, x: '28%' },
   animate: { opacity: 1, scale: 1, x: '0%' },
   exit: { opacity: 0, scale: 0, x: '28%' },
-}
+};
 
 export const ANIMATE_TOOLTIP_CENTER = {
   initial: { opacity: 0, scale: 0.9, y: '10%' },
   animate: { opacity: 1, scale: 1, y: '0%' },
   exit: { opacity: 0, scale: 0.9, y: '10' },
-}
+};
 
 export const ANIMATE_TOOLTIP_RIGHT = {
   initial: { opacity: 0, scale: 0.9 },
   animate: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0 },
-}
+};
 
 export const ANIMATE_TOOLTIP_LEFT = {
   initial: { opacity: 0, scale: 0.9 },
   animate: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0 },
-}
+};

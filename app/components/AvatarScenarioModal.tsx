@@ -4,23 +4,25 @@ import { useState, useCallback, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
-import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
 import SelectionModal from './SelectionModal';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
-import { ROUTES } from '~/constants';
+import { ROUTES, TOKEN_BALANCE } from '~/constants';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
   children: React.ReactNode;
+  userTokenSpendable?: number;
 }
 
-const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, children }) => {
+const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, children, userTokenSpendable = 0 }) => {
   const navigate = useNavigate();
   const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
 
   const confirm = useConfirm();
+  const alert = useAlert();
 
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,6 +76,15 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
 
   //  TODO: Move this logic to the backend of the delete avatar!!
   const handleCreateChat = async () => {
+    if (userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
+      alert({
+        icon: '💰',
+        title: 'Insufficient Tokens',
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+      });
+      return;
+    }
+
     if (selectedScenario) {
       const hasChatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario.id);
 

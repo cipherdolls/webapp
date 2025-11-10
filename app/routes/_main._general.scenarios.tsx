@@ -417,8 +417,15 @@ export default function ScenariosIndex() {
                           {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
                         </div>
                         <div className='flex items-center gap-3'>
-                          <ScenarioAvatarModal scenario={scenario}>
-                            <Button.Root size='sm' className='px-5'>
+                          <ScenarioAvatarModal scenario={scenario} userTokenSpendable={me.tokenSpendable || 0}>
+                            <Button.Root
+                              size='sm'
+                              className='px-5'
+                              disabled={
+                                (!me.tokenSpendable || me.tokenSpendable === 0) &&
+                                (!scenario.sponsorships || scenario.sponsorships.length === 0)
+                              }
+                            >
                               Chat
                             </Button.Root>
                           </ScenarioAvatarModal>
