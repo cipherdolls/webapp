@@ -81,6 +81,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
       ? {
           published: 'true',
           limit: '3',
+          gender: selectedAvatar.gender,
         }
       : undefined
   );
@@ -94,6 +95,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
   } = useInfiniteScenarios({
     published: 'true',
     name: searchTerm || '',
+    gender: selectedAvatar?.gender || undefined,
   });
 
   const infiniteScenarios = infiniteScenariosData?.pages.flatMap((page) => page.data) || [];
