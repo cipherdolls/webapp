@@ -11,12 +11,15 @@ import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioUnlock } from '~/hooks/useAudioUnlock';
 import { useCreateMessage } from '~/hooks/queries/messageMutations';
+import { useUser } from '~/hooks/queries/userQueries';
+import { TOKEN_BALANCE } from '~/constants';
 
 interface ChatBottomBarProps {
   chat: Chat;
 }
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
+  const { data: user } = useUser();
   const { currentChatState, hasMicAccess, setTalkMode } = useChatStore(
     useShallow((state) => ({
       currentChatState: state.currentChatState,
@@ -32,12 +35,25 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  const hasMinimumTokens = (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
+  const isMessageDisabled = currentChatState === ChatState.error || !hasMinimumTokens;
+
   const handleContainerClick = () => {
     textAreaRef.current?.focus();
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!hasMinimumTokens) {
+      alert({
+        icon: '💰',
+        title: 'Insufficient Tokens',
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to send messages. Please add more tokens to continue.`,
+      });
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
     unlockAudio();
     createMessage(
@@ -58,11 +74,29 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   };
 
   const handleVoiceMessageSubmit = (formData: FormData) => {
+    if (!hasMinimumTokens) {
+      alert({
+        icon: '💰',
+        title: 'Insufficient Tokens',
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to send messages. Please add more tokens to continue.`,
+      });
+      return;
+    }
+
     unlockAudio();
     createMessage({ chatId: chat.id, formData });
   };
 
   const handleLiveTalk = () => {
+    if (!hasMinimumTokens) {
+      alert({
+        icon: '💰',
+        title: 'Insufficient Tokens',
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to use live talk. Please add more tokens to continue.`,
+      });
+      return;
+    }
+
     unlockAudio();
     if (!hasMicAccess) {
       alert({
@@ -90,6 +124,10 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
             {currentChatState === ChatState.error ? (
               <div className='text-body-md text-base-black flex items-center gap-2'>Chat is not available</div>
+            ) : !hasMinimumTokens ? (
+              <div className='text-body-md text-neutral-02 flex items-center gap-2'>
+                Insufficient tokens. You need at least {TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV to send messages.
+              </div>
             ) : currentChatState === ChatState.userSpeaking ? (
               <div className='flex items-center gap-4 text-body-md text-base-black'>
                 <p>Recording</p>
@@ -112,17 +150,17 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
               <Button.Root
                 size='icon'
                 type='submit'
-                disabled={currentChatState === ChatState.error || isCreatingMessage || isCreatingMessage}
+                disabled={isMessageDisabled || isCreatingMessage}
               >
                 <Button.Icon as={isCreatingMessage ? Icons.loading : Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton chat={chat} onSubmit={handleVoiceMessageSubmit} />
+              <MessageRecordingButton chat={chat} onSubmit={handleVoiceMessageSubmit} disabled={isMessageDisabled} />
             )}
             <Button.Root
               size='icon'
               type='button'
-              disabled={currentChatState === ChatState.error}
+              disabled={isMessageDisabled}
               onClick={() => {
                 handleLiveTalk();
               }}

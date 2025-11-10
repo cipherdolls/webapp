@@ -5,23 +5,25 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
-import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
 import { useState, useCallback, useEffect } from 'react';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
-import { ROUTES } from '~/constants';
+import { ROUTES, TOKEN_BALANCE } from '~/constants';
 
 interface ScenarioAvatarModalProps {
   scenario: Scenario;
   children: React.ReactNode;
   chats?: Chat[];
+  userTokenSpendable?: number;
 }
 
-const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, children, chats }) => {
+const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, children, chats, userTokenSpendable = 0 }) => {
   const navigate = useNavigate();
   const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
 
   const confirm = useConfirm();
+  const alert = useAlert();
 
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +41,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
   } = useInfiniteAvatars({
     published: 'true',
     name: searchTerm || '',
+    gender: scenario.avatarGender || undefined,
   });
 
   const avatars = avatarsData?.pages.flatMap((page) => page.data) || [];
@@ -74,6 +77,17 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
   }, [isOpen]);
 
   const handleCreateChat = async () => {
+    const isSponsored = scenario.sponsorships && scenario.sponsorships.length > 0;
+
+    if (!isSponsored && userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
+      alert({
+        icon: '💰',
+        title: 'Insufficient Tokens',
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+      });
+      return;
+    }
+
     if (selectedAvatar) {
       const hasChatWithSameScenario = selectedAvatar.chats?.find((chat) => chat.scenarioId === scenario.id);
 
