@@ -39,6 +39,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
   } = useInfiniteAvatars({
     published: 'true',
     name: searchTerm || '',
+    gender: scenario.avatarGender || undefined,
   });
 
   const avatars = avatarsData?.pages.flatMap((page) => page.data) || [];
