@@ -51,10 +51,10 @@ export const YourReferrals = () => {
       {(referralCount || 0) > 0 ? (
         <Card.Main className='max-h-max flex-none'>
           <Card.Content className='border-t-0'>
-            <div className='sm:py-14'>
-              <div className='py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
+            <div className='py-8 sm:py-14'>
+              <div className='py-6 sm:py-4 px-6 flex flex-col items-center sm:justify-center sm:gap-2 gap-6'>
                 <h1 className='sm:text-heading-h1 text-heading-h2'>🎉</h1>
-                <div className='flex sm:items-center flex-col gap-1 sm:gap-2'>
+                <div className='flex items-center flex-col gap-1 sm:gap-2'>
                   <div className='bg-neutral-05 flex justify-center gap-1 w-6/12 py-1.5 px-2 rounded-b-xl border border-neutral-04 border-t-0 absolute top-0 left-1/2 -translate-x-1/2'>
                     <button
                       onClick={() =>
@@ -83,7 +83,7 @@ export const YourReferrals = () => {
                     </button>
                   </div>
 
-                  <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>
+                  <h4 className='text-heading-h4 text-base-black sm:text-center'>
                     You Have {(referralCount || 0) > 1 ? `${referralCount} Referrals` : `1 Referral`}
                   </h4>
 
@@ -114,14 +114,14 @@ export const YourReferrals = () => {
       ) : (
         <Card.Main className='max-h-max flex-none'>
           <Card.Content className='border-t-0'>
-            <div className='sm:py-14'>
-              <div className='py-6 sm:py-4 px-6 flex sm:flex-col flex-row items-center sm:justify-center sm:gap-2 gap-6'>
-                <h1 className='sm:text-heading-h1 text-heading-h2'>🤷‍♀️</h1>
+            <div className='py-8 sm:py-14'>
+              <div className='py-6 sm:py-4 px-6 flex flex-col items-center sm:justify-center sm:gap-2 gap-6'>
+                <h1 className='text-heading-h1'>🤷‍♀️</h1>
                 <div className='flex sm:items-center flex-col sm:gap-2 gap-1'>
-                  <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Referrals Yet</h4>
+                  <h4 className='sm:text-heading-h4 text-body-lg text-base-black text-center'>You Have No Referrals Yet</h4>
                   <button
                     onClick={handleInviteCopy}
-                    className='inline-flex w-fit justify-center text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2'
+                    className='inline-flex justify-center text-body-md text-neutral-01 text-center underline decoration-neutral-01 underline-offset-2'
                   >
                     {copied ? (
                       <span className='flex gap-1 items-center'>
