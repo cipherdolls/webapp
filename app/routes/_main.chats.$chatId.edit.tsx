@@ -227,15 +227,16 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
                             {chat.scenario.chatModel.error && (
                               <div className='flex gap-1'>
+                                <DetailRow title='Chat Model Error' value='' />
+
                                 <Tooltip
-                                  side='top'
+                                  side='left'
                                   variant='error'
                                   trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                   content={chat.scenario.chatModel.error}
                                   popoverClassName='max-w-[320px]'
                                   className='max-w-[350px]'
                                 />
-                                <DetailRow title='Chat Model Error' value={chat.scenario.chatModel.error} />
                               </div>
                             )}
 
@@ -253,17 +254,17 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                             />
 
                             {chat.scenario.embeddingModel.error && (
-                              <div className='flex gap-1'>
+                              <div className='flex justify-between gap-1'>
+                                <DetailRow title='Embedding Error' value='' />
+
                                 <Tooltip
-                                  side='top'
+                                  side='left'
                                   variant='error'
                                   trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                   content={chat.scenario.embeddingModel.error}
                                   popoverClassName='max-w-[320px]'
                                   className='max-w-[350px]'
                                 />
-
-                                <DetailRow title='Embedding Error' value={chat.scenario.embeddingModel.error} />
                               </div>
                             )}
 
@@ -284,16 +285,16 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
 
                                 {chat.scenario.reasoningModel.error && (
                                   <div className='flex gap-1'>
+                                    <DetailRow title='Reasoning Error' value='' />
+
                                     <Tooltip
-                                      side='top'
+                                      side='left'
                                       variant='error'
                                       trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                       content={chat.scenario.reasoningModel.error}
                                       popoverClassName='max-w-[320px]'
                                       className='max-w-[350px]'
                                     />
-
-                                    <DetailRow title='Reasoning Error' value={chat.scenario.reasoningModel.error} />
                                   </div>
                                 )}
                               </>

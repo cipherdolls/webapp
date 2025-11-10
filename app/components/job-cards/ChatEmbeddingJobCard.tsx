@@ -19,6 +19,8 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   return (
     <DataCard.Root>
       <div className='flex items-center gap-2'>
+        <DataCard.Label>Embedding Job</DataCard.Label>
+
         {embeddingJob?.embeddingModel?.error && (
           <Tooltip
             side='top'
@@ -29,8 +31,6 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
             className='max-w-[350px]'
           />
         )}
-
-        <DataCard.Label>Embedding Job</DataCard.Label>
       </div>
 
       <DataCard.Wrapper>
