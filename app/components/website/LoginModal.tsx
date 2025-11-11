@@ -4,7 +4,7 @@ import { useAuthStore } from '~/store/useAuthStore';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MessageSquare, Zap, X, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { cnExt } from '~/utils/cn';
+import { cn, cnExt } from '~/utils/cn';
 import { ROUTES } from '~/constants';
 import { useNavigate } from 'react-router';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -13,6 +13,8 @@ const LoginModal = () => {
   const [isLoadingMetamask, setIsLoadingMetamask] = useState(false);
   const [isLoadingGuest, setIsLoadingGuest] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
   const { isOpen, close } = useLoginModal();
   const { verifyToken } = useAuthStore();
   const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
@@ -25,10 +27,12 @@ const LoginModal = () => {
 
     setIsLoadingMetamask(true);
     try {
+      setIsConfirmOpen(true)
       await signIn();
     } catch (error) {
       console.error('Sign in with MetaMask failed:', error);
     } finally {
+      setIsConfirmOpen(false)
       setIsLoadingMetamask(false);
     }
   };
@@ -115,7 +119,8 @@ const LoginModal = () => {
             ></div>
           </div>
         </Dialog.Overlay>
-        <Dialog.Content className='fixed inset-0 sm:left-[50%] sm:top-[50%] z-50 sm:translate-x-[-50%] sm:translate-y-[-50%] bg-white rounded-none sm:rounded-3xl shadow-2xl max-w-full sm:max-w-lg w-full h-full sm:h-fit sm:max-h-[calc(100vh-150px)] sm:overflow-y-auto animate-modal-fade overflow-y-auto'>
+
+        <Dialog.Content className={cn('fixed inset-0 sm:left-[50%] sm:top-[50%] z-50 sm:translate-x-[-50%] sm:translate-y-[-50%] bg-white rounded-none sm:rounded-3xl shadow-2xl max-w-full sm:max-w-lg w-full h-full sm:h-fit sm:max-h-[calc(100vh-150px)] sm:overflow-y-auto animate-modal-fade overflow-y-auto', isConfirmOpen && 'blur-xs')}>
           <VisuallyHidden>
             <Dialog.Title>Start Your Conversation</Dialog.Title>
             <Dialog.Description>

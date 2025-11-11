@@ -131,7 +131,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <Steps />
         <Avatars avatars={avatars.data.slice(0, 4)} />
         <Scenarios scenarios={scenarios.data.slice(0, 5)} />
-        <GuestMode />
+        {/*<GuestMode />*/}
         <Features />
         <CTA />
       </div>
