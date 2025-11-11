@@ -8,6 +8,7 @@ import AvatarCard from '~/components/AvatarCardReusable';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 import { ANIMATE_CHAT_ITEMS, ANIMATE_DURATION, ROUTES } from '~/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMediaQuery } from 'usehooks-ts';
@@ -39,6 +40,7 @@ const YourChats = () => {
 
   const { data: chatsData, isLoading: chatsLoading } = useChats();
   const { data: avatarsData, isLoading: avatarsLoading } = useAvatars();
+  const { data: user } = useUser();
 
   const isMobile = useMediaQuery('(max-width: 768px)');
 

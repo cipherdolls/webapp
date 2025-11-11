@@ -292,7 +292,7 @@ export default function AvatarsShow() {
                         <div className='flex items-center gap-3'>
                           {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}
 
-                          <AvatarScenarioModal avatar={avatar} userTokenSpendable={me.tokenSpendable || 0}>
+                          <AvatarScenarioModal avatar={avatar}>
                             <Button.Root size='sm' className='px-5' disabled={!me.tokenSpendable || me.tokenSpendable === 0}>
                               Chat
                             </Button.Root>

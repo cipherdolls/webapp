@@ -5,6 +5,7 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
+import { useUser } from '~/hooks/queries/userQueries';
 import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
 import { useState, useCallback, useEffect } from 'react';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
@@ -14,13 +15,13 @@ interface ScenarioAvatarModalProps {
   scenario: Scenario;
   children: React.ReactNode;
   chats?: Chat[];
-  userTokenSpendable?: number;
 }
 
-const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, children, chats, userTokenSpendable = 0 }) => {
+const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, children, chats }) => {
   const navigate = useNavigate();
   const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
+  const { data: user } = useUser();
 
   const confirm = useConfirm();
   const alert = useAlert();
@@ -78,6 +79,7 @@ const ScenarioAvatarModal: React.FC<ScenarioAvatarModalProps> = ({ scenario, chi
 
   const handleCreateChat = async () => {
     const isSponsored = scenario.sponsorships && scenario.sponsorships.length > 0;
+    const userTokenSpendable = user?.tokenSpendable || 0;
 
     if (!isSponsored && userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
       alert({

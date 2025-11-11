@@ -420,7 +420,7 @@ export default function ScenariosIndex() {
                           {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
                         </div>
                         <div className='flex items-center gap-3'>
-                          <ScenarioAvatarModal scenario={scenario} userTokenSpendable={me.tokenSpendable || 0}>
+                          <ScenarioAvatarModal scenario={scenario}>
                             <Button.Root
                               size='sm'
                               className='px-5'
