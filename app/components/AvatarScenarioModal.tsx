@@ -5,11 +5,13 @@ import { cn } from '~/utils/cn';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useAuthStore } from '~/store/useAuthStore';
 import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
 import SelectionModal from './SelectionModal';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
 import { ROUTES, TOKEN_BALANCE } from '~/constants';
+import { useShallow } from 'zustand/react/shallow';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
@@ -21,6 +23,11 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
   const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
   const { data: user } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore(
+    useShallow((state) => ({
+      isUsingBurnerWallet: state.isUsingBurnerWallet,
+    }))
+  );
 
   const confirm = useConfirm();
   const alert = useAlert();
@@ -79,7 +86,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
   const handleCreateChat = async () => {
     const userTokenSpendable = user?.tokenSpendable || 0;
 
-    if (userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
+    if (!isUsingBurnerWallet && userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
       alert({
         icon: '💰',
         title: 'Insufficient Tokens',
