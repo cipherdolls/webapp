@@ -6,6 +6,7 @@ import * as Button from '~/components/ui/button/button';
 import ScenarioAvatarModal from './ScenarioAvatarModal';
 import { cn } from '~/utils/cn';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 import DashboardCard from './DashboardCard';
 import { ANIMATE_DURATION, ROUTES } from '~/constants';
 import { motion } from 'motion/react';
@@ -29,6 +30,7 @@ function YourScenariosSkeleton() {
 
 const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true' });
+  const { data: user } = useUser();
   const isLaptop = useMediaQuery('(min-width: 640px) and (max-width: 1024px)');
   const isMobile = useMediaQuery('(max-width: 640px)');
 

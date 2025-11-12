@@ -7,6 +7,7 @@ import EyeStatus from './ui/EyeStatus';
 import { ChatState } from './types/chatState';
 import MessageRecordingButton from './MessageRecordingButton';
 import { useChatStore } from '~/store/useChatStore';
+import { useAuthStore } from '~/store/useAuthStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioUnlock } from '~/hooks/useAudioUnlock';
@@ -27,6 +28,11 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
       setTalkMode: state.setTalkMode,
     }))
   );
+  const { isUsingBurnerWallet } = useAuthStore(
+    useShallow((state) => ({
+      isUsingBurnerWallet: state.isUsingBurnerWallet,
+    }))
+  );
   const { mutate: createMessage, isPending: isCreatingMessage } = useCreateMessage();
   const alert = useAlert();
 
@@ -35,7 +41,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const hasMinimumTokens = (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
+  const hasMinimumTokens = isUsingBurnerWallet || (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
   const isMessageDisabled = currentChatState === ChatState.error || !hasMinimumTokens;
 
   const handleContainerClick = () => {

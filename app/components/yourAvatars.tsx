@@ -4,6 +4,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import AvatarScenarioModal from './AvatarScenarioModal';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 import CardWithBadge from './DashboardCard';
 import { ANIMATE_DURATION, ROUTES } from '~/constants';
 import { cn } from '~/utils/cn';
@@ -28,6 +29,7 @@ function YourAvatarsSkeleton() {
 
 const YourAvatars = () => {
   const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: 'true' });
+  const { data: user } = useUser();
   const isLaptop = useMediaQuery('(min-width: 640px) and (max-width: 1024px)');
   const isMobile = useMediaQuery('(max-width: 640px)');
 
