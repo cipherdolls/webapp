@@ -6,25 +6,17 @@ import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
 import { ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY } from '~/constants';
 import { motion } from 'motion/react';
+import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
 
 interface CreateTokenAllowanceModalProps {
   children: ReactNode;
-  tokenBalance?: string | number; // Optional - not used anymore
-  onPermitSigned: (permit: {
-    owner: string;
-    spender: string;
-    value: string;
-    nonce: string;
-    deadline: number;
-    v: number;
-    r: string;
-    s: string;
-  }) => void;
 }
 
-const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: CreateTokenAllowanceModalProps) => {
+const CreateTokenAllowanceModal = ({ children }: CreateTokenAllowanceModalProps) => {
   const [open, setOpen] = useState(false);
   const [permitKey, setPermitKey] = useState(0); // Key to force PermitButton remount
+
+  const { mutate: createTokenPermit, isPending: isCreatingTokenPermit } = useCreateTokenPermit();
 
   // Fibonacci sequence for fixed amounts
   const fibonacciAmounts = [1, 2, 3, 5, 8, 13, 21, 34, 55];
@@ -34,13 +26,29 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
   // Reset PermitButton when modal is closed to clear any stale state
   useEffect(() => {
     if (!open) {
-      setPermitKey(prev => prev + 1);
+      setPermitKey((prev) => prev + 1);
     }
   }, [open]);
 
   const handlePermitSigned = (permit: any) => {
-    onPermitSigned(permit);
-    setOpen(false);
+    createTokenPermit(
+      {
+        owner: permit.owner,
+        spender: permit.spender,
+        value: permit.value,
+        nonce: permit.nonce,
+        deadline: permit.deadline.toString(),
+        v: permit.v.toString(),
+        r: permit.r,
+        s: permit.s,
+      },
+      {
+        onSuccess: () => {
+          setOpen(false);
+        },
+      }
+    );
+
   };
 
   return (
@@ -48,11 +56,7 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
       <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay asChild forceMount className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'>
-          <motion.div
-            initial={ANIMATE_OVERLAY.initial}
-            animate={ANIMATE_OVERLAY.animate}
-            transition={ANIMATE_OVERLAY.transition}
-          >
+          <motion.div initial={ANIMATE_OVERLAY.initial} animate={ANIMATE_OVERLAY.animate} transition={ANIMATE_OVERLAY.transition}>
             <div
               className='absolute  left-1/2 -translate-x-1/2
         w-[375px] h-[224px] sm:w-[480px] sm:h-[282px]
@@ -124,6 +128,7 @@ const CreateTokenAllowanceModal = ({ children, tokenBalance, onPermitSigned }: C
                     spender='0x2A0a2744d4d96b43C2C273f1906AD89dFe2AD607'
                     amount={amount.toString()}
                     onSigned={handlePermitSigned}
+                    isPending={isCreatingTokenPermit}
                   />
                 </div>
               </div>

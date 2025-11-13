@@ -27,6 +27,7 @@ interface SelectionModalProps<T> {
   isFetchingNextPage: boolean;
   renderItem: (item: T, isRecommended?: boolean) => React.ReactNode;
   isOverlayed?: boolean; // Optional prop to control the blur effect
+  customActionButtonText?: string;
 }
 
 const ITEMS_PER_PAGE = 4;
@@ -59,7 +60,8 @@ export function SelectionModal<T>({
   fetchNextPage,
   isFetchingNextPage,
   renderItem,
-  isOverlayed
+  isOverlayed,
+  customActionButtonText,
 }: SelectionModalProps<T>) {
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounceValue(searchValue, DEBOUNCE_DELAY);
@@ -210,7 +212,7 @@ export function SelectionModal<T>({
             </Button.Root>
           </Modal.Close>
           <Button.Root onClick={handleSave} className='w-full'>
-            Start Chat
+            {customActionButtonText ? customActionButtonText : 'Start Chat'}
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>
