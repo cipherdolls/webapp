@@ -465,7 +465,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 <Input.Root>
                   <Input.Label htmlFor='userGender'>User Gender</Input.Label>
                   <Select.Root
-                    name='userGender'
                     defaultValue={scenarioData.userGender}
                     onValueChange={(value) => updateScenarioData('userGender', value as Gender)}
                   >
@@ -478,16 +477,16 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Content>
                       <Select.Item value='Male'>Male</Select.Item>
                       <Select.Item value='Female'>Female</Select.Item>
-                      <Select.Item value='Diverse'>Diverse</Select.Item>
+                      <Select.Item value='Other'>Other</Select.Item>
                     </Select.Content>
                   </Select.Root>
+                  <input type='hidden' name='userGender' value={scenarioData.userGender} />
                   <p className='text-xs text-gray-500'>Select the user gender for this scenario.</p>
                 </Input.Root>
 
                 <Input.Root>
                   <Input.Label htmlFor='avatarGender'>Avatar Gender</Input.Label>
                   <Select.Root
-                    name='avatarGender'
                     defaultValue={scenarioData.avatarGender}
                     onValueChange={(value) => updateScenarioData('avatarGender', value as Gender)}
                   >
@@ -500,9 +499,10 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Content>
                       <Select.Item value='Male'>Male</Select.Item>
                       <Select.Item value='Female'>Female</Select.Item>
-                      <Select.Item value='Diverse'>Diverse</Select.Item>
+                      <Select.Item value='Other'>Other</Select.Item>
                     </Select.Content>
                   </Select.Root>
+                  <input type='hidden' name='avatarGender' value={scenarioData.avatarGender} />
                   <p className='text-xs text-gray-500'>Select the avatar gender for this scenario.</p>
                 </Input.Root>
               </div>

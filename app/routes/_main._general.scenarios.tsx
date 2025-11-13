@@ -245,7 +245,7 @@ export default function ScenariosIndex() {
                   <div className='space-y-3'>
                     <h4 className='text-sm font-medium text-base-black'>User Gender</h4>
                     <RadioGroup.Root value={userGenderFilter} onValueChange={handleUserGenderFilterChange}>
-                      {(['All', 'Male', 'Female', 'Diverse'] as const).map((filter) => (
+                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
                         <div key={filter} className='flex items-center space-x-2'>
                           <RadioGroup.Item value={filter} id={`user-${filter}`}>
                             <RadioGroup.Indicator />
@@ -262,7 +262,7 @@ export default function ScenariosIndex() {
                   <div className='space-y-3'>
                     <h4 className='text-sm font-medium text-base-black'>Avatar Gender</h4>
                     <RadioGroup.Root value={avatarGenderFilter} onValueChange={handleAvatarGenderFilterChange}>
-                      {(['All', 'Male', 'Female', 'Diverse'] as const).map((filter) => (
+                      {(['All', 'Male', 'Female', 'Other'] as const).map((filter) => (
                         <div key={filter} className='flex items-center space-x-2'>
                           <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
                             <RadioGroup.Indicator />
@@ -339,12 +339,12 @@ export default function ScenariosIndex() {
                                     <div className={cn('flex py-1 px-2 gap-0.5',
                                       scenario.userGender === 'Male' && 'bg-[#069cf3]' ,
                                       scenario.userGender === 'Female' && 'bg-[#FF85B7]',
-                                      scenario.userGender === 'Diverse' && 'bg-gradient-1'
+                                      scenario.userGender === 'Other' && 'bg-gradient-1'
                                     )}
                                     >
                                       { scenario.userGender === 'Male' && '🧔🏻‍♂️' ||
                                         scenario.userGender === 'Female' && '👩🏻' ||
-                                        scenario.userGender === 'Diverse' && '👤'
+                                        scenario.userGender === 'Other' && '👤'
                                       }
                                     </div>
                                   }
@@ -360,12 +360,12 @@ export default function ScenariosIndex() {
                                     <div className={cn('flex py-1 px-2 gap-0.5',
                                       scenario.avatarGender === 'Male' && 'bg-[#069cf3]',
                                       scenario.avatarGender === 'Female' && 'bg-[#FF85B7]',
-                                      scenario.avatarGender === 'Diverse' && 'bg-gradient-1'
+                                      scenario.avatarGender === 'Other' && 'bg-gradient-1'
                                     )}
                                     >
                                       { scenario.avatarGender === 'Male' && '🧔🏻‍♂️' ||
                                         scenario.avatarGender === 'Female' && '👩🏻' ||
-                                        scenario.avatarGender === 'Diverse' && '🤖'
+                                        scenario.avatarGender === 'Other' && '🤖'
                                       }
                                     </div>
                                   }
