@@ -211,7 +211,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
                 <div>
                   <AvatarScenarioModal
                     avatar={selectedAvatar}
-                    customAction={{ onClick: (avatar: Avatar, scenario: Scenario | null) =>  !scenario && handleScenarioSelect(scenario), text: 'Select Scenario' }}
+                    customAction={{ onClick: (avatar: Avatar, scenario: Scenario | null) =>  scenario && handleScenarioSelect(scenario), text: 'Select Scenario' }}
                   >
                     <Button.Root variant='secondary' size='md' className='px-8'>
                       <Icons.chevronRight className='w-4 h-4 mr-2' />
