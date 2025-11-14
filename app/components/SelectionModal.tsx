@@ -121,7 +121,7 @@ export function SelectionModal<T>({
           <Tabs.Root defaultValue={isNoRecommendedItems ? 'all' : 'recommended'} className='w-full'>
             {!isNoRecommendedItems && (
               <>
-                <Tabs.List className='flex  mb-6'>
+                <Tabs.List className='flex'>
                   <Tabs.Trigger
                     value='recommended'
                     className='flex-1 py-3 px-1 text-sm border-b-2 border-transparent border-b-gray-300 data-[state=active]:border-base-black data-[state=active]:text-base-black text-neutral-01 hover:text-base-black hover:border-neutral-03 transition duration-400 flex items-center justify-center gap-2'
@@ -138,13 +138,11 @@ export function SelectionModal<T>({
                 </Tabs.List>
 
                 <Tabs.Content value='recommended' className='focus:outline-none'>
-                  <div className='flex flex-col gap-4'>
+                  <div className='flex flex-col gap-4 max-h-96 overflow-y-auto pt-5'>
                     {/* Get recommended items based on type */}
 
                     {recommendedItems && recommendedItems.length > 0 ? (
-                      <div className='flex flex-col gap-4 max-h-96 overflow-y-auto'>
-                        {recommendedItems.map((item) => renderItem(item as T, true))}
-                      </div>
+                      <>{recommendedItems.map((item) => renderItem(item as T, true))}</>
                     ) : (
                       <div className='text-center py-8 text-neutral-01'>
                         <p>No recommended {isAvatar ? 'Avatars' : 'Scenarios'} found</p>
@@ -157,7 +155,7 @@ export function SelectionModal<T>({
 
             <Tabs.Content value='all' className='focus:outline-none'>
               <div className='flex flex-col gap-4'>
-                <Input.Root>
+                <Input.Root className='mt-5'>
                   <Input.Input
                     type='text'
                     placeholder={`Search ${isAvatar ? 'Avatars' : 'Scenarios'}...`}
@@ -176,7 +174,7 @@ export function SelectionModal<T>({
                     ))}
                   </>
                 )}
-                <div className='flex flex-col gap-4 max-h-96 overflow-y-auto'>
+                <div className='flex flex-col gap-4 max-h-96 overflow-y-auto pt-5'>
                   {items.map((item) => renderItem(item, false))}
 
                   {items.length === 0 && !isLoading && (
@@ -205,7 +203,7 @@ export function SelectionModal<T>({
           </Tabs.Root>
         </Modal.Body>
 
-        <Modal.Footer>
+        <Modal.Footer className='pt-3'>
           <Modal.Close asChild>
             <Button.Root variant='secondary' className='w-full'>
               Cancel

@@ -9,13 +9,14 @@ import SelectionModal from './SelectionModal';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
 import { ROUTES } from '~/constants';
+import FreeToUseBadge from './FreeToUseBadge';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
   customAction?: {
     onClick?: (avatar: Avatar, scenario: Scenario | null) => void;
     text?: string;
-  }
+  };
   children: React.ReactNode;
 }
 
@@ -83,7 +84,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
       setIsOpen(false);
       return;
     }
-   
+
     if (selectedScenario) {
       const hasChatWithSameScenario = avatar.chats?.find((chat) => chat.scenarioId === selectedScenario.id);
 
@@ -178,6 +179,7 @@ const ScenarioItem = ({
   isRecommended: boolean;
   onClick: () => void;
 }) => {
+  const isSponsored = item.sponsorships?.length && item.sponsorships.length > 0;
   return (
     <button
       key={item.id}
@@ -207,11 +209,14 @@ const ScenarioItem = ({
         <p className='text-sm text-neutral-01 line-clamp-2'>{item.introduction}</p>
       </div>
 
-      {isRecommended && (
-        <div className='absolute right-1 top-1 text-xs  h-5  rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
-          Recommended
-        </div>
-      )}
+      <div className='absolute right-1 -top-2.5 flex gap-2'>
+        {Boolean(isSponsored) && <FreeToUseBadge />}
+        {isRecommended && (
+          <div className=' text-xs h-5 rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
+            Recommended
+          </div>
+        )}
+      </div>
     </button>
   );
 };
