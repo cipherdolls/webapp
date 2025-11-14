@@ -10,6 +10,8 @@ import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
 import { ROUTES } from '~/constants';
 import FreeToUseBadge from './FreeToUseBadge';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
@@ -25,6 +27,11 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
   const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
 
+  const {isUsingBurnerWallet} = useAuthStore(useShallow((state) => ({
+    isUsingBurnerWallet: state.isUsingBurnerWallet,
+  })));
+
+  
   const confirm = useConfirm();
 
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);

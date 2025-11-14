@@ -15,10 +15,9 @@ import { getPicture } from '~/utils/getPicture';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { useAuthStore } from '~/store/useAuthStore';
-import { useAlert } from '~/providers/AlertDialogProvider';
 import AvatarScenarioModal from '../AvatarScenarioModal';
-import { useWalletAuth } from '~/hooks/useWalletAuth';
 import FreeToUseBadge from '~/components/FreeToUseBadge';
+import LoginButton from '../website/LoginButton';
 
 interface ChatWelcomeEmptyProps {
   avatars: Avatar[];
@@ -52,8 +51,6 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
   const user = currentUser || userProp;
   const { isUsingBurnerWallet } = useAuthStore();
   const { mutate: createChat, isPending: isCreatingChat } = useCreateChat();
-  const alert = useAlert();
-  const { signIn, isLoading } = useWalletAuth();
 
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
@@ -115,22 +112,6 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
 
   const handleStartChat = () => {
     if (!selectedAvatar || !selectedScenario) return;
-
-    // If user is using burner wallet and the scenario is not sponsored, show alert
-    if (isUsingBurnerWallet && !selectedScenario.sponsorships?.length) {
-      alert({
-        icon: '',
-        title: 'Create a free account',
-        body: 'You can only start sponsored scenarios as a guest wallet. Please choose a sponsored scenario to continue.',
-        actionButton: {
-          label: 'Create free account',
-          action: () => {
-            signIn();
-          },
-        },
-      });
-      return;
-    }
 
     createChat(
       { avatarId: selectedAvatar.id, scenarioId: selectedScenario.id },
@@ -207,9 +188,9 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
           This chat is only available for registered users. Create your free account to start chatting with {selectedAvatar?.name}.
         </p>
       </div>
-      <Button.Root onClick={signIn} className='gradient-move' size='lg' disabled={isLoading}>
-        {isLoading ? 'Creating your account...' : 'Create free account'}
-      </Button.Root>
+      <LoginButton size='lg'>
+        <span>Create free account</span>
+      </LoginButton>
     </>
   );
 

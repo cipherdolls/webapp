@@ -9,6 +9,10 @@ import { getPicture } from '~/utils/getPicture';
 import type { Avatar, Scenario } from '~/types';
 import { ThumbsUp } from 'lucide-react';
 import { cn } from '~/utils/cn';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useShallow } from 'zustand/react/shallow';
+import LoginButton from './website/LoginButton';
+import FreeToUseBadge from './FreeToUseBadge';
 
 interface SelectionModalProps<T> {
   type: 'avatar' | 'scenario';
@@ -63,6 +67,11 @@ export function SelectionModal<T>({
   isOverlayed,
   customActionButtonText,
 }: SelectionModalProps<T>) {
+  const { isUsingBurnerWallet } = useAuthStore(
+    useShallow((state) => ({
+      isUsingBurnerWallet: state.isUsingBurnerWallet,
+    }))
+  );
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounceValue(searchValue, DEBOUNCE_DELAY);
 
@@ -82,11 +91,12 @@ export function SelectionModal<T>({
   const isAvatar = type === 'avatar';
 
   const isNoRecommendedItems = recommendedItems && recommendedItems.length === 0;
+  const isUsingBurnerWalletAndNoSponsor = isUsingBurnerWallet && !selectedScenario?.sponsorships?.length;
 
   return (
     <Modal.Root open={isOpen} onOpenChange={onOpenChange}>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
-      <Modal.Content className={cn('max-w-2xl', isOverlayed && 'blur-xs')}>
+      <Modal.Content className={cn('max-w-2xl pb-0', isOverlayed && 'blur-xs')}>
         <div className='relative h-32 -mx-8 -mt-8 mb-6'>
           <div className='absolute inset-0 bg-gradient-1 rounded-t-xl overflow-hidden'>
             {selectedScenario?.picture ? (
@@ -117,7 +127,7 @@ export function SelectionModal<T>({
 
         <Modal.Description className='text-center'>{`Choose a ${isAvatar ? 'Avatar' : 'Scenario'} for ${isAvatar ? selectedScenario?.name : selectedAvatar?.name}`}</Modal.Description>
 
-        <Modal.Body className='py-6'>
+        <Modal.Body className='py-3'>
           <Tabs.Root defaultValue={isNoRecommendedItems ? 'all' : 'recommended'} className='w-full'>
             {!isNoRecommendedItems && (
               <>
@@ -203,15 +213,31 @@ export function SelectionModal<T>({
           </Tabs.Root>
         </Modal.Body>
 
-        <Modal.Footer className='pt-3'>
-          <Modal.Close asChild>
-            <Button.Root variant='secondary' className='w-full'>
-              Cancel
-            </Button.Root>
-          </Modal.Close>
-          <Button.Root onClick={handleSave} className='w-full'>
-            {customActionButtonText ? customActionButtonText : 'Start Chat'}
-          </Button.Root>
+        <Modal.Footer className='pt-2 pb-5 flex-col sticky bottom-0 bg-white'>
+          {isUsingBurnerWalletAndNoSponsor && (
+            <p className='text-center bg-neutral-05 p-2 rounded-md text-sm'>
+              This scenario is for registered users. Create a free account to chat with
+              {selectedAvatar?.name} or try the <FreeToUseBadge className='inline-block' /> scenario.
+            </p>
+          )}
+          <div className='grid grid-cols-2 gap-2 w-full'>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' className='w-full'>
+                Cancel
+              </Button.Root>
+            </Modal.Close>
+            {isUsingBurnerWalletAndNoSponsor ? (
+              <LoginButton size='md' className='w-full'>
+                Create Account
+              </LoginButton>
+            ) : (
+              <>
+                <Button.Root onClick={handleSave} className='w-full'>
+                  {customActionButtonText ? customActionButtonText : 'Start Chat'}
+                </Button.Root>
+              </>
+            )}
+          </div>
         </Modal.Footer>
       </Modal.Content>
     </Modal.Root>
