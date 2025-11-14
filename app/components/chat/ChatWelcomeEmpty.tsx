@@ -142,8 +142,9 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
     );
   };
 
-  const showAllowancePrompt = user.tokenAllowance === 0 && !isUsingBurnerWallet;
-  const scenarioSponsored = Boolean(selectedScenario?.sponsorships?.length);
+  const showAllowancePrompt = user.tokenAllowance <= 0.001 && !isUsingBurnerWallet;
+  const isGuestAndSelectedNotSponsored = isUsingBurnerWallet && !selectedScenario?.sponsorships?.length;
+  
 
   const renderAllowanceCTA = () => (
     <>
@@ -214,8 +215,8 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
 
   const renderChatCTA = () => {
     if (showAllowancePrompt) return renderAllowanceCTA();
-    if (scenarioSponsored) return renderBaseCTA();
-    return renderGuestCTA();
+    if (isGuestAndSelectedNotSponsored) return renderGuestCTA();
+    return renderBaseCTA();
   };
 
   return (
