@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import LoginModal from '~/components/website/LoginModal';
 
 type LoginModalContextValue = {
   isOpen: boolean;
@@ -21,7 +22,12 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ isOpen, open, close }), [isOpen, open, close]);
 
-  return <LoginModalContext.Provider value={value}>{children}</LoginModalContext.Provider>;
+  return (
+    <LoginModalContext.Provider value={value}>
+      {children}
+      <LoginModal />
+    </LoginModalContext.Provider>
+  );
 }
 
 export function useLoginModal() {
@@ -33,5 +39,3 @@ export function useLoginModal() {
 
   return context;
 }
-
-

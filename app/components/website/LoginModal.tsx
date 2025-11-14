@@ -2,7 +2,7 @@ import { useLoginModal } from '~/context/login-modal-context';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
 import { useAuthStore } from '~/store/useAuthStore';
 import * as Dialog from '@radix-ui/react-dialog';
-import { MessageSquare, Zap, X, LoaderCircle } from 'lucide-react';
+import { Zap, X, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn, cnExt } from '~/utils/cn';
 import { ROUTES } from '~/constants';
