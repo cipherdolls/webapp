@@ -15,7 +15,10 @@ import { getPicture } from '~/utils/getPicture';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { useAuthStore } from '~/store/useAuthStore';
+import { useAlert } from '~/providers/AlertDialogProvider';
 import AvatarScenarioModal from '../AvatarScenarioModal';
+import { useWalletAuth } from '~/hooks/useWalletAuth';
+import FreeToUseBadge from '~/components/FreeToUseBadge';
 
 interface ChatWelcomeEmptyProps {
   avatars: Avatar[];
@@ -49,6 +52,8 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
   const user = currentUser || userProp;
   const { isUsingBurnerWallet } = useAuthStore();
   const { mutate: createChat, isPending: isCreatingChat } = useCreateChat();
+  const alert = useAlert();
+  const { signIn, isLoading } = useWalletAuth();
 
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
@@ -109,16 +114,108 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
   };
 
   const handleStartChat = () => {
-    if (selectedAvatar && selectedScenario) {
-      createChat(
-        { avatarId: selectedAvatar.id, scenarioId: selectedScenario.id },
-        {
-          onSuccess: (newChat) => {
-            navigate(`${ROUTES.chats}/${newChat.id}`);
+    if (!selectedAvatar || !selectedScenario) return;
+
+    // If user is using burner wallet and the scenario is not sponsored, show alert
+    if (isUsingBurnerWallet && !selectedScenario.sponsorships?.length) {
+      alert({
+        icon: '',
+        title: 'Create a free account',
+        body: 'You can only start sponsored scenarios as a guest wallet. Please choose a sponsored scenario to continue.',
+        actionButton: {
+          label: 'Create free account',
+          action: () => {
+            signIn();
           },
-        }
-      );
+        },
+      });
+      return;
     }
+
+    createChat(
+      { avatarId: selectedAvatar.id, scenarioId: selectedScenario.id },
+      {
+        onSuccess: (newChat) => {
+          navigate(`${ROUTES.chats}/${newChat.id}`);
+        },
+      }
+    );
+  };
+
+  const showAllowancePrompt = user.tokenAllowance === 0 && !isUsingBurnerWallet;
+  const scenarioSponsored = Boolean(selectedScenario?.sponsorships?.length);
+
+  const renderAllowanceCTA = () => (
+    <>
+      <div className='space-y-2'>
+        <div className='flex justify-center items-center gap-2 mb-2'>
+          <div className='text-3xl'>🎯</div>
+        </div>
+        <h3 className='text-heading-h4 font-semibold text-base-black'>Almost Done!</h3>
+        <p className='text-body-md text-neutral-01 max-w-md mx-auto'>
+          Create a token allowance to unlock free credits and start your conversation with {selectedAvatar?.name}
+        </p>
+      </div>
+      <CreateTokenAllowanceModal>
+        <Button.Root className='px-12 h-12 text-body-md font-semibold' size='lg'>
+          <div className='flex items-center gap-2'>
+            <Icons.add className='w-4 h-4' />
+            Create Token Allowance
+          </div>
+        </Button.Root>
+      </CreateTokenAllowanceModal>
+    </>
+  );
+
+  const renderBaseCTA = () => (
+    <>
+      <div className='space-y-2'>
+        <div className='flex justify-center items-center gap-2 mb-2'>
+          <div className='text-3xl'>✅</div>
+          <h3 className='text-heading-h4 font-semibold text-base-black'>All Set!</h3>
+        </div>
+        <p className='text-body-md text-neutral-01 max-w-md mx-auto'>
+          {isUsingBurnerWallet ? 'You can now start chatting!' : 'Your token allowance is ready. You can now start chatting.'}
+        </p>
+      </div>
+
+      <Button.Root onClick={handleStartChat} className='px-12 h-14 text-body-lg font-semibold' disabled={isCreatingChat} size='lg'>
+        {isCreatingChat ? (
+          <div className='flex items-center gap-2'>
+            <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin' />
+            Starting Chat...
+          </div>
+        ) : (
+          <div className='flex items-center gap-2'>
+            <Icons.chat className='w-5 h-5' />
+            Start Chatting with {selectedAvatar?.name}
+          </div>
+        )}
+      </Button.Root>
+    </>
+  );
+
+  const renderGuestCTA = () => (
+    <>
+      <div className='space-y-2'>
+        <div className='flex justify-center items-center gap-2 mb-2'>
+          <div className='text-3xl'>🔓</div>
+          <h3 className='text-heading-h4 font-semibold text-base-black'>Unlock this chat</h3>
+        </div>
+        <p className='text-body-md text-neutral-01 max-w-md mx-auto'>
+          This chat is only available for registered users. Create your free account to start chatting with {selectedAvatar?.name}.
+        </p>
+      </div>
+      <Button.Root onClick={signIn} className='gradient-move' size='lg' disabled={isLoading}>
+        {isLoading ? 'Creating your account...' : 'Create free account'}
+      </Button.Root>
+    </>
+  );
+
+  const renderChatCTA = () => {
+    if (showAllowancePrompt) return renderAllowanceCTA();
+    if (scenarioSponsored) return renderBaseCTA();
+    return renderGuestCTA();
   };
 
   return (
@@ -211,7 +308,10 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
                 <div>
                   <AvatarScenarioModal
                     avatar={selectedAvatar}
-                    customAction={{ onClick: (avatar: Avatar, scenario: Scenario | null) =>  scenario && handleScenarioSelect(scenario), text: 'Select Scenario' }}
+                    customAction={{
+                      onClick: (avatar: Avatar, scenario: Scenario | null) => scenario && handleScenarioSelect(scenario),
+                      text: 'Select Scenario',
+                    }}
                   >
                     <Button.Root variant='secondary' size='md' className='px-8'>
                       <Icons.chevronRight className='w-4 h-4 mr-2' />
@@ -236,12 +336,13 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
                       key={scenario.id}
                       onClick={() => handleScenarioSelect(scenario)}
                       className={cn(
-                        'flex flex-col items-center gap-4 p-6 rounded-2xl border-2 transition-all duration-200 hover:shadow-lg hover:scale-[1.02]',
+                        'relative flex flex-col items-center gap-4 p-6 rounded-2xl border-2 transition-all duration-200 hover:shadow-lg hover:scale-[1.02]',
                         selectedScenario?.id === scenario.id
                           ? 'border-blue-500 bg-blue-50 shadow-lg scale-[1.02]'
                           : 'border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05'
                       )}
                     >
+                      {scenario.sponsorships && scenario.sponsorships.length > 0 && <FreeToUseBadge className='absolute top-1 left-1' />}
                       <div className='relative'>
                         <img
                           src={getPicture(scenario, 'scenarios', false)}
@@ -271,50 +372,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
 
       {selectedAvatar && selectedScenario && (
         <div className='max-w-4xl mx-auto animate-in slide-in-from-bottom duration-500'>
-          {user.tokenAllowance === 0 && !isUsingBurnerWallet ? (
-            <div className='text-center flex flex-col gap-4'>
-              <div className='space-y-2'>
-                <div className='flex justify-center items-center gap-2 mb-2'>
-                  <div className='text-3xl'>🎯</div>
-                </div>
-                <h3 className='text-heading-h4 font-semibold text-base-black'>Almost Done!</h3>
-                <p className='text-body-md text-neutral-01 max-w-md mx-auto'>
-                  Create a token allowance to unlock free credits and start your conversation with {selectedAvatar.name}
-                </p>
-              </div>
-              <CreateTokenAllowanceModal>
-                <Button.Root className='px-12 h-12 text-body-md font-semibold' size='lg'>
-                  <div className='flex items-center gap-2'>
-                    <Icons.add className='w-4 h-4' />
-                    Create Token Allowance
-                  </div>
-                </Button.Root>
-              </CreateTokenAllowanceModal>
-            </div>
-          ) : (
-            <div className='text-center flex flex-col gap-4'>
-              <div className='space-y-2'>
-                <div className='flex justify-center items-center gap-2 mb-2'>
-                  <div className='text-3xl'>✅</div>
-                  <h3 className='text-heading-h4 font-semibold text-base-black'>All Set!</h3>
-                </div>
-                <p className='text-body-md text-neutral-01 max-w-md mx-auto'>Your token allowance is ready. You can now start chatting!</p>
-              </div>
-              <Button.Root onClick={handleStartChat} className='px-12 h-14 text-body-lg font-semibold' disabled={isCreatingChat} size='lg'>
-                {isCreatingChat ? (
-                  <div className='flex items-center gap-2'>
-                    <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin' />
-                    Starting Chat...
-                  </div>
-                ) : (
-                  <div className='flex items-center gap-2'>
-                    <Icons.chat className='w-5 h-5' />
-                    Start Chatting with {selectedAvatar.name}
-                  </div>
-                )}
-              </Button.Root>
-            </div>
-          )}
+          <div className='text-center flex flex-col gap-4'>{renderChatCTA()}</div>
         </div>
       )}
     </div>
