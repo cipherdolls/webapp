@@ -211,11 +211,6 @@ const ScenarioItem = ({
 
       <div className='absolute right-1 -top-2.5 flex gap-2'>
         {Boolean(isSponsored) && <FreeToUseBadge />}
-        {isRecommended && (
-          <div className=' text-xs h-5 rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
-            Recommended
-          </div>
-        )}
       </div>
     </button>
   );

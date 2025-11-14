@@ -213,12 +213,6 @@ const AvatarItem = ({
         <h4 className='font-semibold text-base-black truncate'>{item.name}</h4>
         <p className='text-sm text-neutral-01 line-clamp-2'>{item.shortDesc}</p>
       </div>
-
-      {isRecommended && (
-        <div className='absolute right-1 top-1 text-xs  h-5  rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
-          Recommended
-        </div>
-      )}
     </button>
   );
 };
