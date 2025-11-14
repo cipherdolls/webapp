@@ -1,5 +1,4 @@
-import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
-import type { User } from '~/types';
+import { NavLink, Outlet, useSearchParams } from 'react-router';
 import type { Route } from './+types/_main._general.avatars';
 import React, { useMemo, useState, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
