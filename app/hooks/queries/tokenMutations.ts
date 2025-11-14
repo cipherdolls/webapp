@@ -46,6 +46,7 @@ export function useUpdateUser() {
     },
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(['user'], updatedUser);
+      queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 }

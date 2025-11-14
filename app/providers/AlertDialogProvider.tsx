@@ -46,7 +46,8 @@ export function alertDialogReducer(state: AlertDialogState, action: AlertAction)
         open: true,
         ...action,
         cancelButton: action.cancelButton || (action.type === 'alert' ? 'Got it!' : 'No, Leave'),
-        actionButton: 'actionButton' in action ? action.actionButton : state.actionButton,
+        // Do not reuse previous actionButton; only use what is provided for this dialog
+        actionButton: 'actionButton' in action ? action.actionButton : undefined,
       };
     default:
       return state;

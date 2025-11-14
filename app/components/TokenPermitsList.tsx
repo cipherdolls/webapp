@@ -7,7 +7,6 @@ import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
 
-import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
 import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 
@@ -30,7 +29,6 @@ function TokenPermitsListSkeleton() {
 
 const TokenPermitsList = () => {
   const { data: user, isLoading: userLoading } = useUser();
-  const createTokenPermitMutation = useCreateTokenPermit();
   const { data: tokenPermitsPaginated, isLoading: tokenPermitsLoading } = useTokenPermits();
 
   // Always run hooks - move calculations above early return
@@ -38,28 +36,6 @@ const TokenPermitsList = () => {
   const allowance = user?.tokenAllowance || 0;
   const firstPermit = permits[0];
   const hasPermits = permits.length > 0;
-
-  const handlePermitSigned = async (permit: {
-    owner: string;
-    spender: string;
-    value: string;
-    nonce: string;
-    deadline: number;
-    v: number;
-    r: string;
-    s: string;
-  }) => {
-    createTokenPermitMutation.mutate({
-      owner: permit.owner,
-      spender: permit.spender,
-      value: permit.value,
-      nonce: permit.nonce,
-      deadline: permit.deadline.toString(),
-      v: permit.v.toString(),
-      r: permit.r,
-      s: permit.s,
-    });
-  };
 
   const formatPermitAmount = (value: string): string => {
     try {
@@ -120,7 +96,7 @@ const TokenPermitsList = () => {
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {hasPermits && (
           <div className='flex justify-between py-4 px-4'>
-            <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
+            <CreateTokenAllowanceModal>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
@@ -149,7 +125,7 @@ const TokenPermitsList = () => {
               <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
               <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
 
-              <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
+              <CreateTokenAllowanceModal >
                 <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
               </CreateTokenAllowanceModal>
             </div>

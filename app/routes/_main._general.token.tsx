@@ -62,6 +62,7 @@ export default function Account({ loaderData }: Route.ComponentProps) {
           spender="0x2A0a2744d4d96b43C2C273f1906AD89dFe2AD607"
           amount="1.5"
           onSigned={handlePermitSigned}
+          isPending={fetcher.state === 'submitting'}
         />
     </div>
   );

@@ -5,7 +5,6 @@ import type { Route } from './+types/root';
 import './app.css';
 import { CustomToaster } from './components/ui/toast';
 import { LoginModalProvider } from './context/login-modal-context';
-import LoginModal from './components/website/LoginModal';
 
 export function meta() {
   return [
@@ -63,9 +62,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <CustomToaster />
-        <QueryProvider>
-          <AlertDialogProvider>{children}</AlertDialogProvider>
-        </QueryProvider>
+        <LoginModalProvider>
+          <QueryProvider>
+            <AlertDialogProvider>{children}</AlertDialogProvider>
+          </QueryProvider>
+        </LoginModalProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

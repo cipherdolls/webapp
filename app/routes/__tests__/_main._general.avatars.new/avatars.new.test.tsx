@@ -14,7 +14,7 @@ import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 // ========================
 
 vi.mock('react-router', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     useNavigate: vi.fn(),

@@ -4,7 +4,7 @@ import { useAuthStore } from '~/store/useAuthStore';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import * as Button from '~/components/ui/button/button';
-
+import LoginButton from './website/LoginButton';
 
 export const GuestModeBanner: React.FC = () => {
   const { isUsingBurnerWallet, isAuthenticated } = useAuthStore();
@@ -46,9 +46,7 @@ export const GuestModeBanner: React.FC = () => {
                 All data you create (chats, avatars, scenarios) will be lost when you exit. Connect MetaMask to save your data permanently.
               </p>
               {/* Short text on mobile */}
-              <p className='md:hidden text-sm text-amber-700'>
-                Your data will be lost.
-              </p>
+              <p className='md:hidden text-sm text-amber-700'>Your data will be lost.</p>
             </div>
             {/* Info button - visible only on mobile */}
             <Button.Root
@@ -62,14 +60,9 @@ export const GuestModeBanner: React.FC = () => {
             </Button.Root>
           </div>
           <div className='flex-shrink-0 ml-2 md:ml-4'>
-             <Button.Root
-               className='gradient-move px-4 py-2 md:px-8 md:py-5.5 min-w-[100px] md:min-w-[200px] text-xs md:text-sm'
-               size='sm'
-               onClick={handleConnectMetaMask}
-               disabled={isLoading}
-             >
-               {isLoading ? 'Connecting...' : 'Continue with MetaMask'}
-             </Button.Root>
+            <LoginButton size='sm'>
+              <span>Continue with MetaMask</span>
+            </LoginButton>
           </div>
         </div>
       </div>

@@ -9,6 +9,10 @@ import { getPicture } from '~/utils/getPicture';
 import type { Avatar, Scenario } from '~/types';
 import { ThumbsUp } from 'lucide-react';
 import { cn } from '~/utils/cn';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useShallow } from 'zustand/react/shallow';
+import LoginButton from './website/LoginButton';
+import FreeToUseBadge from './FreeToUseBadge';
 
 interface SelectionModalProps<T> {
   type: 'avatar' | 'scenario';
@@ -27,6 +31,7 @@ interface SelectionModalProps<T> {
   isFetchingNextPage: boolean;
   renderItem: (item: T, isRecommended?: boolean) => React.ReactNode;
   isOverlayed?: boolean; // Optional prop to control the blur effect
+  customActionButtonText?: string;
 }
 
 const ITEMS_PER_PAGE = 4;
@@ -59,8 +64,14 @@ export function SelectionModal<T>({
   fetchNextPage,
   isFetchingNextPage,
   renderItem,
-  isOverlayed
+  isOverlayed,
+  customActionButtonText,
 }: SelectionModalProps<T>) {
+  const { isUsingBurnerWallet } = useAuthStore(
+    useShallow((state) => ({
+      isUsingBurnerWallet: state.isUsingBurnerWallet,
+    }))
+  );
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounceValue(searchValue, DEBOUNCE_DELAY);
 
@@ -80,11 +91,12 @@ export function SelectionModal<T>({
   const isAvatar = type === 'avatar';
 
   const isNoRecommendedItems = recommendedItems && recommendedItems.length === 0;
+  const isUsingBurnerWalletAndNoSponsor = isUsingBurnerWallet && !selectedScenario?.sponsorships?.length;
 
   return (
     <Modal.Root open={isOpen} onOpenChange={onOpenChange}>
       <Modal.Trigger asChild>{children}</Modal.Trigger>
-      <Modal.Content className={cn('max-w-2xl', isOverlayed && 'blur-xs')}>
+      <Modal.Content className={cn('max-w-2xl pb-0', isOverlayed && 'blur-xs')}>
         <div className='relative h-32 -mx-8 -mt-8 mb-6'>
           <div className='absolute inset-0 bg-gradient-1 rounded-t-xl overflow-hidden'>
             {selectedScenario?.picture ? (
@@ -115,11 +127,11 @@ export function SelectionModal<T>({
 
         <Modal.Description className='text-center'>{`Choose a ${isAvatar ? 'Avatar' : 'Scenario'} for ${isAvatar ? selectedScenario?.name : selectedAvatar?.name}`}</Modal.Description>
 
-        <Modal.Body className='py-6'>
+        <Modal.Body className='py-3'>
           <Tabs.Root defaultValue={isNoRecommendedItems ? 'all' : 'recommended'} className='w-full'>
             {!isNoRecommendedItems && (
               <>
-                <Tabs.List className='flex  mb-6'>
+                <Tabs.List className='flex'>
                   <Tabs.Trigger
                     value='recommended'
                     className='flex-1 py-3 px-1 text-sm border-b-2 border-transparent border-b-gray-300 data-[state=active]:border-base-black data-[state=active]:text-base-black text-neutral-01 hover:text-base-black hover:border-neutral-03 transition duration-400 flex items-center justify-center gap-2'
@@ -136,13 +148,11 @@ export function SelectionModal<T>({
                 </Tabs.List>
 
                 <Tabs.Content value='recommended' className='focus:outline-none'>
-                  <div className='flex flex-col gap-4'>
+                  <div className='flex flex-col gap-4 max-h-96 overflow-y-auto pt-5'>
                     {/* Get recommended items based on type */}
 
                     {recommendedItems && recommendedItems.length > 0 ? (
-                      <div className='flex flex-col gap-4 max-h-96 overflow-y-auto'>
-                        {recommendedItems.map((item) => renderItem(item as T, true))}
-                      </div>
+                      <>{recommendedItems.map((item) => renderItem(item as T, true))}</>
                     ) : (
                       <div className='text-center py-8 text-neutral-01'>
                         <p>No recommended {isAvatar ? 'Avatars' : 'Scenarios'} found</p>
@@ -155,7 +165,7 @@ export function SelectionModal<T>({
 
             <Tabs.Content value='all' className='focus:outline-none'>
               <div className='flex flex-col gap-4'>
-                <Input.Root>
+                <Input.Root className='mt-5'>
                   <Input.Input
                     type='text'
                     placeholder={`Search ${isAvatar ? 'Avatars' : 'Scenarios'}...`}
@@ -174,7 +184,7 @@ export function SelectionModal<T>({
                     ))}
                   </>
                 )}
-                <div className='flex flex-col gap-4 max-h-96 overflow-y-auto'>
+                <div className='flex flex-col gap-4 max-h-96 overflow-y-auto pt-5'>
                   {items.map((item) => renderItem(item, false))}
 
                   {items.length === 0 && !isLoading && (
@@ -203,15 +213,31 @@ export function SelectionModal<T>({
           </Tabs.Root>
         </Modal.Body>
 
-        <Modal.Footer>
-          <Modal.Close asChild>
-            <Button.Root variant='secondary' className='w-full'>
-              Cancel
-            </Button.Root>
-          </Modal.Close>
-          <Button.Root onClick={handleSave} className='w-full'>
-            Start Chat
-          </Button.Root>
+        <Modal.Footer className='pt-2 pb-5 flex-col sticky bottom-0 bg-white'>
+          {isUsingBurnerWalletAndNoSponsor && (
+            <p className='text-center bg-neutral-05 p-2 rounded-md text-sm'>
+              This scenario is for registered users. Create a free account to chat with
+              {selectedAvatar?.name} or try the <FreeToUseBadge className='inline-block' /> scenario.
+            </p>
+          )}
+          <div className='grid grid-cols-2 gap-2 w-full'>
+            <Modal.Close asChild>
+              <Button.Root variant='secondary' className='w-full'>
+                Cancel
+              </Button.Root>
+            </Modal.Close>
+            {isUsingBurnerWalletAndNoSponsor ? (
+              <LoginButton size='md' className='w-full'>
+                Create Account
+              </LoginButton>
+            ) : (
+              <>
+                <Button.Root onClick={handleSave} className='w-full'>
+                  {customActionButtonText ? customActionButtonText : 'Start Chat'}
+                </Button.Root>
+              </>
+            )}
+          </div>
         </Modal.Footer>
       </Modal.Content>
     </Modal.Root>

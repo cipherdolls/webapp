@@ -4,33 +4,35 @@ import { useState, useCallback, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import { useCreateChat, useDeleteChat } from '~/hooks/queries/chatMutations';
-import { useUser } from '~/hooks/queries/userQueries';
-import { useAuthStore } from '~/store/useAuthStore';
-import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
+import { useConfirm } from '~/providers/AlertDialogProvider';
 import SelectionModal from './SelectionModal';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from './ui/icons';
-import { ROUTES, TOKEN_BALANCE } from '~/constants';
+import { ROUTES } from '~/constants';
+import FreeToUseBadge from './FreeToUseBadge';
+import { useAuthStore } from '~/store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow';
 
 interface AvatarScenarioModalProps {
   avatar: Avatar;
+  customAction?: {
+    onClick?: (avatar: Avatar, scenario: Scenario | null) => void;
+    text?: string;
+  };
   children: React.ReactNode;
 }
 
-const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, children }) => {
+const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, children, customAction }) => {
   const navigate = useNavigate();
   const { mutate: createChat, isPending: isPendingCreateChat, error: errorCreateChat } = useCreateChat();
   const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
-  const { data: user } = useUser();
-  const { isUsingBurnerWallet } = useAuthStore(
-    useShallow((state) => ({
-      isUsingBurnerWallet: state.isUsingBurnerWallet,
-    }))
-  );
 
+  const {isUsingBurnerWallet} = useAuthStore(useShallow((state) => ({
+    isUsingBurnerWallet: state.isUsingBurnerWallet,
+  })));
+
+  
   const confirm = useConfirm();
-  const alert = useAlert();
 
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -83,15 +85,10 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
   }, [isOpen]);
 
   //  TODO: Move this logic to the backend of the delete avatar!!
-  const handleCreateChat = async () => {
-    const userTokenSpendable = user?.tokenSpendable || 0;
-
-    if (!isUsingBurnerWallet && userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
-      alert({
-        icon: '💰',
-        title: 'Insufficient Tokens',
-        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
-      });
+  const handleButtonClick = async () => {
+    if (customAction?.onClick) {
+      customAction?.onClick(avatar, selectedScenario);
+      setIsOpen(false);
       return;
     }
 
@@ -147,7 +144,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
       onOpenChange={setIsOpen}
       selectedAvatar={avatar}
       selectedScenario={selectedScenario}
-      onSave={handleCreateChat}
+      onSave={handleButtonClick}
       onSearchChange={handleSearchChange}
       isLoading={isLoading}
       hasNextPage={hasNextPage}
@@ -169,6 +166,7 @@ const AvatarScenarioModal: React.FC<AvatarScenarioModalProps> = ({ avatar, child
           />
         );
       }}
+      customActionButtonText={customAction?.text ?? undefined}
     >
       {children}
     </SelectionModal>
@@ -188,6 +186,7 @@ const ScenarioItem = ({
   isRecommended: boolean;
   onClick: () => void;
 }) => {
+  const isSponsored = item.sponsorships?.length && item.sponsorships.length > 0;
   return (
     <button
       key={item.id}
@@ -217,11 +216,9 @@ const ScenarioItem = ({
         <p className='text-sm text-neutral-01 line-clamp-2'>{item.introduction}</p>
       </div>
 
-      {isRecommended && (
-        <div className='absolute right-1 top-1 text-xs  h-5  rounded-full flex items-center bg-specials-success text-white px-2 py-2  gap-2 justify-center'>
-          Recommended
-        </div>
-      )}
+      <div className='absolute right-1 -top-2.5 flex gap-2'>
+        {Boolean(isSponsored) && <FreeToUseBadge />}
+      </div>
     </button>
   );
 };

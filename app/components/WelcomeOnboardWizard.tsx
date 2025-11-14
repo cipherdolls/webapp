@@ -227,6 +227,7 @@ export const WelcomeOnboardWizard = ({ me, onClose }: WelcomeOnboardWizardProps)
                 spender='0x2A0a2744d4d96b43C2C273f1906AD89dFe2AD607'
                 amount={amount.toString()}
                 onSigned={handlePermitSigned}
+                isPending={createTokenPermitMutation.isPending}
               />
             </div>
           </div>

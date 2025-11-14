@@ -2,11 +2,11 @@ import { useLoginModal } from '~/context/login-modal-context';
 import { useWalletAuth } from '~/hooks/useWalletAuth';
 import { useAuthStore } from '~/store/useAuthStore';
 import * as Dialog from '@radix-ui/react-dialog';
-import { MessageSquare, Zap, X, LoaderCircle } from 'lucide-react';
+import { Zap, X, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn, cnExt } from '~/utils/cn';
 import { ROUTES } from '~/constants';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 const LoginModal = () => {
@@ -14,9 +14,10 @@ const LoginModal = () => {
   const [isLoadingGuest, setIsLoadingGuest] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const location = useLocation();
 
   const { isOpen, close } = useLoginModal();
-  const { verifyToken } = useAuthStore();
+  const { verifyToken, isUsingBurnerWallet } = useAuthStore();
   const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
   const navigate = useNavigate();
 
@@ -27,17 +28,25 @@ const LoginModal = () => {
 
     setIsLoadingMetamask(true);
     try {
-      setIsConfirmOpen(true)
+      setIsConfirmOpen(true);
       await signIn();
     } catch (error) {
       console.error('Sign in with MetaMask failed:', error);
     } finally {
-      setIsConfirmOpen(false)
+      setIsConfirmOpen(false);
       setIsLoadingMetamask(false);
     }
   };
 
   const handleGuestClick = async () => {
+    if (isUsingBurnerWallet) {
+      if (location.pathname === '/') {
+        navigate(ROUTES.chats);
+      }
+      close();
+      return
+    }
+
     setIsLoadingGuest(true);
     try {
       await signInAsGuest();
@@ -53,6 +62,8 @@ const LoginModal = () => {
       setIsVerifying(false);
       return;
     }
+
+    if (isUsingBurnerWallet) return;
 
     let active = true;
     setIsVerifying(true);
@@ -120,7 +131,12 @@ const LoginModal = () => {
           </div>
         </Dialog.Overlay>
 
-        <Dialog.Content className={cn('fixed inset-0 sm:left-[50%] sm:top-[50%] z-50 sm:translate-x-[-50%] sm:translate-y-[-50%] bg-white rounded-none sm:rounded-3xl shadow-2xl max-w-full sm:max-w-lg w-full h-full sm:h-fit sm:max-h-[calc(100vh-150px)] sm:overflow-y-auto animate-modal-fade overflow-y-auto', isConfirmOpen && 'blur-xs')}>
+        <Dialog.Content
+          className={cn(
+            'fixed inset-0 sm:left-[50%] sm:top-[50%] z-50 sm:translate-x-[-50%] sm:translate-y-[-50%] bg-white rounded-none sm:rounded-3xl shadow-2xl max-w-full sm:max-w-lg w-full h-full sm:h-fit sm:max-h-[calc(100vh-150px)] sm:overflow-y-auto animate-modal-fade overflow-y-auto',
+            isConfirmOpen && 'blur-xs'
+          )}
+        >
           <VisuallyHidden>
             <Dialog.Title>Start Your Conversation</Dialog.Title>
             <Dialog.Description>
@@ -173,7 +189,9 @@ const LoginModal = () => {
                     <div className='font-bold text-lg'>Login with MetaMask</div>
                     <div className='text-white/90 text-sm'>Secure Web3 authentication</div>
                   </div>
-                  <div className='ml-auto w-7'>{isLoadingMetamask ? <LoaderCircle className='w-7 h-7 text-white animate-spin' /> : null}</div>
+                  <div className='ml-auto w-7'>
+                    {isLoadingMetamask ? <LoaderCircle className='w-7 h-7 text-white animate-spin' /> : null}
+                  </div>
                 </button>
 
                 {!hasEthereum ? (
@@ -207,7 +225,7 @@ const LoginModal = () => {
                   </div>
                   <div className='text-left'>
                     <div className='font-bold text-lg'>Guest Mode</div>
-                    <div className='text-white/90 text-sm'>Start chatting instantly</div>
+                    <div className='text-white/90 text-sm'>{isUsingBurnerWallet ? 'Continue as a Guest' : 'Start chatting instantly'}</div>
                   </div>
                   <div className='ml-auto w-7'>{isLoadingGuest ? <LoaderCircle className='w-7 h-7 text-white animate-spin' /> : null}</div>
                 </button>

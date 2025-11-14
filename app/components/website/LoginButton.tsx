@@ -1,6 +1,6 @@
 import { forwardRef, type ReactNode } from 'react';
 import * as Button from '~/components/ui/button/button';
-import { cn } from '~/utils/cn';
+import { cn, cnExt } from '~/utils/cn';
 import { useLoginModal } from '~/context/login-modal-context';
 
 type LoginButtonProps = Omit<React.ComponentProps<typeof Button.Root>, 'children' | 'onClick'> & {
@@ -37,7 +37,7 @@ const LoginButton = forwardRef<HTMLButtonElement, LoginButtonProps>(
     return (
       <Button.Root
         ref={ref}
-        className={cn(withDefaultStyles ? DEFAULT_CLASSNAME : undefined, className)}
+        className={cnExt(withDefaultStyles ? DEFAULT_CLASSNAME : undefined, className)}
         variant={variant ?? 'secondary'}
         size={size ?? 'lg'}
         disabled={disabled}

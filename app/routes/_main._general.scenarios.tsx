@@ -16,6 +16,7 @@ import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { ROUTES } from '~/constants';
 import { cn } from '~/utils/cn';
+import FreeToUseBadge from '~/components/FreeToUseBadge';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -188,7 +189,7 @@ export default function ScenariosIndex() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search scenarios by name' />
+        <SearchInput searchParamName='name' placeholder='Search scenarios by name' />
         <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
           <div className='flex flex-1 items-center gap-3'>
             <button
@@ -316,10 +317,7 @@ export default function ScenariosIndex() {
                                 side='top'
                                 variant='light'
                                 trigger={
-                                  <div className='flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 py-1 pl-1 pr-1.5 rounded-full text-label text-white font-semibold shadow-lg cursor-help'>
-                                    🎁
-                                    <span>Free to use</span>
-                                  </div>
+                                  <FreeToUseBadge className='cursor-help' />
                                 }
                                 content={`This scenario has ${scenario.sponsorships.length} ${scenario.sponsorships.length === 1 ? 'sponsor' : 'sponsors'}. You can use it without spending your own tokens!`}
                                 className='max-w-[350px]'

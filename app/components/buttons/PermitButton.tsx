@@ -8,6 +8,7 @@ interface PermitButtonProps {
   tokenVersion: string;
   spender: string;
   amount: string; // human-readable
+  isPending: boolean;
   deadlineSeconds?: number;
   onSigned: (permit: {
     owner: string;
@@ -37,6 +38,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
   spender,
   amount,
   deadlineSeconds = 3600,
+  isPending,
   onSigned,
 }) => {
   const [loading, setLoading] = useState(false);
@@ -221,7 +223,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
     <>
       <div className='flex flex-col gap-2 w-full'>
         <Button.Root className='w-full' onClick={handleClick} disabled={loading}>
-          {loading ? (
+          {loading || isPending ? (
             <>
               <span className='animate-spin'>⏳</span>
               Signing...
