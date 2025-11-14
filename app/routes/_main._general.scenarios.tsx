@@ -189,7 +189,7 @@ export default function ScenariosIndex() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search scenarios by name' />
+        <SearchInput searchParamName='name' placeholder='Search scenarios by name' />
         <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
           <div className='flex flex-1 items-center gap-3'>
             <button
