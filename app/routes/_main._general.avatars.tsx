@@ -11,6 +11,7 @@ import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import AvatarListCard, { AvatarListCardSkeleton } from '~/components/AvatarListCard';
+import { useUser } from '~/hooks/queries/userQueries';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
 
@@ -41,8 +42,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function AvatarsShow() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const me = useRouteLoaderData('routes/_main') as User;
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const { data: me } = useUser()
   const [showBackToTop, setShowBackToTop] = useState(false);
   const scrollContainerRef = React.useRef<HTMLElement | null>(null);
 
@@ -109,7 +109,6 @@ export default function AvatarsShow() {
     }
 
     setSearchParams(newSearchParams);
-    setPopoverOpen(false);
   };
 
   const handleClearFilters = () => {
@@ -231,12 +230,11 @@ export default function AvatarsShow() {
                 </p>
               ) : (
                 filteredAndSortedAvatars.map((avatar) => {
-                  const isUsersAvatar = me.id === avatar.userId ? true : false;
+                  const isUsersAvatar = me?.id === avatar.userId ? true : false;
                   return (
                     <AvatarListCard
                       key={avatar.id}
                       avatar={avatar}
-                      isTokenSpendable={!me.tokenSpendable || me.tokenSpendable === 0}
                       isUsersAvatar={isUsersAvatar}
                     />
                   );

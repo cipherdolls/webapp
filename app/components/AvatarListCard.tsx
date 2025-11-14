@@ -26,11 +26,10 @@ export const AvatarListCardSkeleton = ({ count = 2 }: { count?: number }) => {
 
 interface AvatarListCardProps {
   avatar: Avatar;
-  isTokenSpendable: boolean;
   isUsersAvatar: boolean;
 }
 
-const AvatarListCard = ({ avatar, isTokenSpendable, isUsersAvatar }: AvatarListCardProps) => {
+const AvatarListCard = ({ avatar, isUsersAvatar }: AvatarListCardProps) => {
   return (
     <div className='transition-all duration-500 ease-out' key={avatar.id}>
       <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
@@ -77,7 +76,7 @@ const AvatarListCard = ({ avatar, isTokenSpendable, isUsersAvatar }: AvatarListC
             {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}
 
             <AvatarScenarioModal avatar={avatar}>
-              <Button.Root size='sm' className='px-5' disabled={isTokenSpendable}>
+              <Button.Root size='sm' className='px-5'>
                 Chat
               </Button.Root>
             </AvatarScenarioModal>
