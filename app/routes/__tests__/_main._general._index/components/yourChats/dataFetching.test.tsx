@@ -34,7 +34,7 @@ vi.mock('react-router', () => ({
 // ❌ vi.mock('~/components/ui/icons') → UI utility should render naturally
 // ❌ vi.mock('~/components/ui/button/button') → UI component should render naturally  
 // ❌ vi.mock('~/components/AvatarCardReusable') → Child component should render naturally
-// ❌ vi.mock('~/components/AvatarScenarioModal') → Child component should render naturally
+// ❌ vi.mock('~/components/ChatSelectionWizard') → Child component should render naturally
 // ❌ vi.mock('react-router') → Let real Link/NavLink render (not external for component test)
 //
 // RESULT: Real integration testing instead of mock-heavy brittle tests

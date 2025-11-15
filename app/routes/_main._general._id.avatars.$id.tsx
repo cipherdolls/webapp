@@ -9,7 +9,7 @@ import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
 import { ViewMore } from '~/view-more';
-import AvatarScenarioModal from '~/components/AvatarScenarioModal';
+import ChatSelectionWizard from '~/components/ChatSelectionWizard';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
@@ -144,11 +144,11 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
-            <AvatarScenarioModal avatar={avatar}>
+            <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
               <Button.Root variant='primary' className='px-6'>
                 Start Chat
               </Button.Root>
-            </AvatarScenarioModal>
+            </ChatSelectionWizard>
 
             {/*<fetcher.Form method='POST' action='/avatars/new'>*/}
             {/*  <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />*/}
@@ -189,11 +189,11 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   type: 'component',
                   text: 'Chat',
                   component: (
-                    <AvatarScenarioModal avatar={avatar}>
+                    <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
                       <button className='w-full text-left px-3 py-2 text-body-md text-base-black hover:bg-neutral-05 rounded-lg transition-colors'>
                         {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
                       </button>
-                    </AvatarScenarioModal>
+                    </ChatSelectionWizard>
                   ),
                 },
                 // {

@@ -15,7 +15,7 @@ import { getPicture } from '~/utils/getPicture';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { useAuthStore } from '~/store/useAuthStore';
-import AvatarScenarioModal from '../AvatarScenarioModal';
+import ChatSelectionWizard from '../ChatSelectionWizard';
 import FreeToUseBadge from '~/components/FreeToUseBadge';
 import LoginButton from '../website/LoginButton';
 
@@ -288,10 +288,11 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
                 <h2 className='text-heading-h3 font-semibold text-base-black'>Choose a Scenario</h2>
                 <p className='text-body-md text-neutral-01'>Pick a conversation style with {selectedAvatar.name}</p>
                 <div>
-                  <AvatarScenarioModal
+                  <ChatSelectionWizard
+                    mode='avatar-to-scenario'
                     avatar={selectedAvatar}
                     customAction={{
-                      onClick: (avatar: Avatar, scenario: Scenario | null) => scenario && handleScenarioSelect(scenario),
+                      onClick: (_avatar: Avatar, scenario: Scenario | null) => scenario && handleScenarioSelect(scenario),
                       text: 'Select Scenario',
                     }}
                   >
@@ -299,7 +300,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
                       <Icons.chevronRight className='w-4 h-4 mr-2' />
                       Browse All Scenarios
                     </Button.Root>
-                  </AvatarScenarioModal>
+                  </ChatSelectionWizard>
                 </div>
               </div>
             </div>

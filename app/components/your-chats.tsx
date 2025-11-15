@@ -5,7 +5,7 @@ import { Link, NavLink } from 'react-router';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from './ui/icons';
 import AvatarCard from '~/components/AvatarCardReusable';
-import AvatarScenarioModal from '~/components/AvatarScenarioModal';
+import ChatSelectionWizard from '~/components/ChatSelectionWizard';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
@@ -240,14 +240,14 @@ const ChatItem = ({ group, expandedAvatar, handleAvatarClick }: ChatItemProps) =
             ))}
 
             <div className='pt-2'>
-              <AvatarScenarioModal avatar={group.avatar}>
+              <ChatSelectionWizard mode='avatar-to-scenario' avatar={group.avatar}>
                 <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
                   <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
                     <Icons.chat className='size-4' />
                     <span className='text-body-sm font-medium'>New chat</span>
                   </div>
                 </button>
-              </AvatarScenarioModal>
+              </ChatSelectionWizard>
             </div>
           </motion.div>
         )}

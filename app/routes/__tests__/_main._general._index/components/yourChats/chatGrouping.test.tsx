@@ -33,7 +33,7 @@ vi.mock('react-router', () => ({
 // ❌ vi.mock('~/components/ui/icons')
 // ❌ vi.mock('~/components/ui/button/button')  
 // ❌ vi.mock('~/components/AvatarCardReusable')
-// ❌ vi.mock('~/components/AvatarScenarioModal')
+// ❌ vi.mock('~/components/ChatSelectionWizard')
 // ❌ Duplicate vi.mock('react-router') declarations removed
 //
 // RESULT: Real integration testing for chat grouping logic
