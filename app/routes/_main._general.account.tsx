@@ -27,6 +27,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Account() {
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
   const confirm = useConfirm();
+  const { isAuthenticated, isUsingBurnerWallet } = useAuthStore();
 
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
   const logout = useAuthStore((state) => state.logout);
@@ -64,9 +65,13 @@ export default function Account() {
           <YourScenarios />
         </div>
         <div className='flex flex-col gap-5 lg:sticky lg:top-4 lg:self-start'>
-          <TokenBalance />
-          <TokenPermitsList />
-          <YourReferrals />
+          {!isUsingBurnerWallet ? (
+            <>
+              <TokenBalance />
+              <TokenPermitsList />
+              <YourReferrals />
+            </>
+          ) : null}
 
           <Button.Root variant='primary' className='w-full min-h-12' onClick={handleSignOut}>
             <Icons.signOut />
