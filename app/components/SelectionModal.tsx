@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import * as Modal from '~/components/ui/new-modal';
 import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
@@ -7,7 +8,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { Icons } from './ui/icons';
 import { getPicture } from '~/utils/getPicture';
 import type { Avatar, Scenario } from '~/types';
-import { ThumbsUp } from 'lucide-react';
+import { Loader2, ThumbsUp } from 'lucide-react';
 import { cn } from '~/utils/cn';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -82,6 +83,22 @@ export function SelectionModal<T>({
       isUsingBurnerWallet: state.isUsingBurnerWallet,
     }))
   );
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [loadMoreRef, { rootRef }] = useInfiniteScroll({
+    loading: list.isFetchingNextPage,
+    hasNextPage: list.hasNextPage,
+    onLoadMore: list.fetchNextPage,
+    disabled: !list.hasNextPage,
+    rootMargin: '0px 0px 200px 0px',
+  });
+
+  const handleScrollContainerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      scrollContainerRef.current = node;
+      rootRef(node);
+    },
+    [rootRef]
+  );
 
   const isAvatar = type === 'avatar';
 
@@ -112,20 +129,6 @@ export function SelectionModal<T>({
           <div className='text-center py-8 text-neutral-01'>
             <p>{`No ${isAvatar ? 'Avatars' : 'Scenarios'} found`}</p>
             {controls.searchValue && <p className='text-sm mt-1'>Try adjusting your search terms</p>}
-          </div>
-        )}
-
-        {list.hasNextPage && (
-          <div className='flex justify-center py-3'>
-            <Button.Root
-              variant='secondary'
-              size='sm'
-              className='px-6'
-              onClick={() => list.fetchNextPage()}
-              disabled={list.isFetchingNextPage}
-            >
-              {list.isFetchingNextPage ? 'Loading...' : 'Load More'}
-            </Button.Root>
           </div>
         )}
       </>
@@ -219,8 +222,16 @@ export function SelectionModal<T>({
                   {controls.filters}
                 </div>
 
-                <div className='flex flex-col gap-4 max-h-96 overflow-y-auto pt-5'>
-                  {renderItems()}
+                <div className='flex flex-col  max-h-96 overflow-y-auto pt-5' ref={handleScrollContainerRef}>
+                  <div className='flex flex-col gap-4 flex-1'>
+                    {renderItems()}
+                  </div>
+                  <div ref={loadMoreRef} />
+                  {list.isFetchingNextPage && (
+                    <div className='flex justify-center pb-5 text-sm text-neutral-01'>
+                      <Loader2 className='size-8 animate-spin text-neutral-01' />
+                    </div>
+                  )}
                 </div>
               </div>
             </Tabs.Content>
