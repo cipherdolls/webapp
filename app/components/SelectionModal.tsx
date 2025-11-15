@@ -228,7 +228,7 @@ export function SelectionModal<T>({
                   </div>
                   <div ref={loadMoreRef} />
                   {list.isFetchingNextPage && (
-                    <div className='flex justify-center pb-5 text-sm text-neutral-01'>
+                    <div className='flex justify-center py-4'>
                       <Loader2 className='size-8 animate-spin text-neutral-01' />
                     </div>
                   )}
