@@ -6,11 +6,10 @@ import AvatarCard from './AvatarCardReusable';
 import * as Button from './ui/button/button';
 import AvatarSelectModal from './AvatarSelectModal';
 import AvatarScenarioModal from './AvatarScenarioModal';
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ANIMATE_CHAT_ITEMS, ROUTES } from '~/constants';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
-import AvatarPicture from '~/components/AvatarPicture';
 import { getPicture } from '~/utils/getPicture';
 
 interface ChatsSidebarProps {
