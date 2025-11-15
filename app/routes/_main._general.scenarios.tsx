@@ -72,6 +72,7 @@ export default function ScenariosIndex() {
   const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
   const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
   const showNsfw = searchParams.has('nsfw');
+  const showFreeToUse = searchParams.has('hasSponsorship');
 
   const {
     data: scenarios,
@@ -98,7 +99,7 @@ export default function ScenariosIndex() {
   });
 
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All' || showNsfw;
+  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All' || showFreeToUse || showNsfw;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -138,6 +139,16 @@ export default function ScenariosIndex() {
     }
     setSearchParams(newSearchParams);
     setPopoverOpen(false);
+  };
+
+  const handleFreeToUseToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (showFreeToUse) {
+      newSearchParams.delete('hasSponsorship');
+    } else {
+      newSearchParams.set('hasSponsorship', 'true');
+    }
+    setSearchParams(newSearchParams);
   };
 
   const handleNsfwToggle = () => {
@@ -274,6 +285,20 @@ export default function ScenariosIndex() {
                         </div>
                       ))}
                     </RadioGroup.Root>
+                  </div>
+
+                  {/* Free to Use Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Sponsorship</h4>
+
+                    <div className='flex items-center gap-2 bg-neutral-06 rounded-lg select-none'>
+                      <Switch.Root checked={showFreeToUse} onCheckedChange={() => handleFreeToUseToggle()}>
+                        <Switch.Thumb />
+                      </Switch.Root>
+                      <label className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer' onClick={handleFreeToUseToggle}>
+                        Show Free To Use
+                      </label>
+                    </div>
                   </div>
                 </div>
               </Popover.Content>
