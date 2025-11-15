@@ -5,7 +5,7 @@ import type { Avatar } from '~/types';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import PlayerButton from '~/components/PlayerButton';
 import * as Button from '~/components/ui/button/button';
-import AvatarScenarioModal from './AvatarScenarioModal';
+import ChatSelectionWizard from './ChatSelectionWizard';
 import { PATHS } from '~/constants';
 
 
@@ -75,11 +75,11 @@ const AvatarListCard = ({ avatar, isUsersAvatar }: AvatarListCardProps) => {
           <div className='flex items-center gap-3'>
             {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}
 
-            <AvatarScenarioModal avatar={avatar}>
+            <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
               <Button.Root size='sm' className='px-5'>
                 Chat
               </Button.Root>
-            </AvatarScenarioModal>
+            </ChatSelectionWizard>
           </div>
         </div>
       </div>

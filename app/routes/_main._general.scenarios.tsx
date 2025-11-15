@@ -10,7 +10,7 @@ import * as Switch from '~/components/ui/switch';
 import * as RadioGroup from '~/components/ui/radio-group';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import Tooltip from '~/components/ui/tooltip';
-import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
+import ChatSelectionWizard from '~/components/ChatSelectionWizard';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
@@ -418,7 +418,7 @@ export default function ScenariosIndex() {
                           {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
                         </div>
                         <div className='flex items-center gap-3'>
-                          <ScenarioAvatarModal scenario={scenario}>
+                          <ChatSelectionWizard mode='scenario-to-avatar' scenario={scenario}>
                             <Button.Root
                               size='sm'
                               className='px-5'
@@ -429,7 +429,7 @@ export default function ScenariosIndex() {
                             >
                               Chat
                             </Button.Root>
-                          </ScenarioAvatarModal>
+                          </ChatSelectionWizard>
                         </div>
                       </div>
                     </div>

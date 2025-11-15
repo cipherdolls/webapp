@@ -11,8 +11,9 @@ import { useNetworkCheck } from '~/hooks/useNetworkCheck';
 import NetworkWarningBanner from '~/components/NetworkWarningBanner';
 import { YourReferrals } from '~/components/your-referrals';
 
-import SignOutModal from '~/components/signOutModal';
 import * as Button from '~/components/ui/button/button';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useConfirm } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -25,8 +26,24 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Account() {
   const { isOnCorrectNetwork, hasMetaMask, isLoading: isNetworkLoading } = useNetworkCheck();
+  const confirm = useConfirm();
 
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleSignOut = async () => {
+    const result = await confirm({
+      icon: '🏁',
+      title: 'Sign Out?',
+      body: 'Are you sure you want to sign out?',
+      actionButton: 'Yes, Sign Out',
+      cancelButton: 'No, Stay',
+    });
+
+    if (!result) return;
+
+    logout();
+  };
 
   return (
     <div className='flex flex-col lg:gap-16 md:gap-12 gap-8 flex-1'>
@@ -50,12 +67,11 @@ export default function Account() {
           <TokenBalance />
           <TokenPermitsList />
           <YourReferrals />
-          <SignOutModal>
-            <Button.Root variant='primary' className='w-full min-h-12'>
-              <Icons.signOut />
-              Sign Out
-            </Button.Root>
-          </SignOutModal>
+
+          <Button.Root variant='primary' className='w-full min-h-12' onClick={handleSignOut}>
+            <Icons.signOut />
+            Sign Out
+          </Button.Root>
         </div>
       </div>
       <Outlet />

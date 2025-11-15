@@ -5,12 +5,11 @@ import { Icons } from './ui/icons';
 import AvatarCard from './AvatarCardReusable';
 import * as Button from './ui/button/button';
 import AvatarSelectModal from './AvatarSelectModal';
-import AvatarScenarioModal from './AvatarScenarioModal';
-import React, { useState, useMemo, useEffect } from 'react';
+import ChatSelectionWizard from './ChatSelectionWizard';
+import { useState, useMemo, useEffect } from 'react';
 import { ANIMATE_CHAT_ITEMS, ROUTES } from '~/constants';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
-import AvatarPicture from '~/components/AvatarPicture';
 import { getPicture } from '~/utils/getPicture';
 
 interface ChatsSidebarProps {
@@ -189,14 +188,14 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                         ))}
 
                         <div className='pt-2'>
-                          <AvatarScenarioModal avatar={group.avatar}>
+                          <ChatSelectionWizard mode='avatar-to-scenario' avatar={group.avatar}>
                             <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
                               <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
                                 <Icons.chat className='size-4' />
                                 <span className='text-body-sm font-medium'>New chat</span>
                               </div>
                             </button>
-                          </AvatarScenarioModal>
+                          </ChatSelectionWizard>
                         </div>
                       </motion.div>
                     )}

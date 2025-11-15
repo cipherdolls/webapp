@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
 import * as Button from '~/components/ui/button/button';
-import ScenarioAvatarModal from './ScenarioAvatarModal';
+import ChatSelectionWizard from './ChatSelectionWizard';
 import { cn } from '~/utils/cn';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
@@ -94,11 +94,11 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
                       )}
                     </div>
                     <div className='flex items-center gap-3'>
-                      <ScenarioAvatarModal scenario={scenario} chats={chats}>
+                      <ChatSelectionWizard mode='scenario-to-avatar' scenario={scenario}>
                         <Button.Root size='sm' className='px-5'>
                           Chat
                         </Button.Root>
-                      </ScenarioAvatarModal>
+                      </ChatSelectionWizard>
                     </div>
                   </DashboardCard>
                 </div>
