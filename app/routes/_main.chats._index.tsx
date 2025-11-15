@@ -1,4 +1,3 @@
-import ChatWelcome from '~/components/chat/ChatWelcome';
 import ChatWelcomeEmpty from '~/components/chat/ChatWelcomeEmpty';
 import { useMediaQuery } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
@@ -26,11 +25,6 @@ export default function ChatsIndex() {
   // Show empty welcome if no chats exist and data is loaded
   if (!isChatsLoading && !isUserLoading && !isAvatarsLoading && (!chatsData || chatsData.length === 0)) {
     return <ChatWelcomeEmpty avatars={avatarsData?.data || []} user={user!} />;
-  }
-
-  // Show regular welcome if user has chats
-  if (!isChatsLoading && chatsData && chatsData.length > 0) {
-    return <ChatWelcome chats={chatsData} avatars={avatarsData?.data || []} />;
   }
 
   // Show loading state only while data is being fetched

@@ -17,7 +17,7 @@ const LoginModal = () => {
   const location = useLocation();
 
   const { isOpen, close } = useLoginModal();
-  const { verifyToken, isUsingBurnerWallet } = useAuthStore();
+  const { verifyToken, isUsingBurnerWallet, isAuthenticated } = useAuthStore();
   const { signIn, signInAsGuest, isLoading, error, hasEthereum } = useWalletAuth();
   const navigate = useNavigate();
 
@@ -39,12 +39,12 @@ const LoginModal = () => {
   };
 
   const handleGuestClick = async () => {
-    if (isUsingBurnerWallet) {
+    if (isAuthenticated && isUsingBurnerWallet) {
       if (location.pathname === '/') {
         navigate(ROUTES.chats);
       }
       close();
-      return
+      return;
     }
 
     setIsLoadingGuest(true);

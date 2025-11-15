@@ -24,7 +24,7 @@ vi.mock('react-router', () => ({
 // DELETED 5 MOCKS:
 // ❌ vi.mock('~/components/ui/icons') → Icons should render naturally
 // ❌ vi.mock('~/components/ui/button/button') → Buttons should render naturally  
-// ❌ vi.mock('~/components/ScenarioAvatarModal') → Modal should render naturally
+// ❌ vi.mock('~/components/ChatSelectionWizard') → Modal should render naturally
 // ❌ vi.mock('~/components/DashboardCard') → Cards should render naturally
 //
 // RESULT: Real integration testing instead of brittle mock-heavy tests

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import AvatarScenarioModal from './AvatarScenarioModal';
+import ChatSelectionWizard from './ChatSelectionWizard';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 import CardWithBadge from './DashboardCard';
@@ -89,11 +89,11 @@ const YourAvatars = () => {
                       <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                     </div>
                     <div className='flex items-center gap-3 flex-shrink-0'>
-                      <AvatarScenarioModal avatar={avatar}>
+                      <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
                         <Button.Root size='sm' className='px-5'>
                           Chat
                         </Button.Root>
-                      </AvatarScenarioModal>
+                      </ChatSelectionWizard>
                     </div>
                   </CardWithBadge>
                 </div>
