@@ -1,14 +1,13 @@
 import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import React, { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS, ROUTES } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
-import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import { ViewMore } from '~/view-more';
 import AvatarScenarioModal from '~/components/AvatarScenarioModal';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
@@ -18,9 +17,10 @@ import { formatModelName } from '~/utils/formatModelName';
 import { cn } from '~/utils/cn';
 import ErrorPage from '~/components/ErrorPage';
 import type { User } from '~/types';
-import { motion } from 'motion/react';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
 import { InformationBadge } from '~/components/ui/InformationBadge';
+import { useDeleteAvatar } from '~/hooks/queries/avatarMutations';
+import { useConfirm } from '~/providers/AlertDialogProvider';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -31,7 +31,9 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
   const { mutate: createChat } = useCreateChat();
-  const {data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider(avatar?.ttsVoice.ttsProviderId || '')
+  const { data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider(avatar?.ttsVoice.ttsProviderId || '');
+  const { mutate: deleteAvatar } = useDeleteAvatar();
+  const confirm = useConfirm();
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -70,6 +72,25 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   if (avatarError || !avatar) {
     return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
   }
+
+  const handleDeleteAvatar = async () => {
+    const result = await confirm({
+      icon: '🗑️',
+      title: 'Delete an Avatar?',
+      body: 'By deleting an avatar a chat will be deleted as well. You will no able to restore the data',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+      variant: 'danger'
+    });
+
+    if (!result) return;
+
+    deleteAvatar(avatar.id, {
+      onSuccess: () => {
+        navigate(`${ROUTES.avatars}?mine=true`);
+      },
+    });
+  };
 
   const handleCreateChat = (scenarioId: string) => {
     createChat(
@@ -148,7 +169,9 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                     Edit
                   </Button.Root>
                 </Link>
-                <DeleteAvatarModal avatarId={avatar.id} />
+                <Button.Root type='button' variant={'danger'} onClick={handleDeleteAvatar}>
+                  <Icons.trash className='w-12' />
+                </Button.Root>
               </>
             )}
           </div>
@@ -190,7 +213,11 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   type: 'component',
                   text: 'Delete',
                   isDelete: true,
-                  component: <DeleteAvatarModal dropdown avatarId={avatar.id} />,
+                  component: (
+                    <Button.Root type='button' variant='danger' onClick={handleDeleteAvatar}>
+                      <Icons.trash className='w-12' />
+                    </Button.Root>
+                  ),
                   visible: user.id === avatar.userId,
                 },
               ]}
@@ -303,11 +330,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
               <div className='flex flex-col gap-5'>
                 <div className='flex justify-between'>
                   <h1 className='text-base-black text-heading-h3 font-semibold'>Voice & Provider</h1>
-                  <InformationBadge
-                    className='size-6'
-                    tooltipText={`${ttsProvider.name}: Real-time AI voice synthesis`}
-                    side={'top'}
-                  />
+                  <InformationBadge className='size-6' tooltipText={`${ttsProvider.name}: Real-time AI voice synthesis`} side={'top'} />
                 </div>
 
                 <div className='flex flex-col bg-gradient-1 px-5 py-[18px] rounded-xl gap-4 shadow-regular'>
