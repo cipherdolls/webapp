@@ -8,9 +8,10 @@ import { cn } from '~/utils/cn';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 import DashboardCard from './DashboardCard';
-import { ANIMATE_DURATION, ROUTES } from '~/constants';
+import { ANIMATE_DURATION, ROUTES, TOKEN_BALANCE } from '~/constants';
 import { motion } from 'motion/react';
 import { useMediaQuery } from 'usehooks-ts';
+import { useAuthStore } from '~/store/useAuthStore';
 
 function YourScenariosSkeleton() {
   return (
@@ -31,10 +32,12 @@ function YourScenariosSkeleton() {
 const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true' });
   const { data: user } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
   const isLaptop = useMediaQuery('(min-width: 640px) and (max-width: 1024px)');
   const isMobile = useMediaQuery('(max-width: 640px)');
 
   const scenarios = scenariosPaginated?.data || [];
+  const hasMinimumTokens = isUsingBurnerWallet || (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
 
   const [showAll, setShowAll] = useState(false);
   const hasScenarios = scenarios.length > 0;
@@ -82,27 +85,32 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
               transition={ANIMATE_DURATION}
               className='grid grid-cols-1 sm:grid-cols-2 gap-x-2 -mt-2'
             >
-              {scenarios.map((scenario, index) => (
-                <div className='pt-2' key={index}>
-                  <DashboardCard item={scenario} type='scenarios' to={`${ROUTES.scenarios}/${scenario.id}`}>
-                    <div className='flex flex-col gap-1 min-w-0 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+              {scenarios.map((scenario, index) => {
+                const isSponsored = Boolean(scenario.sponsorships?.length);
+                const isChatDisabled = !isUsingBurnerWallet && !isSponsored && !hasMinimumTokens;
+
+                return (
+                  <div className='pt-2' key={index}>
+                    <DashboardCard item={scenario} type='scenarios' to={`${ROUTES.scenarios}/${scenario.id}`}>
+                      <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                        <div className='flex items-center gap-2'>
+                          <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+                        </div>
+                        {scenario.introduction && (
+                          <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
+                        )}
                       </div>
-                      {scenario.introduction && (
-                        <p className='line-clamp-2 text-body-sm font-semibold text-neutral-01'>{scenario.introduction}</p>
-                      )}
-                    </div>
-                    <div className='flex items-center gap-3'>
-                      <ChatSelectionWizard mode='scenario-to-avatar' scenario={scenario}>
-                        <Button.Root size='sm' className='px-5'>
-                          Chat
-                        </Button.Root>
-                      </ChatSelectionWizard>
-                    </div>
-                  </DashboardCard>
-                </div>
-              ))}
+                      <div className='flex items-center gap-3'>
+                        <ChatSelectionWizard mode='scenario-to-avatar' scenario={scenario}>
+                          <Button.Root size='sm' className='px-5' disabled={isChatDisabled}>
+                            Chat
+                          </Button.Root>
+                        </ChatSelectionWizard>
+                      </div>
+                    </DashboardCard>
+                  </div>
+                );
+              })}
             </motion.div>
           </>
         ) : (

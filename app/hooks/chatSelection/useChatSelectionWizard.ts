@@ -176,6 +176,15 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
               setIsOpen(false);
               setIsConfirmOpen(false);
             },
+            onError: (error: any) => {
+              setIsOpen(false);
+              setIsConfirmOpen(false);
+              alert({
+                icon: '💰',
+                title: 'Insufficient Tokens',
+                body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+              });
+            },
           }
         );
       };
@@ -197,6 +206,14 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
         deleteChat(existingChatId, {
           onSuccess: () => {
             triggerCreate();
+          },
+          onError: (error: any) => {
+            setIsConfirmOpen(false);
+            alert({
+              icon: '❌',
+              title: 'Error',
+              body: error?.message || 'Failed to delete previous chat. Please try again.',
+            });
           },
         });
 

@@ -4,7 +4,7 @@ import { Icons } from '~/components/ui/icons';
 import { useEffect, useMemo, useRef } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS, ROUTES } from '~/constants';
+import { PATHS, ROUTES, TOKEN_BALANCE } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
@@ -20,7 +20,9 @@ import type { User } from '~/types';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import { useDeleteAvatar } from '~/hooks/queries/avatarMutations';
-import { useConfirm } from '~/providers/AlertDialogProvider';
+import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -34,8 +36,12 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   const { data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider(avatar?.ttsVoice.ttsProviderId || '');
   const { mutate: deleteAvatar } = useDeleteAvatar();
   const confirm = useConfirm();
+  const alert = useAlert();
+  const { data: currentUser } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
 
   const scenarios = avatar?.scenarios ? avatar.scenarios : [];
   const hasScenarios = scenarios.length > 0;
@@ -102,6 +108,13 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
         onSuccess: (newChat) => {
           navigate(`${ROUTES.chats}/${newChat.id}`);
         },
+        onError: (error: any) => {
+          alert({
+            icon: '💰',
+            title: 'Insufficient Tokens',
+            body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+          });
+        },
       }
     );
   };
@@ -145,7 +158,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
           </Link>
           <div className='md:flex hidden items-center gap-3'>
             <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
-              <Button.Root variant='primary' className='px-6'>
+              <Button.Root variant='primary' className='px-6' disabled={!hasMinimumTokens}>
                 Start Chat
               </Button.Root>
             </ChatSelectionWizard>
@@ -190,7 +203,10 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   text: 'Chat',
                   component: (
                     <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
-                      <button className='w-full text-left px-3 py-2 text-body-md text-base-black hover:bg-neutral-05 rounded-lg transition-colors'>
+                      <button
+                        className='w-full text-left px-3 py-2 text-body-md text-base-black hover:bg-neutral-05 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                        disabled={!hasMinimumTokens}
+                      >
                         {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
                       </button>
                     </ChatSelectionWizard>
@@ -235,53 +251,64 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
               {hasScenarios ? (
                 <div className='flex flex-col gap-5'>
                   <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2'>
-                    {sortedScenarios.map((scenario, index) => (
-                      <div className={'transition-all duration-500 ease-out'} key={index}>
-                        <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                          <Link
-                            to={`${ROUTES.scenarios}/${scenario.id}`}
-                            className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
-                          >
-                            <img
-                              src={getPicture(scenario, 'scenarios', false)}
-                              srcSet={getPicture(scenario, 'scenarios', true)}
-                              alt={`${scenario.name} picture`}
-                              className='object-cover size-full'
-                            />
+                    {sortedScenarios.map((scenario, index) => {
+                      const isSponsored = Boolean(scenario.sponsorships?.length);
+                      const isChatDisabled = !isUsingBurnerWallet && !isSponsored && !hasMinimumTokens;
 
-                            {/*{avatar.userId === user.id && (*/}
-                            {/*  <div className='absolute top-2 left-2 z-10'>*/}
-                            {/*    <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>*/}
-                            {/*      🌐*/}
-                            {/*      <span>By you</span>*/}
-                            {/*    </div>*/}
-                            {/*  </div>*/}
-                            {/*)}*/}
-                          </Link>
+                      return (
+                        <div className={'transition-all duration-500 ease-out'} key={index}>
+                          <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                            <Link
+                              to={`${ROUTES.scenarios}/${scenario.id}`}
+                              className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
+                            >
+                              <img
+                                src={getPicture(scenario, 'scenarios', false)}
+                                srcSet={getPicture(scenario, 'scenarios', true)}
+                                alt={`${scenario.name} picture`}
+                                className='object-cover size-full'
+                              />
 
-                          <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
-                            <div className='flex flex-col gap-1 min-w-0 flex-1'>
-                              <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+                              {/*{avatar.userId === user.id && (*/}
+                              {/*  <div className='absolute top-2 left-2 z-10'>*/}
+                              {/*    <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>*/}
+                              {/*      🌐*/}
+                              {/*      <span>By you</span>*/}
+                              {/*    </div>*/}
+                              {/*  </div>*/}
+                              {/*)}*/}
+                            </Link>
 
-                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
-                            </div>
-                            <div className='flex items-center gap-3'>
-                              {scenario.chats && scenario.chats.length > 0 ? (
-                                <Link to={`${ROUTES.chats}/${scenario.chats[0].id}`}>
-                                  <Button.Root size='sm' className='px-5'>
-                                    Continue Chat
+                            <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
+                              <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                                <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+
+                                <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
+                              </div>
+                              <div className='flex items-center gap-3'>
+                                {scenario.chats && scenario.chats.length > 0 ? (
+                                  <Link to={`${ROUTES.chats}/${scenario.chats[0].id}`}>
+                                    <Button.Root size='sm' className='px-5'>
+                                      Continue Chat
+                                    </Button.Root>
+                                  </Link>
+                                ) : (
+                                  <Button.Root
+                                    type='button'
+                                    size='sm'
+                                    className='px-5'
+                                    onClick={() => handleCreateChat(scenario.id)}
+                                    disabled={isChatDisabled}
+                                  >
+                                    Chat
                                   </Button.Root>
-                                </Link>
-                              ) : (
-                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(scenario.id)}>
-                                  Chat
-                                </Button.Root>
-                              )}
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ) : (

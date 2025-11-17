@@ -9,9 +9,10 @@ import ChatSelectionWizard from '~/components/ChatSelectionWizard';
 import { useChats } from '~/hooks/queries/chatQueries';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useUser } from '~/hooks/queries/userQueries';
-import { ANIMATE_CHAT_ITEMS, ANIMATE_DURATION, ROUTES } from '~/constants';
+import { ANIMATE_CHAT_ITEMS, ANIMATE_DURATION, ROUTES, TOKEN_BALANCE } from '~/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMediaQuery } from 'usehooks-ts';
+import { useAuthStore } from '~/store/useAuthStore';
 
 function YourChatsSkeleton() {
   return (
@@ -32,6 +33,7 @@ interface ChatItemProps {
   group: GroupedChatsByAvatar
   expandedAvatar: string | undefined
   handleAvatarClick: (avatarId: string) => void
+  hasMinimumTokens: boolean
 }
 
 const YourChats = () => {
@@ -41,8 +43,10 @@ const YourChats = () => {
   const { data: chatsData, isLoading: chatsLoading } = useChats();
   const { data: avatarsData, isLoading: avatarsLoading } = useAvatars();
   const { data: user } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
 
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const hasMinimumTokens = isUsingBurnerWallet || (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
 
   const chats = chatsData || [];
   const avatars = avatarsData || [];
@@ -113,6 +117,7 @@ const YourChats = () => {
                     group={group}
                     expandedAvatar={expandedAvatar}
                     handleAvatarClick={handleAvatarClick}
+                    hasMinimumTokens={hasMinimumTokens}
                   />
                 </div>
               ))}
@@ -131,6 +136,7 @@ const YourChats = () => {
                       group={group}
                       expandedAvatar={expandedAvatar}
                       handleAvatarClick={handleAvatarClick}
+                      hasMinimumTokens={hasMinimumTokens}
                     />
                   </div>
                 ))}
@@ -148,6 +154,7 @@ const YourChats = () => {
                       group={group}
                       expandedAvatar={expandedAvatar}
                       handleAvatarClick={handleAvatarClick}
+                      hasMinimumTokens={hasMinimumTokens}
                     />
                   </div>
                 ))}
@@ -184,7 +191,7 @@ const YourChats = () => {
 
 export default YourChats;
 
-const ChatItem = ({ group, expandedAvatar, handleAvatarClick }: ChatItemProps) => {
+const ChatItem = ({ group, expandedAvatar, handleAvatarClick, hasMinimumTokens }: ChatItemProps) => {
   return (
     <>
       <div
@@ -241,7 +248,10 @@ const ChatItem = ({ group, expandedAvatar, handleAvatarClick }: ChatItemProps) =
 
             <div className='pt-2'>
               <ChatSelectionWizard mode='avatar-to-scenario' avatar={group.avatar}>
-                <button className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center'>
+                <button
+                  className='w-full p-3 rounded-lg border-2 border-dashed border-neutral-04 hover:border-neutral-02 hover:bg-neutral-05 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!hasMinimumTokens}
+                >
                   <div className='flex items-center justify-center gap-2 text-neutral-01 hover:text-base-black transition-colors'>
                     <Icons.chat className='size-4' />
                     <span className='text-body-sm font-medium'>New chat</span>

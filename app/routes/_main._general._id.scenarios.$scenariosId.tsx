@@ -20,10 +20,13 @@ import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import { useSponsorships } from '~/hooks/queries/sponsorshipQueries';
 import ErrorPage from '~/components/ErrorPage';
-import { ROUTES } from '~/constants';
+import { useAlert } from '~/providers/AlertDialogProvider';
+import { ROUTES, TOKEN_BALANCE } from '~/constants';
 import IntroductionSkeleton from '~/components/ui/IntroductionSkeleton';
 import SponsorshipSection from '~/components/SponsorshipSection';
 import ModelTabsCard from '~/components/ModelTabsCard';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -37,11 +40,17 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const { data: sponsorshipsData } = useSponsorships({ scenarioId: params.scenariosId });
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();
+  const alert = useAlert();
+  const { data: currentUser } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
 
   const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
   const scenario = useMemo(() => scenarioData || null, [scenarioData]);
   const sponsorships = useMemo(() => sponsorshipsData || [], [sponsorshipsData]);
   const userHasSponsored = useMemo(() => sponsorships.some((s) => s.userId === me.id), [sponsorships, me.id]);
+  const isSponsored = useMemo(() => Boolean(sponsorships.length), [sponsorships]);
+  const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
+  const isChatDisabled = !isUsingBurnerWallet && !isSponsored && !hasMinimumTokens;
 
   const [showAll, setShowAll] = useState(false);
 
@@ -94,6 +103,13 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
         onSuccess: (newChat) => {
           navigate(`${ROUTES.chats}/${newChat.id}`);
         },
+        onError: (error: any) => {
+          alert({
+            icon: '💰',
+            title: 'Insufficient Tokens',
+            body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+          });
+        },
       }
     );
   };
@@ -122,7 +138,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 avatars={mineAvatarsList}
                 scenario={scenario}
                 triggerContent={
-                  <Button.Root variant='primary' className='px-6'>
+                  <Button.Root variant='primary' className='px-6' disabled={isChatDisabled}>
                     Add to My Avatar
                   </Button.Root>
                 }
@@ -232,7 +248,13 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                                   <Link to={`${ROUTES.chats}/${avatar.chats[0].id}`}>Continue Chat</Link>
                                 </Button.Root>
                               ) : (
-                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(avatar.id)}>
+                                <Button.Root
+                                  type='button'
+                                  size='sm'
+                                  className='px-5'
+                                  onClick={() => handleCreateChat(avatar.id)}
+                                  disabled={isChatDisabled}
+                                >
                                   Chat
                                 </Button.Root>
                               )}
