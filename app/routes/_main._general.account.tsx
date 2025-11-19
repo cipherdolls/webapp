@@ -14,6 +14,8 @@ import { YourReferrals } from '~/components/your-referrals';
 import * as Button from '~/components/ui/button/button';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useConfirm } from '~/providers/AlertDialogProvider';
+import { YourWallet } from '~/components/your-wallet';
+import { YourGift } from '~/components/your-gift';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,6 +32,7 @@ export default function Account() {
   const { isAuthenticated, isUsingBurnerWallet } = useAuthStore();
 
   const shouldShowNetworkWarning = hasMetaMask && !isNetworkLoading && !isOnCorrectNetwork;
+
   const logout = useAuthStore((state) => state.logout);
 
   const handleSignOut = async () => {
@@ -67,8 +70,10 @@ export default function Account() {
         <div className='flex flex-col gap-5 lg:sticky lg:top-4 lg:self-start'>
           {!isUsingBurnerWallet ? (
             <>
-              <TokenBalance />
-              <TokenPermitsList />
+              <YourWallet />
+              <YourGift />
+              {/*<TokenBalance />*/}
+              {/*<TokenPermitsList />*/}
               <YourReferrals />
             </>
           ) : null}

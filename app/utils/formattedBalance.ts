@@ -17,15 +17,12 @@ export const formattedTokenBalance = (validatedBalance: number | string) =>
       : '0';
   }, [validatedBalance]);
 
-export const formattedBalanceMotion = (count: MotionValue) => {
-  if (count.get() === 0) {
-    return useTransform(() => count.get().toFixed());
-  }
-
-  return useTransform(() =>
-    count.get().toLocaleString(undefined, {
+export const formattedBalanceMotion = (count: MotionValue<number>) => {
+  return useTransform(count, (v) => {
+    if (v === 0) return "0.00";
+    return v.toLocaleString(undefined, {
       maximumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
       minimumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
-    })
-  );
+    });
+  });
 };
