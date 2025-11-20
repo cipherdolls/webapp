@@ -114,7 +114,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   });
 
   return (
-    <div className='fixed inset-0 lg:static flex-1 flex flex-col overflow-hidden md:rounded-xl max-lg:bg-gradient-talkMode '>
+    <div className='z-30 fixed inset-0 lg:static flex-1 flex flex-col overflow-hidden md:rounded-xl max-lg:bg-gradient-talkMode'>
       <div className='flex-1 flex flex-col'>
         <div className='flex-1 flex items-center justify-center'>
           <div className='relative size-36'>
