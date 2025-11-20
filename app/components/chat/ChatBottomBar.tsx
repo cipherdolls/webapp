@@ -150,7 +150,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
               />
             )}
           </div>
-          <div className='shrink-0 flex items-center gap-2'>
+          <div className='shrink-0 flex items-center gap-2 p-5 -m-5' onClick={(e) => e.stopPropagation()}>
             {/* render microphone button only if the message field is empty */}
             {newMessage.length > 0 ? (
               <Button.Root
