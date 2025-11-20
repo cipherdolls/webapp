@@ -167,7 +167,8 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
               size='icon'
               type='button'
               disabled={isMessageDisabled}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 handleLiveTalk();
               }}
             >
