@@ -326,6 +326,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
               sponsorships={sponsorships}
               currentUserId={me.id}
               userHasSponsored={userHasSponsored}
+              isPublishedScenario={scenario.published}
             />
             <DetailCard isScenario>
               <div className='flex flex-col gap-4'>
