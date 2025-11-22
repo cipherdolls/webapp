@@ -92,14 +92,17 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
     [debouncedSearchValue]
   );
 
-  const avatarQueryParams = useMemo(
-    () => ({
+  const avatarQueryParams = useMemo(() => {
+    const params: {
+      published: string;
+      name: string;
+    } = {
       published: 'true',
       name: debouncedSearchValue || '',
-      gender: scenarioContext?.avatarGender || undefined,
-    }),
-    [debouncedSearchValue, scenarioContext?.avatarGender]
-  );
+    };
+
+    return params;
+  }, [debouncedSearchValue]);
 
   const {
     data: rawScenarioPages,
@@ -117,14 +120,8 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
     isFetchingNextPage: isFetchingNextAvatarPage,
   } = useInfiniteAvatars(avatarQueryParams, { enabled: !isAvatarVariant });
 
-  const scenarioItems = useMemo(
-    () => rawScenarioPages?.pages.flatMap((page) => page.data) ?? [],
-    [rawScenarioPages]
-  );
-  const avatarItems = useMemo(
-    () => rawAvatarPages?.pages.flatMap((page) => page.data) ?? [],
-    [rawAvatarPages]
-  );
+  const scenarioItems = useMemo(() => rawScenarioPages?.pages.flatMap((page) => page.data) ?? [], [rawScenarioPages]);
+  const avatarItems = useMemo(() => rawAvatarPages?.pages.flatMap((page) => page.data) ?? [], [rawAvatarPages]);
 
   const recommendedScenarios = useMemo(() => avatarContext?.scenarios ?? [], [avatarContext]);
   const recommendedAvatars = useMemo(() => scenarioContext?.avatars ?? [], [scenarioContext]);
@@ -141,16 +138,7 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
       const nextAvatar = recommendedAvatars[0] ?? avatarItems[0] ?? null;
       if (nextAvatar) setSelectedAvatar(nextAvatar);
     }
-  }, [
-    isOpen,
-    isAvatarVariant,
-    selectedScenario,
-    scenarioItems,
-    recommendedScenarios,
-    selectedAvatar,
-    avatarItems,
-    recommendedAvatars,
-  ]);
+  }, [isOpen, isAvatarVariant, selectedScenario, scenarioItems, recommendedScenarios, selectedAvatar, avatarItems, recommendedAvatars]);
 
   useEffect(() => {
     if (isOpen) return;
@@ -182,7 +170,9 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
               alert({
                 icon: '💰',
                 title: 'Insufficient Tokens',
-                body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+                body:
+                  error?.message ||
+                  `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
               });
             },
           }
@@ -328,5 +318,3 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
     onItemSelect: setSelectedAvatar,
   };
 };
-
-
