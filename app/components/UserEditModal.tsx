@@ -21,7 +21,7 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   const updateUserMutation = useUpdateUser();
   const [internalOpen, setInternalOpen] = useState(false);
   const [gender, setGender] = useState<Gender | null>(me.gender || null);
-  const [preferLanguage, setPreferLanguage] = useState<string>('EN');
+  const [preferLanguage, setPreferLanguage] = useState<string>(me.language);
 
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
