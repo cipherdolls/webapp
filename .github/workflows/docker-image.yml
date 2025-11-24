@@ -30,7 +30,7 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/webapp:${{ github.ref_name }},${{ secrets.DOCKER_HUB_USERNAME }}/webapp:${{ github.sha }}
 
       - name: docker stack deploy
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.3
         with:
           username: root
           host: ${{ secrets.SSH_KNOWN_HOSTS }}
@@ -42,7 +42,7 @@ jobs:
 
 
       - name: Prune images on 77.37.51.42
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.3
         with:
           username: root
           host: 77.37.51.42
@@ -51,7 +51,7 @@ jobs:
             docker image prune -a -f
 
       - name: Prune images on 195.35.25.26
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.3
         with:
           username: root
           host: 195.35.25.26
