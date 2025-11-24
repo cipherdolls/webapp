@@ -34,6 +34,7 @@ export interface User {
   walletAddress: string;
   apikey: string;
   gender: Gender | null;
+  language: string
   role: string;
   character: string;
   tokenBalance?: number;
