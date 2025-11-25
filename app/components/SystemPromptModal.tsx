@@ -14,6 +14,7 @@ interface SystemPromptModalProps {
 
 const SystemPromptModal: React.FC<SystemPromptModalProps> = ({ isOpen, onClose, systemMessage, scenarioName, trigger }) => {
   const [copied, setCopied] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -26,26 +27,30 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({ isOpen, onClose, 
   };
 
   const content = (
-    <Modal.Content className='max-w-[680px]'>
-      <div className='flex items-center justify-between'>
-        <Modal.Title>System Prompt</Modal.Title>
-        <Modal.Close asChild>
+    <Modal.Content className={cn('flex flex-col justify-between max-w-[680px]',
+      isExpanded && 'max-w-none w-[90vw] h-screen'
+    )}>
+      <div>
+        <div className='flex items-center justify-between'>
+          <Modal.Title>System Prompt</Modal.Title>
+
           <button
-            onClick={onClose}
-            className='text-neutral-01 hover:text-base-black transition-colors'
-            aria-label='Close'
+            type='button'
+            onClick={() => setIsExpanded(!isExpanded)}
+            className='p-2 hover:bg-gray-100 rounded-lg transition-colors hidden md:block'
+            title={isExpanded ? 'Collapse modal' : 'Expand modal'}
           >
-            <Icons.close className='w-7 h-7'/>
+            <Icons.expand />
           </button>
-        </Modal.Close>
+        </div>
+
+        <Modal.Description className='mt-2 text-body-md text-neutral-01'>
+          Scenario: <span className='font-semibold text-base-black'>{scenarioName}</span>
+        </Modal.Description>
       </div>
 
-      <Modal.Description className='mt-2 text-body-md text-neutral-01'>
-        Scenario: <span className='font-semibold text-base-black'>{scenarioName}</span>
-      </Modal.Description>
-
-      <Modal.Body className='mt-6'>
-        <div className='relative'>
+      <Modal.Body className='mt-6 flex flex-col flex-1'>
+        <div className='relative h-full'>
           <textarea
             readOnly
             value={systemMessage}
@@ -56,7 +61,8 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({ isOpen, onClose, 
               'font-mono leading-relaxed',
               'resize-none',
               'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-              'scrollbar-medium'
+              'scrollbar-medium',
+              isExpanded && 'h-full !max-h-[70vh]'
             )}
             aria-label='System prompt message'
           />

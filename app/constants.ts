@@ -74,6 +74,27 @@ export const TOKEN_BALANCE = {
   MINIMUM_SPENDABLE: 0.1,
 } as const;
 
+export const GUEST_MODE_WELCOME_CHATS = [
+  {
+    avatarName: 'Beatrice',
+    scenarioName: '20 Questions Game',
+    avatarId: 'ba57fd47-d922-4e9b-a5fd-0d70d447b92e',
+    scenarioId: '29baa4d2-2a2d-4688-a418-328042d80a90'
+  },
+  {
+    avatarName: 'Gael',
+    scenarioName: 'CipherDolls',
+    avatarId: 'b9ac088b-c366-40c4-899b-2e20dab040df',
+    scenarioId: '80ae78e7-71b9-44ed-97d5-861daa53677e'
+  },
+  {
+    avatarName: 'Hazel',
+    scenarioName: 'Crypto Talk',
+    avatarId: '65d5dbf2-072c-4bbb-8d23-11a57d6bf1ce',
+    scenarioId: '3182013b-a6cf-454e-974b-51e13e031d2a'
+  },
+]
+
 export const LANGUAGES = [
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Spanish' },
@@ -81,44 +102,44 @@ export const LANGUAGES = [
   { code: 'fr', name: 'French' },
   { code: 'de', name: 'German' },
   { code: 'it', name: 'Italian' },
-  { code: 'nl', name: 'Dutch' },
-  { code: 'pl', name: 'Polish' },
+  // { code: 'nl', name: 'Dutch' },
+  // { code: 'pl', name: 'Polish' },
   { code: 'ru', name: 'Russian' },
-  { code: 'uk', name: 'Ukrainian' },
-  { code: 'cz', name: 'Czech' },
-  { code: 'sk', name: 'Slovak' },
-  { code: 'bg', name: 'Bulgarian' },
-  { code: 'ro', name: 'Romanian' },
-  { code: 'el', name: 'Greek' },
+  // { code: 'uk', name: 'Ukrainian' },
+  // { code: 'cz', name: 'Czech' },
+  // { code: 'sk', name: 'Slovak' },
+  // { code: 'bg', name: 'Bulgarian' },
+  // { code: 'ro', name: 'Romanian' },
+  // { code: 'el', name: 'Greek' },
 
-  { code: 'tr', name: 'Turkish' },
-  { code: 'ar', name: 'Arabic' },
-  { code: 'he', name: 'Hebrew' },
-  { code: 'fa', name: 'Persian (Farsi)' },
-  { code: 'ur', name: 'Urdu' },
+  // { code: 'tr', name: 'Turkish' },
+  // { code: 'ar', name: 'Arabic' },
+  // { code: 'he', name: 'Hebrew' },
+  // { code: 'fa', name: 'Persian (Farsi)' },
+  // { code: 'ur', name: 'Urdu' },
 
-  { code: 'hi', name: 'Hindi' },
-  { code: 'bn', name: 'Bengali' },
-  { code: 'ta', name: 'Tamil' },
-  { code: 'te', name: 'Telugu' },
-  { code: 'ml', name: 'Malayalam' },
-  { code: 'mr', name: 'Marathi' },
-  { code: 'gu', name: 'Gujarati' },
+  // { code: 'hi', name: 'Hindi' },
+  // { code: 'bn', name: 'Bengali' },
+  // { code: 'ta', name: 'Tamil' },
+  // { code: 'te', name: 'Telugu' },
+  // { code: 'ml', name: 'Malayalam' },
+  // { code: 'mr', name: 'Marathi' },
+  // { code: 'gu', name: 'Gujarati' },
 
   { code: 'zh', name: 'Chinese (Mandarin)' },
   { code: 'ja', name: 'Japanese' },
   { code: 'ko', name: 'Korean' },
-  { code: 'vi', name: 'Vietnamese' },
-  { code: 'th', name: 'Thai' },
-  { code: 'id', name: 'Indonesian' },
-  { code: 'ms', name: 'Malay' },
-  { code: 'fil', name: 'Filipino / Tagalog' },
+  // { code: 'vi', name: 'Vietnamese' },
+  // { code: 'th', name: 'Thai' },
+  // { code: 'id', name: 'Indonesian' },
+  // { code: 'ms', name: 'Malay' },
+  // { code: 'fil', name: 'Filipino / Tagalog' },
 
-  { code: 'sw', name: 'Swahili' },
-  { code: 'af', name: 'Afrikaans' },
-  { code: 'am', name: 'Amharic' },
-  { code: 'zu', name: 'Zulu' },
-  { code: 'yo', name: 'Yoruba' },
+  // { code: 'sw', name: 'Swahili' },
+  // { code: 'af', name: 'Afrikaans' },
+  // { code: 'am', name: 'Amharic' },
+  // { code: 'zu', name: 'Zulu' },
+  // { code: 'yo', name: 'Yoruba' },
 ] as const;
 
 /*             Animations              */
