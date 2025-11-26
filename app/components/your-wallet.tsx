@@ -49,7 +49,6 @@ export const YourWallet = () => {
   const allowance = user?.tokenAllowance || 0;
   const firstPermit = permits[0];
 
-
   const countTokens = useMotionValue(0);
   const formattedBalance = formattedBalanceMotion(countTokens);
 
@@ -61,7 +60,6 @@ export const YourWallet = () => {
   const rawSpendable = user?.tokenSpendable || '0';
   const validatedSpendable = isValidTokenBalance(rawSpendable) ? rawSpendable : '0';
   const formattedSpendable = formattedTokenBalance(validatedSpendable);
-
 
   const handleRefreshBalance = useCallback(() => {
     if (!user) return;
@@ -119,8 +117,6 @@ export const YourWallet = () => {
     }
   }, [isError, showError]);
 
-  console.log(formattedSpendable)
-
   if (userLoading || !user || tokenPermitsLoading) {
     return <YourWalletSkeleton />;
   }
@@ -154,50 +150,67 @@ export const YourWallet = () => {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <div className='p-2 pt-0 rounded-xl flex gap-2 flex-col bg-gradient-1'>
-          <a href={uniswapUrl} target={'_blank'}>
-            <div className='grid grid-cols-1 mt-2'>
-              <div className='bg-white rounded-xl p-3 flex gap-4 cursor-pointer shadow-md hover:bg-white/70 hover:shadow-sm duration-200 transition-all'>
-                <button className='flex items-center justify-center rounded-full relative shrink-0 p-2 h-fit w-fit'>
-                  <Icons.iconLogo className={'text-base-black w-10 h-10'} />
-                  <div className='absolute -bottom-1 -right-1 size-5 rounded-full flex items-center justify-center'>
-                    <img src={OP} alt='OP' />
-                  </div>
-                </button>
+        <div className='bg-gradient-1 p-2 rounded-xl'>
+          <div className='bg-base-white rounded-xl p-3 flex gap-4 cursor-pointer shadow-md hover:bg-white/70 hover:shadow-sm duration-200 transition-all'>
+            <div className='flex flex-col gap-2 flex-1'>
+              <div className='flex justify-between items-center text-body-md font-semibold text-base-black'>
+                <span>💰 Balance:</span>
 
-                <div className='flex flex-col gap-1 flex-1 pr-3'>
-                  <div className='flex justify-between text-heading-h3 font-semibold text-base-black border-b border-dashed pb-2 border-neutral-03'>
-                    <motion.span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</motion.span>
+                <div className='flex items-center flex-1 justify-end'>
+                  <div className='flex items-center pr-2'>
+                    <motion.span className='block text-body-lg truncate w-fit max-w-52 pr-1 lg:max-w-44'>{formattedBalance}</motion.span>
                     <span>LOV</span>
                   </div>
 
-                  <div className='flex justify-between text-body-sm text-neutral-02'>
-                    <span>Spendable:</span>
-                    <span className='font-semibold'>{formattedSpendable}</span>
-                  </div>
-                  <div className='flex justify-between text-body-sm text-neutral-02'>
-                    <span>Allowance:</span>
-                    <span className='font-semibold'>{allowance.toFixed()}</span>
-                  </div>
+                  <a href={uniswapUrl} target={'_blank'}>
+                    <Button.Root size='icon' variant='primary' className='text-body-sm h-9 w-16'>
+                      Buy
+                    </Button.Root>
+                  </a>
                 </div>
               </div>
+
+              <div className='flex justify-between items-center text-body-md font-semibold text-base-black '>
+                <span>🔐 Allowance:</span>
+
+                <div className='flex items-center flex-1 justify-end'>
+                  <span className='block truncate text-body-lg w-fit max-w-52 pr-2'>{allowance?.toFixed()} LOV</span>
+
+                  {permits.length > 0 && (
+                    <CreateTokenAllowanceModal>
+                      <Button.Root size='icon' variant='primary' className='text-body-sm h-9 w-16'>
+                        Set
+                      </Button.Root>
+                    </CreateTokenAllowanceModal>
+                  )}
+                </div>
+              </div>
+
+              <div className='flex justify-between items-center text-heading-h4 pt-3 -mx-3 px-3 -mb-3 pb-3 rounded-b-xl border-t border-neutral-04 bg-gradient-1 font-semibold text-base-black'>
+                <div className='flex items-center gap-2'>
+                  <button className='flex items-center justify-center rounded-full relative shrink-0 p-0.5 bg-base-white duration-200 transition-all h-fit w-fit shadow-black/30 shadow-md hover:shadow-sm hover:bg-white/70'>
+                    <Icons.iconLogo className={'text-base-black w-5 h-5'} />
+                    {/*<div className='absolute -bottom-1 -right-1 size-5 rounded-full flex items-center justify-center'>*/}
+                    {/*  <img src={OP} alt='OP' />*/}
+                    {/*</div>*/}
+                  </button>
+
+                  <span>Spendable:</span>
+                </div>
+
+                <p className='block truncate w-fit max-w-52'>
+                  {formattedSpendable} <span>LOV</span>
+                </p>
+              </div>
             </div>
-          </a>
-
-          <a href={uniswapUrl} target={'_blank'}>
-            <Button.Root variant='primary' className='w-full'>
-              Get LOV Token
-            </Button.Root>
-          </a>
-
-          {permits.length > 0 && (
-            <CreateTokenAllowanceModal>
-              <Button.Root size='sm' variant='secondary' className='w-full border border-neutral-04'>
-                Set Allowance
-              </Button.Root>
-            </CreateTokenAllowanceModal>
-          )}
+          </div>
         </div>
+
+        <a href={uniswapUrl} target={'_blank'}>
+          <Button.Root variant='primary' className='w-full'>
+            Get LOV Token
+          </Button.Root>
+        </a>
       </div>
     </>
   );
