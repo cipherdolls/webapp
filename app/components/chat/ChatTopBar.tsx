@@ -20,12 +20,13 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
   const { data: avatarData } = useAvatar(chat.avatar.id);
   const user = useRouteLoaderData('routes/_main') as User;
   const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState(false);
-  const { data: systemPromptData } = useChatSystemPrompt(chat.id);
+  const { data: systemPromptData, isLoading: isLoadingSystemPrompt } = useChatSystemPrompt(chat.id);
 
   const isAdmin = user?.role === 'ADMIN';
 
   const systemPrompt = systemPromptData?.systemPrompt ?? chat.scenario.systemMessage;
   const scenarioName = systemPromptData?.scenarioName ?? chat.scenario.name;
+  const isSystemPromptAvailable = !!systemPromptData;
 
   const handleOpenSystemPrompt = () => {
     setIsSystemPromptModalOpen(true);
@@ -77,6 +78,8 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           onClose={() => setIsSystemPromptModalOpen(false)}
           systemMessage={systemPrompt}
           scenarioName={scenarioName}
+          isLoadingSystemPrompt={isLoadingSystemPrompt}
+          isSystemPromptAvailable={isSystemPromptAvailable}
         />
       )}
     </div>
