@@ -5,7 +5,7 @@ import { apiUrl, ROUTES } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { burnerWalletManager } from '~/utils/burnerWallet';
-import { clearQueryCache } from '~/utils/queryCache';
+import type { Gender } from '~/types';
 
 declare global {
   interface Window {
@@ -21,8 +21,8 @@ const WALLET_AUTH_ERRORS = {
     body: 'MetaMask extension not found. Please install MetaMask and refresh the page.',
     actionButton: {
       label: 'Refresh Page',
-      action: () => window.location.reload()
-    }
+      action: () => window.location.reload(),
+    },
   },
   CONNECTION_REJECTED: {
     icon: '❌',
@@ -30,8 +30,8 @@ const WALLET_AUTH_ERRORS = {
     body: 'You rejected the request in MetaMask. To sign in, please approve the connection and sign the message when MetaMask asks.',
     actionButton: {
       label: 'Try Again',
-      action: () => {} // Will be set dynamically
-    }
+      action: () => {}, // Will be set dynamically
+    },
   },
   SIGNATURE_TIMEOUT: {
     icon: '⏰',
@@ -39,8 +39,8 @@ const WALLET_AUTH_ERRORS = {
     body: 'Please check your MetaMask extension. You may need to unlock it or approve the signature request. The MetaMask popup might be hidden behind other windows.',
     actionButton: {
       label: 'Try Again',
-      action: () => {} // Will be set dynamically
-    }
+      action: () => {}, // Will be set dynamically
+    },
   },
   NO_ACCOUNTS_FOUND: {
     icon: '🔒',
@@ -48,8 +48,8 @@ const WALLET_AUTH_ERRORS = {
     body: 'No MetaMask accounts found. Please unlock MetaMask and try again.',
     actionButton: {
       label: 'Try Again',
-      action: () => {} // Will be set dynamically
-    }
+      action: () => {}, // Will be set dynamically
+    },
   },
   CONNECTION_FAILED: {
     icon: '⚠️',
@@ -57,8 +57,8 @@ const WALLET_AUTH_ERRORS = {
     body: 'MetaMask connection failed. Please make sure MetaMask is unlocked and try again.',
     actionButton: {
       label: 'Try Again',
-      action: () => {} // Will be set dynamically
-    }
+      action: () => {}, // Will be set dynamically
+    },
   },
   UNKNOWN_ERROR: {
     icon: '❓',
@@ -66,37 +66,50 @@ const WALLET_AUTH_ERRORS = {
     body: 'An unknown error occurred. Please try again.',
     actionButton: {
       label: 'Try Again',
-      action: () => {} // Will be set dynamically
-    }
-  }
+      action: () => {}, // Will be set dynamically
+    },
+  },
 } as const;
 
 // Helper function to show error alerts
 const showErrorAlert = async (alert: any, errorConfig: any, retryAction?: () => void) => {
   const config = { ...errorConfig };
-  
+
   // Set the retry action if provided
   if (retryAction && config.actionButton) {
     config.actionButton = { ...config.actionButton, action: retryAction };
   }
-  
+
   await alert(config);
 };
 
+interface GuestSignInData {
+  name: string;
+  gender: Gender | null;
+  language: string;
+}
+
 interface UseWalletAuthReturn {
   signIn: () => Promise<void>;
-  signInAsGuest: () => Promise<void>;
+  signInAsGuest: (guestData?: GuestSignInData) => Promise<void>;
   isLoading: boolean;
-  error: string | null;
   hasEthereum: boolean;
 }
 
 export function useWalletAuth(): UseWalletAuthReturn {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [hasEthereum] = useState(typeof window !== 'undefined' && !!window.ethereum);
   const navigate = useNavigate();
-  const { isAuthenticated, setToken, redirectAfterSignIn, setRedirectAfterSignIn, setReferralId, setUsingBurnerWallet, clearBurnerWallet, isUsingBurnerWallet } = useAuthStore();
+  const {
+    isAuthenticated,
+    setToken,
+    redirectAfterSignIn,
+    setRedirectAfterSignIn,
+    setReferralId,
+    setUsingBurnerWallet,
+    clearBurnerWallet,
+    isUsingBurnerWallet,
+  } = useAuthStore();
   const alert = useAlert();
 
   // Helper functions for common logic
@@ -104,7 +117,7 @@ export function useWalletAuth(): UseWalletAuthReturn {
     const timestamp = new Date().toISOString();
     const url = new URL(window.location.href);
     const domain = url.hostname;
-    
+
     return `
 ${domain} wants you to sign in with your Ethereum account:
 ${address}
@@ -123,7 +136,7 @@ Issued At: ${timestamp}
   const handleSuccessfulAuth = async (token: string, isGuestSignIn: boolean = false) => {
     // Store token
     setToken(token);
-    
+
     if (isGuestSignIn) {
       setUsingBurnerWallet(true);
     } else {
@@ -167,7 +180,6 @@ Issued At: ${timestamp}
       return;
     }
 
-    setError(null);
     setIsLoading(true);
 
     try {
@@ -227,11 +239,9 @@ Issued At: ${timestamp}
           params: [messageHex, address],
         });
 
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Signature timeout')), 60000)
-        );
-        
-        signedMessage = await Promise.race([signaturePromise, timeoutPromise]) as string;
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signature timeout')), 60000));
+
+        signedMessage = (await Promise.race([signaturePromise, timeoutPromise])) as string;
       } catch (signError: any) {
         const errorMessage = signError?.message?.toLowerCase() || '';
         const errorCode = signError?.code;
@@ -260,14 +270,11 @@ Issued At: ${timestamp}
 
       // Send to backend
       const referral = new URLSearchParams(window.location.search).get('referral');
-      const signinRes = await fetch(
-        referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ signedMessage, message, address }),
-        }
-      );
+      const signinRes = await fetch(referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signedMessage, message, address }),
+      });
 
       const signinData = await signinRes.json();
       const token = signinData?.token;
@@ -287,22 +294,21 @@ Issued At: ${timestamp}
         body: 'An unexpected error occurred during sign-in. Please try again.',
         actionButton: {
           label: 'Try Again',
-          action: () => signIn()
-        }
+          action: () => signIn(),
+        },
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signInAsGuest = async () => {
+  const signInAsGuest = async (guestData?: GuestSignInData) => {
     // If already authenticated, navigate to chats
     if (isAuthenticated) {
       navigate(ROUTES.chats);
       return;
     }
 
-    setError(null);
     setIsLoading(true);
 
     try {
@@ -320,16 +326,32 @@ Issued At: ${timestamp}
       // Sign message with burner wallet
       const signedMessage = await burnerWalletManager.signMessage(message);
 
+      const requestBody: {
+        signedMessage: string;
+        message: string;
+        address: string;
+        name?: string;
+        gender?: Gender | null;
+        language?: string;
+      } = {
+        signedMessage,
+        message,
+        address: wallet.address,
+      };
+
+      if (guestData) {
+        requestBody.name = guestData.name;
+        requestBody.gender = guestData.gender;
+        requestBody.language = guestData.language;
+      }
+
       // Send to backend
       const referral = new URLSearchParams(window.location.search).get('referral');
-      const signinRes = await fetch(
-        referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ signedMessage, message, address: wallet.address }),
-        }
-      );
+      const signinRes = await fetch(referral ? `${apiUrl}/auth/signin?invitedBy=${referral}` : `${apiUrl}/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
       const signinData = await signinRes.json();
       const token = signinData?.token;
@@ -341,15 +363,15 @@ Issued At: ${timestamp}
       await handleSuccessfulAuth(token, true);
     } catch (err) {
       console.error('Guest sign-in error:', err);
-      
+
       await alert({
         icon: '⚠️',
         title: 'Guest Sign-in Failed',
         body: `Failed to sign in as guest: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`,
         actionButton: {
           label: 'Try Again',
-          action: () => signInAsGuest()
-        }
+          action: () => signInAsGuest(guestData),
+        },
       });
     } finally {
       setIsLoading(false);
@@ -360,7 +382,6 @@ Issued At: ${timestamp}
     signIn,
     signInAsGuest,
     isLoading,
-    error,
     hasEthereum,
   };
 }

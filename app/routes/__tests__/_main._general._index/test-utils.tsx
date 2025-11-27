@@ -91,6 +91,7 @@ export const createMockUser = (overrides: Partial<User> = {}): User => ({
   name: 'John Doe',
   signerAddress: '0x123456789',
   gender: 'Male',
+  language: 'en',
   weiBalance: '0',
   freeWeiBalance: '0',
   walletAddress: '0x123456789',
