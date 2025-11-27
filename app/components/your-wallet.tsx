@@ -1,19 +1,14 @@
 import { Icons } from './ui/icons';
-import OP from '~/assets/svg/op-png.png';
 import { useRefreshTokenBalance } from '~/hooks/queries/userMutations';
 import { useUser } from '~/hooks/queries/userQueries';
 import { TOKEN_BALANCE, uniswapUrl } from '~/constants';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { showToast } from '~/components/ui/toast';
 import { animate, motion, useMotionValue } from 'motion/react';
-import { formattedBalanceMotion, formattedTokenBalance } from '~/utils/formattedBalance';
-import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
+import { formattedAllowanceBalance, formattedBalanceMotion, formattedTokenBalance } from '~/utils/formattedBalance';
 import { useTokenPermits } from '~/hooks/queries/tokenQueries';
-import { formatEther } from 'ethers';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
-import { cn } from '~/utils/cn';
-import PermitHistoryModal from '~/components/PermitHistoryModal';
 import * as Button from '~/components/ui/button/button';
 
 function YourWalletSkeleton() {
@@ -23,9 +18,12 @@ function YourWalletSkeleton() {
         <div className='rounded-[10px] h-6 bg-neutral-04 w-36 animate-pulse'></div>
         <div className='rounded-full h-6 w-6 my-1.5 bg-neutral-04 animate-pulse'></div>
       </div>
+
       <div className='grid grid-cols-1'>
-        <div className='bg-neutral-04 rounded-xl p-3 h-20 animate-pulse'></div>
+        <div className='bg-neutral-04 rounded-xl p-3 h-[165px] animate-pulse'></div>
       </div>
+
+      <div className='bg-neutral-04 rounded-full p-3 h-12 animate-pulse'></div>
     </div>
   );
 }
@@ -47,10 +45,7 @@ export const YourWallet = () => {
   // Always run hooks - move calculations above early return
   const permits = tokenPermitsPaginated?.data || [];
   const allowance = user?.tokenAllowance || 0;
-  const firstPermit = permits[0];
-
   const countTokens = useMotionValue(0);
-  const formattedBalance = formattedBalanceMotion(countTokens);
 
   const { isPending: isRefreshingBalance, isError, error } = refreshTokenBalanceMutation;
 
@@ -59,7 +54,10 @@ export const YourWallet = () => {
 
   const rawSpendable = user?.tokenSpendable || '0';
   const validatedSpendable = isValidTokenBalance(rawSpendable) ? rawSpendable : '0';
+
+  const formattedBalance = formattedBalanceMotion(countTokens);
   const formattedSpendable = formattedTokenBalance(validatedSpendable);
+  const formattedAllowance = formattedAllowanceBalance(allowance)
 
   const handleRefreshBalance = useCallback(() => {
     if (!user) return;
@@ -92,17 +90,6 @@ export const YourWallet = () => {
     if (lastRefreshTime === 0) return true;
     return Date.now() - lastRefreshTime >= TOKEN_BALANCE.RATE_LIMIT_MS;
   }, [lastRefreshTime]);
-
-  const formatPermitAmount = (value: string): string => {
-    try {
-      const ethValue = parseFloat(formatEther(value));
-      return ethValue.toString();
-    } catch {
-      return '0';
-    }
-  };
-
-  const formattedFirstPermitAmount = useMemo(() => (firstPermit ? formatPermitAmount(firstPermit.value) : '0'), [firstPermit]);
 
   useEffect(() => {
     const controls = animate(countTokens, Number(validatedBalance), { duration: 2 });
@@ -174,7 +161,7 @@ export const YourWallet = () => {
                 <span>🔐 Allowance:</span>
 
                 <div className='flex items-center flex-1 justify-end'>
-                  <span className='block truncate text-body-lg w-fit max-w-52 pr-2'>{allowance?.toFixed()} LOV</span>
+                  <span className='block truncate text-body-lg w-fit max-w-52 pr-2'>{formattedAllowance} LOV</span>
 
                   {permits.length > 0 && (
                     <CreateTokenAllowanceModal>
