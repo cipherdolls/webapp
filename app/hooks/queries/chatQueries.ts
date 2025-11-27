@@ -35,10 +35,12 @@ export function useChatSystemPrompt(chatId: string) {
         return null;
       }
 
-      return JSON.parse(text) as { systemPrompt: string; scenarioName: string };
+      return { systemPrompt: text, scenarioName: '' };
     },
     enabled: !!chatId,
     staleTime: 0, // Don't cache on our side, it's cached in Redis. Reference: https://github.com/cipherdolls/webapp/pull/736#issuecomment-3471698321
     gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 }
