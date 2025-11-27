@@ -23,6 +23,8 @@ export function useCreateMessage() {
       // queryClient.invalidateQueries({ queryKey: ['messages', variables.chatId] });
       // Invalidate the specific message
       // queryClient.invalidateQueries({ queryKey: ['message', newMessage.id] });
+
+      queryClient.invalidateQueries({ queryKey: ['chat', variables.chatId, 'system-prompt'] });
     },
   });
 }
