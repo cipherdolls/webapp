@@ -91,6 +91,7 @@ export interface ChatModel {
   recommended: boolean;
   censored: boolean;
   aiProvider?: AiProvider;
+  scenarios?: Scenario[];
   aggregateChatCompletions: {
     avgTimeTakenMs: number;
     minTimeTakenMs: number;
