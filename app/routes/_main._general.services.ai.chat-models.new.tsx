@@ -8,6 +8,7 @@ import * as Modal from '~/components/ui/new-modal';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useCreateChatModel } from '~/hooks/queries/aiProviderMutations';
 import { ROUTES } from '~/constants';
+import { useState } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New Chat Model' }];
@@ -19,6 +20,16 @@ export default function NewChatModel() {
   const aiProviderId = searchParams.get('id') || '';
   const name = searchParams.get('modelName') || '';
   const navigate = useNavigate();
+
+  const [inputTokenPrice, setInputTokenPrice] = useState<string>('');
+  const [outputTokenPrice, setOutputTokenPrice] = useState<string>('');
+
+  const calculatePerMillionPrice = (pricePerToken: string): string => {
+    const price = parseFloat(pricePerToken);
+    if (isNaN(price) || price === 0) return '0.00';
+    const millionPrice = price * 1000000;
+    return millionPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/ai`, { replace: true });
@@ -70,9 +81,16 @@ export default function NewChatModel() {
                   className='text-base-black  py-3.5 px-3'
                   id='dollarPerInputToken'
                   name='dollarPerInputToken'
-                  type='text'
+                  type='number'
+                  step='any'
+                  min='0'
                   placeholder='0.0001'
+                  value={inputTokenPrice}
+                  onChange={(e) => setInputTokenPrice(e.target.value)}
                 />
+                <span className='text-neutral-01 text-body-sm mt-1'>
+                  ${calculatePerMillionPrice(inputTokenPrice)} per million tokens
+                </span>
               </Input.Root>
 
               <Input.Root>
@@ -83,9 +101,16 @@ export default function NewChatModel() {
                   className='text-base-black  py-3.5 px-3'
                   id='dollarPerOutputToken'
                   name='dollarPerOutputToken'
-                  type='text'
+                  type='number'
+                  step='any'
+                  min='0'
                   placeholder='0.0001'
+                  value={outputTokenPrice}
+                  onChange={(e) => setOutputTokenPrice(e.target.value)}
                 />
+                <span className='text-neutral-01 text-body-sm mt-1'>
+                  ${calculatePerMillionPrice(outputTokenPrice)} per million tokens
+                </span>
               </Input.Root>
             </div>
             <Input.Root>

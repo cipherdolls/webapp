@@ -11,7 +11,7 @@ import { formatModelName } from '~/utils/formatModelName';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useChatModel } from '~/hooks/queries/aiProviderQueries';
 import { useUpdateChatModel } from '~/hooks/queries/aiProviderMutations';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
@@ -26,7 +26,22 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
 
   const [recommended, setRecommended] = useState(chatModel?.recommended);
   const [censored, setCensored] = useState(chatModel?.censored);
-  
+  const [inputTokenPrice, setInputTokenPrice] = useState<string>('');
+  const [outputTokenPrice, setOutputTokenPrice] = useState<string>('');
+
+  useEffect(() => {
+    if (chatModel) {
+      setInputTokenPrice(String(scientificNumConvert(chatModel.dollarPerInputToken)));
+      setOutputTokenPrice(String(scientificNumConvert(chatModel.dollarPerOutputToken)));
+    }
+  }, [chatModel]);
+
+  const calculatePerMillionPrice = (pricePerToken: string): string => {
+    const price = parseFloat(pricePerToken);
+    if (isNaN(price) || price === 0) return '0.00';
+    const millionPrice = price * 1000000;
+    return millionPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/ai`);
@@ -90,8 +105,12 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(chatModel.dollarPerInputToken  * 1000000)}
+                      value={inputTokenPrice}
+                      onChange={(e) => setInputTokenPrice(e.target.value)}
                     />
+                    <span className='text-neutral-01 text-body-sm mt-1'>
+                      ${calculatePerMillionPrice(inputTokenPrice)} per million tokens
+                    </span>
                   </Input.Root>
 
                   <Input.Root>
@@ -105,8 +124,12 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(chatModel.dollarPerOutputToken  * 1000000)}
+                      value={outputTokenPrice}
+                      onChange={(e) => setOutputTokenPrice(e.target.value)}
                     />
+                    <span className='text-neutral-01 text-body-sm mt-1'>
+                      ${calculatePerMillionPrice(outputTokenPrice)} per million tokens
+                    </span>
                   </Input.Root>
                 </div>
 
