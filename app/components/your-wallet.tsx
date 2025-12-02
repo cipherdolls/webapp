@@ -4,8 +4,8 @@ import { useUser } from '~/hooks/queries/userQueries';
 import { TOKEN_BALANCE, uniswapUrl } from '~/constants';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { showToast } from '~/components/ui/toast';
-import { animate, motion, useMotionValue } from 'motion/react';
-import { formattedAllowanceBalance, formattedBalanceMotion, formattedTokenBalance } from '~/utils/formattedBalance';
+import { motion } from 'motion/react';
+import { formattedTokenBalance } from '~/utils/formattedBalance';
 import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
@@ -45,7 +45,6 @@ export const YourWallet = () => {
   // Always run hooks - move calculations above early return
   const permits = tokenPermitsPaginated?.data || [];
   const allowance = user?.tokenAllowance || 0;
-  const countTokens = useMotionValue(0);
 
   const { isPending: isRefreshingBalance, isError, error } = refreshTokenBalanceMutation;
 
@@ -55,9 +54,9 @@ export const YourWallet = () => {
   const rawSpendable = user?.tokenSpendable || '0';
   const validatedSpendable = isValidTokenBalance(rawSpendable) ? rawSpendable : '0';
 
-  const formattedBalance = formattedBalanceMotion(countTokens);
+  const formattedBalance = formattedTokenBalance(validatedBalance);
   const formattedSpendable = formattedTokenBalance(validatedSpendable);
-  const formattedAllowance = formattedAllowanceBalance(allowance)
+  const formattedAllowance = formattedTokenBalance(allowance)
 
   const handleRefreshBalance = useCallback(() => {
     if (!user) return;
@@ -90,11 +89,6 @@ export const YourWallet = () => {
     if (lastRefreshTime === 0) return true;
     return Date.now() - lastRefreshTime >= TOKEN_BALANCE.RATE_LIMIT_MS;
   }, [lastRefreshTime]);
-
-  useEffect(() => {
-    const controls = animate(countTokens, Number(validatedBalance), { duration: 2 });
-    return () => controls.stop();
-  }, [validatedBalance]);
 
   useEffect(() => {
     if (isError && !showError) {
@@ -149,7 +143,7 @@ export const YourWallet = () => {
                     <span>LOV</span>
                   </div>
 
-                  <a href={uniswapUrl} target={'_blank'}>
+                  <a href={uniswapUrl} target={'_blank'} rel='noreferrer'>
                     <Button.Root size='icon' variant='primary' className='text-body-sm h-9 w-16'>
                       Buy
                     </Button.Root>
@@ -193,11 +187,11 @@ export const YourWallet = () => {
           </div>
         </div>
 
-        <a href={uniswapUrl} target={'_blank'}>
-          <Button.Root variant='primary' className='w-full'>
-            Get LOV Token
-          </Button.Root>
-        </a>
+        {/*<a href={uniswapUrl} target={'_blank'} rel='noreferrer'>*/}
+        {/*  <Button.Root variant='primary' className='w-full'>*/}
+        {/*    Get LOV Token*/}
+        {/*  </Button.Root>*/}
+        {/*</a>*/}
       </div>
     </>
   );
