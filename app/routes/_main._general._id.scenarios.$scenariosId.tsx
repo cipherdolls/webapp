@@ -332,6 +332,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
               <div className='flex flex-col gap-4'>
                 <DetailRow title='Created at: ' value={createdDate} />
                 <DetailRow title='Updated at:' value={updatedDate} />
+                <DetailRow title='Published:' value={scenario.published ? 'Yes' : 'No'} />
                 {scenario.nsfw && <DetailRow title='Content Rating:' value='🔞 NSFW' />}
               </div>
             </DetailCard>
