@@ -21,11 +21,16 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   const updateUserMutation = useUpdateUser();
   const [internalOpen, setInternalOpen] = useState(false);
   const [gender, setGender] = useState<Gender | null>(me.gender || null);
-  const [preferLanguage, setPreferLanguage] = useState<string>(me.language);
+  const [preferLanguage, setPreferLanguage] = useState<string>(me.language || 'en');
 
   const isControlled = open !== undefined;
   const openState = isControlled ? open : internalOpen;
   const setOpenState = isControlled ? onOpenChange || (() => {}) : setInternalOpen;
+
+  useEffect(() => {
+    setGender(me.gender || null);
+    setPreferLanguage(me.language || 'en');
+  }, [me.gender, me.language]);
 
   useEffect(() => {
     if (updateUserMutation.isSuccess && !updateUserMutation.error) {
@@ -54,12 +59,12 @@ const UserEditModal = ({ me, open, onOpenChange }: UserEditModalProps) => {
   return (
     <Dialog.Root open={openState} onOpenChange={setOpenState}>
       <Dialog.Portal>
-        <Dialog.Overlay asChild forceMount className='animate-overlay-show sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'>
-          <motion.div
-            initial={ANIMATE_OVERLAY.initial}
-            animate={ANIMATE_OVERLAY.animate}
-            transition={ANIMATE_OVERLAY.transition}
-          >
+        <Dialog.Overlay
+          asChild
+          forceMount
+          className='animate-overlay-show sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-20'
+        >
+          <motion.div initial={ANIMATE_OVERLAY.initial} animate={ANIMATE_OVERLAY.animate} transition={ANIMATE_OVERLAY.transition}>
             <div
               className='absolute left-1/2 -translate-x-1/2
         w-[375px] h-auto sm:w-[480px] sm:h-auto
