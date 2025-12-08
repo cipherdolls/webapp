@@ -36,7 +36,7 @@ export function useRefreshTokenBalance() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           signerAddress,
-          action: 'RefreshTokenBalance',
+          action: 'RefreshTokenBalanceAndAllowance',
         }),
       });
 
