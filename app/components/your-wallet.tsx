@@ -22,8 +22,7 @@ function YourWalletSkeleton() {
       <div className='grid grid-cols-1'>
         <div className='bg-neutral-04 rounded-xl p-3 h-[165px] animate-pulse'></div>
       </div>
-
-      <div className='bg-neutral-04 rounded-full p-3 h-12 animate-pulse'></div>
+      {/*<div className='bg-neutral-04 rounded-full p-3 h-12 animate-pulse'></div>*/}
     </div>
   );
 }

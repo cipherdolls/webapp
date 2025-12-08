@@ -11,6 +11,102 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import type { Gender } from '~/types';
 import { motion } from 'framer-motion';
 
+const GUEST_MODE_BULLETS = [
+  {
+    title: 'Instant Access',
+    description: 'Start chatting now',
+    icon: (
+      <div className='w-5 h-5 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-cyan-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'Anonymous',
+    description: 'No signup required',
+    icon: (
+      <div className='w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'Burner Wallet Login',
+    description: 'Data saved in your browser',
+    icon: (
+      <div className='w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'No Tokens Needed',
+    description: 'Start chatting for free',
+    icon: (
+      <div className='w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
+      </div>
+    ),
+  },
+];
+
+const METAMASK_MODE_BULLETS = [
+  {
+    title: 'Anonymous',
+    description: 'No signup required',
+    icon: (
+      <div className='w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'Secure',
+    description: 'Your data is safe',
+    icon: (
+      <div className='w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'Rewards & Earnings',
+    description: 'Create content to earn & withdraw money',
+    icon: (
+      <div className='w-5 h-5 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-cyan-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'AI Powered',
+    description: 'Smart conversations',
+    icon: (
+      <div className='w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'Sync With Devices',
+    description: 'Sync your data across devices',
+    icon: (
+      <div className='w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+      </div>
+    ),
+  },
+  {
+    title: 'Content Coverage',
+    description: '100+ Scenarios & Avatars for use',
+    icon: (
+      <div className='w-5 h-5 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <div className='w-2 h-2 bg-pink-500 rounded-full'></div>
+      </div>
+    ),
+  },
+];
+
 const LoginModal = () => {
   const [isLoadingMetamask, setIsLoadingMetamask] = useState(false);
   const [isLoadingGuest, setIsLoadingGuest] = useState(false);
@@ -160,7 +256,7 @@ const LoginModal = () => {
 
         <Dialog.Content
           className={cn(
-            'fixed inset-0 sm:left-[50%] sm:top-[50%] z-50 sm:translate-x-[-50%] sm:translate-y-[-50%] bg-white rounded-none sm:rounded-3xl shadow-2xl max-w-full sm:max-w-lg w-full h-full sm:h-fit sm:max-h-[calc(100vh-150px)] sm:overflow-y-auto animate-modal-fade overflow-y-auto',
+            'fixed inset-0 sm:left-[50%] sm:top-[50%] z-50 sm:translate-x-[-50%] sm:translate-y-[-50%] bg-white rounded-none sm:rounded-3xl shadow-neutral-03 shadow-2xl max-w-full md:max-w-3xl w-full h-full sm:h-fit sm:max-h-[calc(100vh-150px)] sm:overflow-y-auto focus:outline-none animate-modal-fade overflow-y-auto',
             isConfirmOpen && 'blur-xs'
           )}
         >
@@ -170,6 +266,7 @@ const LoginModal = () => {
               Choose how you'd like to get started. Connect with MetaMask for a personalized experience, or jump right in with Guest Mode.
             </Dialog.Description>
           </VisuallyHidden>
+
           {isVerifying ? (
             <div className='min-h-full sm:min-h-[320px] flex flex-col items-center justify-center gap-4 px-6 sm:px-8 text-center w-full'>
               <LoaderCircle className='w-10 h-10 text-emerald-500 animate-spin' />
@@ -293,106 +390,114 @@ const LoginModal = () => {
                 <div className='inline-flex items-center justify-center py-5'>
                   <img src='/logo.svg' alt='Cipherdolls' className='w-48 h-auto' />
                 </div>
-                <p className='text-gray-600 text-base leading-relaxed'>
+                <p className='text-gray-600 text-base leading-relaxed w-10/12 mx-auto'>
                   Choose how you'd like to get started. Connect with MetaMask for a personalized experience, or jump right in with Guest
                   Mode.
                 </p>
               </div>
 
-              <div className='space-y-4 mb-6'>
-                <button
-                  onClick={handleMetaMaskClick}
-                  disabled={isLoading || !hasEthereum}
-                  className={cnExt(
-                    'flex items-center gap-4 w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl p-6 transition-all duration-300 relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed',
-                    isLoadingMetamask ? 'disabled:opacity-80' : '',
-                    !hasEthereum ? 'disabled:opacity-30' : ''
-                  )}
-                >
-                  <div className='w-12 h-12 bg-white rounded-xl flex items-center justify-center'>
-                    <img src='/metamask.svg' alt='MetaMask' className='w-8 h-8' />
-                  </div>
-                  <div className='text-left'>
-                    <div className='font-bold text-lg'>Login with MetaMask</div>
-                    <div className='text-white/90 text-sm'>Secure Web3 authentication</div>
-                  </div>
-                  <div className='ml-auto w-7'>
-                    {isLoadingMetamask ? <LoaderCircle className='w-7 h-7 text-white animate-spin' /> : null}
-                  </div>
-                </button>
+              {!hasEthereum ? (
+                <div className='text-sm text-black/80 text-left space-y-1 rounded-2xl bg-white/80 border border-orange-300 px-4 py-3 shadow-sm mb-6'>
+                  <p>
+                    MetaMask extension not detected. Please install or enable it to continue. Alternatively, you can use a Web3-enabled
+                    browser like{' '}
+                    <a href='https://brave.com/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
+                      Brave
+                    </a>{' '}
+                    or{' '}
+                    <a href='https://status.im/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
+                      Status
+                    </a>{' '}
+                    for built-in wallet support.{' '}
+                    <a href='https://metamask.io/download/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
+                      Download MetaMask
+                    </a>
+                  </p>
+                </div>
+              ) : null}
 
-                {!hasEthereum ? (
-                  <div className='text-sm text-black/80 text-left space-y-1 rounded-2xl bg-white/80 border border-orange-200 px-4 py-3 shadow-sm'>
-                    <p>
-                      MetaMask extension not detected. Please install or enable it to continue. Alternatively, you can use a Web3-enabled
-                      browser like{' '}
-                      <a href='https://brave.com/' target='_blank' rel='noopener noreferrer' className='underline font-medium'>
-                        Brave
-                      </a>{' '}
-                      or{' '}
-                      <a href='https://status.im/' target='_blank' rel='noopener noreferrer' className='underline font-medium'>
-                        Status
-                      </a>{' '}
-                      for built-in wallet support.{' '}
-                      <a href='https://metamask.io/download/' target='_blank' rel='noopener noreferrer' className='underline font-medium'>
-                        Download MetaMask
-                      </a>
-                    </p>
-                  </div>
-                ) : null}
+              <div className='flex justify-between gap-4'>
+                <div className='flex flex-1 flex-col'>
+                  <button
+                    onClick={handleMetaMaskClick}
+                    disabled={isLoading || !hasEthereum}
+                    className={cnExt(
+                      'flex flex-col items-center md:flex-row gap-4 w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl p-4 md:p-6 transition-all duration-300 relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed',
+                      isLoadingMetamask ? 'disabled:opacity-80' : '',
+                      !hasEthereum ? 'disabled:opacity-30' : ''
+                    )}
+                  >
+                    <div className='w-12 h-12 bg-white rounded-xl flex items-center justify-center'>
+                      {isLoadingMetamask ? (
+                        <div className='w-7'>
+                          <LoaderCircle className='w-7 h-7 text-orange-500 animate-spin' />
+                        </div>
+                      ) : (
+                        <img src='/metamask.svg' loading='eager' alt='MetaMask' className='w-8 h-8' />
+                      )}
+                    </div>
+                    <div className='text-center md:text-left'>
+                      <div className='font-bold text-lg'>Login with MetaMask</div>
+                      <div className='text-white/90 text-sm'>Secure Web3 authentication</div>
+                    </div>
+                  </button>
 
-                <button
-                  onClick={handleGuestClick}
-                  disabled={isLoading}
-                  className='flex items-center gap-4 justify-between w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-2xl p-6 transition-all duration-300 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed'
-                >
-                  <div className='w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm'>
-                    <Zap className='w-6 h-6 text-white animate-pulse' />
-                  </div>
-                  <div className='text-left'>
-                    <div className='font-bold text-lg'>Guest Mode</div>
-                    <div className='text-white/90 text-sm'>{isUsingBurnerWallet ? 'Continue as a Guest' : 'Start chatting instantly'}</div>
-                  </div>
-                  <div className='ml-auto w-7'>{isLoadingGuest ? <LoaderCircle className='w-7 h-7 text-white animate-spin' /> : null}</div>
-                </button>
-              </div>
+                  <div className='py-6'>
+                    <div className='grid grid-cols-1 gap-4 text-body-sm'>
+                      <div className='flex items-start gap-2'>
+                        <div className='w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                          <div className='w-2 h-2 bg-orange-500 animate-pulse rounded-full'></div>
+                        </div>
 
-              <div className='border-t border-gray-200 pt-6 pb-6'>
-                <div className='grid grid-cols-2 gap-4 text-sm'>
-                  <div className='flex items-start gap-2'>
-                    <div className='w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
-                      <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                    </div>
-                    <div>
-                      <div className='font-semibold text-gray-900'>Anonymous</div>
-                      <div className='text-gray-600 text-xs'>No signup required</div>
+                        <div>
+                          <p className='text-gray-600 text-sm'>
+                            Start <span className='underline'>Secure & Anonymous</span> chatting with more than <span className='font-semibold text-gray-900'>100+ Avatars & Scenarios</span> or create own content to get <span className='font-semibold text-gray-900'>Earns and Rewards</span>. <br/>The best way to use all the power of <span className='font-semibold text-gray-900'>Cipherdolls!</span>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className='flex items-start gap-2'>
-                    <div className='w-5 h-5 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
-                      <div className='w-2 h-2 bg-cyan-500 rounded-full'></div>
+                </div>
+
+                <div className='h-auto w-px bg-gray-200' />
+
+                <div className='flex flex-1 flex-col'>
+                  <button
+                    onClick={handleGuestClick}
+                    disabled={isLoading}
+                    className='flex flex-col items-center gap-4 w-full md:flex-row bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-2xl p-4 md:p-6 transition-all duration-300 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    <div className='w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm'>
+                      {isLoadingGuest ? (
+                        <div className='w-7'>
+                          <LoaderCircle className='w-7 h-7 text-white animate-spin' />
+                        </div>
+                      ) : (
+                        <Zap className='w-6 h-6 text-white animate-pulse' />
+                      )}
                     </div>
-                    <div>
-                      <div className='font-semibold text-gray-900'>Instant Access</div>
-                      <div className='text-gray-600 text-xs'>Start chatting now</div>
+                    <div className='text-center md:text-left'>
+                      <div className='font-bold text-lg'>Guest Mode</div>
+                      <div className='text-white/90 text-sm'>
+                        {isUsingBurnerWallet ? 'Continue as a Guest' : 'Start chatting instantly'}
+                      </div>
                     </div>
-                  </div>
-                  <div className='flex items-start gap-2'>
-                    <div className='w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
-                      <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
-                    </div>
-                    <div>
-                      <div className='font-semibold text-gray-900'>Secure</div>
-                      <div className='text-gray-600 text-xs'>Your data is safe</div>
-                    </div>
-                  </div>
-                  <div className='flex items-start gap-2'>
-                    <div className='w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
-                      <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
-                    </div>
-                    <div>
-                      <div className='font-semibold text-gray-900'>AI Powered</div>
-                      <div className='text-gray-600 text-xs'>Smart conversations</div>
+                  </button>
+
+                  <div className='py-4'>
+                    <div className='grid grid-cols-1 gap-4 text-sm'>
+                      <div className='flex items-start gap-2 mr-2'>
+                        <div className='w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                          <div className='w-2 h-2 bg-emerald-500 rounded-full animate-pulse'></div>
+                        </div>
+
+                        <div>
+                          <p className='text-gray-600 text-sm'>
+                            A great way to start <span className='underline'>chatting right away</span>, without registering or connecting a wallet. <br/><span className='underline'>Free to use</span> <span className='font-semibold text-gray-900'>Avatars & Scenarios</span> simple
+                            way to try out <span className='font-semibold text-gray-900'>Cipherdolls!</span>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
