@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router';
 import { useMemo, useCallback } from 'react';
+import { BookOpenText } from 'lucide-react';
 import { Icons, type IconProps } from './ui/icons';
 import { cn } from '~/utils/cn';
 import { ViewMore } from '~/view-more';
@@ -26,7 +27,9 @@ const SidebarItems = [
   {
     name: 'Services',
     href: ROUTES.ai,
-    icon: Icons.services,
+    icon: ({ className }: { className?: string }) => (
+      <BookOpenText className={cn('text-[#350D2A]/40', className)} size={20} />
+    ),
     hideOnMobile: true,
   },
   // {
@@ -106,8 +109,12 @@ const Sidebar = ({ className }: { className?: string }) => {
             if (item.href) {
               return (
                 <NavLink to={item.href} key={index} className={getNavLinkClassName(item)}>
-                  {<NavIcon />}
-                  <span className='text-label font-semibold'>{item.name}</span>
+                  {({ isActive }) => (
+                    <>
+                      <NavIcon className={isActive ? 'text-black opacity-100' : undefined} />
+                      <span className='text-label font-semibold'>{item.name}</span>
+                    </>
+                  )}
                 </NavLink>
               );
             }
