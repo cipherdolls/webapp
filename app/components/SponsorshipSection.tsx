@@ -17,9 +17,16 @@ interface SponsorshipSectionProps {
   isPublishedScenario: boolean;
 }
 
-const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({ scenarioId, sponsorships, currentUserId, userHasSponsored, isPublishedScenario }) => {
+const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({
+  scenarioId,
+  sponsorships,
+  currentUserId,
+  userHasSponsored,
+  isPublishedScenario,
+}) => {
   const [showAll, setShowAll] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { mutate: createSponsorship, isPending: isCreating } = useCreateSponsorship();
   const { mutate: deleteSponsorship, isPending: isDeleting } = useDeleteSponsorship();
@@ -31,8 +38,17 @@ const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({ scenarioId, spo
   const isPending = isCreating || isDeleting;
 
   const handleConfirm = async () => {
+    setError(null);
     if (userHasSponsored && userSponsorship) {
-      deleteSponsorship({ sponsorshipId: userSponsorship.id });
+      deleteSponsorship(
+        { sponsorshipId: userSponsorship.id },
+        {
+          onError: (err: Error & { apiError?: { message: string[] } }) => {
+            const errorMessage = err.apiError?.message?.join(', ') || err.message || 'Failed to remove sponsorship';
+            setError(errorMessage);
+          },
+        }
+      );
     } else if (!isPublishedScenario) {
       return alert({
         icon: '🌐',
@@ -40,16 +56,29 @@ const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({ scenarioId, spo
         actionButton: '',
         body: (
           <p className='!text-body-md'>
-            ❗ Only public scenarios can be sponsored,<br />
+            ❗ Only public scenarios can be sponsored,
+            <br />
             firstly you need to publish this scenario
             <br />
             <br />
             📌 To publish the scenario, click the <span className='text-base-black font-semibold'>Edit</span> button in the top right side
           </p>
         ),
-      })
+      });
     } else {
-      createSponsorship({ scenarioId });
+      createSponsorship(
+        { scenarioId },
+        {
+          onError: (err: Error & { apiError?: { message: string[] } }) => {
+            let errorMessage = err.apiError?.message?.join(', ') || err.message || 'Failed to create sponsorship';
+
+            if (errorMessage.toLowerCase().includes('spendable token') && errorMessage.includes('3')) {
+              errorMessage = 'You need at least 3 tokens to sponsor a scenario. Please add more tokens to your account.';
+            }
+            setError(errorMessage);
+          },
+        }
+      );
     }
     setIsModalOpen(false);
   };
@@ -77,11 +106,7 @@ const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({ scenarioId, spo
           </Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Overlay className='sm:bg-transparent bg-neutral-02 fixed inset-0 pointer-events-none z-[80]'>
-              <motion.div
-                initial={ANIMATE_OVERLAY.initial}
-                animate={ANIMATE_OVERLAY.animate}
-                transition={ANIMATE_OVERLAY.transition}
-              >
+              <motion.div initial={ANIMATE_OVERLAY.initial} animate={ANIMATE_OVERLAY.animate} transition={ANIMATE_OVERLAY.transition}>
                 <div
                   className='absolute  left-1/2 -translate-x-1/2
         w-[375px] h-[224px] sm:w-[480px] sm:h-[282px]
@@ -105,72 +130,80 @@ const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({ scenarioId, spo
             </Dialog.Overlay>
 
             <Dialog.Content asChild forceMount>
-             <motion.div
-               initial={ANIMATE_MODAL_SHOW_CENTER.initial}
-               animate={ANIMATE_MODAL_SHOW_CENTER.animate}
-               transition={ANIMATE_MODAL_SHOW_CENTER.transition}
-               className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-[100]'
-             >
-               <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
-               <div className='flex flex-col gap-10'>
-                   <div className='flex flex-col gap-4.5 items-center justify-center'>
-                     <h1 className='text-heading-h2 sm:text-heading-h1'>{userHasSponsored ? '⚠️' : '⭐'}</h1>
-                     <div className='flex flex-col gap-2'>
-                       <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center break-all'>
-                         {userHasSponsored ? 'Remove Sponsorship?' : 'Sponsor this Scenario?'}
-                       </Dialog.Title>
-                       <Dialog.Description className='sm:text-body-lg text-base-black text-body-md text-center'>
-                         {userHasSponsored ? (
-                           <>
-                             <p className='mb-2'>Are you sure you want to remove your sponsorship?</p>
-                             <p className='text-body-sm text-neutral-01'>
-                               Users will no longer be able to use this scenario with your tokens.
-                             </p>
-                           </>
-                         ) : (
-                           <>
-                             <p className='mb-3'>
-                               When you sponsor this scenario, other users can interact with it using your token balance instead of their own.
-                             </p>
-                             <div className='text-left bg-neutral-05 rounded-lg p-3'>
-                               <p className='text-body-sm font-semibold mb-2'>As a sponsor, you will:</p>
-                               <ul className='text-body-sm text-neutral-01 space-y-1.5'>
-                                 <li className='flex gap-2'>
-                                   <span className='shrink-0'>•</span>
-                                   <span>Cover AI token costs for all users of this scenario</span>
-                                 </li>
-                                 <li className='flex gap-2'>
-                                   <span className='shrink-0'>•</span>
-                                   <span>Support the scenario creator and community</span>
-                                 </li>
-                                 <li className='flex gap-2'>
-                                   <span className='shrink-0'>•</span>
-                                   <span>Help make AI experiences accessible to everyone</span>
-                                 </li>
-                               </ul>
-                             </div>
-                           </>
-                         )}
-                       </Dialog.Description>
-                     </div>
-                   </div>
-                   <div className='grid grid-cols-2 gap-3'>
-                     <Dialog.Close asChild>
-                       <Button.Root variant='secondary' className='w-full'>
-                         No, Cancel
-                       </Button.Root>
-                     </Dialog.Close>
-                     <Dialog.Close asChild>
-                       <Button.Root variant={userHasSponsored ? 'danger' : 'primary'} className='w-full' onClick={handleConfirm}>
-                         {userHasSponsored ? 'Yes, Remove' : 'Yes, Sponsor'}
-                       </Button.Root>
-                     </Dialog.Close>
-                   </div>
-                 </div>
-             </motion.div>
+              <motion.div
+                initial={ANIMATE_MODAL_SHOW_CENTER.initial}
+                animate={ANIMATE_MODAL_SHOW_CENTER.animate}
+                transition={ANIMATE_MODAL_SHOW_CENTER.transition}
+                className='fixed left-1/2 bottom-0 sm:bottom-auto sm:top-1/2 -translate-x-1/2 sm:-translate-y-1/2 focus:outline-none max-w-[480px] bg-gradient-1 w-full rounded-xl sm:py-8 py-9 sm:px-12 px-4.5 shadow-bottom backdrop-blur-lg z-[100]'
+              >
+                <div className='absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-03 rounded-full w-16 h-1 sm:hidden' />
+                <div className='flex flex-col gap-10'>
+                  <div className='flex flex-col gap-4.5 items-center justify-center'>
+                    <h1 className='text-heading-h2 sm:text-heading-h1'>{userHasSponsored ? '⚠️' : '⭐'}</h1>
+                    <div className='flex flex-col gap-2'>
+                      <Dialog.Title className='sm:text-heading-h2 text-heading-h3 text-base-black text-center break-all'>
+                        {userHasSponsored ? 'Remove Sponsorship?' : 'Sponsor this Scenario?'}
+                      </Dialog.Title>
+                      <Dialog.Description className='sm:text-body-lg text-base-black text-body-md text-center'>
+                        {userHasSponsored ? (
+                          <>
+                            <p className='mb-2'>Are you sure you want to remove your sponsorship?</p>
+                            <p className='text-body-sm text-neutral-01'>
+                              Users will no longer be able to use this scenario with your tokens.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className='mb-3'>
+                              When you sponsor this scenario, other users can interact with it using your token balance instead of their
+                              own.
+                            </p>
+                            <div className='text-left bg-neutral-05 rounded-lg p-3'>
+                              <p className='text-body-sm font-semibold mb-2'>As a sponsor, you will:</p>
+                              <ul className='text-body-sm text-neutral-01 space-y-1.5'>
+                                <li className='flex gap-2'>
+                                  <span className='shrink-0'>•</span>
+                                  <span>Cover AI token costs for all users of this scenario</span>
+                                </li>
+                                <li className='flex gap-2'>
+                                  <span className='shrink-0'>•</span>
+                                  <span>Support the scenario creator and community</span>
+                                </li>
+                                <li className='flex gap-2'>
+                                  <span className='shrink-0'>•</span>
+                                  <span>Help make AI experiences accessible to everyone</span>
+                                </li>
+                              </ul>
+                            </div>
+                          </>
+                        )}
+                      </Dialog.Description>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2 gap-3'>
+                    <Dialog.Close asChild>
+                      <Button.Root variant='secondary' className='w-full'>
+                        No, Cancel
+                      </Button.Root>
+                    </Dialog.Close>
+                    <Dialog.Close asChild>
+                      <Button.Root variant={userHasSponsored ? 'danger' : 'primary'} className='w-full' onClick={handleConfirm}>
+                        {userHasSponsored ? 'Yes, Remove' : 'Yes, Sponsor'}
+                      </Button.Root>
+                    </Dialog.Close>
+                  </div>
+                </div>
+              </motion.div>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
+
+        {error && (
+          <div className='flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg'>
+            <Icons.warning className='size-4 text-red-500 shrink-0 mt-0.5' />
+            <p className='text-body-sm text-red-600'>{error}</p>
+          </div>
+        )}
 
         {sponsorships.length > 0 && (
           <div className='flex flex-col gap-2 pt-2 border-t border-neutral-04'>
