@@ -18,10 +18,9 @@ const CreateTokenAllowanceModal = ({ children }: CreateTokenAllowanceModalProps)
 
   const { mutate: createTokenPermit, isPending: isCreatingTokenPermit } = useCreateTokenPermit();
 
-  // Fibonacci sequence for fixed amounts
-  const fibonacciAmounts = [1, 2, 3, 5, 8, 13, 21, 34, 55];
-  const [selectedIndex, setSelectedIndex] = useState(4);
-  const amount = fibonacciAmounts[selectedIndex];
+  const tokenAmounts = [1, 10, 100, 1000, 10000, 100000];
+  const [selectedIndex, setSelectedIndex] = useState(2);
+  const amount = tokenAmounts[selectedIndex];
 
   // Reset PermitButton when modal is closed to clear any stale state
   useEffect(() => {
@@ -48,7 +47,6 @@ const CreateTokenAllowanceModal = ({ children }: CreateTokenAllowanceModalProps)
         },
       }
     );
-
   };
 
   return (
@@ -104,7 +102,7 @@ const CreateTokenAllowanceModal = ({ children }: CreateTokenAllowanceModalProps)
                       value={[selectedIndex]}
                       onValueChange={(value) => setSelectedIndex(value[0])}
                       min={0}
-                      max={fibonacciAmounts.length - 1}
+                      max={tokenAmounts.length - 1}
                       step={1}
                       className='w-full'
                     >
