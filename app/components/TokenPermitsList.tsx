@@ -125,7 +125,7 @@ const TokenPermitsList = () => {
               <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
               <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
 
-              <CreateTokenAllowanceModal >
+              <CreateTokenAllowanceModal>
                 <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
               </CreateTokenAllowanceModal>
             </div>

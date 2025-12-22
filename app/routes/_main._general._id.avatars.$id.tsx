@@ -86,7 +86,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
       body: 'By deleting an avatar a chat will be deleted as well. You will no able to restore the data',
       actionButton: 'Yes, Delete',
       cancelButton: 'No, Leave',
-      variant: 'danger'
+      variant: 'danger',
     });
 
     if (!result) return;
@@ -112,7 +112,9 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
           alert({
             icon: '💰',
             title: 'Insufficient Tokens',
-            body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+            body:
+              error?.message ||
+              `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
           });
         },
       }

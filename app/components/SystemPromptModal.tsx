@@ -37,9 +37,7 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
   };
 
   const content = (
-    <Modal.Content className={cn('flex flex-col justify-between max-w-[680px]',
-      isExpanded && 'max-w-none w-[90vw] h-screen'
-    )}>
+    <Modal.Content className={cn('flex flex-col justify-between max-w-[680px]', isExpanded && 'max-w-none w-[90vw] h-screen')}>
       <div>
         <div className='flex items-center justify-between'>
           <Modal.Title>System Prompt</Modal.Title>
@@ -74,8 +72,8 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
               <div className='text-body-sm text-amber-800'>
                 <p className='font-semibold mb-1'>Chat System Prompt Not Available</p>
                 <p>
-                  This chat hasn't been activated yet. The system prompt shown below is from the scenario template.
-                  To load the actual chat system prompt, send a message in this chat first.
+                  This chat hasn't been activated yet. The system prompt shown below is from the scenario template. To load the actual chat
+                  system prompt, send a message in this chat first.
                 </p>
               </div>
             </div>
@@ -113,12 +111,7 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
             Close
           </Button.Root>
         </Modal.Close>
-        <Button.Root
-          variant='primary'
-          className='flex-1 gap-2'
-          onClick={handleCopy}
-          disabled={copied}
-        >
+        <Button.Root variant='primary' className='flex-1 gap-2' onClick={handleCopy} disabled={copied}>
           {copied ? (
             <>
               <Icons.copied className='w-5 h-5' />

@@ -46,7 +46,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   const handleContainerClick = () => {
     textAreaRef.current?.focus();
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,10 +117,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
   return (
     <div className='shrink-0 bg-white'>
-      <div
-        onClick={handleContainerClick}
-        className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'
-      >
+      <div onClick={handleContainerClick} className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'>
         <form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
           {/* eye status of the current chat state */}
           <EyeStatus />
@@ -153,11 +150,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
           <div className='shrink-0 flex items-center gap-2 p-5 -m-5' onClick={(e) => e.stopPropagation()}>
             {/* render microphone button only if the message field is empty */}
             {newMessage.length > 0 ? (
-              <Button.Root
-                size='icon'
-                type='submit'
-                disabled={isMessageDisabled || isCreatingMessage}
-              >
+              <Button.Root size='icon' type='submit' disabled={isMessageDisabled || isCreatingMessage}>
                 <Button.Icon as={isCreatingMessage ? Icons.loading : Icons.sendMessage} />
               </Button.Root>
             ) : (

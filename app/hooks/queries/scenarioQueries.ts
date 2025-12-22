@@ -13,6 +13,7 @@ interface ScenariosQueryParams {
   recommended?: string;
   avatarId?: string;
   nsfw?: string;
+  hasSponsorship?: string;
 }
 
 // Scenario queries

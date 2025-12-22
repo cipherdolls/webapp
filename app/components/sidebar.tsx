@@ -27,9 +27,7 @@ const SidebarItems = [
   {
     name: 'Services',
     href: ROUTES.ai,
-    icon: ({ className }: { className?: string }) => (
-      <BookOpenText className={cn('text-[#350D2A]/40', className)} size={20} />
-    ),
+    icon: ({ className }: { className?: string }) => <BookOpenText className={cn('text-[#350D2A]/40', className)} size={20} />,
     hideOnMobile: true,
   },
   // {
@@ -128,11 +126,13 @@ const Sidebar = ({ className }: { className?: string }) => {
             );
           })}
         </div>
-        <NavLink to={ROUTES.account} className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account, hideOnMobile: true })}>
+        <NavLink
+          to={ROUTES.account}
+          className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account, hideOnMobile: true })}
+        >
           {<Icons.account />}
           <span className='text-label font-semibold'>Account</span>
         </NavLink>
-    
       </div>
     </aside>
   );
