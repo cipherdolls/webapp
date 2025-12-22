@@ -30,10 +30,10 @@ function YourChatsSkeleton() {
 }
 
 interface ChatItemProps {
-  group: GroupedChatsByAvatar
-  expandedAvatar: string | undefined
-  handleAvatarClick: (avatarId: string) => void
-  hasMinimumTokens: boolean
+  group: GroupedChatsByAvatar;
+  expandedAvatar: string | undefined;
+  handleAvatarClick: (avatarId: string) => void;
+  hasMinimumTokens: boolean;
 }
 
 const YourChats = () => {
@@ -109,7 +109,7 @@ const YourChats = () => {
         className='grid grid-cols-1 md:grid-cols-2 gap-2 bg-gradient-1 rounded-xl overflow-y-hidden p-2 pt-2'
       >
         {groupedChats.length > 0 ? (
-         isMobile || groupedChats.length <= 2 ? (
+          isMobile || groupedChats.length <= 2 ? (
             <>
               {groupedChats.map((group, index) => (
                 <div className={cn('overflow-y-hidden', !showAll && index >= 4 && 'hidden')} key={index}>
@@ -263,5 +263,5 @@ const ChatItem = ({ group, expandedAvatar, handleAvatarClick, hasMinimumTokens }
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};

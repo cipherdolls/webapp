@@ -79,21 +79,21 @@ export const GUEST_MODE_WELCOME_CHATS = [
     avatarName: 'Beatrice',
     scenarioName: '20 Questions Game',
     avatarId: 'ba57fd47-d922-4e9b-a5fd-0d70d447b92e',
-    scenarioId: '29baa4d2-2a2d-4688-a418-328042d80a90'
+    scenarioId: '29baa4d2-2a2d-4688-a418-328042d80a90',
   },
   {
     avatarName: 'Gael',
     scenarioName: 'CipherDolls',
     avatarId: 'b9ac088b-c366-40c4-899b-2e20dab040df',
-    scenarioId: '80ae78e7-71b9-44ed-97d5-861daa53677e'
+    scenarioId: '80ae78e7-71b9-44ed-97d5-861daa53677e',
   },
   {
     avatarName: 'Hazel',
     scenarioName: 'Crypto Talk',
     avatarId: '65d5dbf2-072c-4bbb-8d23-11a57d6bf1ce',
-    scenarioId: '3182013b-a6cf-454e-974b-51e13e031d2a'
+    scenarioId: '3182013b-a6cf-454e-974b-51e13e031d2a',
   },
-]
+];
 
 export const LANGUAGES = [
   { code: 'en', name: 'English' },

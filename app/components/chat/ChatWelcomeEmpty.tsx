@@ -125,7 +125,6 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = ({ avatars, user: user
 
   const showAllowancePrompt = user.tokenAllowance <= 0.001 && !isUsingBurnerWallet;
   const isGuestAndSelectedNotSponsored = isUsingBurnerWallet && !selectedScenario?.sponsorships?.length;
-  
 
   const renderAllowanceCTA = () => (
     <>
