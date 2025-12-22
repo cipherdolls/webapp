@@ -33,24 +33,30 @@ const SearchInput = ({ searchParamName, placeholder }: { searchParamName: string
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
-    
+
     debounceTimeoutRef.current = setTimeout(() => {
       const currentParamValue = searchParams.get(searchParamName) || '';
       const newValue = value.trim();
-      
+
       // Only update URL if the value differs from current URL param
       if (newValue !== currentParamValue) {
         isUpdatingFromUrlRef.current = true;
-        
+
         const newSearchParams = new URLSearchParams(searchParams);
-        
+
         if (newValue) {
           newSearchParams.set(searchParamName, newValue);
         } else {
           newSearchParams.delete(searchParamName);
         }
-        
-        setSearchParams(newSearchParams);
+
+        // Use replace to prevent focus loss and avoid adding to browser history
+        setSearchParams(newSearchParams, { replace: true });
+
+        // Restore focus to input after URL update
+        requestAnimationFrame(() => {
+          inputRef.current?.focus();
+        });
       }
     }, 300);
   }, [searchParams, setSearchParams, searchParamName]);
