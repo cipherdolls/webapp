@@ -3,7 +3,6 @@ import { useMediaQuery } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { useChats } from '~/hooks/queries/chatQueries';
-import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { GUEST_MODE_WELCOME_CHATS, ROUTES } from '~/constants';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useAuthStore } from '~/store/useAuthStore';
@@ -11,7 +10,6 @@ import { useCreateChat } from '~/hooks/queries/chatMutations';
 
 export default function ChatsIndex() {
   const { data: chatsData, isLoading: isChatsLoading } = useChats();
-  const { data: avatarsData, isLoading: isAvatarsLoading } = useAvatars({ published: 'true' });
   const { data: user, isLoading: isUserLoading } = useUser();
   const { isUsingBurnerWallet } = useAuthStore();
   const { mutate: createChat, isPending: isCreatingChat } = useCreateChat();
@@ -46,8 +44,8 @@ export default function ChatsIndex() {
   }, [isUsingBurnerWallet, chatsData]);
 
   // Show empty welcome if no chats exist and data is loaded
-  if (!isChatsLoading && !isUserLoading && !isAvatarsLoading && (!chatsData || chatsData.length === 0)) {
-    return <ChatWelcomeEmpty avatars={avatarsData?.data || []} user={user!} />;
+  if (!isChatsLoading && !isUserLoading && (!chatsData || chatsData.length === 0)) {
+    return <ChatWelcomeEmpty user={user!} />;
   }
 
   // Show loading state only while data is being fetched
