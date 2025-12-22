@@ -4,6 +4,7 @@ import { Icons } from './ui/icons';
 import FreeToUseBadge from './FreeToUseBadge';
 import SelectionModal from './SelectionModal';
 import { useChatSelectionWizard } from '~/hooks/chatSelection/useChatSelectionWizard';
+import Tooltip from './ui/tooltip';
 
 import type { Avatar, Scenario } from '~/types';
 
@@ -124,15 +125,7 @@ const ChatSelectionWizard: React.FC<ChatSelectionWizardProps> = (props) => {
 
 export default ChatSelectionWizard;
 
-const ScenarioItem = ({
-  item,
-  isSelected,
-  onClick,
-}: {
-  item: Scenario;
-  isSelected: boolean;
-  onClick: () => void;
-}) => {
+const ScenarioItem = ({ item, isSelected, onClick }: { item: Scenario; isSelected: boolean; onClick: () => void }) => {
   const isSponsored = item.sponsorships?.length && item.sponsorships.length > 0;
   return (
     <button
@@ -162,22 +155,84 @@ const ScenarioItem = ({
         <p className='text-sm text-neutral-01 line-clamp-2'>{item.introduction}</p>
       </div>
 
-      <div className='absolute right-1 -top-2.5 flex gap-2'>
+      <div className='absolute right-1 -top-2.5 flex gap-1'>
+        {item.userGender === 'Male' || item.userGender === 'Female' || item.avatarGender === 'Male' || item.avatarGender === 'Female' ? (
+          item.userGender === item.avatarGender && (item.userGender === 'Male' || item.userGender === 'Female') ? (
+            <Tooltip
+              side='top'
+              variant='light'
+              trigger={
+                <div
+                  className={cn(
+                    'flex py-0.5 px-1.5 gap-0.5 rounded-full text-xs text-base-black font-semibold',
+                    item.userGender === 'Male' && 'bg-[#069cf3]',
+                    item.userGender === 'Female' && 'bg-[#FF85B7]'
+                  )}
+                >
+                  {item.userGender === 'Male' ? '🧔🏻‍♂️' : '👩🏻'}
+                </div>
+              }
+              content={`Both user and avatar are ${item.userGender?.toLowerCase()} in this scenario`}
+            />
+          ) : (
+            <div className='flex rounded-full overflow-hidden text-xs text-base-black font-semibold'>
+              {(item.userGender === 'Male' || item.userGender === 'Female') && (
+                <Tooltip
+                  side='top'
+                  variant='light'
+                  trigger={
+                    <div
+                      className={cn(
+                        'flex py-0.5 px-1.5 gap-0.5',
+                        item.userGender === 'Male' && 'bg-[#069cf3]',
+                        item.userGender === 'Female' && 'bg-[#FF85B7]'
+                      )}
+                    >
+                      {item.userGender === 'Male' ? '🧔🏻‍♂️' : '👩🏻'}
+                    </div>
+                  }
+                  content={`User is ${item.userGender?.toLowerCase()} in this scenario`}
+                />
+              )}
+              {(item.avatarGender === 'Male' || item.avatarGender === 'Female') && (
+                <Tooltip
+                  side='top'
+                  variant='light'
+                  trigger={
+                    <div
+                      className={cn(
+                        'flex py-0.5 px-1.5 gap-0.5',
+                        item.avatarGender === 'Male' && 'bg-[#069cf3]',
+                        item.avatarGender === 'Female' && 'bg-[#FF85B7]'
+                      )}
+                    >
+                      {item.avatarGender === 'Male' ? '🧔🏻‍♂️' : '👩🏻'}
+                    </div>
+                  }
+                  content={`Avatar is ${item.avatarGender?.toLowerCase()} in this scenario`}
+                />
+              )}
+            </div>
+          )
+        ) : (
+          (item.userGender || item.avatarGender) && (
+            <Tooltip
+              side='top'
+              variant='light'
+              trigger={
+                <div className='flex py-0.5 px-1.5 gap-0.5 rounded-full bg-gradient-1 text-xs text-base-black font-semibold'>👤</div>
+              }
+              content='Gender is not specified in this scenario'
+            />
+          )
+        )}
         {Boolean(isSponsored) && <FreeToUseBadge />}
       </div>
     </button>
   );
 };
 
-const AvatarItem = ({
-  item,
-  isSelected,
-  onClick,
-}: {
-  item: Avatar;
-  isSelected: boolean;
-  onClick: () => void;
-}) => {
+const AvatarItem = ({ item, isSelected, onClick }: { item: Avatar; isSelected: boolean; onClick: () => void }) => {
   return (
     <button
       onClick={onClick}
@@ -208,5 +263,3 @@ const AvatarItem = ({
     </button>
   );
 };
-
-
