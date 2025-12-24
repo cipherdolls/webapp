@@ -17,13 +17,6 @@ updates:
       prefix-development: "deps-dev"
     # Group minor and patch updates
     groups:
-      playwright-dependencies:
-        patterns:
-          - "@playwright/*"
-          - "@synthetixio/synpress"
-        update-types:
-          - "minor"
-          - "patch"
       react-dependencies:
         patterns:
           - "react*"
