@@ -43,8 +43,8 @@ export function useUpdateAvatar() {
       return response.json();
     },
     onSuccess: (updatedAvatar) => {
-      // queryClient.setQueryData(['avatar', updatedAvatar.id], updatedAvatar);
-      // queryClient.invalidateQueries({ queryKey: ['avatars'] });
+      queryClient.setQueryData(['avatar', updatedAvatar.id], updatedAvatar);
+      queryClient.invalidateQueries({ queryKey: ['avatars'] });
     },
   });
 }
