@@ -20,9 +20,9 @@ export function useCreateMessage() {
     },
     onSuccess: (newMessage, variables) => {
       // Invalidate messages for the specific chat
-      // queryClient.invalidateQueries({ queryKey: ['messages', variables.chatId] });
+      queryClient.invalidateQueries({ queryKey: ['messages', variables.chatId] });
       // Invalidate the specific message
-      // queryClient.invalidateQueries({ queryKey: ['message', newMessage.id] });
+      queryClient.invalidateQueries({ queryKey: ['message', newMessage.id] });
 
       queryClient.invalidateQueries({ queryKey: ['chat', variables.chatId, 'system-prompt'] });
     },

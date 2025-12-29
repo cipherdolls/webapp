@@ -28,7 +28,7 @@ export function useCreateChat() {
 
 // Update chat mutation
 export function useUpdateChat() {
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ chatId, data }: { chatId: string; data: Record<string, any> }) => {
@@ -45,8 +45,8 @@ export function useUpdateChat() {
       return response.json();
     },
     onSuccess: (updatedChat) => {
-      // queryClient.invalidateQueries({ queryKey: ['chat', updatedChat.id] });
-      // queryClient.invalidateQueries({ queryKey: ['chats'] });
+      queryClient.invalidateQueries({ queryKey: ['chat', updatedChat.id] });
+      queryClient.invalidateQueries({ queryKey: ['chats'] });
     },
   });
 }
