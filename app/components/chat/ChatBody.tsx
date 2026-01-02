@@ -131,7 +131,6 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
               <ChatBubble.Text animate={isRecentAssistantMessage}>
                 {message.content}
               </ChatBubble.Text>
-              {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
             </Link>
           </motion.div>
         </ChatBubble.Message>

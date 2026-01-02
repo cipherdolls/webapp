@@ -15,6 +15,7 @@ import { ANIMATE_MODAL_SHOW_RIGHT, ROUTES } from '~/constants';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -124,6 +125,10 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
               </div>
               {/* page modal body */}
               <div className='-mx-3 px-3 pb-5 flex-1 flex flex-col gap-8 overflow-auto scrollbar-medium '>
+                {/* datetime */}
+                <div className='text-sm text-neutral-01'>
+                  {formatDate(message.createdAt)}
+                </div>
                 {/* chat bubble */}
                 <ChatMessagePreview message={message} />
                 {/* TTS Job */}
