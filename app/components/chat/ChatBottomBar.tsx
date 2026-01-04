@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
@@ -68,7 +68,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
         onSuccess: () => {
           setNewMessage('');
         },
-        onError: (error) => {
+        onError: () => {
           alert({
             icon: '❌',
             title: 'Error',
@@ -130,10 +130,6 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
             ) : !hasMinimumTokens ? (
               <div className='text-body-md text-neutral-02 flex items-center gap-2'>
                 Insufficient tokens. You need at least {TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV to send messages.
-              </div>
-            ) : currentChatState === ChatState.userSpeaking ? (
-              <div className='flex items-center gap-4 text-body-md text-base-black'>
-                <p>Recording</p>
               </div>
             ) : (
               <AutosizeTextarea

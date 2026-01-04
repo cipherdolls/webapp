@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { ChatState } from '~/components/chat/types/chatState';
 import AnimationRecording from '~/components/ui/AnimationRecording';
+import RecordingIndicator from '~/components/chat/RecordingIndicator';
 import { cn } from '~/utils/cn';
 import type { Chat } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
@@ -28,8 +29,11 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, o
 
   const recorder = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const { stop } = useAudioPlayerContext();
   const alert = useAlert();
+
+  const isRecording = currentChatState === ChatState.userSpeaking;
 
   useEffect(() => {
     requestMicAccess();
@@ -41,7 +45,6 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, o
 
   const startRecording = async () => {
     try {
-      // unlockAudio();
       if (!hasMicAccess) {
         requestMicAccess();
         alert({
@@ -56,8 +59,11 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, o
       setCurrentChatState(ChatState.userSpeaking);
       stop();
 
-      streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-      recorder.current = new MediaRecorder(streamRef.current);
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = mediaStream;
+      setStream(mediaStream);
+
+      recorder.current = new MediaRecorder(mediaStream);
       recorder.current.addEventListener('dataavailable', handleData);
       recorder.current.start();
     } catch (err) {
@@ -86,14 +92,22 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, o
     streamRef.current?.getTracks().forEach((t) => t.stop());
     recorder.current = null;
     streamRef.current = null;
+    setStream(null);
   };
 
-  return currentChatState === ChatState.userSpeaking ? (
-    <Button.Root size='icon' onClick={stopRecording} className={cn('relative z-[1]')} type='button' disabled={disabled}>
-      <Button.Icon as={Icons.stopSound} />
-      <AnimationRecording className='absolute top-1/2 left-1/2 -translate-1/2 -z-10' />
-    </Button.Root>
-  ) : (
+  if (isRecording) {
+    return (
+      <div className='flex items-center gap-3'>
+        <RecordingIndicator stream={stream} />
+        <Button.Root size='icon' onClick={stopRecording} className={cn('relative z-[1]')} type='button' disabled={disabled}>
+          <Button.Icon as={Icons.stopSound} />
+          <AnimationRecording className='absolute top-1/2 left-1/2 -translate-1/2 -z-10' />
+        </Button.Root>
+      </div>
+    );
+  }
+
+  return (
     <Button.Root size='icon' onClick={startRecording} disabled={disabled || currentChatState === ChatState.error} type='button'>
       <Button.Icon as={Icons.microphone} />
     </Button.Root>
