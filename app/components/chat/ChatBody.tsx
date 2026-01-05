@@ -7,7 +7,6 @@ import { Link } from 'react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
 import { cn } from '~/utils/cn';
-import { motion } from 'framer-motion';
 
 interface ChatBodyProps {
   messages: Message[];
@@ -107,11 +106,6 @@ export default ChatBody;
 
 const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(({ message, isNextDay }) => {
   const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
-  const isSystemMessage = message.role === 'SYSTEM';
-  const isAssistantMessage = message.role === 'ASSISTANT';
-
-  // Check if this is a recent assistant message (created within last 30 seconds)
-  const isRecentAssistantMessage = isAssistantMessage && message.createdAt && (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
 
   if (!message.content) return null;
 
@@ -122,18 +116,13 @@ const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>
       {/* chat bubble */}
       <ChatBubble.Root variant={bubbleVariant}>
         <ChatBubble.Message asChild>
-          <motion.div
-            initial={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-10%' : '10%' }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.25 }}
-          >
+          <div>
             <Link to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
-              <ChatBubble.Text animate={isRecentAssistantMessage}>
+              <ChatBubble.Text>
                 {message.content}
               </ChatBubble.Text>
-              {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
             </Link>
-          </motion.div>
+          </div>
         </ChatBubble.Message>
       </ChatBubble.Root>
     </>

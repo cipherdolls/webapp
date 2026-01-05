@@ -68,15 +68,11 @@ export default function Account() {
           <YourScenarios />
         </div>
         <div className='flex flex-col gap-5 lg:sticky lg:top-4 lg:self-start'>
-          {!isUsingBurnerWallet ? (
-            <>
-              <YourWallet />
-              <YourGift />
-              {/*<TokenBalance />*/}
-              {/*<TokenPermitsList />*/}
-              <YourReferrals />
-            </>
-          ) : null}
+          <YourWallet disabled={isUsingBurnerWallet} />
+          <YourGift disabled={isUsingBurnerWallet} />
+          {/*<TokenBalance />*/}
+          {/*<TokenPermitsList />*/}
+          <YourReferrals disabled={isUsingBurnerWallet} />
 
           <Button.Root variant='primary' className='w-full min-h-12' onClick={handleSignOut}>
             <Icons.signOut />
