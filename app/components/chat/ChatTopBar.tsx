@@ -47,10 +47,6 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
         </div>
       </div>
       <div className='flex gap-3 items-center'>
-        <div className='hidden md:block'>
-          <ChatEventsPanel chatId={chat.id} />
-        </div>
-
         {isAdmin && (
           <Tooltip
             trigger={

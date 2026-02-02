@@ -33,7 +33,7 @@ const ChatBubbleRoot = React.forwardRef<HTMLDivElement, ChatBubbleProps>(({ clas
   </div>
 ));
 
-const chatBubbleMessageVariants = cva('relative px-4 py-3 rounded-xl max-w-[85%] md:max-w-[60%]', {
+const chatBubbleMessageVariants = cva('relative px-4 py-3 rounded-xl max-w-[85%] md:max-w-[60%] transition-shadow duration-500 ease-out', {
   variants: {
     variant: {
       received:
@@ -49,17 +49,19 @@ const chatBubbleMessageVariants = cva('relative px-4 py-3 rounded-xl max-w-[85%]
 
 interface ChatBubbleMessageProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof chatBubbleMessageVariants> {
   isLoading?: boolean;
+  isProcessing?: boolean;
   asChild?: boolean;
 }
 
 const ChatBubbleMessage = React.forwardRef<HTMLDivElement, ChatBubbleMessageProps>(
-  ({ className, variant, isLoading = false, asChild = false, children, ...props }, ref) => {
+  ({ className, variant, isLoading = false, isProcessing = false, asChild = false, children, ...props }, ref) => {
     const Component = asChild ? Slot : 'div';
+    const shouldGlow = isProcessing && variant === 'sent';
 
     return (
-      <Component className={cn(chatBubbleMessageVariants({ variant }), className)} ref={ref} {...props}>
+      <Component className={cn(chatBubbleMessageVariants({ variant }), shouldGlow && 'animate-bubble-glow', className)} ref={ref} {...props}>
         {isLoading ? (
-          <div className='flex justify-center items-center gap-1 *:w-1.5 *:h-1.5 *:shrink-0 pt-2'>
+          <div className='flex justify-center items-center gap-1.5 *:w-2 *:h-2 *:shrink-0 min-w-[60px] py-1'>
             <div className='bg-base-black rounded-full animate-message-loading [animation-delay:-0.3s]' />
             <div className='bg-neutral-01 rounded-full animate-message-loading [animation-delay:-0.15s]' />
             <div className='bg-neutral-02 rounded-full animate-message-loading' />
