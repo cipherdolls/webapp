@@ -9,11 +9,15 @@ interface ChatStore {
   hasMicAccess: boolean;
   currentChatState: ChatStateType;
   currentJob: ChatJobType | null;
+  processingMessageId: string | null;
+  showTypingIndicator: boolean;
 
   talkMode: boolean;
 
   setCurrentChatState: (state: ChatStateType) => void;
   setCurrentJob: (job: ChatJobType | null) => void;
+  setProcessingMessageId: (id: string | null) => void;
+  setShowTypingIndicator: (show: boolean) => void;
   toggleSilentMode: () => void;
   requestMicAccess: () => Promise<void>;
   setMicAccess: (hasAccess: boolean) => void;
@@ -31,9 +35,13 @@ export const useChatStore = create<ChatStore>()(
       talkMode: false,
       currentChatState: ChatState.Idle,
       currentJob: null,
+      processingMessageId: null,
+      showTypingIndicator: false,
 
       setCurrentChatState: (state) => set({ currentChatState: state }),
       setCurrentJob: (job) => set({ currentJob: job }),
+      setProcessingMessageId: (id) => set({ processingMessageId: id }),
+      setShowTypingIndicator: (show) => set({ showTypingIndicator: show }),
       toggleSilentMode: () =>
         set((state) => {
           state.silentMode = !state.silentMode;
@@ -58,6 +66,8 @@ export const useChatStore = create<ChatStore>()(
         set({
           currentChatState: ChatState.Idle,
           currentJob: null,
+          processingMessageId: null,
+          showTypingIndicator: false,
           talkMode: false,
         }),
 
@@ -65,6 +75,8 @@ export const useChatStore = create<ChatStore>()(
         set({
           currentChatState: ChatState.Idle,
           currentJob: null,
+          processingMessageId: null,
+          showTypingIndicator: false,
           talkMode: false,
         }),
     })),

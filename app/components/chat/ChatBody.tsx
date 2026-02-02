@@ -7,6 +7,8 @@ import { Link } from 'react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
 import { cn } from '~/utils/cn';
+import { useChatStore } from '~/store/useChatStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface ChatBodyProps {
   messages: Message[];
@@ -27,8 +29,27 @@ function MessagesLoader() {
 const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
-  const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<string | null>(null);
+  const knownMessageIdsRef = useRef<Set<string>>(new Set());
+
+  const { processingMessageId, showTypingIndicator } = useChatStore(
+    useShallow((state) => ({
+      processingMessageId: state.processingMessageId,
+      showTypingIndicator: state.showTypingIndicator,
+    }))
+  );
+
+  // Show AI typing indicator only after user message is confirmed
+  const isAiTyping = showTypingIndicator;
+
+  // Track which messages are new (for animation)
+  const newMessageIds = new Set<string>();
+  messages.forEach((msg) => {
+    if (!knownMessageIdsRef.current.has(msg.id)) {
+      newMessageIds.add(msg.id);
+      knownMessageIdsRef.current.add(msg.id);
+    }
+  });
 
   const [infiniteRef, { rootRef }] = useInfiniteScroll({
     loading: isLoading,
@@ -42,6 +63,12 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
     const scrollableRoot = scrollableRootRef.current;
     if (!scrollableRoot) return;
 
+    // Scroll to bottom when AI starts typing
+    if (isAiTyping) {
+      scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
+      return;
+    }
+
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.id !== lastMessageIdRef.current) {
       lastMessageIdRef.current = lastMessage?.id || null;
@@ -50,8 +77,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
       const lastScrollDistanceToBottom = lastScrollDistanceToBottomRef.current;
       scrollableRoot.scrollTop = scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
     }
-    prevMessagesLengthRef.current = messages.length;
-  }, [messages, rootRef]);
+  }, [messages, isAiTyping]);
 
   const rootRefSetter = useCallback(
     (node: HTMLDivElement) => {
@@ -87,16 +113,31 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
           </div>
         )}
 
-        {isLoadingMessages ? <MessagesLoader /> : messages.map((message, index) => {
-          const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
-          return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
-        })}
+        {isLoadingMessages ? (
+          <MessagesLoader />
+        ) : (
+          <>
+            {messages.map((message, index) => {
+              const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
+              return (
+                <ChatBubbleComponent
+                  key={message.id}
+                  message={message}
+                  isNextDay={isNextDay}
+                  isProcessing={message.id === processingMessageId}
+                  isNew={newMessageIds.has(message.id)}
+                />
+              );
+            })}
 
-        {/*{isShouldShowChatBubble && (*/}
-        {/*  <ChatBubble.Root>*/}
-        {/*    <ChatBubble.Message isLoading />*/}
-        {/*  </ChatBubble.Root>*/}
-        {/*)}*/}
+            {/* AI Typing Indicator */}
+            {isAiTyping && (
+              <ChatBubble.Root variant='received'>
+                <ChatBubble.Message isLoading />
+              </ChatBubble.Root>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -104,29 +145,29 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
 
 export default ChatBody;
 
-const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(({ message, isNextDay }) => {
-  const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
+const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean; isProcessing?: boolean; isNew?: boolean }>(
+  ({ message, isNextDay, isProcessing = false, isNew = false }) => {
+    const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
 
-  if (!message.content) return null;
+    if (!message.content) return null;
 
-  return (
-    <>
-      {/* divider between days */}
-      {isNextDay && <ChatDateDivider date={message.createdAt} />}
-      {/* chat bubble */}
-      <ChatBubble.Root variant={bubbleVariant}>
-        <ChatBubble.Message asChild>
-          <div>
-            <Link to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
-              <ChatBubble.Text>
-                {message.content}
-              </ChatBubble.Text>
-            </Link>
-          </div>
-        </ChatBubble.Message>
-      </ChatBubble.Root>
-    </>
-  );
-});
+    return (
+      <>
+        {/* divider between days */}
+        {isNextDay && <ChatDateDivider date={message.createdAt} />}
+        {/* chat bubble */}
+        <ChatBubble.Root variant={bubbleVariant} className={isNew && bubbleVariant === 'received' ? 'animate-fade-in' : ''}>
+          <ChatBubble.Message asChild isProcessing={isProcessing && bubbleVariant === 'sent'}>
+            <div>
+              <Link to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
+                <ChatBubble.Text>{message.content}</ChatBubble.Text>
+              </Link>
+            </div>
+          </ChatBubble.Message>
+        </ChatBubble.Root>
+      </>
+    );
+  }
+);
 
 ChatBubbleComponent.displayName = 'ChatBubbleComponent';

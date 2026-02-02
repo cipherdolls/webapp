@@ -21,11 +21,12 @@ interface ChatBottomBarProps {
 
 const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
   const { data: user } = useUser();
-  const { currentChatState, hasMicAccess, setTalkMode } = useChatStore(
+  const { currentChatState, hasMicAccess, setTalkMode, setProcessingMessageId } = useChatStore(
     useShallow((state) => ({
       currentChatState: state.currentChatState,
       hasMicAccess: state.hasMicAccess,
       setTalkMode: state.setTalkMode,
+      setProcessingMessageId: state.setProcessingMessageId,
     }))
   );
   const { isUsingBurnerWallet } = useAuthStore(
@@ -62,13 +63,23 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
 
     const formData = new FormData(e.currentTarget);
     unlockAudio();
+
+    // Generate temporary ID for processing indicator
+    const tempId = `temp-${Date.now()}`;
+    setProcessingMessageId(tempId);
+
     createMessage(
       { chatId: chat.id, formData },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           setNewMessage('');
+          // Update to real message ID if available
+          if (response?.id) {
+            setProcessingMessageId(response.id);
+          }
         },
         onError: () => {
+          setProcessingMessageId(null);
           alert({
             icon: '❌',
             title: 'Error',
@@ -90,7 +101,24 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
     }
 
     unlockAudio();
-    createMessage({ chatId: chat.id, formData });
+
+    // Generate temporary ID for processing indicator
+    const tempId = `temp-${Date.now()}`;
+    setProcessingMessageId(tempId);
+
+    createMessage(
+      { chatId: chat.id, formData },
+      {
+        onSuccess: (response) => {
+          if (response?.id) {
+            setProcessingMessageId(response.id);
+          }
+        },
+        onError: () => {
+          setProcessingMessageId(null);
+        },
+      }
+    );
   };
 
   const handleLiveTalk = () => {

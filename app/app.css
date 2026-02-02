@@ -139,6 +139,18 @@
       height: 0;
     }
   }
+
+  --animate-bubble-glow: bubble-glow 1.5s ease-in-out infinite;
+
+  @keyframes bubble-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 8px 2px rgba(219, 112, 147, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 24px 8px rgba(219, 112, 147, 0.6);
+    }
+  }
 }
 
 @layer base {
@@ -198,6 +210,25 @@
     radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
     linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
     linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%), #fff;
+}
+
+@utility animate-bubble-glow {
+  animation: var(--animate-bubble-glow);
+}
+
+@utility animate-fade-in {
+  animation: chat-fade-in 0.3s ease-out;
+}
+
+@keyframes chat-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @utility message-corner {

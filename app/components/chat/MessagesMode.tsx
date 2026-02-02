@@ -4,7 +4,7 @@ import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { apiUrl } from '~/constants';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -21,11 +21,14 @@ interface MessagesModeProps {
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   const { load, stop } = useAudioPlayerContext();
   const queryClient = useQueryClient();
-  const { silentMode, currentChatState, setCurrentChatState } = useChatStore(
+  const userMessageIdRef = useRef<string | null>(null);
+  const { silentMode, currentChatState, setCurrentChatState, setProcessingMessageId, setShowTypingIndicator } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
+      setProcessingMessageId: state.setProcessingMessageId,
+      setShowTypingIndicator: state.setShowTypingIndicator,
     }))
   );
 
@@ -44,6 +47,21 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
           case 'created':
             if (event.jobStatus === 'completed') {
               queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
+              // Handle processing state for typing indicator
+              const currentProcessingId = useChatStore.getState().processingMessageId;
+              if (currentProcessingId) {
+                // If this is the user message (first message after temp ID), save its ID and show typing
+                if (!userMessageIdRef.current || currentProcessingId.startsWith('temp-')) {
+                  userMessageIdRef.current = event.resourceId;
+                  // User message received - now show typing indicator for AI response
+                  setShowTypingIndicator(true);
+                } else if (event.resourceId !== userMessageIdRef.current) {
+                  // Different message ID = AI response - clear all processing state
+                  setProcessingMessageId(null);
+                  setShowTypingIndicator(false);
+                  userMessageIdRef.current = null;
+                }
+              }
             }
             break;
           case 'updated':
