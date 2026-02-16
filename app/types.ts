@@ -139,6 +139,7 @@ export interface TtsProvider {
   ttsVoices: TtsVoice[];
   hostname?: string;
   apiKey: string;
+  censored: boolean;
 }
 
 export interface TtsVoice {

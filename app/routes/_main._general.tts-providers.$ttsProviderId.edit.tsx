@@ -7,6 +7,7 @@ import * as Drawer from '~/components/ui/drawer';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
+import * as Checkbox from '@radix-ui/react-checkbox';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useTtsProvider } from '~/hooks/queries/ttsQueries';
@@ -23,6 +24,7 @@ export default function TtsProviderEdit({ params }: Route.ComponentProps) {
 
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(ttsProvider?.picture ?? null);
+  const [censored, setCensored] = useState(ttsProvider?.censored ?? false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
@@ -177,6 +179,22 @@ export default function TtsProviderEdit({ params }: Route.ComponentProps) {
                   defaultValue={ttsProvider.hostname}
                 />
               </Input.Root>
+              <div className='flex items-center gap-2'>
+                <Checkbox.Root
+                  className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
+                  id='censored'
+                  checked={censored}
+                  onCheckedChange={(checked) => setCensored(checked === true)}
+                >
+                  <Checkbox.Indicator>
+                    <Icons.check className='text-white size-4.5' />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <input type='hidden' name='censored' value={censored ? 'true' : 'false'} />
+                <label className='text-body-sm font-semibold text-neutral-01' htmlFor='censored'>
+                  Censored
+                </label>
+              </div>
             </Drawer.Body>
             <Drawer.Footer>
               <Dialog.Close asChild>
