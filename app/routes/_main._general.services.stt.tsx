@@ -24,7 +24,7 @@ function STTSkeleton({ count = 1 }: { count?: number }) {
         <div key={i} className='flex flex-col gap-4'>
           <div className='flex flex-col gap-3'>
             <div className='flex justify-between items-center mb-1'>
-              <div className='w-[174px] h-6 rounded-lg bg-neutral-04'/>
+              <div className='w-[174px] h-6 rounded-lg bg-neutral-04' />
             </div>
 
             <div className='rounded-xl h-[270px] md:h-[232px] bg-neutral-04 w-full animate-pulse'></div>
@@ -87,11 +87,7 @@ export default function SttProvidersIndex() {
             />
           </div>
           <span className='font-semibold text-body-md'>{data.name}</span>
-          {data.recommended && (
-            <>
-              <Icons.checkCircle className='text-black/[0.56]' /> <RecommendedBadge recommended={data.recommended} />
-            </>
-          )}
+          {data.recommended && <RecommendedBadge recommended={data.recommended} />}
         </div>
       ),
       align: 'left',

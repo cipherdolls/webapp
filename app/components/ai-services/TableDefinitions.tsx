@@ -2,8 +2,8 @@ import type { ChatModel, EmbeddingModel } from '~/types';
 import type { TTableColumn } from '~/components/Table';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
 import { formatModelName } from '~/utils/formatModelName';
-import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
 import { ViewButton } from '~/components/preferencesViewButton';
+import { UncensoredBadge } from '~/components/ui/UncensoredBadge';
 import { Icons } from '~/components/ui/icons';
 import Tooltip from '~/components/ui/tooltip';
 import { ROUTES } from '~/constants';
@@ -15,9 +15,7 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
         {formatModelName(data.providerModelName)}
-        {!data.error && (
-          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
-        )}
+        {!data.error && <UncensoredBadge censored={data.censored} />}
         {data.error && (
           <Tooltip
             side='top'
@@ -34,9 +32,9 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
   },
   {
     id: 'aiProviderId',
-    label: '',
+    label: 'Model Description',
     render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
-    align: 'left',
+    align: 'right',
   },
   {
     id: 'dollarPerInputToken',
@@ -79,9 +77,6 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
         {formatModelName(data.providerModelName)}
-        {!data.error && (
-          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
-        )}
         {data.error && (
           <Tooltip
             side='top'
@@ -98,9 +93,9 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
   },
   {
     id: 'aiProviderId',
-    label: '',
+    label: 'Model Description',
     render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
-    align: 'left',
+    align: 'right',
   },
   {
     id: 'dollarPerInputToken',
@@ -143,9 +138,7 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
         {formatModelName(data.providerModelName)}
-        {!data.error && (
-          <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
-        )}
+        {!data.error && <UncensoredBadge censored={data.censored} />}
         {data.error && (
           <Tooltip
             side='top'
@@ -162,9 +155,9 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
   },
   {
     id: 'aiProviderId',
-    label: '',
+    label: 'Model Description',
     render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
-    align: 'left',
+    align: 'right',
   },
   {
     id: 'dollarPerInputToken',

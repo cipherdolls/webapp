@@ -31,6 +31,8 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
 
   useEffect(() => {
     if (chatModel) {
+      setRecommended(chatModel.recommended);
+      setCensored(chatModel.censored);
       setInputTokenPrice(String(scientificNumConvert(chatModel.dollarPerInputToken)));
       setOutputTokenPrice(String(scientificNumConvert(chatModel.dollarPerOutputToken)));
     }
