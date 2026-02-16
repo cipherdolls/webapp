@@ -202,6 +202,7 @@ export interface Chat {
     messages: number;
     chatCompletionJobs: number;
   };
+  tts: boolean;
   sttProvider?: SttProvider;
   sttProviderId: string;
   avatar: Avatar;

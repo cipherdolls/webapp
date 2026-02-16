@@ -8,7 +8,8 @@ import { motion } from 'framer-motion';
 import ChatEventsPanel from './ChatEventsPanel';
 import SystemPromptModal from '../SystemPromptModal';
 import { useState } from 'react';
-import { Info } from 'lucide-react';
+import { Info, Volume2, VolumeOff } from 'lucide-react';
+import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { Tooltip } from '../ui/tooltip';
 import { useChatSystemPrompt } from '~/hooks/queries/chatQueries';
 
@@ -22,6 +23,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
   const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState(false);
   const { data: systemPromptData, isLoading: isLoadingSystemPrompt } = useChatSystemPrompt(chat.id);
 
+  const { mutate: updateChat } = useUpdateChat();
   const isAdmin = user?.role === 'ADMIN';
 
   const systemPrompt = systemPromptData?.systemPrompt ?? chat.scenario.systemMessage;
@@ -62,6 +64,19 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
             side='left'
           />
         )}
+        <Tooltip
+          trigger={
+            <button
+              onClick={() => updateChat({ chatId: chat.id, data: { tts: !chat.tts, avatarId: chat.avatar.id, scenarioId: chat.scenario.id } })}
+              className='text-base-black shrink-0 hover:opacity-60 transition-opacity flex items-center'
+              aria-label={chat.tts ? 'Disable TTS' : 'Enable TTS'}
+            >
+              {chat.tts ? <Volume2 size={23} /> : <VolumeOff size={23} />}
+            </button>
+          }
+          content={chat.tts ? 'Disable TTS' : 'Enable TTS'}
+          side='left'
+        />
         <motion.div whileHover={{ transform: 'rotate(35deg)', opacity: 0.6 }} transition={{ duration: 0.25 }}>
           <Link to={`${ROUTES.chats}/${chat.id}/edit`} className=' text-base-black shrink-0'>
             <Icons.gear />
