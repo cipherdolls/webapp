@@ -7,6 +7,11 @@ export interface meta {
   totalPages: number;
 }
 
+export interface Paginated<T> {
+  data: T[];
+  meta: meta;
+}
+
 export interface CursorMeta {
   nextCursor?: string;
   hasMore: boolean;

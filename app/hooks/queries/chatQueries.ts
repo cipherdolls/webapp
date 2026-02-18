@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Chat } from '~/types';
+import type { Chat, Paginated } from '~/types';
 import { fetchResource } from './utils/fetchResource';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 
@@ -15,7 +15,10 @@ export function useChat(chatId: string) {
 export function useChats() {
   return useQuery({
     queryKey: ['chats'],
-    queryFn: () => fetchResource<Chat[]>(`chats`),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<Chat>>(`chats`);
+      return response.data;
+    },
   });
 }
 

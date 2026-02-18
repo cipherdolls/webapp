@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { TtsProvider, TtsVoice } from '~/types';
+import type { TtsProvider, TtsVoice, Paginated } from '~/types';
 import { fetchResource } from './utils/fetchResource';
   
 // TTS Voice queries
@@ -14,7 +14,10 @@ export function useTtsVoice(ttsVoiceId: string) {
 export function useTtsVoices() {
   return useQuery({
     queryKey: ['ttsVoices'],
-    queryFn: () => fetchResource<TtsVoice[]>(`tts-voices`),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<TtsVoice>>(`tts-voices`);
+      return response.data;
+    },
   });
 }
 
@@ -30,6 +33,9 @@ export function useTtsProvider(ttsProviderId: string) {
 export function useTtsProviders() {
   return useQuery({
     queryKey: ['ttsProviders'],
-    queryFn: () => fetchResource<TtsProvider[]>(`tts-providers`),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<TtsProvider>>(`tts-providers`);
+      return response.data;
+    },
   });
 }

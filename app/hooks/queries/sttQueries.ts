@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { SttProvider } from '~/types';
+import type { SttProvider, Paginated } from '~/types';
 import { fetchResource } from './utils/fetchResource';
 
 
@@ -14,6 +14,9 @@ export function useSttProvider(sttProviderId: string) {
 export function useSttProviders() {
   return useQuery({
     queryKey: ['sttProviders'],
-    queryFn: () => fetchResource<SttProvider[]>(`stt-providers`),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<SttProvider>>(`stt-providers`);
+      return response.data;
+    },
   });
 }

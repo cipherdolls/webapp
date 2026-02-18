@@ -112,8 +112,8 @@ export async function loader() {
     avatars,
     scenarios: scenariosWithoutErrors,
     aiProviders: aiProvidersData.data || [],
-    ttsProviders: ttsProviders || [],
-    sttProviders: sttProviders || [],
+    ttsProviders: ttsProviders?.data || [],
+    sttProviders: sttProviders?.data || [],
   };
 }
 
