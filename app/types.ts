@@ -147,6 +147,8 @@ export interface TtsProvider {
   censored: boolean;
 }
 
+export type TtsLanguage = 'en' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ru' | 'ja' | 'zh' | 'ko' | 'multilingual';
+
 export interface TtsVoice {
   id: string;
   name: string;
@@ -156,6 +158,7 @@ export interface TtsVoice {
   ttsProviderId: string;
   createdAt: Date;
   gender: Gender;
+  language?: TtsLanguage;
 }
 
 export interface ScenariosPaginated {

@@ -12,15 +12,23 @@ import { ROUTES } from '~/constants';
 import * as Select from '~/components/ui/input/select';
 import { useState } from 'react';
 
-const genreOptions = [
-  {
-    value: 'Male',
-    label: 'Male',
-  },
-  {
-    value: 'Female',
-    label: 'Female',
-  },
+const genderOptions = [
+  { value: 'Male', label: 'Male' },
+  { value: 'Female', label: 'Female' },
+];
+
+const languageOptions = [
+  { value: 'en', label: '🇬🇧 English' },
+  { value: 'de', label: '🇩🇪 German' },
+  { value: 'fr', label: '🇫🇷 French' },
+  { value: 'es', label: '🇪🇸 Spanish' },
+  { value: 'it', label: '🇮🇹 Italian' },
+  { value: 'pt', label: '🇵🇹 Portuguese' },
+  { value: 'ru', label: '🇷🇺 Russian' },
+  { value: 'ja', label: '🇯🇵 Japanese' },
+  { value: 'zh', label: '🇨🇳 Chinese' },
+  { value: 'ko', label: '🇰🇷 Korean' },
+  { value: 'multilingual', label: '🌐 Multilingual' },
 ];
 
 export function meta({}: Route.MetaArgs) {
@@ -33,7 +41,8 @@ export default function NewTtsVoice({ params }: Route.ComponentProps) {
   const { mutate: createTtsVoice, isPending: isCreatingTtsVoice, error: errorCreateTtsVoice } = useCreateTtsVoice();
   const providerName = ttsProvider?.name || '';
   const navigate = useNavigate();
-  const [gender, setGender] = useState<string>('All');
+  const [gender, setGender] = useState<string>('Male');
+  const [language, setLanguage] = useState<string>('multilingual');
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/tts`, { replace: true });
@@ -99,13 +108,32 @@ export default function NewTtsVoice({ params }: Route.ComponentProps) {
                 <Select.Value placeholder='Gender' />
               </Select.Trigger>
               <Select.Content className='z-[1000001]'>
-                {genreOptions.map((item) => (
+                {genderOptions.map((item) => (
                   <Select.Item key={item.value} value={item.value}>
                     {item.label}
                   </Select.Item>
                 ))}
               </Select.Content>
               <input type='hidden' name='gender' value={gender} />
+            </Select.Root>
+            <Select.Root
+              onValueChange={(value) => {
+                setLanguage(value);
+              }}
+              defaultValue={language}
+            >
+              <Select.Label>Language</Select.Label>
+              <Select.Trigger className='border-neutral-04 outline-neutral-04 outline py-3.5 -mt-2'>
+                <Select.Value placeholder='Language' />
+              </Select.Trigger>
+              <Select.Content className='z-[1000001]'>
+                {languageOptions.map((item) => (
+                  <Select.Item key={item.value} value={item.value}>
+                    {item.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+              <input type='hidden' name='language' value={language} />
             </Select.Root>
             <div className='flex items-center gap-2'>
               <Checkbox.Root

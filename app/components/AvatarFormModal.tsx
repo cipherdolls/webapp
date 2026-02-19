@@ -10,7 +10,7 @@ import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
-import type { Avatar, Gender, Scenario, TtsVoice } from '~/types';
+import type { Avatar, Gender, Scenario, TtsLanguage, TtsVoice } from '~/types';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
@@ -48,6 +48,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVoiceListExpanded, setIsVoiceListExpanded] = useState(false);
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<'All' | Gender>('All');
+  const [voiceLanguageFilter, setVoiceLanguageFilter] = useState<'All' | TtsLanguage>('All');
   const isNew = !avatar;
 
   // Set default voice when voices are loaded
@@ -65,10 +66,18 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     updateAvatarData('ttsVoice', voice);
   };
 
+  const availableLanguages = useMemo(() => {
+    const langs = new Set(voices.map((v) => v.language).filter(Boolean));
+    return Array.from(langs) as TtsLanguage[];
+  }, [voices]);
+
   const filteredVoices = useMemo(() => {
-    if (voiceGenderFilter === 'All') return voices;
-    return voices.filter((voice) => voice.gender === voiceGenderFilter);
-  }, [voices, voiceGenderFilter]);
+    return voices.filter((voice) => {
+      if (voiceGenderFilter !== 'All' && voice.gender !== voiceGenderFilter) return false;
+      if (voiceLanguageFilter !== 'All' && voice.language !== voiceLanguageFilter) return false;
+      return true;
+    });
+  }, [voices, voiceGenderFilter, voiceLanguageFilter]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -373,6 +382,24 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                         >
                           🧔🏻‍♂️
                         </button>
+                        {availableLanguages.length > 1 && (
+                          <>
+                            <div className='w-px h-4 bg-neutral-03' />
+                            {availableLanguages.map((lang) => (
+                              <button
+                                key={lang}
+                                type='button'
+                                className={cn(
+                                  'px-2 py-1.5 text-xs font-semibold rounded-md transition-colors',
+                                  voiceLanguageFilter === lang ? 'bg-white text-base-black' : 'text-neutral-01'
+                                )}
+                                onClick={() => setVoiceLanguageFilter(voiceLanguageFilter === lang ? 'All' : lang)}
+                              >
+                                {lang === 'multilingual' ? 'Multi' : lang.toUpperCase()}
+                              </button>
+                            ))}
+                          </>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>

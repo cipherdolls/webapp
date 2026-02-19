@@ -14,10 +14,23 @@ import { useDeleteTtsProvider, useDeleteTtsVoice } from '~/hooks/queries/ttsMuta
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { useMediaQuery } from 'usehooks-ts';
-import { cn } from '~/utils/cn';
+
 
 type GenderFilter = 'all' | 'Female' | 'Male';
+
+const languageFlags: Record<string, string> = {
+  en: '🇬🇧',
+  de: '🇩🇪',
+  fr: '🇫🇷',
+  es: '🇪🇸',
+  it: '🇮🇹',
+  pt: '🇵🇹',
+  ru: '🇷🇺',
+  ja: '🇯🇵',
+  zh: '🇨🇳',
+  ko: '🇰🇷',
+  multilingual: '🌐',
+};
 
 function TTSSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -52,8 +65,6 @@ export default function TtsProvidersIndex() {
   const { mutate: deleteTtsProvider } = useDeleteTtsProvider();
   const { mutate: deleteTtsVoice } = useDeleteTtsVoice();
   const [genderFilter, setGenderFilter] = useState<GenderFilter>('all');
-
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   if (isLoading) {
     return (
@@ -191,19 +202,10 @@ export default function TtsProvidersIndex() {
 
                 <DataCard.Wrapper>
                   {enhancedTtsVoices.length > 0 ? (
-                    <div className='relative grid gap-y-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 p-2 -mb-2'>
+                    <div className='flex flex-col p-2'>
                       {filteredVoices.map((voice, i) => (
-                        <div
-                          className={cn(
-                            'border-b border-neutral-04 pb-2 last:border-b-0 last:pb-0 lg:pb-0 lg:border-b-0',
-                            i >= (filteredVoices.length % 2 === 0 ? filteredVoices.length - 2 : filteredVoices.length - 1) &&
-                              'sm:border-b-0'
-                          )}
-                        >
-                          <div
-                            key={voice.id}
-                            className='group flex items-center justify-between gap-3 p-3 transition-colors duration-300 cursor-pointer  rounded-lg hover:bg-neutral-05'
-                          >
+                        <div key={voice.id}>
+                          <div className='group flex items-center justify-between gap-3 p-3 transition-colors duration-300 cursor-pointer rounded-lg hover:bg-neutral-05'>
                             <div className='flex items-center gap-3 flex-1 min-w-0'>
                               <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(voice.id)} />
                               <span className='font-semibold text-body-md flex items-center gap-2 truncate'>
@@ -217,6 +219,11 @@ export default function TtsProvidersIndex() {
                                     🧔🏻‍♂️
                                   </div>
                                 ) : null}
+                                {voice.language && (
+                                  <div className='flex items-center gap-1 bg-neutral-05 py-1 pl-1 pr-1.5 rounded-full text-label font-semibold flex-shrink-0'>
+                                    {languageFlags[voice.language] ?? voice.language}
+                                  </div>
+                                )}
                                 <RecommendedBadge recommended={voice.recommended} tooltipText='Recommended' />
                               </span>
                             </div>
@@ -232,11 +239,9 @@ export default function TtsProvidersIndex() {
                               isDataCard={true}
                             />
                           </div>
-
-                          {isDesktop && <div className='w-full h-px bg-neutral-04 mt-2' />}
+                          {i < filteredVoices.length - 1 && <div className='w-full h-px bg-neutral-04' />}
                         </div>
                       ))}
-                      <div className='absolute bottom-0 w-full h-3 bg-white z-50' />
                     </div>
                   ) : (
                     <DataCard.Text>No TTS Voices found</DataCard.Text>
