@@ -235,7 +235,7 @@ export default function TtsProvidersIndex() {
                                 },
                                 { text: 'Delete', onClick: () => handleDeleteTtsVoice(voice), isDelete: true },
                               ]}
-                              className='flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition duration-300 border border-transparent hover:bg-white hover:border-neutral-04 rounded-full'
+                              className='flex items-center justify-center flex-shrink-0'
                               isDataCard={true}
                             />
                           </div>
