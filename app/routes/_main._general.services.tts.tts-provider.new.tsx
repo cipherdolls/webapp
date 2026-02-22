@@ -134,18 +134,6 @@ export default function TtsProviderNew() {
               />
             </Input.Root>
             <Input.Root>
-              <Input.Label id='apiKey' htmlFor='apiKey'>
-                API Key
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='apiKey'
-                name='apiKey'
-                type='text'
-                placeholder='API Key'
-              />
-            </Input.Root>
-            <Input.Root>
               <Input.Label id='dollarPerCharacter' htmlFor='dollarPerCharacter'>
                 Dollar per character
               </Input.Label>
@@ -156,18 +144,6 @@ export default function TtsProviderNew() {
                 type='number'
                 step='0.0000001'
                 placeholder='0'
-              />
-            </Input.Root>
-            <Input.Root>
-              <Input.Label id='hostname' htmlFor='hostname'>
-                Hostname
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='hostname'
-                name='hostname'
-                type='text'
-                placeholder='Hostname'
               />
             </Input.Root>
             <div className='flex items-center gap-2'>
