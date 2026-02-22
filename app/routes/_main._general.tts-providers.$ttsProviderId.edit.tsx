@@ -142,19 +142,6 @@ export default function TtsProviderEdit({ params }: Route.ComponentProps) {
                 />
               </Input.Root>
               <Input.Root>
-                <Input.Label id='apiKey' htmlFor='apiKey'>
-                  API Key
-                </Input.Label>
-                <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='apiKey'
-                  name='apiKey'
-                  type='text'
-                  placeholder='Enter new API key if you want to change it'
-                />
-                <input type='hidden' name='originalApiKey' value={ttsProvider.apiKey} />
-              </Input.Root>
-              <Input.Root>
                 <Input.Label id='dollarPerCharacter' htmlFor='dollarPerCharacter'>
                   Dollar per character
                 </Input.Label>
@@ -165,18 +152,6 @@ export default function TtsProviderEdit({ params }: Route.ComponentProps) {
                   type='number'
                   step='0.0000001'
                   defaultValue={ttsProvider.dollarPerCharacter}
-                />
-              </Input.Root>
-              <Input.Root>
-                <Input.Label id='hostname' htmlFor='hostname'>
-                  Hostname
-                </Input.Label>
-                <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='hostname'
-                  name='hostname'
-                  type='text'
-                  defaultValue={ttsProvider.hostname}
                 />
               </Input.Root>
               <div className='flex items-center gap-2'>
