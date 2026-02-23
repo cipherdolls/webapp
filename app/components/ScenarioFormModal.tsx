@@ -430,6 +430,19 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 <p className='text-xs text-gray-500'>Enter the name for this scenario.</p>
               </Input.Root>
 
+              <Input.Root>
+                <Input.Label htmlFor='greeting'>Greeting</Input.Label>
+                <Textarea.Textarea
+                  id='greeting'
+                  name='greeting'
+                  className='w-full border border-neutral-04 py-3.5 px-3 text-base-black'
+                  placeholder='Enter a greeting message to start the chat'
+                  defaultValue={scenario?.greeting}
+                  rows={3}
+                />
+                <p className='text-xs text-gray-500'>This message will be used to start the chat.</p>
+              </Input.Root>
+
               {!isExpanded && (
                 <Input.Root>
                   <div className='flex items-center justify-between gap-3'>

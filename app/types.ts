@@ -185,6 +185,7 @@ export interface Scenario {
   avatars?: Avatar[];
   recommended: boolean;
   introduction?: string;
+  greeting?: string;
   published: boolean;
   userGender?: Gender;
   avatarGender?: Gender;
