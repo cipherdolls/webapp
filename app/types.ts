@@ -190,6 +190,7 @@ export interface Scenario {
   userGender?: Gender;
   avatarGender?: Gender;
   nsfw?: boolean;
+  type?: ScenarioType;
   sponsorships?: Sponsorship[];
 }
 
@@ -366,6 +367,8 @@ export interface PaymentJob {
   weiCost: string;
   timeTakenMs: number;
 }
+
+export type ScenarioType = 'NORMAL' | 'ROLEPLAY';
 
 export type Gender = 'Female' | 'Male' | 'Other';
 
