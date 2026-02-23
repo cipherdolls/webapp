@@ -59,7 +59,7 @@
     "@react-router/dev": "^7.2.0",
     "@tailwindcss/vite": "^4.0.0",
     "@tanstack/react-query-devtools": "^5.84.0",
-    "@types/node": "^20",
+    "@types/node": "^25",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
