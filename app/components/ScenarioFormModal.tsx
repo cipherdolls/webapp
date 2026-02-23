@@ -1,6 +1,6 @@
 import { useRouteLoaderData } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import type { Avatar, Gender, Scenario, User } from '~/types';
+import type { Avatar, Gender, Scenario, ScenarioType, User } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
@@ -92,6 +92,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
     picture: scenario?.picture ?? null,
     published: scenario?.published ?? false,
     nsfw: scenario?.nsfw ?? false,
+    type: scenario?.type ?? ('NORMAL' as ScenarioType),
     userGender: scenario?.userGender ?? defaultScenarioData.userGender,
     avatarGender: scenario?.avatarGender ?? defaultScenarioData.avatarGender,
     temperature: scenario?.temperature ?? defaultScenarioData.temperature,
@@ -520,33 +521,35 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </Input.Root>
               </div>
 
-              {/* <Input.Root>
-                <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>
+              <Input.Root>
+                <Input.Label htmlFor='type'>Scenario Type</Input.Label>
                 <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
                   <button
                     type='button'
                     className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioType === 'Long' ? 'bg-white' : 'bg-transparent'
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      scenarioData.type === 'NORMAL' && 'bg-white'
                     )}
-                    onClick={() => setScenarioType('Long')}
+                    onClick={() => updateScenarioData('type', 'NORMAL')}
                   >
-                    Long
+                    Normal
                   </button>
                   <button
                     type='button'
                     className={cn(
                       'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioType === 'Short' ? 'bg-white' : 'bg-transparent'
+                      scenarioData.type === 'ROLEPLAY' && 'bg-white'
                     )}
-                    onClick={() => setScenarioType('Short')}
+                    onClick={() => updateScenarioData('type', 'ROLEPLAY')}
                   >
-                    Short
+                    Roleplay
                   </button>
                 </div>
-                <input type='hidden' name='scenarioType' value={scenarioType} />
-                <p className='text-xs text-gray-500'>Select type for new scenario.</p>
-              </Input.Root> */}
+                <input type='hidden' name='type' value={scenarioData.type} />
+                <p className='text-xs text-gray-500'>
+                  Roleplay mode uses a simplified setup without reasoning and embeddings.
+                </p>
+              </Input.Root>
 
               <Input.Root>
                 <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
