@@ -1,7 +1,10 @@
-import { Link } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import type { Route } from './+types/_main._general.doll-bodies._index';
 import { useDollBodies } from '~/hooks/queries/dollQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 import { getPicture } from '~/utils/getPicture';
+import { Icons } from '~/components/ui/icons';
+import * as Button from '~/components/ui/button/button';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
@@ -23,11 +26,21 @@ function DollBodiesSkeleton() {
 
 export default function DollBodies() {
   const { data: dollBodies = [], isLoading, isError } = useDollBodies();
+  const { data: user } = useUser();
+  const isAdmin = user?.role === 'ADMIN';
 
   return (
     <div className='w-full'>
       <div className='flex items-center justify-between sm:mt-8 mb-4'>
         <h2 className='text-2xl font-semibold'>Doll Bodies</h2>
+        {isAdmin && (
+          <NavLink to={ROUTES.dollBodiesNew}>
+            <Button.Root className='px-3.5 sm:px-5 sm:h-12 h-10'>
+              <Button.Icon as={Icons.add} />
+              Add Doll Body
+            </Button.Root>
+          </NavLink>
+        )}
       </div>
 
       {isLoading ? (
@@ -43,7 +56,11 @@ export default function DollBodies() {
       ) : (
         <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
           {dollBodies.map((dollBody) => (
-            <Link key={dollBody.id} to={`${ROUTES.dollBodies}/${dollBody.id}`} className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden hover:shadow-bottom-level-2 transition-shadow'>
+            <Link
+              key={dollBody.id}
+              to={`${ROUTES.dollBodies}/${dollBody.id}`}
+              className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden hover:shadow-bottom-level-2 transition-shadow'
+            >
               <div className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'>
                 <img
                   src={getPicture(dollBody, 'doll-bodies', false)}
@@ -60,6 +77,8 @@ export default function DollBodies() {
           ))}
         </div>
       )}
+
+      <Outlet />
     </div>
   );
 }
