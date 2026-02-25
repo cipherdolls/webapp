@@ -30,12 +30,12 @@ const SidebarItems = [
     icon: ({ className }: { className?: string }) => <BookOpenText className={cn('text-[#350D2A]/40', className)} size={20} />,
     hideOnMobile: true,
   },
-  // {
-  //   name: 'Hardware',
-  //   href: ROUTES.hardware,
-  //   icon: Icons.gear,
-  //   hideOnMobile: true,
-  // },
+  {
+    name: 'Doll Bodies',
+    href: ROUTES.dollBodies,
+    icon: Icons.gear,
+    hideOnMobile: true,
+  },
   {
     name: 'Menu',
     href: null, // This will be handled as button, not link

@@ -50,11 +50,11 @@ const YourDolls = () => {
         {hasDolls ? (
           <>
             <div className='flex items-center justify-center py-4'>
-              <Link to={ROUTES.hardware} className='group'>
+              <Link to={ROUTES.dollBodies} className='group'>
                 <div className='flex items-center justify-center gap-2'>
                   <Icons.search className='group-hover:text-base-black/50 transition-colors' />
                   <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                    Browse Hardware
+                    Browse Doll Bodies
                   </span>
                 </div>
               </Link>
@@ -68,7 +68,7 @@ const YourDolls = () => {
             >
               {dolls.map((doll, index) => (
                 <div className='pt-2' key={index}>
-                  <DashboardCard item={{ ...doll, name: doll.name || 'Unnamed Doll' }} type='dolls' to={`${ROUTES.hardware}`}>
+                  <DashboardCard item={{ ...doll, name: doll.name || 'Unnamed Doll' }} type='dolls' to={`${ROUTES.dollBodies}`}>
                     <div className='flex flex-col gap-1 min-w-0 flex-1'>
                       <h4 className='text-body-sm font-semibold text-base-black truncate'>{doll.name || 'Unnamed Doll'}</h4>
                       <p className='truncate text-body-sm font-semibold text-neutral-01'>{doll.macAddress}</p>
@@ -91,10 +91,10 @@ const YourDolls = () => {
             <div className='flex flex-col items-center sm:gap-2 gap-1'>
               <h4 className='sm:text-heading-h4 text-body-lg text-base-black sm:text-center'>You Have No Dolls Yet</h4>
               <Link
-                to={ROUTES.hardware}
+                to={ROUTES.dollBodies}
                 className='text-body-md text-neutral-01 sm:text-center text-left underline decoration-neutral-01 underline-offset-2 hover:text-neutral-02 hover:decoration-neutral-02 transition-colors'
               >
-                Browse hardware
+                Browse doll bodies
               </Link>
             </div>
           </div>
