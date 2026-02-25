@@ -5,6 +5,7 @@ import type { Route } from './+types/_main._general.account';
 import YourAvatars from '~/components/yourAvatars';
 import YourChats from '~/components/your-chats';
 import YourScenarios from '~/components/your-scenarios';
+import YourDolls from '~/components/your-dolls';
 import TokenBalance from '~/components/TokenBalance';
 import TokenPermitsList from '~/components/TokenPermitsList';
 import { useNetworkCheck } from '~/hooks/useNetworkCheck';
@@ -66,6 +67,7 @@ export default function Account() {
           <YourChats />
           <YourAvatars />
           <YourScenarios />
+          <YourDolls />
         </div>
         <div className='flex flex-col gap-5 lg:sticky lg:top-4 lg:self-start'>
           <YourWallet disabled={isUsingBurnerWallet} />

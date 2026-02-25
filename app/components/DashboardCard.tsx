@@ -6,7 +6,7 @@ interface DashboardCardProps {
     id: string;
     name: string;
   };
-  type: 'avatars' | 'scenarios';
+  type: 'avatars' | 'scenarios' | 'dolls';
   to: string;
   imageHeight?: string;
   children?: React.ReactNode;

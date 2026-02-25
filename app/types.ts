@@ -346,6 +346,7 @@ export interface Doll {
   createdAt: Date;
   updatedAt: Date;
   name: string;
+  online: boolean;
   rssi: number;
   deepSleepCountdown: number;
   macAddress: string;
