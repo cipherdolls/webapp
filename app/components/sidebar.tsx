@@ -33,7 +33,7 @@ const SidebarItems = [
   {
     name: 'Doll Bodies',
     href: ROUTES.dollBodies,
-    icon: Icons.gear,
+    icon: Icons.chip,
     hideOnMobile: true,
   },
   {

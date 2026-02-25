@@ -680,6 +680,20 @@ export const Icons = {
       <line x1='15' x2='15.01' y1='9' y2='9' />
     </svg>
   ),
+  chip: (props: IconProps) => (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
+      <rect x='5' y='5' width='14' height='14' rx='2' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+      <rect x='9' y='9' width='6' height='6' rx='1' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+      <path d='M9 1V5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M15 1V5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M9 19V23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M15 19V23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M1 9H5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M1 15H5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M19 9H23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M19 15H23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+    </svg>
+  ),
   star: (props: IconProps) => (
     <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
       <path
