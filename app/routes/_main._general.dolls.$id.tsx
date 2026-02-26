@@ -5,10 +5,12 @@ import type { ProcessEvent } from '~/types';
 import type { Route } from './+types/_main._general.dolls.$id';
 import { useDoll } from '~/hooks/queries/dollQueries';
 import { useDeleteDoll } from '~/hooks/queries/dollMutations';
+import { useChat } from '~/hooks/queries/chatQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useDollEvents } from '~/hooks/useDollEvents';
 import { useMqttSubscription } from '~/hooks/useMqttSubscription';
 import { getPicture } from '~/utils/getPicture';
+import AvatarPicture from '~/components/AvatarPicture';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
 import { ROUTES } from '~/constants';
@@ -32,6 +34,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function DollShow({ params }: Route.ComponentProps) {
   const { data: doll, isLoading, error } = useDoll(params.id);
+  const { data: chat } = useChat(doll?.chatId || '');
   const { data: user } = useUser();
   const { mutate: deleteDoll } = useDeleteDoll();
   const navigate = useNavigate();
@@ -190,22 +193,27 @@ export default function DollShow({ params }: Route.ComponentProps) {
               </div>
             )}
 
-            {doll.chat && (
+            {chat && (
               <div className='bg-gradient-1 rounded-xl p-5'>
                 <h4 className='text-heading-h4 text-base-black mb-3'>Chat</h4>
-                <Link to={`${ROUTES.chats}/${doll.chat.id}`} className='flex items-center gap-4 hover:opacity-80 transition-opacity'>
-                  {doll.chat.avatar && (
-                    <div className='size-12 rounded-lg overflow-hidden bg-neutral-04'>
-                      <img
-                        src={getPicture(doll.chat.avatar, 'avatars', false)}
-                        srcSet={getPicture(doll.chat.avatar, 'avatars', true)}
-                        alt={doll.chat.avatar.name}
-                        className='size-full object-cover'
-                      />
+                <div className='bg-base-white rounded-xl overflow-hidden'>
+                  <div className='flex items-center gap-3 p-3'>
+                    {chat.avatar && <AvatarPicture avatar={chat.avatar} className='size-8' />}
+                    <div className='flex-1 overflow-hidden'>
+                      <span className='text-body-sm font-semibold text-base-black truncate block'>{chat.avatar?.name || 'Chat'}</span>
                     </div>
-                  )}
-                  <span className='text-body-lg font-semibold text-base-black'>{doll.chat.avatar?.name || 'Chat'}</span>
-                </Link>
+                    {chat._count?.messages > 0 && (
+                      <span className='text-xs text-neutral-01 bg-neutral-04 px-2 py-1 rounded-full'>{chat._count.messages} msgs</span>
+                    )}
+                  </div>
+                  <Link
+                    to={`${ROUTES.chats}/${chat.id}`}
+                    className='block rounded-lg p-3 mx-3 mb-3 hover:bg-neutral-05 transition-colors'
+                  >
+                    <span className='text-body-sm font-medium truncate block'>{chat.scenario?.name || 'Scenario'}</span>
+                    <span className='text-xs text-neutral-01 mt-1 block'>{new Date(chat.updatedAt).toLocaleString()}</span>
+                  </Link>
+                </div>
               </div>
             )}
           </div>

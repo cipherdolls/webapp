@@ -20,6 +20,9 @@ import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
 import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
+import { useDolls } from '~/hooks/queries/dollQueries';
+import { fetchWithAuth } from '~/utils/fetchWithAuth';
+import * as Select from '~/components/ui/input/select';
 import { ANIMATE_MODAL_SHOW_RIGHT, ROUTES } from '~/constants';
 import { motion } from 'framer-motion';
 
@@ -32,6 +35,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
   const { data: aiProviders } = useAiProviders();
   const { data: sttProviders, isLoading } = useSttProviders();
   const { data: chatData, refetch } = useChat(params.chatId);
+  const { data: dolls } = useDolls();
   const chat = chatData;
 
   const me = useRouteLoaderData('routes/_main') as User;
@@ -65,6 +69,32 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
         scenarioId: chat.scenario.id,
       },
     });
+  };
+
+  const handleDollChange = async (newValue: string) => {
+    const previousDollId = chat.doll?.id;
+    const newDollId = newValue === 'none' ? null : newValue;
+    if (previousDollId === newDollId) return;
+
+    try {
+      if (previousDollId) {
+        await fetchWithAuth(`dolls/${previousDollId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId: null }),
+        });
+      }
+      if (newDollId) {
+        await fetchWithAuth(`dolls/${newDollId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId: chat.id }),
+        });
+      }
+      refetch();
+    } catch (error) {
+      console.error('Failed to update doll:', error);
+    }
   };
 
   const handleDeleteChat = async () => {
@@ -362,33 +392,27 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                 </Card.Main>
               </Card.Root>
 
-            {/* TODO: FINISH DOLL CARD WHEN DOLLS WILL BE IMPLEMENTED */}
             {/* Doll */}
-            {/*<Card.Root className='sm:h-auto'>*/}
-            {/*  <div className='flex items-center justify-between'>*/}
-            {/*    <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>*/}
-            {/*  </div>*/}
-            {/*  <Card.Main>*/}
-            {/*    <div className={cn('flex flex-row items-center gap-6 p-6 rounded-xl')}>*/}
-            {/*      <div className='text-4xl'>🤷‍♀️</div>*/}
-            {/*      <div className='flex flex-col flex-start gap-1 text-left'>*/}
-            {/*        <p className='text-body-lg font-semibold text-base-black'>You Have No Dolls Yet</p>*/}
-            {/*        <button*/}
-            {/*          className='text-body-md text-neutral-01 text-left underline'*/}
-            {/*          onClick={() =>*/}
-            {/*            alert({*/}
-            {/*              icon: '👩 📱',*/}
-            {/*              title: 'How to Add a Doll',*/}
-            {/*              body: 'To add a doll, you need to create an avatar first. Then, you can add a doll to your chat by selecting the avatar from the avatar list.',*/}
-            {/*            })*/}
-            {/*          }*/}
-            {/*        >*/}
-            {/*          How to Add a Doll*/}
-            {/*        </button>*/}
-            {/*      </div>*/}
-            {/*    </div>*/}
-            {/*  </Card.Main>*/}
-            {/*</Card.Root>*/}
+            <Card.Root className='sm:h-auto'>
+              <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>
+              <Card.Main>
+                <div className='p-4'>
+                  <Select.Root value={chat.doll?.id || 'none'} onValueChange={handleDollChange}>
+                    <Select.Trigger>
+                      <Select.Value placeholder='Select a doll' />
+                    </Select.Trigger>
+                    <Select.Content className='max-h-[250px] overflow-y-auto'>
+                      <Select.Item value='none'>None</Select.Item>
+                      {dolls?.map((doll) => (
+                        <Select.Item key={doll.id} value={doll.id}>
+                          {doll.name || doll.macAddress}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+              </Card.Main>
+            </Card.Root>
 
               <div className='pt-10 mt-auto'>
                 <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
