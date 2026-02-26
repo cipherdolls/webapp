@@ -68,7 +68,7 @@ const YourDolls = () => {
             >
               {dolls.map((doll, index) => (
                 <div className='pt-2' key={index}>
-                  <DashboardCard item={{ ...doll, name: doll.name || 'Unnamed Doll' }} type='dolls' to={`${ROUTES.dollBodies}`}>
+                  <DashboardCard item={{ ...doll, name: doll.name || 'Unnamed Doll' }} type='dolls' to={`${ROUTES.dolls}/${doll.id}`}>
                     <div className='flex flex-col gap-1 min-w-0 flex-1'>
                       <h4 className='text-body-sm font-semibold text-base-black truncate'>{doll.name || 'Unnamed Doll'}</h4>
                       <p className='truncate text-body-sm font-semibold text-neutral-01'>{doll.macAddress}</p>

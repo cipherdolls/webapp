@@ -34,6 +34,7 @@ export const ROUTES = {
   scenarios: '/scenarios',
   ai: '/services/ai',
   services: '/services',
+  dolls: '/dolls',
   dollBodies: '/doll-bodies',
   dollBodiesNew: '/doll-bodies/new',
   account: '/account',

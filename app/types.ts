@@ -353,6 +353,9 @@ export interface Doll {
   userId: string;
   picture: string;
   chatId: string;
+  dollBodyId: string;
+  dollBody?: DollBody;
+  chat?: Chat;
   _count: DollCount;
 }
 

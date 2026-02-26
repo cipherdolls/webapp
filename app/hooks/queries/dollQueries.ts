@@ -15,7 +15,7 @@ async function fetchResource<T>(endpoint: string): Promise<T> {
 export function useDoll(dollId: string) {
   return useQuery({
     queryKey: ['doll', dollId],
-    queryFn: () => fetchResource<Doll>(`dolls/${dollId}`),
+    queryFn: () => fetchResource<Doll>(`dolls/${dollId}?include=dollBody,chat`),
     enabled: !!dollId,
   });
 }
