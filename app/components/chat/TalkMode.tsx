@@ -12,7 +12,7 @@ import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
-import { useCreateMessage } from '~/hooks/queries/messageMutations';
+import { useStreamRecorder } from '~/hooks/useStreamRecorder';
 
 interface TalkModeProps {
   chat: Chat;
@@ -35,17 +35,20 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     }))
   );
 
-  const { mutate: createMessage, error: createMessageError } = useCreateMessage();
+  const streamRecorder = useStreamRecorder(chat.id);
 
   const recorder = useVoiceRecorder({
     listening: currentChatState === ChatState.userSpeaking,
     onRecordingComplete: async (blob: Blob) => {
       if (blob && chat.id) {
-        const file = new File([blob], 'audio.webm', { type: 'audio/webm' });
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('chatId', chat.id);
-        createMessage({ chatId: chat.id, formData });
+        try {
+          const buffer = await blob.arrayBuffer();
+          await streamRecorder.open();
+          streamRecorder.send(buffer);
+          streamRecorder.close();
+        } catch (err) {
+          console.error('[TalkMode] Stream recorder error', err);
+        }
       }
       setCurrentChatState(ChatState.Idle);
     },
@@ -109,6 +112,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
   // cleanup
   useUnmount(() => {
     recorder.stop();
+    streamRecorder.close();
     stop();
     setCurrentChatState(ChatState.Idle);
   });

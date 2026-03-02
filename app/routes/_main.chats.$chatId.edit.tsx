@@ -396,20 +396,58 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
             <Card.Root className='sm:h-auto'>
               <Card.Label className='sm:text-heading-h4'>Doll</Card.Label>
               <Card.Main>
-                <div className='p-4'>
-                  <Select.Root value={chat.doll?.id || 'none'} onValueChange={handleDollChange}>
-                    <Select.Trigger>
-                      <Select.Value placeholder='Select a doll' />
-                    </Select.Trigger>
-                    <Select.Content className='max-h-[250px] overflow-y-auto'>
-                      <Select.Item value='none'>None</Select.Item>
-                      {dolls?.map((doll) => (
-                        <Select.Item key={doll.id} value={doll.id}>
-                          {doll.name || doll.macAddress}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
+                {chat.doll ? (
+                  <Link to={`${ROUTES.dolls}/${chat.doll.id}`} className='m-1 mb-0.5 block h-[152px] rounded-xl relative bg-neutral-04'>
+                    {chat.doll.picture ? (
+                      <img
+                        src={getPicture(chat.doll, 'dolls', false)}
+                        srcSet={getPicture(chat.doll, 'dolls', true)}
+                        alt={chat.doll.name || 'Doll'}
+                        className='size-full object-cover rounded-xl'
+                      />
+                    ) : (
+                      <div className='flex items-center justify-center size-full'>
+                        <Icons.fileUploadIcon />
+                      </div>
+                    )}
+                  </Link>
+                ) : (
+                  <div className='m-1 mb-0.5 flex items-center justify-center h-[80px] rounded-xl bg-neutral-04/50'>
+                    <p className='text-body-sm text-neutral-02'>No doll connected</p>
+                  </div>
+                )}
+
+                <div className='m-1 bg-white rounded-xl'>
+                  {chat.doll && (
+                    <>
+                      <div className='p-4 flex items-center justify-between gap-2'>
+                        <div className='min-w-0'>
+                          <h4 className='text-body-md font-semibold text-base-black truncate'>{chat.doll.name || 'Unnamed Doll'}</h4>
+                          <p className='text-body-sm text-neutral-01 truncate'>{chat.doll.macAddress}</p>
+                        </div>
+                        <div className='flex items-center gap-1.5 flex-shrink-0'>
+                          <span className={cn('size-2 rounded-full', chat.doll.online ? 'bg-green-500' : 'bg-neutral-03')} />
+                          <span className='text-xs text-neutral-01'>{chat.doll.online ? 'Online' : 'Offline'}</span>
+                        </div>
+                      </div>
+                      <div className='w-full border border-neutral-04' />
+                    </>
+                  )}
+                  <div className='p-4'>
+                    <Select.Root value={chat.doll?.id || 'none'} onValueChange={handleDollChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder='Select a doll' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        <Select.Item value='none'>None</Select.Item>
+                        {dolls?.map((doll) => (
+                          <Select.Item key={doll.id} value={doll.id}>
+                            {doll.name || doll.macAddress}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                  </div>
                 </div>
               </Card.Main>
             </Card.Root>

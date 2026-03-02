@@ -10,14 +10,14 @@ import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
+import { useStreamRecorder } from '~/hooks/useStreamRecorder';
 
 interface MessageRecordingButtonProps {
   chat: Chat;
-  onSubmit: (formData: FormData) => void;
   disabled?: boolean;
 }
 
-const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, onSubmit, disabled = false }) => {
+const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, disabled = false }) => {
   const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(
     useShallow((state) => ({
       currentChatState: state.currentChatState,
@@ -27,11 +27,12 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, o
     }))
   );
 
-  const recorder = useRef<MediaRecorder | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const { stop } = useAudioPlayerContext();
   const alert = useAlert();
+  const streamRecorder = useStreamRecorder(chat.id);
 
   const isRecording = currentChatState === ChatState.userSpeaking;
 
@@ -59,38 +60,44 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, o
       setCurrentChatState(ChatState.userSpeaking);
       stop();
 
+      await streamRecorder.open();
+
       const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = mediaStream;
       setStream(mediaStream);
 
-      recorder.current = new MediaRecorder(mediaStream);
-      recorder.current.addEventListener('dataavailable', handleData);
-      recorder.current.start();
+      const mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder.addEventListener('dataavailable', handleData);
+      mediaRecorder.start(250);
+      recorderRef.current = mediaRecorder;
     } catch (err) {
-      console.error(err);
+      console.error('[MessageRecordingButton] Error starting recording', err);
+      streamRecorder.close();
     }
   };
 
   const stopRecording = () => {
-    if (!recorder.current) return;
+    if (!recorderRef.current) return;
     setCurrentChatState(ChatState.Idle);
 
-    recorder.current.addEventListener('stop', cleanUp);
-    recorder.current.stop();
+    recorderRef.current.addEventListener('stop', () => {
+      streamRecorder.close();
+      cleanUp();
+    });
+    recorderRef.current.stop();
   };
 
-  const handleData = ({ data }: { data: Blob }) => {
-    const file = new File([data], 'audio.webm', { type: 'audio/webm' });
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('chatId', chat.id);
-    onSubmit(formData);
+  const handleData = async ({ data }: { data: Blob }) => {
+    if (data.size > 0) {
+      const buffer = await data.arrayBuffer();
+      streamRecorder.send(buffer);
+    }
   };
 
   const cleanUp = () => {
-    recorder.current?.removeEventListener('dataavailable', handleData);
+    recorderRef.current?.removeEventListener('dataavailable', handleData);
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    recorder.current = null;
+    recorderRef.current = null;
     streamRef.current = null;
     setStream(null);
   };

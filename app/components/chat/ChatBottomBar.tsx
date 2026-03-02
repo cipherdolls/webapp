@@ -90,37 +90,6 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
     );
   };
 
-  const handleVoiceMessageSubmit = (formData: FormData) => {
-    if (!hasMinimumTokens) {
-      alert({
-        icon: '💰',
-        title: 'Insufficient Tokens',
-        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to send messages. Please add more tokens to continue.`,
-      });
-      return;
-    }
-
-    unlockAudio();
-
-    // Generate temporary ID for processing indicator
-    const tempId = `temp-${Date.now()}`;
-    setProcessingMessageId(tempId);
-
-    createMessage(
-      { chatId: chat.id, formData },
-      {
-        onSuccess: (response) => {
-          if (response?.id) {
-            setProcessingMessageId(response.id);
-          }
-        },
-        onError: () => {
-          setProcessingMessageId(null);
-        },
-      }
-    );
-  };
-
   const handleLiveTalk = () => {
     if (!hasMinimumTokens) {
       alert({
@@ -178,7 +147,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
                 <Button.Icon as={isCreatingMessage ? Icons.loading : Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton chat={chat} onSubmit={handleVoiceMessageSubmit} disabled={isMessageDisabled} />
+              <MessageRecordingButton chat={chat} disabled={isMessageDisabled} />
             )}
             <Button.Root
               size='icon'
