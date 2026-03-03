@@ -8,18 +8,18 @@ const content = {
       Built for Your Peace of Mind
       <br />
       <span className='font-medium bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent'>
-        Why Choose Cipherdolls
+        Why People Love Cipherdolls
       </span>
     </>
   ),
   subtitle: 'Why Us',
-  description: 'Experience AI chat with complete privacy and security. No compromises on your personal data.',
+  description: 'Private conversations with amazing AI characters — on your terms, at your pace.',
   cards: [
     {
       icon: Shield,
-      title: 'Complete Privacy & Anonymity',
+      title: 'Your Privacy Comes First',
       description:
-        "You don't need to provide an email address or credit card information to use our services. We operate completely anonymously to protect your privacy.",
+        "No email, no phone number, no credit card. We don't collect personal data — period. Your conversations stay between you and your character.",
       color: 'green',
       gradient: 'from-green-50/50 to-emerald-50/30',
       iconColor: 'text-green-600',
@@ -27,9 +27,9 @@ const content = {
     },
     {
       icon: Coins,
-      title: 'Secure LOV Token Payments',
+      title: 'Simple & Secure Payments',
       description:
-        'This is why we use LOV tokens to pay for messages, ensuring that all transactions are secure and private. There are no monthly subscriptions or hidden fees.',
+        'Pay with tokens that keep your identity private. No bank details, no recurring charges, no surprises on your statement.',
       color: 'purple',
       gradient: 'from-purple-50/50 to-violet-50/30',
       iconColor: 'text-purple-600',
@@ -37,9 +37,9 @@ const content = {
     },
     {
       icon: Zap,
-      title: 'Pay Only What You Use',
+      title: 'No Subscriptions, Ever',
       description:
-        "You only pay for the messages you send and receive, so if you don't use Cipherdolls, you don't need to pay a thing. You can also set spending limits to control exactly how much LOV you want to use.",
+        "You only pay when you chat. Don't use it for a month? That's fine — it costs you nothing. Plus, you set your own spending limits so you're always in control.",
       color: 'blue',
       gradient: 'from-blue-50/50 to-cyan-50/30',
       iconColor: 'text-blue-600',

@@ -26,31 +26,29 @@ import { useAudioPlayer } from 'react-use-audio-player';
 
 const content = {
   title: 'Step Into Their World',
-  subtitle: 'Meet Your Avatars',
+  subtitle: 'Meet the Characters',
   description:
-    'Each AI avatar has been carefully crafted with deep, complex personalities that go far beyond simple chatbots. Our characters have unique psychological profiles, personal histories, and distinct communication styles.',
+    'These aren\'t basic chatbots. Every character has their own personality, backstory, and voice — they feel like real people you\'d actually want to talk to.',
 
   mainContent: {
     title: (
       <>
-        Rich <span className='font-medium'>Personalities</span>
+        Real <span className='font-medium'>Personalities</span>
       </>
     ),
     description: (
       <>
         <p>
-          Each AI avatar has been carefully crafted with deep, complex personalities that go far beyond simple chatbots. Our characters have
-          unique psychological profiles, personal histories, and distinct communication styles.
+          Every character feels different because they are different. They have their own opinions, moods, sense of humour, and way of
+          talking — just like real people.
         </p>
         <p>
-          From <strong className='text-gray-900'>MBTI personality types</strong> to individual quirks and preferences, every avatar responds
-          authentically to different conversation scenarios. Whether you're exploring apocalyptic survival strategies, diving into
-          cryptocurrency discussions, or engaging in intimate fantasies.
+          Whether you want a <strong className='text-gray-900'>deep late-night conversation</strong>, someone to brainstorm with, a
+          flirty back-and-forth, or an epic roleplay adventure — there's a character who's perfect for that.
         </p>
         <p>
-          <strong className='text-gray-900'>Voice & Character:</strong> Each avatar has their own speaking style, emotional responses, and
-          behavioral patterns. They remember context, adapt to your preferences, and create genuinely engaging conversations that feel
-          natural and immersive.
+          <strong className='text-gray-900'>They listen and remember.</strong> Your conversations build on each other. Characters adapt to
+          your vibe, remember what you've talked about, and make every chat feel personal and real.
         </p>
       </>
     ),
@@ -58,17 +56,17 @@ const content = {
       {
         color: 'bg-purple-100 text-purple-600',
         icon: User,
-        title: 'Unique voice patterns and speaking styles',
+        title: 'Each character has their own unique voice',
       },
       {
         color: 'bg-blue-100 text-blue-600',
         icon: Zap,
-        title: 'MBTI-based psychological profiles',
+        title: 'Deep personalities that feel authentic',
       },
       {
         color: 'bg-green-100 text-green-600',
         icon: Heart,
-        title: 'Diverse conversation scenarios and expertise',
+        title: '50+ scenarios from romance to adventure',
       },
     ],
   },

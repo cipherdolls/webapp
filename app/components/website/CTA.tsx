@@ -3,14 +3,14 @@ import LoginButton from './LoginButton';
 const content = {
   title: (
     <>
-      Your Adventure Awaits
+      Curious? Try It Free
       <br />
       <span className='font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
-        Ready to Start Chatting?
+        Your First Conversation Is on Us
       </span>
     </>
   ),
-  description: 'No email, no personal data, no subscriptions. Just private AI conversations.',
+  description: 'No sign-up forms, no credit card, no strings attached. Just pick a character and start talking.',
 };
 
 const CTA = () => {

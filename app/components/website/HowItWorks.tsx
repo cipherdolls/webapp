@@ -3,16 +3,16 @@ import Subtitle from './components/Subtitle';
 const content = {
   title: (
     <>
-      Crafted with Care
+      More Than Just Chatbots
       <br />
       <span className='font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent'>
-        Every Avatar Tells a Story
+        Characters You'll Love Talking To
       </span>
     </>
   ),
-  subtitle: 'Our Craft',
+  subtitle: 'See It In Action',
   description:
-    'Our avatars are meticulously crafted with rich personalities, unique backstories, and sophisticated conversation abilities. Each avatar brings their own expertise, emotional depth, and authentic responses that create truly engaging and memorable interactions.',
+    'Every avatar has their own personality, backstory, and way of speaking. They remember what you talk about, react with real emotion, and make every conversation feel natural and fun — like chatting with someone who actually gets you.',
 };
 
 const HowItWorks = () => {

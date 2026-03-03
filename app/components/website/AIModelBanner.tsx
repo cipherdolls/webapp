@@ -189,11 +189,11 @@ const AIModelBanner = ({ aiProviders, ttsProviders, sttProviders }: AIModelBanne
     <section className='py-16 overflow-hidden'>
       <div className='container mb-10 text-center'>
         <div className='inline-block px-4 py-1.5 rounded-full bg-purple-50 border border-purple-200 mb-4'>
-          <span className='text-sm font-semibold text-purple-700'>AI-Powered Platform</span>
+          <span className='text-sm font-semibold text-purple-700'>Cutting-Edge AI</span>
         </div>
-        <h2 className='text-heading-h2 font-bold text-base-black mb-3'>Powered by the Latest AI Models</h2>
+        <h2 className='text-heading-h2 font-bold text-base-black mb-3'>Smarter Characters, Better Conversations</h2>
         <p className='text-body-lg text-neutral-01 max-w-2xl mx-auto'>
-          We support all modern AI providers so you always have access to the newest and best chat, reasoning, embedding, and voice models
+          Our characters are powered by the world's best AI — so every conversation feels natural, creative, and genuinely engaging
         </p>
       </div>
 

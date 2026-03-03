@@ -10,12 +10,12 @@ const content = {
       Endless Possibilities
       <br />
       <span className='font-medium bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent'>
-        Diverse Conversation Scenarios
+        Pick a World, Start Talking
       </span>
     </>
   ),
   description:
-    'Explore immersive conversation scenarios where each AI character adapts to complex situations. Click on any scenario below to see detailed context, relationships, and objectives that shape your interactions.',
+    'From cozy coffee-shop dates to epic sci-fi adventures — every scenario sets the stage for a completely different experience. Pick one and see where the conversation takes you.',
 };
 
 // Custom gradients for each scenario
@@ -60,7 +60,7 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
             {/* Left Side - Scenario Buttons */}
             <div className='space-y-4'>
               <div className='flex items-center justify-center lg:justify-between gap-3 mb-6'>
-                <h4 className='text-xl font-medium text-gray-900'>Choose Your Scenario</h4>
+                <h4 className='text-xl font-medium text-gray-900'>Pick a Scenario</h4>
                 <span className='px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold rounded-full'>
                   50+ Scenarios
                 </span>

@@ -5,20 +5,20 @@ import ChatExample from './components/ChatExample';
 import LoginButton from './LoginButton';
 
 const content = {
-  title: 'Where Privacy Meets',
-  subtitle: 'Anonymous AI Chat',
+  title: 'Meet AI Companions',
+  subtitle: 'That Truly Get You',
   description:
-    'Chat with avatars without compromising your privacy. No email, no personal data, no subscriptions. Pay only for what you use with LOV tokens.',
+    'Have real conversations with unique AI personalities — each with their own voice, story, and style. No sign-ups, no subscriptions, just private chats whenever you want.',
   features: [
     {
       icon: <Shield className='w-4 h-4 text-green-600' />,
-      title: 'No Personal Data',
-      description: 'Completely anonymous',
+      title: '100% Private',
+      description: 'No email or sign-up needed',
     },
     {
       icon: <Zap className='w-4 h-4 text-blue-600' />,
-      title: 'Pay Per Message',
-      description: 'No subscriptions',
+      title: 'Pay As You Go',
+      description: 'Only pay for what you use',
     },
   ],
   cta: {
