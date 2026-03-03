@@ -5,19 +5,18 @@ import { ChatState } from '~/components/chat/types/chatState';
 import AnimationRecording from '~/components/ui/AnimationRecording';
 import RecordingIndicator from '~/components/chat/RecordingIndicator';
 import { cn } from '~/utils/cn';
-import type { Chat } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
-import { useStreamRecorder } from '~/hooks/useStreamRecorder';
+import type { UseStreamRecorderReturn } from '~/hooks/useStreamRecorder';
 
 interface MessageRecordingButtonProps {
-  chat: Chat;
   disabled?: boolean;
+  streamRecorder: UseStreamRecorderReturn;
 }
 
-const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, disabled = false }) => {
+const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ disabled = false, streamRecorder }) => {
   const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(
     useShallow((state) => ({
       currentChatState: state.currentChatState,
@@ -32,7 +31,6 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, d
   const [stream, setStream] = useState<MediaStream | null>(null);
   const { stop } = useAudioPlayerContext();
   const alert = useAlert();
-  const streamRecorder = useStreamRecorder(chat.id);
 
   const isRecording = currentChatState === ChatState.userSpeaking;
 
@@ -60,7 +58,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, d
       setCurrentChatState(ChatState.userSpeaking);
       stop();
 
-      await streamRecorder.open();
+      streamRecorder.startRecording();
 
       const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = mediaStream;
@@ -72,7 +70,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, d
       recorderRef.current = mediaRecorder;
     } catch (err) {
       console.error('[MessageRecordingButton] Error starting recording', err);
-      streamRecorder.close();
+      streamRecorder.endRecording();
     }
   };
 
@@ -81,7 +79,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, d
     setCurrentChatState(ChatState.Idle);
 
     recorderRef.current.addEventListener('stop', () => {
-      streamRecorder.close();
+      streamRecorder.endRecording();
       cleanUp();
     });
     recorderRef.current.stop();
@@ -90,7 +88,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ chat, d
   const handleData = async ({ data }: { data: Blob }) => {
     if (data.size > 0) {
       const buffer = await data.arrayBuffer();
-      streamRecorder.send(buffer);
+      streamRecorder.sendRecordingChunk(buffer);
     }
   };
 

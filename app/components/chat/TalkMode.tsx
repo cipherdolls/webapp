@@ -1,6 +1,5 @@
-import type { AudioEvent, Avatar, Chat } from '~/types';
+import type { Avatar, Chat } from '~/types';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl } from '~/constants';
 import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
@@ -13,6 +12,8 @@ import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import { useStreamRecorder } from '~/hooks/useStreamRecorder';
+import { useStreamPlayer } from '~/hooks/useStreamPlayer';
+import { useWebSocketAudioPlayer } from '~/hooks/useWebSocketAudioPlayer';
 
 interface TalkModeProps {
   chat: Chat;
@@ -35,7 +36,20 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     }))
   );
 
+  const ttsCallbacks = useWebSocketAudioPlayer({
+    onPlaybackEnd: () => {
+      setCurrentChatState(ChatState.userSpeaking);
+      setJobsDone({ stt: false, chat: false, tts: false });
+    },
+  });
+
+  const streamPlayer = useStreamPlayer(chat.id, ttsCallbacks);
   const streamRecorder = useStreamRecorder(chat.id);
+
+  useEffect(() => {
+    streamPlayer.connect().catch((err) => console.error('[TalkMode] Stream player connect failed', err));
+    streamRecorder.connect().catch((err) => console.error('[TalkMode] Stream recorder connect failed', err));
+  }, [streamPlayer.connect, streamRecorder.connect]);
 
   const recorder = useVoiceRecorder({
     listening: currentChatState === ChatState.userSpeaking,
@@ -43,9 +57,9 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
       if (blob && chat.id) {
         try {
           const buffer = await blob.arrayBuffer();
-          await streamRecorder.open();
-          streamRecorder.send(buffer);
-          streamRecorder.close();
+          streamRecorder.startRecording();
+          streamRecorder.sendRecordingChunk(buffer);
+          streamRecorder.endRecording();
         } catch (err) {
           console.error('[TalkMode] Stream recorder error', err);
         }
@@ -54,7 +68,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     },
   });
 
-  const { load, stop, isPlaying } = useAudioPlayerContext();
+  const { stop, isPlaying } = useAudioPlayerContext();
 
   useChatEvents(chat.id, {
     onProcessEvent: (event) => {
@@ -72,47 +86,16 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    onActionEvent: (event) => {
-      if (event.type === 'audio' && event.action === 'play') {
-        handlePlayAudioMessage(event as AudioEvent);
-      }
-    },
   });
-
-  const handlePlayAudioMessage = async (event: AudioEvent) => {
-    setCurrentChatState(ChatState.avatarSpeaking);
-    const audioUrl = `${apiUrl}/messages/${event.messageId}/audio`;
-
-    try {
-      // Fetch audio as blob to bypass CORS
-      const response = await fetch(audioUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      load(blobUrl, {
-        html5: true,
-        autoplay: true,
-        format: 'mp3',
-        onend: () => {
-          URL.revokeObjectURL(blobUrl); // Clean up blob URL
-          setCurrentChatState(ChatState.userSpeaking);
-          setJobsDone({ stt: false, chat: false, tts: false });
-        },
-      });
-    } catch (error) {
-      console.error('Failed to load audio:', error);
-      setCurrentChatState(ChatState.userSpeaking);
-    }
-  };
 
   useEffect(() => {
     setCurrentChatState(ChatState.userSpeaking);
   }, []);
 
-  // cleanup
   useUnmount(() => {
     recorder.stop();
-    streamRecorder.close();
+    streamPlayer.disconnect();
+    streamRecorder.disconnect();
     stop();
     setCurrentChatState(ChatState.Idle);
   });

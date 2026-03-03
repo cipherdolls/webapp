@@ -1,6 +1,7 @@
 export const apiUrl = import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com';
 export const wsURL = import.meta.env.VITE_WS_URL || 'wss://mqtt.cipherdolls.com';
 export const streamRecorderUrl = import.meta.env.VITE_STREAM_RECORDER_URL || 'wss://stream-recorder.cipherdolls.com';
+export const streamPlayerUrl = import.meta.env.VITE_STREAM_PLAYER_URL || 'wss://stream-player.cipherdolls.com';
 
 export const uniswapUrl =
   'https://app.uniswap.org/explore/pools/optimism/0x6d0f116c3c01fa4e20f1b122124927587e9e56d092513f444aba98811e59063d' as const;

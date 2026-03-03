@@ -1,19 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { streamRecorderUrl } from '~/constants';
+import { streamPlayerUrl } from '~/constants';
 import { getToken } from '~/store/useAuthStore';
 
-export interface UseStreamRecorderReturn {
+export interface UseStreamPlayerOptions {
+  onTtsStart?: (messageId: string, format: string) => void;
+  onTtsChunk?: (chunk: ArrayBuffer) => void;
+  onTtsEnd?: (messageId: string) => void;
+  onTtsError?: (messageId: string, error: string) => void;
+}
+
+export interface UseStreamPlayerReturn {
   connect: () => Promise<void>;
   disconnect: () => void;
-  startRecording: () => void;
-  sendRecordingChunk: (data: ArrayBuffer | Uint8Array | Blob) => void;
-  endRecording: () => void;
   isConnected: boolean;
 }
 
-export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
+export function useStreamPlayer(chatId: string, options: UseStreamPlayerOptions = {}): UseStreamPlayerReturn {
   const wsRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   const connect = useCallback((): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -28,7 +34,7 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
         return;
       }
 
-      const url = `${streamRecorderUrl}/ws-stream?auth=${encodeURIComponent(token)}&chatId=${encodeURIComponent(chatId)}`;
+      const url = `${streamPlayerUrl}/ws-player?auth=${encodeURIComponent(token)}&chatId=${encodeURIComponent(chatId)}`;
       const ws = new WebSocket(url);
       ws.binaryType = 'arraybuffer';
 
@@ -41,12 +47,22 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
         if (typeof event.data === 'string') {
           try {
             const msg = JSON.parse(event.data);
-            if (msg.type === 'error') {
-              console.error('[StreamRecorder] Server error:', msg.message);
+            switch (msg.type) {
+              case 'tts_start':
+                optionsRef.current.onTtsStart?.(msg.messageId, msg.format);
+                break;
+              case 'tts_end':
+                optionsRef.current.onTtsEnd?.(msg.messageId);
+                break;
+              case 'tts_error':
+                optionsRef.current.onTtsError?.(msg.messageId, msg.error);
+                break;
             }
-          } catch {
-            // ignore
+          } catch (err) {
+            console.error('[StreamPlayer] Failed to parse message', err);
           }
+        } else {
+          optionsRef.current.onTtsChunk?.(event.data as ArrayBuffer);
         }
       };
 
@@ -56,7 +72,7 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
       };
 
       ws.onerror = (event) => {
-        console.error('[StreamRecorder] WebSocket error', event);
+        console.error('[StreamPlayer] WebSocket error', event);
         reject(new Error('WebSocket connection failed'));
       };
 
@@ -73,29 +89,11 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
     wsRef.current = null;
   }, []);
 
-  const startRecording = useCallback(() => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify({ type: 'recording_start' }));
-  }, []);
-
-  const sendRecordingChunk = useCallback((data: ArrayBuffer | Uint8Array | Blob) => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(data);
-  }, []);
-
-  const endRecording = useCallback(() => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify({ type: 'recording_end' }));
-  }, []);
-
   useEffect(() => {
     return () => {
       disconnect();
     };
   }, [disconnect]);
 
-  return { connect, disconnect, startRecording, sendRecordingChunk, endRecording, isConnected };
+  return { connect, disconnect, isConnected };
 }

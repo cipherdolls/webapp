@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
+import type { UseStreamRecorderReturn } from '~/hooks/useStreamRecorder';
 import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
 import { ChatState } from './types/chatState';
@@ -17,9 +18,10 @@ import { TOKEN_BALANCE } from '~/constants';
 
 interface ChatBottomBarProps {
   chat: Chat;
+  streamRecorder: UseStreamRecorderReturn;
 }
 
-const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
+const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder }) => {
   const { data: user } = useUser();
   const { currentChatState, hasMicAccess, setTalkMode, setProcessingMessageId } = useChatStore(
     useShallow((state) => ({
@@ -147,7 +149,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat }) => {
                 <Button.Icon as={isCreatingMessage ? Icons.loading : Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton chat={chat} disabled={isMessageDisabled} />
+              <MessageRecordingButton disabled={isMessageDisabled} streamRecorder={streamRecorder} />
             )}
             <Button.Root
               size='icon'

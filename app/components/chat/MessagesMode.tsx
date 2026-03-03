@@ -1,9 +1,8 @@
-import type { AudioEvent, Avatar, Chat } from '~/types';
+import type { Avatar, Chat } from '~/types';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl } from '~/constants';
 import { useEffect, useRef } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
@@ -12,6 +11,9 @@ import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
 import { useQueryClient } from '@tanstack/react-query';
+import { useStreamRecorder } from '~/hooks/useStreamRecorder';
+import { useStreamPlayer } from '~/hooks/useStreamPlayer';
+import { useWebSocketAudioPlayer } from '~/hooks/useWebSocketAudioPlayer';
 
 interface MessagesModeProps {
   chat: Chat;
@@ -19,7 +21,7 @@ interface MessagesModeProps {
 }
 
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
-  const { load, stop } = useAudioPlayerContext();
+  const { stop } = useAudioPlayerContext();
   const queryClient = useQueryClient();
   const userMessageIdRef = useRef<string | null>(null);
   const { silentMode, currentChatState, setCurrentChatState, setProcessingMessageId, setShowTypingIndicator } = useChatStore(
@@ -36,7 +38,21 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   const messages = data?.pages.flatMap((page) => page.data).reverse() ?? [];
 
+  const ttsCallbacks = useWebSocketAudioPlayer({
+    onPlaybackEnd: () => setCurrentChatState(ChatState.Idle),
+  });
+
+  const streamPlayer = useStreamPlayer(chat.id, ttsCallbacks);
+  const streamRecorder = useStreamRecorder(chat.id);
+
+  useEffect(() => {
+    streamPlayer.connect().catch((err) => console.error('[MessagesMode] Stream player connect failed', err));
+    streamRecorder.connect().catch((err) => console.error('[MessagesMode] Stream recorder connect failed', err));
+  }, [streamPlayer.connect, streamRecorder.connect]);
+
   useUnmount(() => {
+    streamPlayer.disconnect();
+    streamRecorder.disconnect();
     stop();
   });
 
@@ -47,16 +63,12 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
           case 'created':
             if (event.jobStatus === 'completed') {
               queryClient.invalidateQueries({ queryKey: ['messages', chat.id] });
-              // Handle processing state for typing indicator
               const currentProcessingId = useChatStore.getState().processingMessageId;
               if (currentProcessingId) {
-                // If this is the user message (first message after temp ID), save its ID and show typing
                 if (!userMessageIdRef.current || currentProcessingId.startsWith('temp-')) {
                   userMessageIdRef.current = event.resourceId;
-                  // User message received - now show typing indicator for AI response
                   setShowTypingIndicator(true);
                 } else if (event.resourceId !== userMessageIdRef.current) {
-                  // Different message ID = AI response - clear all processing state
                   setProcessingMessageId(null);
                   setShowTypingIndicator(false);
                   userMessageIdRef.current = null;
@@ -73,9 +85,6 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
         }
       }
     },
-    onActionEvent: (event) => {
-      if (event && event.type === 'audio' && event.action === 'play') handlePlayAudioMessage(event as AudioEvent);
-    },
   });
 
   useEffect(() => {
@@ -84,21 +93,6 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       setCurrentChatState(ChatState.Idle);
     }
   }, [silentMode]);
-
-  const handlePlayAudioMessage = (event: AudioEvent) => {
-    if (!silentMode && event.type === 'audio' && event.action === 'play') {
-      setCurrentChatState(ChatState.avatarSpeaking);
-
-      load(`${apiUrl}/messages/${event.messageId}/audio`, {
-        format: 'mp3',
-        html5: true,
-        autoplay: true,
-        onend: () => {
-          setCurrentChatState(ChatState.Idle);
-        },
-      });
-    }
-  };
 
   return (
     <div className='fixed inset-0 lg:static bg-main-gradient lg:bg-transparent flex-1 z-20 flex flex-col shadow-top overflow-hidden md:rounded-xl'>
@@ -113,7 +107,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
         hasMore={hasNextPage}
       />
       {/* chat input field  */}
-      <ChatBottomBar chat={chat} />
+      <ChatBottomBar chat={chat} streamRecorder={streamRecorder} />
     </div>
   );
 };
