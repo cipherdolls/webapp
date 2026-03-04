@@ -115,8 +115,8 @@ const EditScenarioModal = ({ scenario, aiProviders, refetch }: EditScenarioModal
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
         <form encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full' onSubmit={handleSubmit}>
           <input type='hidden' name='name' value={scenario.name} />
-          <input type='hidden' name='embeddingModelId' value={scenario.embeddingModel.id} />
-          <input type='hidden' name='reasoningModelId' value={scenario.reasoningModel?.id} />
+          {scenario.embeddingModel && <input type='hidden' name='embeddingModelId' value={scenario.embeddingModel.id} />}
+          {scenario.reasoningModel && <input type='hidden' name='reasoningModelId' value={scenario.reasoningModel.id} />}
 
           <input type='hidden' name='temperature' value={temperature} />
           <input type='hidden' name='topP' value={topP} />
