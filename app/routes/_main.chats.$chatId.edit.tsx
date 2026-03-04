@@ -270,32 +270,36 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                               </div>
                             )}
 
-                            <div className='w-full  border border-neutral-04' />
-
                             {/*Embedding*/}
-                            <DetailRow title='Embedding Model' value={chat.scenario.embeddingModel.providerModelName} />
-                            <DetailRow
-                              title='Input Token Cost'
-                              value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerInputToken * 1000000)} $`}
-                            />
-                            <DetailRow
-                              title='Output Token Cost'
-                              value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerOutputToken * 1000000)} $`}
-                            />
+                            {chat.scenario.embeddingModel && (
+                              <>
+                                <div className='w-full  border border-neutral-04' />
 
-                            {chat.scenario.embeddingModel.error && (
-                              <div className='flex justify-between gap-1'>
-                                <DetailRow title='Embedding Error' value='' />
-
-                                <Tooltip
-                                  side='left'
-                                  variant='error'
-                                  trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                  content={chat.scenario.embeddingModel.error}
-                                  popoverClassName='max-w-[320px]'
-                                  className='max-w-[350px]'
+                                <DetailRow title='Embedding Model' value={chat.scenario.embeddingModel.providerModelName} />
+                                <DetailRow
+                                  title='Input Token Cost'
+                                  value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerInputToken * 1000000)} $`}
                                 />
-                              </div>
+                                <DetailRow
+                                  title='Output Token Cost'
+                                  value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerOutputToken * 1000000)} $`}
+                                />
+
+                                {chat.scenario.embeddingModel.error && (
+                                  <div className='flex justify-between gap-1'>
+                                    <DetailRow title='Embedding Error' value='' />
+
+                                    <Tooltip
+                                      side='left'
+                                      variant='error'
+                                      trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                      content={chat.scenario.embeddingModel.error}
+                                      popoverClassName='max-w-[320px]'
+                                      className='max-w-[350px]'
+                                    />
+                                  </div>
+                                )}
+                              </>
                             )}
 
                             {/*Reasoning*/}
