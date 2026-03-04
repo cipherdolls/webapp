@@ -3,6 +3,7 @@ import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import type { Chat } from '~/types';
 import type { UseStreamRecorderReturn } from '~/hooks/useStreamRecorder';
+import type { UseStreamPlayerReturn } from '~/hooks/useStreamPlayer';
 import AutosizeTextarea from './ui/AutosizeTextarea';
 import EyeStatus from './ui/EyeStatus';
 import { ChatState } from './types/chatState';
@@ -19,9 +20,10 @@ import { TOKEN_BALANCE } from '~/constants';
 interface ChatBottomBarProps {
   chat: Chat;
   streamRecorder: UseStreamRecorderReturn;
+  streamPlayer: UseStreamPlayerReturn;
 }
 
-const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder }) => {
+const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, streamPlayer }) => {
   const { data: user } = useUser();
   const { currentChatState, hasMicAccess, setTalkMode, setProcessingMessageId } = useChatStore(
     useShallow((state) => ({
@@ -45,6 +47,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder }) =
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const hasMinimumTokens = isUsingBurnerWallet || (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
+  const isStreamsConnected = streamRecorder.isConnected && streamPlayer.isConnected;
   const isMessageDisabled = currentChatState === ChatState.error || !hasMinimumTokens;
 
   const handleContainerClick = () => {
@@ -130,6 +133,11 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder }) =
               <div className='text-body-md text-neutral-02 flex items-center gap-2'>
                 Insufficient tokens. You need at least {TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV to send messages.
               </div>
+            ) : !isStreamsConnected ? (
+              <div className='text-body-md text-neutral-02 flex items-center gap-2'>
+                <span className='inline-block size-2 rounded-full bg-yellow-500 animate-pulse' />
+                Connecting audio streams...
+              </div>
             ) : (
               <AutosizeTextarea
                 name='content'
@@ -149,12 +157,12 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder }) =
                 <Button.Icon as={isCreatingMessage ? Icons.loading : Icons.sendMessage} />
               </Button.Root>
             ) : (
-              <MessageRecordingButton disabled={isMessageDisabled} streamRecorder={streamRecorder} />
+              <MessageRecordingButton disabled={isMessageDisabled || !isStreamsConnected} streamRecorder={streamRecorder} />
             )}
             <Button.Root
               size='icon'
               type='button'
-              disabled={isMessageDisabled}
+              disabled={isMessageDisabled || !isStreamsConnected}
               onClick={() => {
                 handleLiveTalk();
               }}

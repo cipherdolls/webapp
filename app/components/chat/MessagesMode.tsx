@@ -107,7 +107,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
         hasMore={hasNextPage}
       />
       {/* chat input field  */}
-      <ChatBottomBar chat={chat} streamRecorder={streamRecorder} />
+      <ChatBottomBar chat={chat} streamRecorder={streamRecorder} streamPlayer={streamPlayer} />
     </div>
   );
 };
