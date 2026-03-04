@@ -79,14 +79,8 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   };
 
   const defaultChatModelId = useMemo(() => scenario?.chatModel?.id ?? getRecommendedModelId('chatModel'), [scenario, aiProviders]);
-  const defaultEmbeddingModelId = useMemo(
-    () => scenario?.embeddingModel?.id ?? getRecommendedModelId('embeddingModel'),
-    [scenario, aiProviders]
-  );
-  const defaultReasoningModelId = useMemo(
-    () => scenario?.reasoningModel?.id ?? getRecommendedModelId('reasoningModel'),
-    [scenario, aiProviders]
-  );
+  const defaultEmbeddingModelId = useMemo(() => scenario?.embeddingModel?.id ?? 'none', [scenario, aiProviders]);
+  const defaultReasoningModelId = useMemo(() => scenario?.reasoningModel?.id ?? 'none', [scenario, aiProviders]);
 
   const [scenarioData, setScenarioData] = useState({
     picture: scenario?.picture ?? null,
@@ -175,6 +169,8 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (formData.get('embeddingModelId') === 'none') formData.delete('embeddingModelId');
+    if (formData.get('reasoningModelId') === 'none') formData.delete('reasoningModelId');
     onSubmit(formData);
   };
 
@@ -640,6 +636,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Value placeholder='Select an embedding model' />
                   </Select.Trigger>
                   <Select.Content className='max-h-[250px] overflow-y-auto'>
+                    <Select.Item value='none'>None</Select.Item>
                     {getOptions('embeddingModel').map((group) => (
                       <Fragment key={group.groupName}>
                         <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
@@ -665,6 +662,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     <Select.Value placeholder='Select a reasoning model' />
                   </Select.Trigger>
                   <Select.Content className='max-h-[250px] overflow-y-auto'>
+                    <Select.Item value='none'>None</Select.Item>
                     {getOptions('reasoningModel').map((group) => (
                       <Fragment key={group.groupName}>
                         <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
