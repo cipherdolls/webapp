@@ -243,7 +243,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     placeholder='System Message'
                     defaultValue={scenario?.systemMessage}
                   />
-                  <p className='text-xs text-gray-500'>Provide a system message for this scenario.</p>
+                  <p className='text-xs text-gray-500'>Hidden instructions that define the avatar's personality, behavior, and conversation rules. Not visible to the user.</p>
                 </Input.Root>
               </div>
             )}
@@ -424,7 +424,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   defaultValue={scenario?.name}
                   placeholder='Movie Night'
                 />
-                <p className='text-xs text-gray-500'>Enter the name for this scenario.</p>
+                <p className='text-xs text-gray-500'>A short, memorable name visible to users who browse scenarios.</p>
               </Input.Root>
 
               <Input.Root>
@@ -437,7 +437,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   defaultValue={scenario?.greeting}
                   rows={3}
                 />
-                <p className='text-xs text-gray-500'>This message will be used to start the chat.</p>
+                <p className='text-xs text-gray-500'>The first message the avatar sends when a user starts a new chat. Use {'{user}'} to insert the user's name.</p>
               </Input.Root>
 
               {!isExpanded && (
@@ -467,7 +467,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     defaultValue={scenario?.systemMessage}
                     rows={5}
                   />
-                  <p className='text-xs text-gray-500'>Provide a system message for this scenario.</p>
+                  <p className='text-xs text-gray-500'>Hidden instructions that define the avatar's personality, behavior, and conversation rules. Not visible to the user.</p>
                 </Input.Root>
               )}
 
@@ -491,7 +491,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     </Select.Content>
                   </Select.Root>
                   <input type='hidden' name='userGender' value={scenarioData.userGender} />
-                  <p className='text-xs text-gray-500'>Select the user gender for this scenario.</p>
+                  <p className='text-xs text-gray-500'>The gender of the user interacting with this scenario. Helps tailor the conversation.</p>
                 </Input.Root>
 
                 <Input.Root>
@@ -513,7 +513,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     </Select.Content>
                   </Select.Root>
                   <input type='hidden' name='avatarGender' value={scenarioData.avatarGender} />
-                  <p className='text-xs text-gray-500'>Select the avatar gender for this scenario.</p>
+                  <p className='text-xs text-gray-500'>The gender of the avatar character in this scenario.</p>
                 </Input.Root>
               </div>
 
@@ -543,7 +543,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </div>
                 <input type='hidden' name='type' value={scenarioData.type} />
                 <p className='text-xs text-gray-500'>
-                  Roleplay mode uses a simplified setup without reasoning and embeddings.
+                  Normal mode uses full context (IoT devices, exchange rates) with RAG. Roleplay mode uses a simplified prompt for lightweight conversations.
                 </p>
               </Input.Root>
 
@@ -569,62 +569,8 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     ))}
                   </Select.Content>
                 </Select.Root>
-                <p className='text-xs text-gray-500'>Select the AI chat model for this scenario.</p>
+                <p className='text-xs text-gray-500'>The LLM used to generate conversation responses. Affects quality, speed, and cost per message.</p>
               </Input.Root>
-
-              {/* {scenarioType === 'Long' && (
-                <>
-                  <Input.Root>
-                    <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-                    <Select.Root name='embeddingModelId' defaultValue={scenario.embeddingModel.id}>
-                      <Select.Trigger
-                        id='embeddingModelId'
-                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                      >
-                        <Select.Value placeholder='Select an embedding model' />
-                      </Select.Trigger>
-                      <Select.Content className='max-h-[250px] overflow-y-auto'>
-                        {getOptions('embeddingModel').map((group) => (
-                          <Fragment key={group.groupName}>
-                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                            {group.options.map((option: any) => (
-                              <Select.Item key={option.value} value={option.value}>
-                                {option.label}
-                              </Select.Item>
-                            ))}
-                          </Fragment>
-                        ))}
-                      </Select.Content>
-                    </Select.Root>
-                    <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
-                  </Input.Root>
-
-                  <Input.Root>
-                    <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-                    <Select.Root name='reasoningModelId' defaultValue={scenario.reasoningModel?.id}>
-                      <Select.Trigger
-                        id='reasoningModelId'
-                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                      >
-                        <Select.Value placeholder='Select a reasoning model' />
-                      </Select.Trigger>
-                      <Select.Content className='max-h-[250px] overflow-y-auto'>
-                        {getOptions('reasoningModel').map((group) => (
-                          <Fragment key={group.groupName}>
-                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                            {group.options.map((option: any) => (
-                              <Select.Item key={option.value} value={option.value}>
-                                {option.label}
-                              </Select.Item>
-                            ))}
-                          </Fragment>
-                        ))}
-                      </Select.Content>
-                    </Select.Root>
-                    <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
-                  </Input.Root>
-                </>
-              )} */}
 
               <Input.Root>
                 <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
@@ -649,7 +595,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     ))}
                   </Select.Content>
                 </Select.Root>
-                <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
+                <p className='text-xs text-gray-500'>Converts messages into vectors for semantic search (RAG). Set to None to disable embeddings and reduce cost.</p>
               </Input.Root>
 
               <Input.Root>
@@ -675,7 +621,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     ))}
                   </Select.Content>
                 </Select.Root>
-                <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
+                <p className='text-xs text-gray-500'>Used to generate the scenario introduction. Set to None if you don't need auto-generated introductions.</p>
               </Input.Root>
 
               <div className={cn('grid gap-x-5 gap-y-6 w-full', 'grid-cols-1 sm:grid-cols-2', isExpanded && 'hidden')}>
@@ -795,7 +741,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 {Array.isArray(scenarioData.avatars) &&
                   scenarioData.avatars.length > 0 &&
                   scenarioData.avatars.map((avatar) => <input key={avatar.id} type='hidden' name='avatarIds[]' value={avatar.id} />)}
-                <p className='text-xs text-gray-500'>Select avatars this scenario can be used with.</p>
+                <p className='text-xs text-gray-500'>Avatars that can use this scenario. Users will pick from these when starting a chat.</p>
               </Input.Root>
 
               <Input.Root>
