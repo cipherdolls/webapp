@@ -65,37 +65,32 @@ const formatTime = (ts: number): string => {
 
 /* ─── Timeline View ─────────────────────────────────────────────── */
 
-const MS_PER_PX = 4; // 4ms per pixel — adjust for zoom
 const BAR_HEIGHT = 22;
 const BAR_GAP = 3;
-const LABEL_WIDTH = 160;
+const LABEL_WIDTH = 140;
 
 function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   const origin = entries.length > 0 ? entries[0].activeAt : now;
-  const totalMs = now - origin + 500; // add 500ms padding
-  const totalWidth = LABEL_WIDTH + Math.max(totalMs / MS_PER_PX, 400);
+  const totalMs = Math.max(now - origin + 500, 1000); // min 1s span
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-    }
-  }, [now]);
+  const toPercent = (ms: number) => (ms / totalMs) * 100;
+
+  // Time axis tick count (1s intervals, max 20 ticks)
+  const tickCount = Math.min(Math.ceil(totalMs / 1000) + 1, 20);
 
   return (
-    <div ref={scrollRef} className='flex-1 overflow-auto scrollbar-medium'>
+    <div className='flex-1 overflow-y-auto scrollbar-medium'>
       {/* time axis */}
-      <div className='sticky top-0 bg-neutral-05 z-10 flex' style={{ minWidth: totalWidth }}>
+      <div className='sticky top-0 bg-neutral-05 z-10 flex'>
         <div className='shrink-0 px-2 py-1 text-[10px] font-medium text-neutral-01 border-r border-neutral-04' style={{ width: LABEL_WIDTH }}>
           Job
         </div>
         <div className='relative flex-1 h-6 border-b border-neutral-04'>
-          {Array.from({ length: Math.ceil(totalMs / 1000) + 1 }, (_, i) => (
+          {Array.from({ length: tickCount }, (_, i) => (
             <div
               key={i}
               className='absolute top-0 h-full border-l border-neutral-04/40 text-[9px] text-neutral-01 pl-0.5'
-              style={{ left: (i * 1000) / MS_PER_PX }}
+              style={{ left: `${toPercent(i * 1000)}%` }}
             >
               {i}s
             </div>
@@ -104,12 +99,12 @@ function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number 
       </div>
 
       {/* bars */}
-      <div className='relative' style={{ minWidth: totalWidth }}>
-        {entries.map((entry, i) => {
-          const startPx = (entry.activeAt - origin) / MS_PER_PX;
+      <div className='relative'>
+        {entries.map((entry) => {
           const endTime = entry.completedAt ?? now;
-          const widthPx = Math.max((endTime - entry.activeAt) / MS_PER_PX, 2);
           const durationMs = endTime - entry.activeAt;
+          const leftPct = toPercent(entry.activeAt - origin);
+          const widthPct = Math.max(toPercent(durationMs), 0.5);
           const colors = barColors[entry.resourceName] || defaultBarColor;
           const isActive = !entry.completedAt;
           const isFailed = entry.jobStatus === 'failed';
@@ -134,12 +129,10 @@ function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number 
                     isFailed ? '' : colors.border,
                     isActive && 'animate-pulse'
                   )}
-                  style={{ left: startPx, width: widthPx }}
+                  style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
                   title={`${entry.resourceName}.${entry.jobName} — ${formatDuration(durationMs)} (${entry.jobStatus})`}
                 >
-                  {widthPx > 40 && (
-                    <span className='text-[9px] font-medium text-white truncate drop-shadow-sm'>{formatDuration(durationMs)}</span>
-                  )}
+                  <span className='text-[9px] font-medium text-white truncate drop-shadow-sm'>{formatDuration(durationMs)}</span>
                 </div>
               </div>
             </div>
