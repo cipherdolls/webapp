@@ -12,6 +12,7 @@ import { Info, Volume2, VolumeOff } from 'lucide-react';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { Tooltip } from '../ui/tooltip';
 import { useChatSystemPrompt } from '~/hooks/queries/chatQueries';
+import { getPicture } from '~/utils/getPicture';
 
 interface ChatTopBarProps {
   chat: Chat;
@@ -48,6 +49,20 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           <p className='text-body-sm text-neutral-01'>{chat.scenario.name}</p>
         </div>
       </div>
+      {chat.doll && (
+        <div className='flex items-center gap-2'>
+          <img
+            src={getPicture(chat.doll, 'dolls', false, PICTURE_SIZE.smallest)}
+            srcSet={getPicture(chat.doll, 'dolls', true, PICTURE_SIZE.smallest)}
+            alt={chat.doll.name || 'Doll'}
+            className='size-8 rounded-full object-cover shrink-0'
+          />
+          <div className='hidden sm:flex items-center gap-1.5'>
+            <span className={`size-2 rounded-full shrink-0 ${chat.doll.online ? 'bg-green-500' : 'bg-gray-300'}`} />
+            <span className='text-body-sm text-neutral-01 truncate max-w-[100px]'>{chat.doll.name || chat.doll.macAddress}</span>
+          </div>
+        </div>
+      )}
       <div className='flex gap-3 items-center'>
         {isAdmin && (
           <Tooltip
