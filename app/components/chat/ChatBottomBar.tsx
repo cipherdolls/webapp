@@ -21,9 +21,11 @@ interface ChatBottomBarProps {
   chat: Chat;
   streamRecorder: UseStreamRecorderReturn;
   streamPlayer: UseStreamPlayerReturn;
+  showConsole?: boolean;
+  onToggleConsole?: () => void;
 }
 
-const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, streamPlayer }) => {
+const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, streamPlayer, showConsole, onToggleConsole }) => {
   const { data: user } = useUser();
   const { currentChatState, hasMicAccess, setTalkMode, setProcessingMessageId } = useChatStore(
     useShallow((state) => ({
@@ -121,8 +123,10 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, str
     <div className='shrink-0 bg-white'>
       <div onClick={handleContainerClick} className='border border-b-0 border-neutral-04 mx-[-1px] rounded-t-xl px-5 py-4.5'>
         <form key={chat.id} className='flex items-end gap-5' onSubmit={handleSubmit}>
-          {/* eye status of the current chat state */}
-          <EyeStatus />
+          {/* eye status — tap to toggle MQTT console */}
+          <button type='button' onClick={onToggleConsole} className='cursor-pointer' aria-label='Toggle MQTT Console'>
+            <EyeStatus />
+          </button>
           <div className='flex flex-1 items-center min-h-10 gap-4'>
             {/* chat id input */}
             <input name='chatId' defaultValue={chat.id} hidden />

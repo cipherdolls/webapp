@@ -2,8 +2,9 @@ import type { Avatar, Chat } from '~/types';
 import ChatTopBar from '~/components/chat/ChatTopBar';
 import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
+import MqttConsolePanel from '~/components/chat/MqttConsolePanel';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -33,6 +34,8 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
       setShowTypingIndicator: state.setShowTypingIndicator,
     }))
   );
+
+  const [showConsole, setShowConsole] = useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } = useInfiniteMessages(chat.id);
 
@@ -106,8 +109,9 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
         isLoading={isFetchingNextPage}
         hasMore={hasNextPage}
       />
+      {showConsole && <MqttConsolePanel chatId={chat.id} onClose={() => setShowConsole(false)} />}
       {/* chat input field  */}
-      <ChatBottomBar chat={chat} streamRecorder={streamRecorder} streamPlayer={streamPlayer} />
+      <ChatBottomBar chat={chat} streamRecorder={streamRecorder} streamPlayer={streamPlayer} showConsole={showConsole} onToggleConsole={() => setShowConsole((v) => !v)} />
     </div>
   );
 };

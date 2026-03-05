@@ -35,6 +35,20 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
         return;
       }
 
+      // Close any stale CONNECTING socket to prevent duplicates
+      if (wsRef.current) {
+        wsRef.current.onopen = null;
+        wsRef.current.onmessage = null;
+        wsRef.current.onclose = null;
+        wsRef.current.onerror = null;
+        if (wsRef.current.readyState === WebSocket.CONNECTING) {
+          wsRef.current.close();
+        }
+        wsRef.current = null;
+      }
+
+      clearReconnectTimer();
+
       const token = getToken();
       if (!token) {
         reject(new Error('No auth token available'));
@@ -45,6 +59,7 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
       const url = `${streamRecorderUrl}/ws-stream?auth=${encodeURIComponent(token)}&chatId=${encodeURIComponent(chatId)}`;
       const ws = new WebSocket(url);
       ws.binaryType = 'arraybuffer';
+      wsRef.current = ws;
 
       ws.onopen = () => {
         setIsConnected(true);
@@ -66,6 +81,8 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
       };
 
       ws.onclose = () => {
+        // Only handle if this is still the current socket
+        if (wsRef.current !== ws) return;
         setIsConnected(false);
         wsRef.current = null;
         if (!intentionalCloseRef.current) {
@@ -82,10 +99,8 @@ export function useStreamRecorder(chatId: string): UseStreamRecorderReturn {
         console.error('[StreamRecorder] WebSocket error', event);
         reject(new Error('WebSocket connection failed'));
       };
-
-      wsRef.current = ws;
     });
-  }, [chatId]);
+  }, [chatId, clearReconnectTimer]);
 
   const disconnect = useCallback(() => {
     intentionalCloseRef.current = true;
