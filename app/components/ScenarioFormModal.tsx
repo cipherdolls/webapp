@@ -572,57 +572,66 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 <p className='text-xs text-gray-500'>The LLM used to generate conversation responses. Affects quality, speed, and cost per message.</p>
               </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-                <Select.Root name='embeddingModelId' key={defaultEmbeddingModelId} defaultValue={defaultEmbeddingModelId}>
-                  <Select.Trigger
-                    id='embeddingModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select an embedding model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto'>
-                    <Select.Item value='none'>None</Select.Item>
-                    {getOptions('embeddingModel').map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
+              {scenarioData.type === 'ROLEPLAY' ? (
+                <>
+                  <input type='hidden' name='embeddingModelId' value='none' />
+                  <input type='hidden' name='reasoningModelId' value='none' />
+                </>
+              ) : (
+                <>
+                  <Input.Root>
+                    <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
+                    <Select.Root name='embeddingModelId' key={defaultEmbeddingModelId} defaultValue={defaultEmbeddingModelId}>
+                      <Select.Trigger
+                        id='embeddingModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select an embedding model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        <Select.Item value='none'>None</Select.Item>
+                        {getOptions('embeddingModel').map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
                         ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Converts messages into vectors for semantic search (RAG). Set to None to disable embeddings and reduce cost.</p>
-              </Input.Root>
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Converts messages into vectors for semantic search (RAG). Set to None to disable embeddings and reduce cost.</p>
+                  </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-                <Select.Root name='reasoningModelId' key={defaultReasoningModelId} defaultValue={defaultReasoningModelId}>
-                  <Select.Trigger
-                    id='reasoningModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select a reasoning model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto'>
-                    <Select.Item value='none'>None</Select.Item>
-                    {getOptions('reasoningModel').map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
+                  <Input.Root>
+                    <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
+                    <Select.Root name='reasoningModelId' key={defaultReasoningModelId} defaultValue={defaultReasoningModelId}>
+                      <Select.Trigger
+                        id='reasoningModelId'
+                        className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                      >
+                        <Select.Value placeholder='Select a reasoning model' />
+                      </Select.Trigger>
+                      <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        <Select.Item value='none'>None</Select.Item>
+                        {getOptions('reasoningModel').map((group) => (
+                          <Fragment key={group.groupName}>
+                            <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                            {group.options.map((option: any) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Fragment>
                         ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Used to generate the scenario introduction. Set to None if you don't need auto-generated introductions.</p>
-              </Input.Root>
+                      </Select.Content>
+                    </Select.Root>
+                    <p className='text-xs text-gray-500'>Used to generate the scenario introduction. Set to None if you don't need auto-generated introductions.</p>
+                  </Input.Root>
+                </>
+              )}
 
               <div className={cn('grid gap-x-5 gap-y-6 w-full', 'grid-cols-1 sm:grid-cols-2', isExpanded && 'hidden')}>
                 <Input.Root>
