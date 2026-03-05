@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { streamPlayerUrl } from '~/constants';
 import { getToken } from '~/store/useAuthStore';
 
+const MAX_RECONNECT_DELAY = 30_000;
+const INITIAL_RECONNECT_DELAY = 1_000;
+
 export interface UseStreamPlayerOptions {
   onTtsStart?: (messageId: string, format: string) => void;
   onTtsChunk?: (chunk: ArrayBuffer) => void;
@@ -20,6 +23,16 @@ export function useStreamPlayer(chatId: string, options: UseStreamPlayerOptions 
   const [isConnected, setIsConnected] = useState(false);
   const optionsRef = useRef(options);
   optionsRef.current = options;
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectDelayRef = useRef(INITIAL_RECONNECT_DELAY);
+  const intentionalCloseRef = useRef(false);
+
+  const clearReconnectTimer = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+  }, []);
 
   const connect = useCallback((): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -34,12 +47,14 @@ export function useStreamPlayer(chatId: string, options: UseStreamPlayerOptions 
         return;
       }
 
+      intentionalCloseRef.current = false;
       const url = `${streamPlayerUrl}/ws-player?auth=${encodeURIComponent(token)}&chatId=${encodeURIComponent(chatId)}`;
       const ws = new WebSocket(url);
       ws.binaryType = 'arraybuffer';
 
       ws.onopen = () => {
         setIsConnected(true);
+        reconnectDelayRef.current = INITIAL_RECONNECT_DELAY;
         resolve();
       };
 
@@ -69,6 +84,14 @@ export function useStreamPlayer(chatId: string, options: UseStreamPlayerOptions 
       ws.onclose = () => {
         setIsConnected(false);
         wsRef.current = null;
+        if (!intentionalCloseRef.current) {
+          const delay = reconnectDelayRef.current;
+          reconnectDelayRef.current = Math.min(delay * 2, MAX_RECONNECT_DELAY);
+          console.log(`[StreamPlayer] Reconnecting in ${delay}ms...`);
+          reconnectTimerRef.current = setTimeout(() => {
+            connect().catch((err) => console.error('[StreamPlayer] Reconnect failed', err));
+          }, delay);
+        }
       };
 
       ws.onerror = (event) => {
@@ -81,19 +104,23 @@ export function useStreamPlayer(chatId: string, options: UseStreamPlayerOptions 
   }, [chatId]);
 
   const disconnect = useCallback(() => {
+    intentionalCloseRef.current = true;
+    clearReconnectTimer();
     const ws = wsRef.current;
     if (!ws) return;
     if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
       ws.close();
     }
     wsRef.current = null;
-  }, []);
+  }, [clearReconnectTimer]);
 
   useEffect(() => {
     return () => {
+      intentionalCloseRef.current = true;
+      clearReconnectTimer();
       disconnect();
     };
-  }, [disconnect]);
+  }, [disconnect, clearReconnectTimer]);
 
   return { connect, disconnect, isConnected };
 }
