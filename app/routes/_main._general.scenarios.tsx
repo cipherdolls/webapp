@@ -465,12 +465,12 @@ export default function ScenariosIndex() {
                               />
                             )}
 
-                            {scenario.embeddingModel.error && (
+                            {scenario.embeddingModel?.error && (
                               <Tooltip
                                 side='top'
                                 variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                content={scenario.embeddingModel.error}
+                                content={scenario.embeddingModel?.error}
                                 className='max-w-[350px]'
                                 popoverClassName='max-w-[320px]'
                               />
