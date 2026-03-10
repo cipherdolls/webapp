@@ -304,6 +304,7 @@ const LoginModal = () => {
                     autoFocus
                     className='w-full px-4 py-3 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all'
                   />
+                  <p className='text-xs text-gray-400'>This is the name the avatar will use to address you</p>
                 </div>
 
                 <div className='space-y-2'>
@@ -332,6 +333,7 @@ const LoginModal = () => {
                       )}
                     />
                   </div>
+                  <p className='text-xs text-gray-400'>Choose the gender you'd like to roleplay as</p>
                 </div>
 
                 <div className='space-y-2'>
@@ -350,6 +352,7 @@ const LoginModal = () => {
                       </option>
                     ))}
                   </select>
+                  <p className='text-xs text-gray-400'>The language the AI will speak to you in</p>
                 </div>
 
                 <div className='grid grid-cols-2 gap-3 pt-4'>
@@ -391,27 +394,22 @@ const LoginModal = () => {
                   <img src='/logo.svg' alt='Cipherdolls' className='w-48 h-auto' />
                 </div>
                 <p className='text-gray-600 text-base leading-relaxed w-10/12 mx-auto'>
-                  Choose how you'd like to get started. Connect with MetaMask for a personalized experience, or jump right in with Guest
-                  Mode.
+                  Choose how you'd like to log in — no crypto or tokens required. Both options give you access to free Avatars & Scenarios.
                 </p>
               </div>
 
               {!hasEthereum ? (
                 <div className='text-sm text-black/80 text-left space-y-1 rounded-2xl bg-white/80 border border-orange-300 px-4 py-3 shadow-sm mb-6'>
                   <p>
-                    MetaMask extension not detected. Please install or enable it to continue. Alternatively, you can use a Web3-enabled
-                    browser like{' '}
+                    MetaMask extension not detected. You can{' '}
+                    <a href='https://metamask.io/download/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
+                      install MetaMask
+                    </a>{' '}
+                    or use a Web3 browser like{' '}
                     <a href='https://brave.com/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
                       Brave
-                    </a>{' '}
-                    or{' '}
-                    <a href='https://status.im/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
-                      Status
-                    </a>{' '}
-                    for built-in wallet support.{' '}
-                    <a href='https://metamask.io/download/' target='_blank' rel='noopener noreferrer' className='underline font-semibold'>
-                      Download MetaMask
                     </a>
+                    . Or just use the <span className='font-semibold'>Burner Wallet</span> to get started instantly — no extension needed.
                   </p>
                 </div>
               ) : null}
@@ -437,8 +435,8 @@ const LoginModal = () => {
                       )}
                     </div>
                     <div className='text-center md:text-left'>
-                      <div className='font-bold text-lg'>Login with MetaMask</div>
-                      <div className='text-white/90 text-sm'>Secure Web3 authentication</div>
+                      <div className='font-bold text-lg'>External Wallet</div>
+                      <div className='text-white/90 text-sm'>Connect MetaMask or Web3 wallet</div>
                     </div>
                   </button>
 
@@ -451,7 +449,7 @@ const LoginModal = () => {
 
                         <div>
                           <p className='text-gray-600 text-sm'>
-                            Start <span className='underline'>Secure & Anonymous</span> chatting with more than <span className='font-semibold text-gray-900'>100+ Avatars & Scenarios</span> or create own content to get <span className='font-semibold text-gray-900'>Earns and Rewards</span>. <br/>The best way to use all the power of <span className='font-semibold text-gray-900'>Cipherdolls!</span>
+                            Use your own MetaMask or Web3 wallet for full control. Your keys, your data — synced across devices.
                           </p>
                         </div>
                       </div>
@@ -477,9 +475,9 @@ const LoginModal = () => {
                       )}
                     </div>
                     <div className='text-center md:text-left'>
-                      <div className='font-bold text-lg'>Guest Mode</div>
+                      <div className='font-bold text-lg'>Burner Wallet</div>
                       <div className='text-white/90 text-sm'>
-                        {isUsingBurnerWallet ? 'Continue as a Guest' : 'Start chatting instantly'}
+                        {isUsingBurnerWallet ? 'Continue as Guest' : 'No wallet needed — try instantly'}
                       </div>
                     </div>
                   </button>
@@ -493,8 +491,7 @@ const LoginModal = () => {
 
                         <div>
                           <p className='text-gray-600 text-sm'>
-                            A great way to start <span className='underline'>chatting right away</span>, without registering or connecting a wallet. <br/><span className='underline'>Free to use</span> <span className='font-semibold text-gray-900'>Avatars & Scenarios</span> simple
-                            way to try out <span className='font-semibold text-gray-900'>Cipherdolls!</span>
+                            A temporary wallet is created in your browser — no extension or signup needed. Great for trying out Cipherdolls. Data is stored locally and lost if you clear your browser.
                           </p>
                         </div>
                       </div>
