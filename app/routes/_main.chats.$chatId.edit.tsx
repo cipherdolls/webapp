@@ -341,23 +341,29 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                 </Card.Main>
               </Card.Root>
 
-            {/* STT Provider toggle  */}
+            {/* STT Provider */}
             <Card.Root className='sm:h-auto'>
               <Card.Label className='sm:text-heading-h4'>STT Provider</Card.Label>
               <Card.Main>
-                <div className='grid grid-cols-2 gap-1  p-1 min-w-[200px]'>
-                  {sttProviders?.map((sttProvider) => (
-                    <button
-                      key={sttProvider.id}
-                      onClick={() => handleSttProviderChange(sttProvider)}
-                      className={cn(
-                        'flex items-center justify-center flex-1 px-4 h-[40px] text-body-sm font-semibold rounded-[10px]',
-                        chat.sttProviderId === sttProvider.id && '!bg-base-white shadow-regular pointer-events-none'
-                      )}
-                    >
-                      {sttProvider.name}
-                    </button>
-                  ))}
+                <div className='p-4'>
+                  <Select.Root
+                    value={chat.sttProviderId}
+                    onValueChange={(value) => {
+                      const sttProvider = sttProviders?.find((p) => p.id === value);
+                      if (sttProvider) handleSttProviderChange(sttProvider);
+                    }}
+                  >
+                    <Select.Trigger>
+                      <Select.Value placeholder='Select STT Provider' />
+                    </Select.Trigger>
+                    <Select.Content className='max-h-[250px] overflow-y-auto'>
+                      {sttProviders?.map((sttProvider) => (
+                        <Select.Item key={sttProvider.id} value={sttProvider.id}>
+                          {sttProvider.name}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
                 </div>
               </Card.Main>
             </Card.Root>
