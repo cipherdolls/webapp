@@ -51,12 +51,25 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
       </div>
       {chat.doll && (
         <div className='flex items-center gap-2'>
-          <img
-            src={getPicture(chat.doll, 'dolls', false, PICTURE_SIZE.smallest)}
-            srcSet={getPicture(chat.doll, 'dolls', true, PICTURE_SIZE.smallest)}
-            alt={chat.doll.name || 'Doll'}
-            className='size-8 rounded-full object-cover shrink-0'
-          />
+          {chat.doll.picture ? (
+            <img
+              src={getPicture(chat.doll, 'dolls', false, PICTURE_SIZE.smallest)}
+              srcSet={getPicture(chat.doll, 'dolls', true, PICTURE_SIZE.smallest)}
+              alt={chat.doll.name || 'Doll'}
+              className='size-8 rounded-full object-cover shrink-0'
+            />
+          ) : chat.doll.dollBody?.picture ? (
+            <img
+              src={getPicture(chat.doll.dollBody, 'doll-bodies', false, PICTURE_SIZE.smallest)}
+              srcSet={getPicture(chat.doll.dollBody, 'doll-bodies', true, PICTURE_SIZE.smallest)}
+              alt={chat.doll.dollBody.name || 'Doll Body'}
+              className='size-8 rounded-full object-cover shrink-0'
+            />
+          ) : (
+            <div className='size-8 rounded-full bg-neutral-04 flex items-center justify-center shrink-0'>
+              <Icons.fileUploadIcon className='size-4' />
+            </div>
+          )}
           <div className='hidden sm:flex items-center gap-1.5'>
             <span className={`size-2 rounded-full shrink-0 ${chat.doll.online ? 'bg-green-500' : 'bg-gray-300'}`} />
             <span className='text-body-sm text-neutral-01 truncate max-w-[100px]'>{chat.doll.name || chat.doll.macAddress}</span>

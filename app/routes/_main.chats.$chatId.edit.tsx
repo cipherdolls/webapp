@@ -409,6 +409,13 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                         alt={chat.doll.name || 'Doll'}
                         className='size-full object-cover rounded-xl'
                       />
+                    ) : chat.doll.dollBody?.picture ? (
+                      <img
+                        src={getPicture(chat.doll.dollBody, 'doll-bodies', false)}
+                        srcSet={getPicture(chat.doll.dollBody, 'doll-bodies', true)}
+                        alt={chat.doll.dollBody.name || 'Doll Body'}
+                        className='size-full object-cover rounded-xl'
+                      />
                     ) : (
                       <div className='flex items-center justify-center size-full'>
                         <Icons.fileUploadIcon />
