@@ -72,7 +72,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           )}
           <div className='hidden sm:flex items-center gap-1.5'>
             <span className={`size-2 rounded-full shrink-0 ${chat.doll.online ? 'bg-green-500' : 'bg-gray-300'}`} />
-            <span className='text-body-sm text-neutral-01 truncate max-w-[100px]'>{chat.doll.name || chat.doll.macAddress}</span>
+            <span className='text-body-sm text-neutral-01 truncate max-w-[100px]'>{chat.doll.name || chat.doll.dollBody?.name || chat.doll.macAddress}</span>
           </div>
         </div>
       )}

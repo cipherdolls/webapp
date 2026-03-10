@@ -433,7 +433,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                     <>
                       <div className='p-4 flex items-center justify-between gap-2'>
                         <div className='min-w-0'>
-                          <h4 className='text-body-md font-semibold text-base-black truncate'>{chat.doll.name || 'Unnamed Doll'}</h4>
+                          <h4 className='text-body-md font-semibold text-base-black truncate'>{chat.doll.name || chat.doll.dollBody?.name || 'Unnamed Doll'}</h4>
                           <p className='text-body-sm text-neutral-01 truncate'>{chat.doll.macAddress}</p>
                         </div>
                         <div className='flex items-center gap-1.5 flex-shrink-0'>
