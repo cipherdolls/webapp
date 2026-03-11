@@ -417,6 +417,20 @@ export interface AvatarCount {
   chats: number;
 }
 
+export interface FillerWord {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  text: string;
+  fileName: string | null;
+  avatarId: string;
+}
+
+export interface FillerWordsPaginated {
+  data: FillerWord[];
+  meta: meta;
+}
+
 export interface GroupedChatsByAvatar {
   avatar: Avatar;
   chats: Chat[];

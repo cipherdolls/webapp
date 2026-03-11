@@ -14,6 +14,8 @@ import type { Avatar, Gender, Scenario, TtsLanguage, TtsVoice } from '~/types';
 import { useTtsVoices } from '~/hooks/queries/ttsQueries';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useFillerWords } from '~/hooks/queries/fillerWordQueries';
+import { useCreateFillerWord, useDeleteFillerWord } from '~/hooks/queries/fillerWordMutations';
 import { AnimatePresence, motion } from 'motion/react';
 
 // TODO: Create all the scenarios or create a page with a new ui.
@@ -527,6 +529,8 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                 <p className='text-xs text-gray-500'>Select scenarios this avatar can be used with.</p>
               </Input.Root>
 
+              {avatar?.id && <FillerWordsSection avatarId={avatar.id} />}
+
               <Input.Root>
                 <Input.Label htmlFor='availability'>Availability</Input.Label>
                 <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
@@ -576,5 +580,73 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     </Modal.Root>
   );
 };
+
+function FillerWordsSection({ avatarId }: { avatarId: string }) {
+  const [newWord, setNewWord] = useState('');
+  const { data: fillerWordsPaginated } = useFillerWords(avatarId);
+  const { mutate: createFillerWord, isPending: isCreating } = useCreateFillerWord();
+  const { mutate: deleteFillerWord } = useDeleteFillerWord();
+
+  const fillerWords = fillerWordsPaginated?.data || [];
+
+  const handleAdd = () => {
+    const text = newWord.trim();
+    if (!text) return;
+    createFillerWord({ text, avatarId }, { onSuccess: () => setNewWord('') });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAdd();
+    }
+  };
+
+  return (
+    <Input.Root>
+      <Input.Label>Filler Words</Input.Label>
+      <div className='flex gap-2'>
+        <Input.Input
+          className='text-base-black border border-neutral-04 py-3.5 px-3 flex-1'
+          type='text'
+          placeholder='e.g. okay, yeah, so...'
+          value={newWord}
+          onChange={(e) => setNewWord(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <Button.Root type='button' onClick={handleAdd} disabled={isCreating || !newWord.trim()} className='shrink-0'>
+          Add
+        </Button.Root>
+      </div>
+      {fillerWords.length > 0 && (
+        <div className='flex flex-wrap gap-2 mt-2'>
+          {fillerWords.map((fw) => (
+            <span
+              key={fw.id}
+              className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-05 rounded-lg text-body-sm font-medium'
+            >
+              {fw.fileName && (
+                <PlayerButton
+                  variant='white'
+                  className='size-6 shadow-none'
+                  audioSrc={PATHS.fillerWordAudio(fw.id)}
+                />
+              )}
+              {fw.text}
+              <button
+                type='button'
+                onClick={() => deleteFillerWord({ fillerWordId: fw.id, avatarId })}
+                className='text-neutral-01 hover:text-base-black transition-colors'
+              >
+                <Icons.close className='w-3.5 h-3.5' />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <p className='text-xs text-gray-500'>Short words played as audio feedback while waiting for the AI response.</p>
+    </Input.Root>
+  );
+}
 
 export default AvatarEditModal;
