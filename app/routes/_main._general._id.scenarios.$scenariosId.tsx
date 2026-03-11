@@ -310,6 +310,12 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                     <Icons.fileUploadIcon />
                   </div>
                 )}
+                {scenario.type === 'ROLEPLAY' && (
+                  <div className='absolute top-2 left-2 z-10 flex items-center gap-1 bg-purple-500/90 backdrop-blur-sm py-1 pl-1.5 pr-2 rounded-full text-label text-white font-semibold'>
+                    🎭
+                    <span>Roleplay</span>
+                  </div>
+                )}
               </label>
             </div>
             <ModelTabsCard
