@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Icons } from './ui/icons';
 import { useUser } from '~/hooks/queries/userQueries';
-import { showToast } from '~/components/ui/toast';
 import { Eye, EyeOff, Copy } from 'lucide-react';
 import { InformationBadge } from '~/components/ui/InformationBadge';
 
@@ -23,12 +21,6 @@ export const YourApiKey = () => {
   const handleCopy = () => {
     if (!apiKey) return;
     navigator.clipboard.writeText(apiKey);
-    showToast({
-      icon: <Icons.thumb className='w-8 h-8 text-specials-success' />,
-      title: 'Copied',
-      description: 'API key copied to clipboard',
-      duration: 2000,
-    });
   };
 
   return (
