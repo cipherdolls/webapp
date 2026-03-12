@@ -1,6 +1,6 @@
-import { Link, useRouteLoaderData } from 'react-router';
+import { Link } from 'react-router';
 import { PICTURE_SIZE, ROUTES } from '~/constants';
-import type { Chat, User } from '~/types';
+import type { Chat } from '~/types';
 import { Icons } from '../ui/icons';
 import AvatarPicture from '../AvatarPicture';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
@@ -20,12 +20,12 @@ interface ChatTopBarProps {
 
 const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
   const { data: avatarData } = useAvatar(chat.avatar.id);
-  const user = useRouteLoaderData('routes/_main') as User;
+
   const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState(false);
   const { data: systemPromptData, isLoading: isLoadingSystemPrompt } = useChatSystemPrompt(chat.id);
 
   const { mutate: updateChat } = useUpdateChat();
-  const isAdmin = user?.role === 'ADMIN';
+
 
   const systemPrompt = systemPromptData?.systemPrompt ?? chat.scenario.systemMessage;
   const scenarioName = systemPromptData?.scenarioName ?? chat.scenario.name;
@@ -77,21 +77,19 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
         </div>
       )}
       <div className='flex gap-3 items-center'>
-        {isAdmin && (
-          <Tooltip
-            trigger={
-              <button
-                onClick={handleOpenSystemPrompt}
-                className='text-base-black shrink-0 hover:opacity-60 transition-opacity flex items-center'
-                aria-label='View System Prompt'
-              >
-                <Info size={23} />
-              </button>
-            }
-            content='View System Prompt (Admin Only)'
-            side='left'
-          />
-        )}
+        <Tooltip
+          trigger={
+            <button
+              onClick={handleOpenSystemPrompt}
+              className='text-base-black shrink-0 hover:opacity-60 transition-opacity flex items-center'
+              aria-label='View System Prompt'
+            >
+              <Info size={23} />
+            </button>
+          }
+          content='View System Prompt'
+          side='left'
+        />
         <Tooltip
           trigger={
             <button
@@ -111,16 +109,14 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           </Link>
         </motion.div>
       </div>
-      {isAdmin && (
-        <SystemPromptModal
-          isOpen={isSystemPromptModalOpen}
-          onClose={() => setIsSystemPromptModalOpen(false)}
-          systemMessage={systemPrompt}
-          scenarioName={scenarioName}
-          isLoadingSystemPrompt={isLoadingSystemPrompt}
-          isSystemPromptAvailable={isSystemPromptAvailable}
-        />
-      )}
+      <SystemPromptModal
+        isOpen={isSystemPromptModalOpen}
+        onClose={() => setIsSystemPromptModalOpen(false)}
+        systemMessage={systemPrompt}
+        scenarioName={scenarioName}
+        isLoadingSystemPrompt={isLoadingSystemPrompt}
+        isSystemPromptAvailable={isSystemPromptAvailable}
+      />
     </div>
   );
 };

@@ -17,6 +17,7 @@ import { useAuthStore } from '~/store/useAuthStore';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { YourWallet } from '~/components/your-wallet';
 import { YourGift } from '~/components/your-gift';
+import { YourApiKey } from '~/components/your-api-key';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -74,6 +75,7 @@ export default function Account() {
           <YourGift disabled={isUsingBurnerWallet} />
           {/*<TokenBalance />*/}
           {/*<TokenPermitsList />*/}
+          <YourApiKey />
           <YourReferrals disabled={isUsingBurnerWallet} />
 
           <Button.Root variant='primary' className='w-full min-h-12' onClick={handleSignOut}>
