@@ -6,9 +6,10 @@ import { useUser } from '~/hooks/queries/userQueries';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { ROUTES } from '~/constants';
+import { ROUTES, apiUrl } from '~/constants';
 import ErrorPage from '~/components/ErrorPage';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
+import { InstallButton } from '~/components/buttons/InstallButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Body - CipherDolls' }];
@@ -110,6 +111,41 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                   </div>
                   <span className='text-body-lg font-semibold text-base-black'>{dollBody.avatar.name}</span>
                 </Link>
+              </div>
+            )}
+
+            {dollBody.firmwares && dollBody.firmwares.length > 0 && (
+              <div className='bg-gradient-1 rounded-xl p-5'>
+                <h4 className='text-heading-h4 text-base-black mb-3'>Firmware</h4>
+                <div className='flex flex-col gap-3'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-body-md text-neutral-01'>
+                      Latest: v{dollBody.firmwares[0].version}
+                    </span>
+                    <InstallButton
+                      manifest={`${apiUrl}/firmwares/${dollBody.firmwares[0].id}/manifest.json`}
+                      label='Flash Firmware'
+                    />
+                  </div>
+                  {dollBody.firmwares.length > 1 && (
+                    <details className='mt-2'>
+                      <summary className='text-body-sm text-neutral-02 cursor-pointer'>
+                        Previous versions ({dollBody.firmwares.length - 1})
+                      </summary>
+                      <div className='flex flex-col gap-2 mt-2'>
+                        {dollBody.firmwares.slice(1).map((fw) => (
+                          <div key={fw.id} className='flex items-center justify-between'>
+                            <span className='text-body-sm text-neutral-02'>v{fw.version}</span>
+                            <InstallButton
+                              manifest={`${apiUrl}/firmwares/${fw.id}/manifest.json`}
+                              label='Flash'
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
               </div>
             )}
           </div>

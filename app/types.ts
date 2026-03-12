@@ -247,6 +247,7 @@ export interface Firmware {
   createdAt: Date;
   updatedAt: Date;
   version: string;
+  dollBodyId: string;
   bin: string;
   checksum: string;
 }
@@ -259,6 +260,7 @@ export interface DollBody {
   description: string;
   picture: string;
   avatar: Avatar;
+  firmwares?: Firmware[];
 }
 
 export interface SttJob {
