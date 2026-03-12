@@ -118,6 +118,9 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
               <div className='bg-gradient-1 rounded-xl p-5'>
                 <h4 className='text-heading-h4 text-base-black mb-3'>Firmware</h4>
                 <div className='flex flex-col gap-3'>
+                  <p className='text-body-sm text-neutral-02'>
+                    Hold BOOT, press RESET, release BOOT to enter download mode before flashing.
+                  </p>
                   <div className='flex items-center justify-between'>
                     <span className='text-body-md text-neutral-01'>
                       Latest: v{dollBody.firmwares[0].version}
