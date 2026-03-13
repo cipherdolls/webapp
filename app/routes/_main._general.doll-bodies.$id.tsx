@@ -10,6 +10,7 @@ import { ROUTES, apiUrl } from '~/constants';
 import ErrorPage from '~/components/ErrorPage';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 import { InstallButton } from '~/components/buttons/InstallButton';
+import { SerialConfigButton } from '~/components/buttons/SerialConfigButton';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Body - CipherDolls' }];
@@ -151,6 +152,14 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                 </div>
               </div>
             )}
+
+            <div className='bg-gradient-1 rounded-xl p-5'>
+              <h4 className='text-heading-h4 text-base-black mb-3'>Device Configuration</h4>
+              <p className='text-body-sm text-neutral-02 mb-3'>
+                Connect to your device via USB to set the API key and view config.
+              </p>
+              <SerialConfigButton />
+            </div>
           </div>
 
           <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px] w-full'>
