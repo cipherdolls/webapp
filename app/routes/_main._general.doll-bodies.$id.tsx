@@ -126,11 +126,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                     <span className='text-body-md text-neutral-01'>
                       Latest: v{dollBody.firmwares[0].version}
                     </span>
-                    <InstallButton
-                      manifest={`${apiUrl}/firmwares/${dollBody.firmwares[0].id}/manifest.json`}
-                      apiKey={user?.apikey}
-                      label='Flash Firmware'
-                    />
+                    <InstallButton manifest={`${apiUrl}/firmwares/${dollBody.firmwares[0].id}/manifest.json`} label='Flash Firmware' />
                   </div>
                   {dollBody.firmwares.length > 1 && (
                     <details className='mt-2'>
@@ -141,11 +137,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                         {dollBody.firmwares.slice(1).map((fw) => (
                           <div key={fw.id} className='flex items-center justify-between'>
                             <span className='text-body-sm text-neutral-02'>v{fw.version}</span>
-                            <InstallButton
-                              manifest={`${apiUrl}/firmwares/${fw.id}/manifest.json`}
-                              apiKey={user?.apikey}
-                              label='Flash'
-                            />
+                            <InstallButton manifest={`${apiUrl}/firmwares/${fw.id}/manifest.json`} label='Flash' />
                           </div>
                         ))}
                       </div>
@@ -159,7 +151,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
               <div className='bg-gradient-1 rounded-xl p-5'>
                 <h4 className='text-heading-h4 text-base-black mb-3'>Device Configuration</h4>
                 <p className='text-body-sm text-neutral-02 mb-3'>
-                  Connect your device via USB to send your API key.
+                  Connect your device via USB to configure API key and speaker volume.
                 </p>
                 <SerialConfigButton apiKey={user.apikey} />
               </div>
