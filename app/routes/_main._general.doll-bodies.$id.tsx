@@ -128,6 +128,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                     </span>
                     <InstallButton
                       manifest={`${apiUrl}/firmwares/${dollBody.firmwares[0].id}/manifest.json`}
+                      apiKey={user?.apikey}
                       label='Flash Firmware'
                     />
                   </div>
@@ -142,6 +143,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                             <span className='text-body-sm text-neutral-02'>v{fw.version}</span>
                             <InstallButton
                               manifest={`${apiUrl}/firmwares/${fw.id}/manifest.json`}
+                              apiKey={user?.apikey}
                               label='Flash'
                             />
                           </div>
