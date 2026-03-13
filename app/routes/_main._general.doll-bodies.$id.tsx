@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router';
 import type { Route } from './+types/_main._general.doll-bodies.$id';
 import { useDollBody } from '~/hooks/queries/dollQueries';
@@ -24,6 +25,9 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
   const confirm = useConfirm();
   const alert = useAlert();
   const isAdmin = user?.role === 'ADMIN';
+  const [activeTab, setActiveTab] = useState<'firmware' | 'configure'>('firmware');
+  const hasFirmwares = dollBody?.firmwares && dollBody.firmwares.length > 0;
+  const hasApiKey = !!user?.apikey;
 
   const handleDelete = async () => {
     const result = await confirm({
@@ -115,45 +119,86 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
               </div>
             )}
 
-            {dollBody.firmwares && dollBody.firmwares.length > 0 && (
+            {(hasFirmwares || hasApiKey) && (
               <div className='bg-gradient-1 rounded-xl p-5'>
-                <h4 className='text-heading-h4 text-base-black mb-3'>Firmware</h4>
-                <div className='flex flex-col gap-3'>
-                  <p className='text-body-sm text-neutral-02'>
-                    Hold BOOT, press RESET, release BOOT to enter download mode before flashing.
-                  </p>
-                  <div className='flex items-center justify-between'>
-                    <span className='text-body-md text-neutral-01'>
-                      Latest: v{dollBody.firmwares[0].version}
-                    </span>
-                    <InstallButton manifest={`${apiUrl}/firmwares/${dollBody.firmwares[0].id}/manifest.json`} label='Flash Firmware' />
-                  </div>
-                  {dollBody.firmwares.length > 1 && (
-                    <details className='mt-2'>
-                      <summary className='text-body-sm text-neutral-02 cursor-pointer'>
-                        Previous versions ({dollBody.firmwares.length - 1})
-                      </summary>
-                      <div className='flex flex-col gap-2 mt-2'>
-                        {dollBody.firmwares.slice(1).map((fw) => (
-                          <div key={fw.id} className='flex items-center justify-between'>
-                            <span className='text-body-sm text-neutral-02'>v{fw.version}</span>
-                            <InstallButton manifest={`${apiUrl}/firmwares/${fw.id}/manifest.json`} label='Flash' />
-                          </div>
-                        ))}
-                      </div>
-                    </details>
+                <div className='flex gap-0 mb-4 border-b border-neutral-04'>
+                  {hasFirmwares && (
+                    <button
+                      onClick={() => setActiveTab('firmware')}
+                      className={`px-4 py-2 text-body-md font-semibold border-b-2 transition-colors ${
+                        activeTab === 'firmware' ? 'border-base-black text-base-black' : 'border-transparent text-neutral-02 hover:text-neutral-01'
+                      }`}
+                    >
+                      Firmware
+                    </button>
+                  )}
+                  {hasApiKey && (
+                    <button
+                      onClick={() => setActiveTab('configure')}
+                      className={`px-4 py-2 text-body-md font-semibold border-b-2 transition-colors ${
+                        activeTab === 'configure' ? 'border-base-black text-base-black' : 'border-transparent text-neutral-02 hover:text-neutral-01'
+                      }`}
+                    >
+                      Configure
+                    </button>
                   )}
                 </div>
-              </div>
-            )}
 
-            {user?.apikey && (
-              <div className='bg-gradient-1 rounded-xl p-5'>
-                <h4 className='text-heading-h4 text-base-black mb-3'>Device Configuration</h4>
-                <p className='text-body-sm text-neutral-02 mb-3'>
-                  Connect your device via USB to configure API key and speaker volume.
-                </p>
-                <SerialConfigButton apiKey={user.apikey} />
+                {activeTab === 'firmware' && hasFirmwares && (
+                  <div className='flex flex-col gap-3'>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex flex-col'>
+                        <a
+                          href={`https://github.com/cipherdolls/dollbody/commit/${dollBody.firmwares![0].version}`}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='text-body-md text-neutral-01 font-semibold hover:underline'
+                        >
+                          {dollBody.firmwares![0].version}
+                        </a>
+                        <span className='text-body-sm text-neutral-02'>
+                          {new Date(dollBody.firmwares![0].createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <InstallButton manifest={`${apiUrl}/firmwares/${dollBody.firmwares![0].id}/manifest.json`} label='Flash' />
+                    </div>
+                    {dollBody.firmwares!.length > 1 && (
+                      <details className='mt-2'>
+                        <summary className='text-body-sm text-neutral-02 cursor-pointer'>
+                          Previous versions ({dollBody.firmwares!.length - 1})
+                        </summary>
+                        <div className='flex flex-col gap-2 mt-2'>
+                          {dollBody.firmwares!.slice(1).map((fw) => (
+                            <div key={fw.id} className='flex items-center justify-between'>
+                              <span className='text-body-sm text-neutral-02'>
+                                <a
+                                  href={`https://github.com/cipherdolls/dollbody/commit/${fw.version}`}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='hover:underline'
+                                >
+                                  {fw.version}
+                                </a>
+                                {' — '}
+                                {new Date(fw.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </span>
+                              <InstallButton manifest={`${apiUrl}/firmwares/${fw.id}/manifest.json`} label='Flash' />
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'configure' && hasApiKey && (
+                  <div>
+                    <p className='text-body-sm text-neutral-02 mb-3'>
+                      Connect your device via USB to configure API key and speaker volume.
+                    </p>
+                    <SerialConfigButton apiKey={user!.apikey} />
+                  </div>
+                )}
               </div>
             )}
           </div>
