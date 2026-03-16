@@ -1,4 +1,7 @@
-export const apiUrl = import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com';
+const isServer = typeof document === 'undefined';
+export const apiUrl = isServer
+  ? (process.env.SERVER_API_URL || import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com')
+  : (import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com');
 export const wsURL = import.meta.env.VITE_WS_URL || 'wss://mqtt.cipherdolls.com';
 export const streamRecorderUrl = import.meta.env.VITE_STREAM_RECORDER_URL || 'wss://stream-recorder.cipherdolls.com';
 export const streamPlayerUrl = import.meta.env.VITE_STREAM_PLAYER_URL || 'wss://stream-player.cipherdolls.com';
@@ -76,8 +79,8 @@ export const TOKEN_BALANCE = {
   DECIMAL_PLACES: 3,
   RATE_LIMIT_MS: 2000,
   FEEDBACK_TIMEOUT_MS: 3000,
-  MINIMUM_SPENDABLE: 0.1,
-} as const;
+  MINIMUM_SPENDABLE: import.meta.env.DEV ? 0 : 0.1,
+};
 
 export const GUEST_MODE_WELCOME_CHATS = [
   {
