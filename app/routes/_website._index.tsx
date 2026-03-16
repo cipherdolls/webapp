@@ -13,7 +13,6 @@ import AIModelBanner from '~/components/website/AIModelBanner';
 import { apiUrl } from '~/constants';
 import type { Scenario } from '~/types';
 import GuestMode from '~/components/website/GuestMode';
-const FREYA_AVATAR_ID = '5b0b2bc6-abb2-439c-a2a8-6b42ca10c7bb';
 
 export function meta() {
   return [
@@ -79,8 +78,7 @@ export function meta() {
 }
 
 export async function loader() {
-  const [avatarRes, avatarsRes, scenariosRes, aiProvidersRes, ttsProvidersRes, sttProvidersRes] = await Promise.all([
-    fetch(`${apiUrl}/avatars/${FREYA_AVATAR_ID}`, { method: 'GET' }),
+  const [avatarsRes, scenariosRes, aiProvidersRes, ttsProvidersRes, sttProvidersRes] = await Promise.all([
     fetch(`${apiUrl}/avatars`, { method: 'GET' }),
     fetch(`${apiUrl}/scenarios`, { method: 'GET' }),
     fetch(`${apiUrl}/ai-providers`, { method: 'GET' }),
@@ -88,14 +86,15 @@ export async function loader() {
     fetch(`${apiUrl}/stt-providers`, { method: 'GET' }),
   ]);
 
-  const [avatar, avatars, scenarios, aiProvidersData, ttsProviders, sttProviders] = await Promise.all([
-    avatarRes.json(),
+  const [avatars, scenarios, aiProvidersData, ttsProviders, sttProviders] = await Promise.all([
     avatarsRes.json(),
     scenariosRes.json(),
     aiProvidersRes.json(),
     ttsProvidersRes.json(),
     sttProvidersRes.json(),
   ]);
+
+  const avatar = avatars.data?.find((a: any) => a.recommended) || avatars.data?.[0] || null;
 
   // Filter out scenarios with errors in their models. TODO: Change this logic on the backend
   const scenariosWithoutErrors = {
@@ -122,12 +121,12 @@ export default function Index({ loaderData }: Route.ComponentProps) {
     <>
       <Header/>
       <div>
-        <Hero avatar={avatar} />
+        {avatar && <Hero avatar={avatar} />}
         <AIModelBanner aiProviders={aiProviders} ttsProviders={ttsProviders} sttProviders={sttProviders} />
         <CompanyLogos />
         <HowItWorks />
         <Steps />
-        <Avatars avatars={avatars.data.slice(0, 4)} />
+        <Avatars avatars={avatars.data?.slice(0, 4) || []} />
         <Scenarios scenarios={scenarios.data} />
         {/*<GuestMode />*/}
         <Features />
