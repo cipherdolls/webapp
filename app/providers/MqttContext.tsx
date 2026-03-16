@@ -152,7 +152,11 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
         console.error('MQTT error:', error);
 
         if (isAuthenticationError(error)) {
-          console.warn('MQTT authentication failed, signing out user');
+          console.warn('MQTT authentication failed, disconnecting and signing out user');
+          if (clientRef.current) {
+            clientRef.current.end(true);
+            clientRef.current = null;
+          }
           logout().catch(console.error);
           return;
         }
@@ -217,8 +221,12 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
       clientRef.current.subscribe(topic, (error) => {
         if (error) {
           console.error(`Failed to subscribe to ${topic}:`, error);
-        } else {
-          // console.log(`[MqttContext] Successfully subscribed to ${topic}`);
+          console.warn('MQTT subscription rejected, disconnecting and signing out user');
+          if (clientRef.current) {
+            clientRef.current.end(true);
+            clientRef.current = null;
+          }
+          logout().catch(console.error);
         }
       });
     }
@@ -269,8 +277,12 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
           clientRef.current!.subscribe(topic, (error) => {
             if (error) {
               console.error(`Failed to re-subscribe to ${topic}:`, error);
-            } else {
-              // console.log(`[MqttContext] Re-subscribed to ${topic}`);
+              console.warn('MQTT re-subscription rejected, disconnecting and signing out user');
+              if (clientRef.current) {
+                clientRef.current.end(true);
+                clientRef.current = null;
+              }
+              logout().catch(console.error);
             }
           });
         }
