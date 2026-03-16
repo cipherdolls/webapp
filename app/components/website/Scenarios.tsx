@@ -36,6 +36,8 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   const [activeScenario, setActiveScenario] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  if (!scenarios || scenarios.length === 0) return null;
+
   const currentScenario = scenarios[activeScenario];
   // Reset scroll position when scenario changes
   useEffect(() => {
