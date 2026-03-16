@@ -160,13 +160,11 @@ export const YourWallet = ({ disabled = false }: YourWalletProps) => {
                   <div className='flex items-center flex-1 justify-end'>
                     <span className='block truncate text-body-lg w-fit max-w-52 pr-2'>{disabled ? '—' : formattedAllowance} LOV</span>
 
-                    {permits.length > 0 && (
-                      <CreateTokenAllowanceModal>
-                        <Button.Root size='icon' variant='primary' className='text-body-sm h-9 w-16' disabled={disabled}>
-                          Set
-                        </Button.Root>
-                      </CreateTokenAllowanceModal>
-                    )}
+                    <CreateTokenAllowanceModal>
+                      <Button.Root size='icon' variant='primary' className='text-body-sm h-9 w-16' disabled={disabled}>
+                        Set
+                      </Button.Root>
+                    </CreateTokenAllowanceModal>
                   </div>
                 </div>
 
