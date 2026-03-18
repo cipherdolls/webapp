@@ -191,6 +191,18 @@ const DollBodyFormModal = ({ dollBody, onSubmit, isPending, onClose, errors }: D
                 </Textarea.Root>
               )}
 
+              <Input.Root>
+                <Input.Label htmlFor='productUrl'>Product URL</Input.Label>
+                <Input.Input
+                  className='text-base-black border border-neutral-04 py-3.5 px-3'
+                  id='productUrl'
+                  name='productUrl'
+                  type='url'
+                  placeholder='https://www.amazon.com/...'
+                  defaultValue={dollBody?.productUrl ?? ''}
+                />
+              </Input.Root>
+
               <Select.Root name='avatarId' key={`${defaultAvatarId}-${avatarsLoading}`} defaultValue={defaultAvatarId}>
                 <Select.Label>Avatar</Select.Label>
                 <Select.Trigger>

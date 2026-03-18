@@ -259,6 +259,7 @@ export interface DollBody {
   name: string;
   description: string;
   picture: string;
+  productUrl: string | null;
   avatar: Avatar;
   firmwares?: Firmware[];
 }

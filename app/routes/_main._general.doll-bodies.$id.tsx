@@ -203,7 +203,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
             )}
           </div>
 
-          <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px] w-full'>
+          <div className='flex flex-col gap-4 md:pl-4 md:max-w-[310px] w-full'>
             <label className='sm:h-60 h-[263px] w-full bg-neutral-04 sm:bg-gradient-1 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
               {dollBody.picture ? (
                 <div className='size-full'>
@@ -220,6 +220,11 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                 </div>
               )}
             </label>
+            {dollBody.productUrl && (
+              <a href={dollBody.productUrl} target='_blank' rel='noopener noreferrer'>
+                <Button.Root className='w-full'>Buy</Button.Root>
+              </a>
+            )}
           </div>
         </div>
       </div>
