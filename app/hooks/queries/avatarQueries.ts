@@ -17,6 +17,7 @@ interface AvatarsQueryParams {
   published?: string;
   name?: string;
   gender?: string;
+  free?: string;
   page?: string;
   limit?: string;
 }

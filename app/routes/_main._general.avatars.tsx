@@ -6,6 +6,7 @@ import * as Button from '~/components/ui/button/button';
 import { ROUTES } from '~/constants';
 import * as Popover from '~/components/ui/popover';
 import * as RadioGroup from '~/components/ui/radio-group';
+import * as Switch from '~/components/ui/switch';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
@@ -80,9 +81,10 @@ export default function AvatarsShow() {
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
   const searchQuery = searchParams.get('name') || '';
+  const showFreeToUse = searchParams.has('free');
 
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0 || genderFilter !== 'All';
+  const hasActiveFilters = searchQuery.length > 0 || genderFilter !== 'All' || showFreeToUse;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -107,6 +109,16 @@ export default function AvatarsShow() {
       newSearchParams.set('gender', filter);
     }
 
+    setSearchParams(newSearchParams);
+  };
+
+  const handleFreeToUseToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (showFreeToUse) {
+      newSearchParams.delete('free');
+    } else {
+      newSearchParams.set('free', 'true');
+    }
     setSearchParams(newSearchParams);
   };
 
@@ -211,6 +223,20 @@ export default function AvatarsShow() {
                         </div>
                       ))}
                     </RadioGroup.Root>
+                  </div>
+
+                  {/* Free to Use Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Pricing</h4>
+
+                    <div className='flex items-center gap-2 bg-neutral-06 rounded-lg select-none'>
+                      <Switch.Root checked={showFreeToUse} onCheckedChange={() => handleFreeToUseToggle()}>
+                        <Switch.Thumb />
+                      </Switch.Root>
+                      <label className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer' onClick={handleFreeToUseToggle}>
+                        Show Free To Use
+                      </label>
+                    </div>
                   </div>
                 </div>
               </Popover.Content>

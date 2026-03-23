@@ -7,6 +7,7 @@ import PlayerButton from '~/components/PlayerButton';
 import * as Button from '~/components/ui/button/button';
 import ChatSelectionWizard from './ChatSelectionWizard';
 import { PATHS } from '~/constants';
+import FreeToUseBadge from '~/components/FreeToUseBadge';
 
 
 export const AvatarListCardSkeleton = ({ count = 2 }: { count?: number }) => {
@@ -40,14 +41,15 @@ const AvatarListCard = ({ avatar, isUsersAvatar }: AvatarListCardProps) => {
             alt={`${avatar.name} picture`}
             className='object-cover size-full'
           />
-          {isUsersAvatar && (
-            <div className='absolute top-2 left-2 z-10'>
+          <div className='absolute top-2 left-2 z-10 flex items-center gap-2'>
+            {isUsersAvatar && (
               <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
                 🌐
                 <span>By you</span>
               </div>
-            </div>
-          )}
+            )}
+            {avatar.free && <FreeToUseBadge />}
+          </div>
           {avatar.gender === 'Female' ? (
             <div className='absolute bottom-2 left-2 z-10'>
               <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>

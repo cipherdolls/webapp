@@ -403,6 +403,7 @@ export interface Avatar {
   character: string;
   ttsVoiceId: string;
   userId: string;
+  free: boolean;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
