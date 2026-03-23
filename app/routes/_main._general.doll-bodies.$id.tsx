@@ -12,6 +12,7 @@ import ErrorPage from '~/components/ErrorPage';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 import { InstallButton } from '~/components/buttons/InstallButton';
 import { SerialConfigButton } from '~/components/buttons/SerialConfigButton';
+import { useApiKeys } from '~/hooks/queries/apiKeyQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Doll Body - CipherDolls' }];
@@ -26,8 +27,9 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
   const alert = useAlert();
   const isAdmin = user?.role === 'ADMIN';
   const [activeTab, setActiveTab] = useState<'firmware' | 'configure'>('firmware');
+  const { data: apiKeys } = useApiKeys();
   const hasFirmwares = dollBody?.firmwares && dollBody.firmwares.length > 0;
-  const hasApiKey = !!user?.apikey;
+  const hasApiKey = apiKeys && apiKeys.length > 0;
 
   const handleDelete = async () => {
     const result = await confirm({
@@ -196,7 +198,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                     <p className='text-body-sm text-neutral-02 mb-3'>
                       Connect your device via USB to configure API key and speaker volume.
                     </p>
-                    <SerialConfigButton apiKey={user!.apikey} />
+                    <SerialConfigButton apiKey={apiKeys![0].key} />
                   </div>
                 )}
               </div>

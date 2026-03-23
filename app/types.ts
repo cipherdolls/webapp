@@ -37,7 +37,6 @@ export interface User {
   freeWeiBalance: string;
   signerAddress: string;
   walletAddress: string;
-  apikey: string;
   gender: Gender | null;
   language: string
   role: string;
@@ -46,6 +45,14 @@ export interface User {
   tokenAllowance: number;
   tokenSpendable?: number;
   referralCount?: number;
+}
+
+export interface ApiKey {
+  id: string;
+  createdAt: string;
+  key: string;
+  name: string;
+  userId: string;
 }
 
 export interface TokenPermitsPaginated {
