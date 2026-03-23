@@ -177,7 +177,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             {/*    Duplicate*/}
             {/*  </Button.Root>*/}
             {/*</fetcher.Form>*/}
-            {avatar.userId === user.id && (
+            {(avatar.userId === user.id || user.role === 'ADMIN') && (
               <>
                 <Link to={`${ROUTES.avatars}/${avatar.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
@@ -198,7 +198,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   type: 'link',
                   text: 'Edit',
                   href: `${ROUTES.avatars}/${avatar.id}/edit`,
-                  visible: user.id === avatar.userId,
+                  visible: user.id === avatar.userId || user.role === 'ADMIN',
                 },
                 {
                   type: 'component',
@@ -236,7 +236,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                       <Icons.trash className='w-12' />
                     </Button.Root>
                   ),
-                  visible: user.id === avatar.userId,
+                  visible: user.id === avatar.userId || user.role === 'ADMIN',
                 },
               ]}
             />

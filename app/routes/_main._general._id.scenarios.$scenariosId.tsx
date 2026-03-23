@@ -157,7 +157,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 }
               />
             )}
-            {me.id === scenario.userId && (
+            {(me.id === scenario.userId || me.role === 'ADMIN') && (
               <>
                 <Link to={`${ROUTES.scenarios}/${scenario.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
@@ -180,7 +180,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                   type: 'link',
                   text: 'Edit',
                   href: `${ROUTES.scenarios}/${scenario.id}/edit`,
-                  visible: me.id === scenario.userId,
+                  visible: me.id === scenario.userId || me.role === 'ADMIN',
                 },
                 {
                   type: 'addToChat',
@@ -203,7 +203,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                       </Button.Root>
                     </DeleteModal>
                   ),
-                  visible: me.id === scenario.userId,
+                  visible: me.id === scenario.userId || me.role === 'ADMIN',
                 },
               ]}
             />
