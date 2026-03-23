@@ -244,10 +244,10 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
     if (!selectedAvatar) return;
     if (!scenarioContext) return;
 
-    const isSponsored = Boolean(scenarioContext.sponsorships?.length);
+    const isFree = Boolean(scenarioContext.free);
     const userTokenSpendable = user?.tokenSpendable ?? 0;
 
-    if (!isUsingBurnerWallet && !isSponsored && userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
+    if (!isUsingBurnerWallet && !isFree && userTokenSpendable < TOKEN_BALANCE.MINIMUM_SPENDABLE) {
       alert({
         icon: '💰',
         title: 'Insufficient Tokens',

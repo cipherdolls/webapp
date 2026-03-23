@@ -29,13 +29,13 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = () => {
 
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
 
-  const { data: sponsoredScenariosData, isLoading: isLoadingScenarios } = useScenarios({
+  const { data: freeScenariosData, isLoading: isLoadingScenarios } = useScenarios({
     published: 'true',
-    hasSponsorship: 'true',
+    free: 'true',
     limit: '8',
   });
 
-  const sponsoredScenarios = sponsoredScenariosData?.data || [];
+  const freeScenarios = freeScenariosData?.data || [];
 
   const handleScenarioSelect = (scenario: Scenario) => {
     setSelectedScenario(scenario);
@@ -72,7 +72,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = () => {
               <ScenarioSkeleton key={`scenario-skeleton-${index}`} />
             ))}
           </div>
-        ) : sponsoredScenarios.length === 0 ? (
+        ) : freeScenarios.length === 0 ? (
           <div className='flex flex-col items-center gap-4 py-12'>
             <div className='text-5xl'>🎭</div>
             <div className='text-center space-y-2'>
@@ -82,7 +82,7 @@ const ChatWelcomeEmpty: React.FC<ChatWelcomeEmptyProps> = () => {
           </div>
         ) : (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {sponsoredScenarios.map((scenario) => (
+            {freeScenarios.map((scenario) => (
               <button
                 key={scenario.id}
                 onClick={() => handleScenarioSelect(scenario)}

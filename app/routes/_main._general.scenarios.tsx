@@ -72,7 +72,7 @@ export default function ScenariosIndex() {
   const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
   const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
   const showNsfw = searchParams.has('nsfw');
-  const showFreeToUse = searchParams.has('hasSponsorship');
+  const showFreeToUse = searchParams.has('free');
 
   const {
     data: scenarios,
@@ -145,9 +145,9 @@ export default function ScenariosIndex() {
   const handleFreeToUseToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     if (showFreeToUse) {
-      newSearchParams.delete('hasSponsorship');
+      newSearchParams.delete('free');
     } else {
-      newSearchParams.set('hasSponsorship', 'true');
+      newSearchParams.set('free', 'true');
     }
     setSearchParams(newSearchParams);
   };
@@ -350,16 +350,7 @@ export default function ScenariosIndex() {
                                 <span>By you</span>
                               </div>
                             )}
-                            {scenario.sponsorships && scenario.sponsorships.length > 0 && (
-                              <Tooltip
-                                side='top'
-                                variant='light'
-                                trigger={<FreeToUseBadge className='cursor-help' />}
-                                content={`This scenario has ${scenario.sponsorships.length} ${scenario.sponsorships.length === 1 ? 'sponsor' : 'sponsors'}. You can use it without spending your own tokens!`}
-                                className='max-w-[350px]'
-                                popoverClassName='max-w-[320px]'
-                              />
-                            )}
+                            {scenario.free && <FreeToUseBadge />}
                           </div>
                         </div>
                         {scenario.userGender === 'Male' ||
@@ -502,7 +493,7 @@ export default function ScenariosIndex() {
                               className='px-5'
                               disabled={
                                 (!me.tokenSpendable || me.tokenSpendable === 0) &&
-                                (!scenario.sponsorships || scenario.sponsorships.length === 0)
+                                !scenario.free
                               }
                             >
                               Chat

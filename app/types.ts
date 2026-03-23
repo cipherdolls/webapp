@@ -198,6 +198,8 @@ export interface Scenario {
   avatarGender?: Gender;
   nsfw?: boolean;
   type?: ScenarioType;
+  free?: boolean;
+  dollarPerMessage?: number;
   sponsorships?: Sponsorship[];
   user?: User;
 }

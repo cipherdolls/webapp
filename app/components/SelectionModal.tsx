@@ -103,7 +103,7 @@ export function SelectionModal<T>({
   const isAvatar = type === 'avatar';
 
   const isNoRecommendedItems = list.recommendedItems && list.recommendedItems.length === 0;
-  const isUsingBurnerWalletAndNoSponsor = isUsingBurnerWallet && !selectedScenario?.sponsorships?.length;
+  const isUsingBurnerWalletAndNoSponsor = isUsingBurnerWallet && !selectedScenario?.free;
 
   const searchPlaceholder = useMemo(() => {
     if (controls.searchPlaceholder) return controls.searchPlaceholder;

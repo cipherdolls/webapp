@@ -49,9 +49,8 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const scenario = useMemo(() => scenarioData || null, [scenarioData]);
   const sponsorships = useMemo(() => sponsorshipsData || [], [sponsorshipsData]);
   const userHasSponsored = useMemo(() => sponsorships.some((s) => s.userId === me.id), [sponsorships, me.id]);
-  const isSponsored = useMemo(() => Boolean(sponsorships.length), [sponsorships]);
   const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
-  const isChatDisabled = !isUsingBurnerWallet && !isSponsored && !hasMinimumTokens;
+  const isChatDisabled = !isUsingBurnerWallet && !scenario?.free && !hasMinimumTokens;
 
   const ownerSeed = useMemo(() => {
     if (scenario?.user?.signerAddress) {

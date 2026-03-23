@@ -126,7 +126,7 @@ const ChatSelectionWizard: React.FC<ChatSelectionWizardProps> = (props) => {
 export default ChatSelectionWizard;
 
 const ScenarioItem = ({ item, isSelected, onClick }: { item: Scenario; isSelected: boolean; onClick: () => void }) => {
-  const isSponsored = item.sponsorships?.length && item.sponsorships.length > 0;
+  const isFree = item.free;
   return (
     <button
       onClick={onClick}
@@ -226,7 +226,7 @@ const ScenarioItem = ({ item, isSelected, onClick }: { item: Scenario; isSelecte
             />
           )
         )}
-        {Boolean(isSponsored) && <FreeToUseBadge />}
+        {isFree && <FreeToUseBadge />}
       </div>
     </button>
   );

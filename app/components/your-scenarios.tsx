@@ -86,8 +86,7 @@ const YourScenarios = ({ chats }: { chats?: Chat[] }) => {
               className='grid grid-cols-1 sm:grid-cols-2 gap-x-2 -mt-2'
             >
               {scenarios.map((scenario, index) => {
-                const isSponsored = Boolean(scenario.sponsorships?.length);
-                const isChatDisabled = !isUsingBurnerWallet && !isSponsored && !hasMinimumTokens;
+                const isChatDisabled = !isUsingBurnerWallet && !scenario.free && !hasMinimumTokens;
 
                 return (
                   <div className='pt-2' key={index}>
