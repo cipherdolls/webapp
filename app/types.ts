@@ -199,6 +199,7 @@ export interface Scenario {
   nsfw?: boolean;
   type?: ScenarioType;
   sponsorships?: Sponsorship[];
+  user?: User;
 }
 
 export interface Sponsorship {
@@ -422,6 +423,7 @@ export interface Avatar {
   language: string;
   scenarios?: Scenario[];
   gender: Gender;
+  user?: User;
 }
 export interface AvatarCount {
   chats: number;

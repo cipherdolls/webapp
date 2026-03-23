@@ -13,6 +13,7 @@ import { ViewMore } from '~/view-more';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 
+import Jazzicon from 'react-jazzicon';
 import React, { useMemo, useState } from 'react';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
@@ -51,6 +52,19 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const isSponsored = useMemo(() => Boolean(sponsorships.length), [sponsorships]);
   const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
   const isChatDisabled = !isUsingBurnerWallet && !isSponsored && !hasMinimumTokens;
+
+  const ownerSeed = useMemo(() => {
+    if (scenario?.user?.signerAddress) {
+      return parseInt(scenario.user.signerAddress.slice(2, 10), 16);
+    }
+    let hash = 0;
+    const userId = scenario?.userId || '';
+    for (let i = 0; i < userId.length; i++) {
+      hash = (hash << 5) - hash + userId.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  }, [scenario]);
 
   const [showAll, setShowAll] = useState(false);
 
@@ -334,6 +348,26 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
               userHasSponsored={userHasSponsored}
               isPublishedScenario={scenario.published}
             />
+            <div className='flex flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Owner</h1>
+              <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
+                {scenario.user?.signerAddress ? (
+                  <Jazzicon diameter={40} seed={ownerSeed} />
+                ) : (
+                  <h2 className='text-heading-h2'>{scenario.published ? '👥' : '💖'}</h2>
+                )}
+                <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                  <p className='text-body-lg font-semibold text-base-black text-left truncate'>
+                    {scenario.user?.name || 'Unknown'}
+                  </p>
+                  <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
+                    {scenario.user?.signerAddress
+                      ? `${scenario.user.signerAddress.slice(0, 6)}...${scenario.user.signerAddress.slice(-4)}`
+                      : scenario.userId}
+                  </span>
+                </div>
+              </div>
+            </div>
             <DetailCard isScenario>
               <div className='flex flex-col gap-4'>
                 <DetailRow title='Created at: ' value={createdDate} />

@@ -122,8 +122,8 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   };
 
   const getCreatorSeed = () => {
-    if (avatar.userId === user.id && user.signerAddress) {
-      return parseInt(user.signerAddress.slice(2, 10), 16);
+    if (avatar.user?.signerAddress) {
+      return parseInt(avatar.user.signerAddress.slice(2, 10), 16);
     }
 
     let hash = 0;
@@ -399,19 +399,21 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             )}
 
             <div className='flex flex-col gap-5'>
-              <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Owner</h1>
               <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
-                {user.signerAddress ? (
+                {avatar.user?.signerAddress ? (
                   <Jazzicon diameter={40} seed={creatorSeed} />
                 ) : (
                   <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
                 )}
                 <div className='flex flex-col gap-1 min-w-0 flex-1'>
                   <p className='text-body-lg font-semibold text-base-black text-left truncate'>
-                    {isPublished ? 'Published' : 'Your Special'}
+                    {avatar.user?.name || 'Unknown'}
                   </p>
                   <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
-                    {user.id === avatar.userId ? 'Made by you' : avatar.userId}
+                    {avatar.user?.signerAddress
+                      ? `${avatar.user.signerAddress.slice(0, 6)}...${avatar.user.signerAddress.slice(-4)}`
+                      : avatar.userId}
                   </span>
                 </div>
               </div>
