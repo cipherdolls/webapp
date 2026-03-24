@@ -65,7 +65,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         label: 'From Address',
                         value: transaction.fromAddress ? (
                           <a
-                            href={`https://optimistic.etherscan.io/address/${transaction.fromAddress}`}
+                            href={`https://basescan.org/address/${transaction.fromAddress}`}
                             className='underline'
                             target='_blank'
                             rel='noreferrer noopener'
@@ -78,7 +78,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         label: 'To Address',
                         value: transaction.toAddress ? (
                           <a
-                            href={`https://optimistic.etherscan.io/address/${transaction.toAddress}`}
+                            href={`https://basescan.org/address/${transaction.toAddress}`}
                             className='underline'
                             target='_blank'
                             rel='noreferrer noopener'
@@ -99,7 +99,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         label: 'Transaction Hash',
                         value: transaction.txHash ? (
                           <a
-                            href={`https://optimistic.etherscan.io/tx/${transaction.txHash}`}
+                            href={`https://basescan.org/tx/${transaction.txHash}`}
                             className='underline'
                             target='_blank'
                             rel='noreferrer noopener'
