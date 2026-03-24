@@ -19,13 +19,13 @@ export function meta({ data }: Route.MetaArgs) {
     { title: `Chat with ${avatarName} - CipherDolls` },
     {
       name: 'description',
-      content: `Anonymous private conversation with ${avatarName}. Pay per message with LOV tokens. Voice chat and text messaging available.`,
+      content: `Anonymous private conversation with ${avatarName}. Pay per message with USDC. Voice chat and text messaging available.`,
     },
     { property: 'og:type', content: 'website' },
     { property: 'og:title', content: `Chat with ${avatarName} - CipherDolls` },
     {
       property: 'og:description',
-      content: `Have an anonymous conversation with ${avatarName}. Complete privacy guaranteed. Pay per message with LOV tokens.`,
+      content: `Have an anonymous conversation with ${avatarName}. Complete privacy guaranteed. Pay per message with USDC.`,
     },
     { name: 'robots', content: 'noindex, nofollow' },
   ];

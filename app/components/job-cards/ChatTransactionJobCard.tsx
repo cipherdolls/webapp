@@ -2,7 +2,7 @@ import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { useTransactions } from '~/hooks/queries/transactionQueries';
 
-import { formatEther } from 'ethers';
+import { formatUnits } from 'ethers';
 import { Icons } from '~/components/ui/icons';
 import * as Accordion from '@radix-ui/react-accordion';
 
@@ -59,7 +59,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                     data={[
                       {
                         label: 'Amount',
-                        value: `${formatEther(transaction.amountWei)} LOV`,
+                        value: `${formatUnits(transaction.amountWei, 6)} USDC`,
                       },
                       {
                         label: 'From Address',

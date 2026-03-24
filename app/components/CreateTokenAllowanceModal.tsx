@@ -4,7 +4,7 @@ import * as Slider from '~/components/ui/slider';
 import { PermitButton } from '~/components/buttons/PermitButton';
 import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
-import { ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY } from '~/constants';
+import { ANIMATE_MODAL_SHOW_CENTER, ANIMATE_OVERLAY, USDC_TOKEN_ADDRESS, USDC_TOKEN_NAME, USDC_TOKEN_VERSION, SPENDER_ADDRESS } from '~/constants';
 import { motion } from 'motion/react';
 import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
 
@@ -93,7 +93,7 @@ const CreateTokenAllowanceModal = ({ children }: CreateTokenAllowanceModalProps)
               <div className='flex flex-col gap-6'>
                 <div className='flex flex-col gap-4'>
                   <div className='flex items-center justify-between'>
-                    <label className='text-body-lg text-base-black'>LOV Token amount</label>
+                    <label className='text-body-lg text-base-black'>USDC amount</label>
                     <span className='text-heading-h2 font-bold text-base-black'>{amount}</span>
                   </div>
 
@@ -120,10 +120,10 @@ const CreateTokenAllowanceModal = ({ children }: CreateTokenAllowanceModalProps)
 
                   <PermitButton
                     key={permitKey}
-                    tokenAddress='0x77469eeb563a6035b7b898f6a392284371918045'
-                    tokenName='cipherdolls'
-                    tokenVersion='1'
-                    spender='0x2A0a2744d4d96b43C2C273f1906AD89dFe2AD607'
+                    tokenAddress={USDC_TOKEN_ADDRESS}
+                    tokenName={USDC_TOKEN_NAME}
+                    tokenVersion={USDC_TOKEN_VERSION}
+                    spender={SPENDER_ADDRESS}
                     amount={amount.toString()}
                     onSigned={handlePermitSigned}
                     isPending={isCreatingTokenPermit}

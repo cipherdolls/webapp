@@ -172,7 +172,7 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
                 title: 'Insufficient Tokens',
                 body:
                   error?.message ||
-                  `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+                  `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to start a chat. Please add more tokens to continue.`,
               });
             },
           }
@@ -251,7 +251,7 @@ export const useChatSelectionWizard = (props: ChatSelectionWizardProps): UseChat
       alert({
         icon: '💰',
         title: 'Insufficient Tokens',
-        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to start a chat. Please add more tokens to continue.`,
       });
       return;
     }

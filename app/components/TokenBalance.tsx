@@ -128,11 +128,11 @@ const TokenBalance = () => {
             <div className='flex flex-col gap-1 flex-1'>
               <div className='flex justify-between text-heading-h3 font-semibold text-base-black'>
                 <motion.span className='block truncate w-fit max-w-52 pr-2 lg:max-w-44'>{formattedBalance}</motion.span>
-                <span className='text-neutral-01'>LOV</span>
+                <span className='text-neutral-01'>USDC</span>
               </div>
               <div className='flex justify-between text-body-sm text-neutral-02'>
                 <span>Spendable:</span>
-                <span className='font-medium'>{validatedSpendable} LOV</span>
+                <span className='font-medium'>{validatedSpendable} USDC</span>
               </div>
             </div>
           </div>

@@ -6,8 +6,13 @@ export const wsURL = import.meta.env.VITE_WS_URL || 'wss://mqtt.cipherdolls.com'
 export const streamRecorderUrl = import.meta.env.VITE_STREAM_RECORDER_URL || 'wss://stream-recorder.cipherdolls.com';
 export const streamPlayerUrl = import.meta.env.VITE_STREAM_PLAYER_URL || 'wss://stream-player.cipherdolls.com';
 
+export const USDC_TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS || '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+export const USDC_TOKEN_NAME = 'USD Coin';
+export const USDC_TOKEN_VERSION = '2';
+export const SPENDER_ADDRESS = import.meta.env.VITE_SPENDER_ADDRESS || '0x2A0a2744d4d96b43C2C273f1906AD89dFe2AD607';
+
 export const uniswapUrl =
-  'https://app.uniswap.org/explore/pools/optimism/0x6d0f116c3c01fa4e20f1b122124927587e9e56d092513f444aba98811e59063d' as const;
+  `https://app.uniswap.org/explore/tokens/base/${USDC_TOKEN_ADDRESS}` as const;
 
 export const PICTURE_SIZE = {
   smallest: 'smallest',
@@ -60,23 +65,23 @@ export const NETWORKS = {
     rpcUrls: ['https://mainnet.infura.io/v3/'],
     blockExplorerUrls: ['https://etherscan.io'],
   },
-  OPTIMISM: {
-    chainId: '0xa',
-    chainName: 'Optimism',
+  BASE: {
+    chainId: '0x2105',
+    chainName: 'Base',
     nativeCurrency: {
       name: 'Ether',
       symbol: 'ETH',
       decimals: 18,
     },
-    rpcUrls: ['https://mainnet.optimism.io'],
-    blockExplorerUrls: ['https://optimistic.etherscan.io'],
+    rpcUrls: ['https://mainnet.base.org'],
+    blockExplorerUrls: ['https://basescan.org'],
   },
 } as const;
 
-export const REQUIRED_NETWORK_FOR_TOKEN_PERMITS = NETWORKS.OPTIMISM;
+export const REQUIRED_NETWORK_FOR_TOKEN_PERMITS = NETWORKS.BASE;
 
 export const TOKEN_BALANCE = {
-  DECIMAL_PLACES: 3,
+  DECIMAL_PLACES: 2,
   RATE_LIMIT_MS: 2000,
   FEEDBACK_TIMEOUT_MS: 3000,
   MINIMUM_SPENDABLE: import.meta.env.DEV ? 0 : 0.1,

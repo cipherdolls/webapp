@@ -14,7 +14,7 @@ export function meta() {
     {
       name: 'description',
       content:
-        'Chat with AI avatars without compromising your privacy. Completely anonymous, no personal data collected. Pay only for what you use with LOV tokens. No subscriptions.',
+        'Chat with AI avatars without compromising your privacy. Completely anonymous, no personal data collected. Pay only for what you use with USDC. No subscriptions.',
     },
     // Open Graph
     { property: 'og:type', content: 'website' },
@@ -22,7 +22,7 @@ export function meta() {
     {
       property: 'og:description',
       content:
-        'Chat with avatars without compromising your privacy. Completely anonymous AI chat platform. Pay per message with LOV tokens. No personal data, no subscriptions.',
+        'Chat with avatars without compromising your privacy. Completely anonymous AI chat platform. Pay per message with USDC. No personal data, no subscriptions.',
     },
     { property: 'og:image', content: 'https://cipherdolls.com/logo.svg' },
     { property: 'og:url', content: 'https://cipherdolls.com' },
@@ -33,7 +33,7 @@ export function meta() {
     {
       name: 'twitter:description',
       content:
-        'Chat with AI avatars without compromising your privacy. Completely anonymous, pay per message with LOV tokens. No personal data collected.',
+        'Chat with AI avatars without compromising your privacy. Completely anonymous, pay per message with USDC. No personal data collected.',
     },
     { name: 'twitter:image', content: 'https://cipherdolls.com/logo.svg' },
   ];

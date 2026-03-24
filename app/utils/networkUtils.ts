@@ -30,7 +30,7 @@ export async function isOnCorrectNetworkForTokenPermits(): Promise<boolean> {
   return currentChainId === REQUIRED_NETWORK_FOR_TOKEN_PERMITS.chainId;
 }
 
-export async function switchToOptimismNetwork(): Promise<NetworkSwitchResult> {
+export async function switchToBaseNetwork(): Promise<NetworkSwitchResult> {
   if (!window.ethereum) {
     return {
       success: false,
@@ -41,15 +41,15 @@ export async function switchToOptimismNetwork(): Promise<NetworkSwitchResult> {
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: NETWORKS.OPTIMISM.chainId }],
+      params: [{ chainId: NETWORKS.BASE.chainId }],
     });
 
     return { success: true };
   } catch (error: any) {
     if (error.code === 4902) {
-      return await addOptimismNetwork();
+      return await addBaseNetwork();
     }
-    
+
     return {
       success: false,
       error: error.message || 'Failed to switch network',
@@ -57,7 +57,7 @@ export async function switchToOptimismNetwork(): Promise<NetworkSwitchResult> {
   }
 }
 
-async function addOptimismNetwork(): Promise<NetworkSwitchResult> {
+async function addBaseNetwork(): Promise<NetworkSwitchResult> {
   if (!window.ethereum) {
     return {
       success: false,
@@ -68,14 +68,14 @@ async function addOptimismNetwork(): Promise<NetworkSwitchResult> {
   try {
     await window.ethereum.request({
       method: 'wallet_addEthereumChain',
-      params: [NETWORKS.OPTIMISM],
+      params: [NETWORKS.BASE],
     });
 
     return { success: true };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Failed to add Optimism network',
+      error: error.message || 'Failed to add Base network',
     };
   }
 }

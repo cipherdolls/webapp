@@ -4,7 +4,7 @@ import { formatModelName } from '~/utils/formatModelName';
 import Tooltip from '~/components/ui/tooltip';
 import { Icons } from '~/components/ui/icons';
 import React from 'react';
-import { formatEther } from 'ethers';
+import { formatUnits } from 'ethers';
 
 const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   const embeddingJob = message?.embeddingJob;
@@ -14,7 +14,7 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
   }
 
   const formattedUsdCost = embeddingJob?.usdCost > 0 ? embeddingJob?.usdCost.toFixed(8) : 0;
-  const formattedPaymentJob = embeddingJob?.paymentJob?.weiCost ? formatEther(embeddingJob.paymentJob.weiCost) : 0;
+  const formattedPaymentJob = embeddingJob?.paymentJob?.weiCost ? formatUnits(embeddingJob.paymentJob.weiCost, 6) : 0;
 
   return (
     <DataCard.Root>

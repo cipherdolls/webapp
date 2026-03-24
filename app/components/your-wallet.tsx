@@ -143,7 +143,7 @@ export const YourWallet = ({ disabled = false }: YourWalletProps) => {
                   <div className='flex items-center flex-1 justify-end'>
                     <div className='flex items-center pr-2'>
                       <motion.span className='block text-body-lg truncate w-fit max-w-52 pr-1 lg:max-w-44'>{disabled ? '—' : formattedBalance}</motion.span>
-                      <span>LOV</span>
+                      <span>USDC</span>
                     </div>
 
                     <a href={disabled ? undefined : uniswapUrl} target={disabled ? undefined : '_blank'} rel='noreferrer' className={disabled ? 'pointer-events-none' : ''}>
@@ -158,7 +158,7 @@ export const YourWallet = ({ disabled = false }: YourWalletProps) => {
                   <span>🔐 Allowance:</span>
 
                   <div className='flex items-center flex-1 justify-end'>
-                    <span className='block truncate text-body-lg w-fit max-w-52 pr-2'>{disabled ? '—' : formattedAllowance} LOV</span>
+                    <span className='block truncate text-body-lg w-fit max-w-52 pr-2'>{disabled ? '—' : formattedAllowance} USDC</span>
 
                     <CreateTokenAllowanceModal>
                       <Button.Root size='icon' variant='primary' className='text-body-sm h-9 w-16' disabled={disabled}>
@@ -178,7 +178,7 @@ export const YourWallet = ({ disabled = false }: YourWalletProps) => {
                   </div>
 
                   <p className='block truncate w-fit max-w-52'>
-                    {disabled ? '—' : formattedSpendable} <span>LOV</span>
+                    {disabled ? '—' : formattedSpendable} <span>USDC</span>
                   </p>
                 </div>
               </div>

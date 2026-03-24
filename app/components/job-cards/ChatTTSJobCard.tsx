@@ -1,7 +1,6 @@
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { scientificNumConvert } from '~/utils/scientificNumConvert';
-import { formatEther } from 'ethers';
 
 const ChatTTSJobCard = ({ message }: { message: Message }) => {
   const ttsJob = message?.ttsJob;

@@ -36,18 +36,18 @@ export const YourGift = ({ disabled = false }: YourGiftProps) => {
                     onClick={() =>
                       alert({
                         icon: '🎁',
-                        title: 'Free LOV Token',
+                        title: 'Free USDC',
                         actionButton: '',
                         body: (
                           <p className='!text-body-md'>
-                            🎁 Get a Free LOV token with your <br />
+                            🎁 Get Free USDC with your <br />
                             first Token Allowance
                             <br />
                             <br />
-                            🔑 Allowance is a permission that controls who can use your <b>(LOV)</b> tokens and how much they can use
+                            🔑 Allowance is a permission that controls who can use your <b>(USDC)</b> tokens and how much they can use
                             <br />
                             <br />
-                            ❗ We will only have access to your LOV tokens, <br />
+                            ❗ We will only have access to your USDC, <br />
                             and only to the exact amount you choose to use
                           </p>
                         ),
@@ -59,8 +59,8 @@ export const YourGift = ({ disabled = false }: YourGiftProps) => {
                     How does it work?
                   </button>
                 </div>
-                <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
-                <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Allowance in Cipherdolls</p>
+                <h4 className='text-heading-h4 text-base-black'>Free USDC!</h4>
+                <p className='text-body-md text-neutral-01'>Get Free USDC with your first Token Allowance in Cipherdolls</p>
 
                 {!disabled && (
                   <CreateTokenAllowanceModal>

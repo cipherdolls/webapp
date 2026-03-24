@@ -66,43 +66,40 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
       const network = await provider.getNetwork();
       const chainId = Number(network.chainId);
 
-      // Check if we're on Optimism mainnet (chainId: 10)
-      if (chainId !== 10) {
-        // Try to switch to Optimism automatically
+      // Check if we're on Base (chainId: 8453)
+      if (chainId !== 8453) {
         try {
           await provider.send('wallet_switchEthereumChain', [
-            { chainId: '0xa' }, // Optimism mainnet
+            { chainId: '0x2105' },
           ]);
-          // Refresh the network info after switching
           const newNetwork = await provider.getNetwork();
           const newChainId = Number(newNetwork.chainId);
-          if (newChainId !== 10) {
-            setError('Failed to switch to Optimism mainnet');
+          if (newChainId !== 8453) {
+            setError('Failed to switch to Base network');
             return;
           }
         } catch (switchError: any) {
           if (switchError.code === 4902) {
-            // Chain not added to wallet, try to add it
             try {
               await provider.send('wallet_addEthereumChain', [
                 {
-                  chainId: '0xa',
-                  chainName: 'Optimism',
+                  chainId: '0x2105',
+                  chainName: 'Base',
                   nativeCurrency: {
                     name: 'Ethereum',
                     symbol: 'ETH',
                     decimals: 18,
                   },
-                  rpcUrls: ['https://mainnet.optimism.io'],
-                  blockExplorerUrls: ['https://optimistic.etherscan.io'],
+                  rpcUrls: ['https://mainnet.base.org'],
+                  blockExplorerUrls: ['https://basescan.org'],
                 },
               ]);
             } catch (addError) {
-              setError('Please manually switch to Optimism mainnet');
+              setError('Please manually switch to Base network');
               return;
             }
           } else {
-            setError('Please switch to Optimism mainnet (Chain ID: 10)');
+            setError('Please switch to Base network (Chain ID: 8453)');
             return;
           }
         }
@@ -152,7 +149,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         value = ethers.parseUnits(amount, decimals);
       } catch (err: any) {
         console.error('Contract call error:', err);
-        setError(err.message || "Failed to read token contract. Make sure you're on Optimism mainnet.");
+        setError(err.message || "Failed to read token contract. Make sure you're on Base network.");
         return;
       }
 
@@ -237,7 +234,7 @@ export const PermitButton: React.FC<PermitButtonProps> = ({
         <div className='text-sm text-specials-danger bg-specials-danger/5 p-2 rounded-lg col-span-2'>
           <p className='inline-block'>{error}</p>
           {error.includes('network') && (
-            <p className='mt-1 text-neutral-01'>Make sure you're connected to Optimism mainnet in your wallet.</p>
+            <p className='mt-1 text-neutral-01'>Make sure you're connected to Base network in your wallet.</p>
           )}
         </div>
       )}

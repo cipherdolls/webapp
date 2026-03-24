@@ -112,7 +112,7 @@ const ChatExample = ({ avatar }: { avatar: Avatar }) => {
 
       {/* Payment Info */}
       <div className='bg-green-50/80 rounded-xl p-3 text-center'>
-        <div className='text-xs text-green-700 font-medium'>Pay with LOV tokens</div>
+        <div className='text-xs text-green-700 font-medium'>Pay with USDC</div>
         <div className='text-xs text-green-600'>Only pay for messages you send</div>
       </div>
     </div>

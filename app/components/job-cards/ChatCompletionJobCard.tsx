@@ -1,4 +1,4 @@
-import { formatEther } from 'ethers';
+import { formatUnits } from 'ethers';
 import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { formatModelName } from '~/utils/formatModelName';
@@ -20,7 +20,7 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
 
   const { usdCost, paymentJob, chatModel, timeTakenMs, inputTokens, outputTokens, totalTokens } = chatCompletionJob;
   const formattedUsdCost = usdCost > 0 ? usdCost.toFixed(8) : 0;
-  const formattedPaymentJob = paymentJob?.weiCost ? formatEther(paymentJob.weiCost) : 0;
+  const formattedPaymentJob = paymentJob?.weiCost ? formatUnits(paymentJob.weiCost, 6) : 0;
 
   return (
     <DataCard.Root>

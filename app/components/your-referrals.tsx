@@ -64,7 +64,7 @@ export const YourReferrals = ({ disabled = false }: YourReferralsProps) => {
                       actionButton: '',
                       body: (
                         <p className='!text-body-md'>
-                          💰 Earn LOV tokens when your invited <br />
+                          💰 Earn USDC when your invited <br />
                           referral starts chatting.
                           <br />
                           <br />
@@ -72,7 +72,7 @@ export const YourReferrals = ({ disabled = false }: YourReferralsProps) => {
                           <br />
                           <br />
                           🔥 The more referrals you invite, the more <br />
-                          LOV tokens you collect!
+                          USDC you collect!
                         </p>
                       ),
                     })
@@ -108,7 +108,7 @@ export const YourReferrals = ({ disabled = false }: YourReferralsProps) => {
                         You Have {(referralCount || 0) > 1 ? `${referralCount} Referrals` : `1 Referral`}
                       </h4>
 
-                      <p className='text-center text-neutral-01'>Continue invite your friends and get more LOV Tokens!</p>
+                      <p className='text-center text-neutral-01'>Continue invite your friends and get more USDC!</p>
 
                       <button
                         onClick={handleInviteCopy}
@@ -123,9 +123,9 @@ export const YourReferrals = ({ disabled = false }: YourReferralsProps) => {
                         )}
                       </button>
 
-                      {/* TODO: add total earn LOV logic  */}
+                      {/* TODO: add total earn USDC logic  */}
                       {/*<div className='bg-base-black flex justify-center gap-1 w-8/12 py-1.5 px-2 rounded-t-xl border-b-0 text-body-sm text-base-white absolute bottom-0 left-1/2 -translate-x-1/2'>*/}
-                      {/*  Total earn: <span className='text-base-white font-semibold'>{referralCount} LOV</span>*/}
+                      {/*  Total earn: <span className='text-base-white font-semibold'>{referralCount} USDC</span>*/}
                       {/*</div>*/}
                     </div>
                   </div>

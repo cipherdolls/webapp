@@ -120,7 +120,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
           alert({
             icon: '💰',
             title: 'Insufficient Tokens',
-            body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to start a chat. Please add more tokens to continue.`,
+            body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to start a chat. Please add more tokens to continue.`,
           });
         },
       }

@@ -63,7 +63,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, str
       alert({
         icon: '💰',
         title: 'Insufficient Tokens',
-        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to send messages. Please add more tokens to continue.`,
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to send messages. Please add more tokens to continue.`,
       });
       return;
     }
@@ -102,7 +102,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, str
       alert({
         icon: '💰',
         title: 'Insufficient Tokens',
-        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV tokens to use live talk. Please add more tokens to continue.`,
+        body: `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to use live talk. Please add more tokens to continue.`,
       });
       return;
     }
@@ -135,7 +135,7 @@ const ChatBottomBar: React.FC<ChatBottomBarProps> = ({ chat, streamRecorder, str
               <div className='text-body-md text-base-black flex items-center gap-2'>Chat is not available</div>
             ) : !hasMinimumTokens ? (
               <div className='text-body-md text-neutral-02 flex items-center gap-2'>
-                Insufficient tokens. You need at least {TOKEN_BALANCE.MINIMUM_SPENDABLE} LOV to send messages.
+                Insufficient tokens. You need at least {TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to send messages.
               </div>
             ) : !isStreamsConnected ? (
               <div className='text-body-md text-neutral-02 flex items-center gap-2'>

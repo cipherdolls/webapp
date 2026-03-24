@@ -11,7 +11,7 @@ import { Icons } from '~/components/ui/icons';
 import * as Slider from '~/components/ui/slider';
 import { PermitButton } from '~/components/buttons/PermitButton';
 import { useNavigate } from 'react-router';
-import { ROUTES } from '~/constants';
+import { ROUTES, USDC_TOKEN_ADDRESS, USDC_TOKEN_NAME, USDC_TOKEN_VERSION, SPENDER_ADDRESS } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
 
 type Steps = 'Welcome' | 'Account' | 'Permit';
@@ -97,7 +97,7 @@ export const WelcomeOnboardWizard = ({ me, onClose }: WelcomeOnboardWizardProps)
             <div className='flex flex-col gap-3'>
               <h3 className='text-heading-h3 text-base-black sm:text-heading-h2 max-w-96'>Welcome to Cipherdolls!</h3>
               <p className='max-w-96 mx-auto sm:text-body-lg text-body-md text-neutral-01'>
-                Get a Free LOV token after set up your account and First Token Permit in Cipherdolls
+                Set up your account and create your First Token Permit to start using Cipherdolls
               </p>
             </div>
 
@@ -202,7 +202,7 @@ export const WelcomeOnboardWizard = ({ me, onClose }: WelcomeOnboardWizardProps)
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col gap-4'>
                 <div className='flex items-center justify-between'>
-                  <label className='text-body-lg text-base-black'>LOV Token amount</label>
+                  <label className='text-body-lg text-base-black'>USDC amount</label>
                   <span className='text-heading-h2 font-bold text-base-black'>{amount}</span>
                 </div>
 
@@ -221,10 +221,10 @@ export const WelcomeOnboardWizard = ({ me, onClose }: WelcomeOnboardWizardProps)
               </div>
 
               <PermitButton
-                tokenAddress='0x77469eeb563a6035b7b898f6a392284371918045'
-                tokenName='cipherdolls'
-                tokenVersion='1'
-                spender='0x2A0a2744d4d96b43C2C273f1906AD89dFe2AD607'
+                tokenAddress={USDC_TOKEN_ADDRESS}
+                tokenName={USDC_TOKEN_NAME}
+                tokenVersion={USDC_TOKEN_VERSION}
+                spender={SPENDER_ADDRESS}
                 amount={amount.toString()}
                 onSigned={handlePermitSigned}
                 isPending={createTokenPermitMutation.isPending}
