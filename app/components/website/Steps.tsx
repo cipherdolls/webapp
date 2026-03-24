@@ -1,9 +1,9 @@
 import { Wallet, User, Zap, MessageSquare, Link } from 'lucide-react';
 
 const content = {
-  title: 'Get Started in',
-  subtitle: 'Under a Minute',
-  description: 'It only takes a few simple steps to start chatting with your favourite AI companions',
+  title: 'How It Works',
+  subtitle: '4 Simple Steps',
+  description: 'Sign in, start chatting for free, and unlock premium content with USDC',
 };
 
 const steps = [
@@ -16,25 +16,25 @@ const steps = [
     iconBg: 'bg-gradient-to-br from-indigo-100 to-blue-100',
   },
   {
-    icon: Wallet,
-    title: 'Grab Free Credits',
-    description: 'Get free tokens to try everything out. No credit card, no commitment.',
+    icon: MessageSquare,
+    title: 'Start Chatting for Free',
+    description: 'Explore free avatars and scenarios — no payment needed to get started.',
     color: 'from-blue-500 to-cyan-500',
     bgColor: 'bg-gradient-to-br from-blue-50/80 to-cyan-50/60',
     iconBg: 'bg-gradient-to-br from-blue-100 to-cyan-100',
   },
   {
-    icon: User,
-    title: 'Pick a Character',
-    description: 'Browse unique AI personalities and choose who you want to talk to.',
+    icon: Wallet,
+    title: 'Buy USDC & Set Allowance',
+    description: 'Get some USDC on Base and set a spending limit — you stay in full control.',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'bg-gradient-to-br from-purple-50/80 to-pink-50/60',
     iconBg: 'bg-gradient-to-br from-purple-100 to-pink-100',
   },
   {
     icon: Zap,
-    title: 'Only Pay for What You Use',
-    description: 'No monthly fees. You only spend when you chat, and you set your own limits.',
+    title: 'Unlock Premium Content',
+    description: 'Access premium avatars and scenarios — only pay for what you use, no subscriptions.',
     color: 'from-green-500 to-emerald-500',
     bgColor: 'bg-gradient-to-br from-green-50/80 to-emerald-50/60',
     iconBg: 'bg-gradient-to-br from-green-100 to-emerald-100',
