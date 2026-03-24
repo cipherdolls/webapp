@@ -203,7 +203,7 @@ export const WelcomeOnboardWizard = ({ me, onClose }: WelcomeOnboardWizardProps)
               <div className='flex flex-col gap-4'>
                 <div className='flex items-center justify-between'>
                   <label className='text-body-lg text-base-black'>USDC amount</label>
-                  <span className='text-heading-h2 font-bold text-base-black'>{amount}</span>
+                  <span className='text-heading-h2 font-bold text-base-black'>{amount.toLocaleString()}</span>
                 </div>
 
                 <div className='px-2'>
