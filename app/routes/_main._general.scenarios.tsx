@@ -426,24 +426,7 @@ export default function ScenariosIndex() {
                               </div>
                             )}
                           </div>
-                        ) : (
-                          (scenario.userGender || scenario.avatarGender) && (
-                            <div className='absolute bottom-2 left-2 z-10'>
-                              <Tooltip
-                                side='top'
-                                variant='light'
-                                trigger={
-                                  <div className='flex py-1 px-2 gap-0.5 rounded-full bg-gradient-1 text-label text-base-black font-semibold'>
-                                    👤
-                                  </div>
-                                }
-                                content='Gender is not specified in this scenario'
-                                className='max-w-[350px]'
-                                popoverClassName='max-w-[320px]'
-                              />
-                            </div>
-                          )
-                        )}
+                        ) : null}
                       </Link>
                       <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
                         <div className='flex flex-col gap-1'>
