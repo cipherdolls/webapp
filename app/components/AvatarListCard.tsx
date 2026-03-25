@@ -50,21 +50,6 @@ const AvatarListCard = ({ avatar, isUsersAvatar }: AvatarListCardProps) => {
             )}
             {avatar.free && <FreeToUseBadge />}
           </div>
-          {avatar.gender === 'Female' ? (
-            <div className='absolute bottom-2 left-2 z-10'>
-              <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                👩🏻
-                <span>Female</span>
-              </div>
-            </div>
-          ) : avatar.gender === 'Male' ? (
-            <div className='absolute bottom-2 left-2 z-10'>
-              <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                🧔🏻‍♂️
-                <span>Male</span>
-              </div>
-            </div>
-          ) : null}
         </Link>
         <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
           <div className='flex flex-col gap-1 flex-1 min-w-0 overflow-hidden'>
