@@ -228,6 +228,7 @@ export function UniversalModelTab({ tabType, data, ...queryProps }: UniversalMod
                               <DataCard.ItemLabel>
                                 <span className='flex items-center gap-2'>
                                   {formatModelName(model.providerModelName)}
+                                  {'free' in model && model.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                   <RecommendedBadge recommended={model.recommended} tooltipText='Recommended' />
                                   {model.error && (
                                     <Tooltip

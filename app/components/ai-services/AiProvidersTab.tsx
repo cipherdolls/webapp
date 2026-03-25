@@ -188,6 +188,7 @@ const AiProvidersTab = () => {
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {chatModel.providerModelName}
+                                      {chatModel.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                       <RecommendedBadge recommended={chatModel.recommended} tooltipText='Recommended' />
                                       {chatModel.error && (
                                         <Tooltip
@@ -267,6 +268,7 @@ const AiProvidersTab = () => {
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {formatModelName(embeddingModel.providerModelName)}
+                                      {'free' in embeddingModel && embeddingModel.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                       <RecommendedBadge recommended={embeddingModel.recommended} tooltipText='Recommended' />
                                       {embeddingModel.error && (
                                         <Tooltip
@@ -343,6 +345,7 @@ const AiProvidersTab = () => {
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {reasoningModel.providerModelName}
+                                      {'free' in reasoningModel && reasoningModel.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                       <RecommendedBadge recommended={reasoningModel.recommended} tooltipText='Recommended' />
                                       {reasoningModel.error && (
                                         <Tooltip

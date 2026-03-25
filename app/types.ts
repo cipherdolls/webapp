@@ -102,6 +102,7 @@ export interface ChatModel {
   providerModelName: string;
   recommended: boolean;
   censored: boolean;
+  free: boolean;
   aiProvider?: AiProvider;
   scenarios?: Scenario[];
   aggregateChatCompletions: {

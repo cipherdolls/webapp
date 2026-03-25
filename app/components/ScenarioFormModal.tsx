@@ -29,6 +29,7 @@ interface Option {
   label: string;
   value: string;
   recommended: boolean;
+  free?: boolean;
 }
 
 interface OptionGroup {
@@ -158,6 +159,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
           label: formatModelName(model.providerModelName),
           value: model.id,
           recommended: model.recommended,
+          free: 'free' in model ? model.free : undefined,
         });
       });
 
@@ -248,17 +250,56 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
               </div>
             )}
 
+
+
+
             <div
               className={cn(
                 'flex flex-col gap-4 md:gap-6  ',
                 isExpanded ? 'flex-1 pb-5 h-full -mx-4 px-4 overflow-auto scrollbar-medium' : 'w-full'
               )}
             >
-              <div className={cn('flex gap-4 items-center', !isExpanded && 'justify-center')}>
-                <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-6' : 'mb-10')}>
+
+
+
+              <Input.Root>
+                <Input.Label htmlFor='type'>Scenario Type</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      scenarioData.type === 'NORMAL' && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('type', 'NORMAL')}
+                  >
+                    Normal
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioData.type === 'ROLEPLAY' && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('type', 'ROLEPLAY')}
+                  >
+                    Roleplay
+                  </button>
+                </div>
+                <input type='hidden' name='type' value={scenarioData.type} />
+                <p className='text-xs text-gray-500'>
+                  Normal mode uses full context (IoT devices, exchange rates) with RAG. Roleplay mode uses a simplified prompt for lightweight conversations.
+                </p>
+              </Input.Root>
+
+
+
+
+              <div className='flex gap-4 items-start'>
+                <div className='shrink-0'>
                   <div className='relative'>
                     <label
-                      className='size-40 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'
+                      className='size-[82px] bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden'
                       onClick={handleLabelClick}
                     >
                       <input
@@ -270,162 +311,43 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                         onChange={handleImageChange}
                       />
                       {selectedImage !== null ? (
-                        <div className='size-full'>
-                          <img
-                            src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(scenario, 'scenarios', false)}
-                            srcSet={!selectedImage.startsWith('blob:') ? getPicture(scenario, 'scenarios', true) : undefined}
-                            alt={scenario?.name ? scenarioData.name : 'Scenario image'}
-                            className='size-full object-cover rounded-lg'
-                          />
-                        </div>
+                        <img
+                          src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(scenario, 'scenarios', false)}
+                          srcSet={!selectedImage.startsWith('blob:') ? getPicture(scenario, 'scenarios', true) : undefined}
+                          alt={scenario?.name ? scenarioData.name : 'Scenario image'}
+                          className='size-full object-cover'
+                        />
                       ) : (
-                        <div className='flex items-center justify-center size-full'>
-                          <Icons.fileUploadIcon />
-                        </div>
+                        <Icons.fileUploadIcon className='size-5' />
                       )}
                     </label>
-                    <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
-                      <div className='flex items-center justify-between w-full'>
-                        <div className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'>
-                          {selectedImage !== null && (
-                            <button
-                              type='button'
-                              className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
-                              onClick={handleTrashClick}
-                            >
-                              <Icons.trash className='text-black' />
-                            </button>
-                          )}
-                          {(selectedImage || scenario?.picture) && <div className='h-6 w-px bg-neutral-04' />}
-                          <button
-                            type='button'
-                            className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            <Icons.fileUpload />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
-
-                <div className={cn('grid gap-x-5 gap-y-3 w-full', isExpanded ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 hidden')}>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
-                          Temperature
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText="Controls randomness in the model's output."
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.temperature}</span>
-                    </div>
-                    <Slider.Root
-                      id='temperature'
-                      defaultValue={[scenarioData.temperature]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('temperature', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
-                          TopP
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText='Controls content diversity by selecting from the top probability mass.'
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.topP}</span>
-                    </div>
-                    <Slider.Root
-                      id='topP'
-                      defaultValue={[scenarioData.topP]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('topP', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
-                          Frequency Penalty
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText='Reduces repetition by penalizing similar phrases.'
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.frequencyPenalty}</span>
-                    </div>
-                    <Slider.Root
-                      id='frequencyPenalty'
-                      defaultValue={[scenarioData.frequencyPenalty]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('frequencyPenalty', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
-                          Presence Penalty
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText='Encourages creativity by penalizing new concepts.'
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.presencePenalty}</span>
-                    </div>
-                    <Slider.Root
-                      id='presencePenalty'
-                      defaultValue={[scenarioData.presencePenalty]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('presencePenalty', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                </div>
+                <Input.Root className='flex-1'>
+                  <Input.Label htmlFor='name'>Name</Input.Label>
+                  <Input.Input
+                    className='text-base-black border border-neutral-04 py-3.5 px-3'
+                    id='name'
+                    name='name'
+                    type='text'
+                    defaultValue={scenario?.name}
+                    placeholder='Movie Night'
+                  />
+                  <p className='text-xs text-gray-500'>A short, memorable name visible to users who browse scenarios.</p>
+                </Input.Root>
               </div>
 
-              <Input.Root>
-                <Input.Label htmlFor='name'>Name</Input.Label>
-                <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='name'
-                  name='name'
-                  type='text'
-                  defaultValue={scenario?.name}
-                  placeholder='Movie Night'
-                />
-                <p className='text-xs text-gray-500'>A short, memorable name visible to users who browse scenarios.</p>
-              </Input.Root>
+
+
+
+
+
+
+
+
+
+
+
 
               <Input.Root>
                 <Input.Label htmlFor='greeting'>Greeting</Input.Label>
@@ -517,60 +439,14 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </Input.Root>
               </div>
 
-              <Input.Root>
-                <Input.Label htmlFor='type'>Scenario Type</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
-                      scenarioData.type === 'NORMAL' && 'bg-white'
-                    )}
-                    onClick={() => updateScenarioData('type', 'NORMAL')}
-                  >
-                    Normal
-                  </button>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioData.type === 'ROLEPLAY' && 'bg-white'
-                    )}
-                    onClick={() => updateScenarioData('type', 'ROLEPLAY')}
-                  >
-                    Roleplay
-                  </button>
-                </div>
-                <input type='hidden' name='type' value={scenarioData.type} />
-                <p className='text-xs text-gray-500'>
-                  Normal mode uses full context (IoT devices, exchange rates) with RAG. Roleplay mode uses a simplified prompt for lightweight conversations.
-                </p>
-              </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
-                <Select.Root name='chatModelId' key={defaultChatModelId} defaultValue={defaultChatModelId}>
-                  <Select.Trigger
-                    id='chatModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select a chat model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto '>
-                    {getOptions('chatModel').map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item className='' key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>The LLM used to generate conversation responses. Affects quality, speed, and cost per message.</p>
-              </Input.Root>
+
+
+
+
+
+
+
 
               {scenarioData.type === 'ROLEPLAY' ? (
                 <>
@@ -596,6 +472,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                             {group.options.map((option: any) => (
                               <Select.Item key={option.value} value={option.value}>
                                 {option.label}
+                                {option.free && <span className='text-green-600 ml-1'>free</span>}
                               </Select.Item>
                             ))}
                           </Fragment>
@@ -622,6 +499,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                             {group.options.map((option: any) => (
                               <Select.Item key={option.value} value={option.value}>
                                 {option.label}
+                                {option.free && <span className='text-green-600 ml-1'>free</span>}
                               </Select.Item>
                             ))}
                           </Fragment>
@@ -736,6 +614,167 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </Input.Root>
               </div>
 
+
+
+
+              <Input.Root>
+                <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
+                <Select.Root name='chatModelId' key={defaultChatModelId} defaultValue={defaultChatModelId}>
+                  <Select.Trigger
+                    id='chatModelId'
+                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                  >
+                    <Select.Value placeholder='Select a chat model' />
+                  </Select.Trigger>
+                  <Select.Content className='max-h-[250px] overflow-y-auto '>
+                    {getOptions('chatModel').map((group) => (
+                      <Fragment key={group.groupName}>
+                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                        {group.options.map((option: any) => (
+                          <Select.Item className='' key={option.value} value={option.value}>
+                            {option.label}
+                            {option.free && <span className='text-green-600 ml-1'>free</span>}
+                          </Select.Item>
+                        ))}
+                      </Fragment>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                <p className='text-xs text-gray-500'>The LLM used to generate conversation responses. Affects quality, speed, and cost per message.</p>
+              </Input.Root>
+
+
+
+
+
+
+
+              <div className={cn('flex gap-4 items-center', !isExpanded && 'hidden')}>
+                <div className={cn('grid gap-x-5 gap-y-3 w-full', isExpanded ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 hidden')}>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
+                          Temperature
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText="Controls randomness in the model's output."
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.temperature}</span>
+                    </div>
+                    <Slider.Root
+                      id='temperature'
+                      defaultValue={[scenarioData.temperature]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('temperature', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
+                          TopP
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText='Controls content diversity by selecting from the top probability mass.'
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.topP}</span>
+                    </div>
+                    <Slider.Root
+                      id='topP'
+                      defaultValue={[scenarioData.topP]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('topP', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
+                          Frequency Penalty
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText='Reduces repetition by penalizing similar phrases.'
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.frequencyPenalty}</span>
+                    </div>
+                    <Slider.Root
+                      id='frequencyPenalty'
+                      defaultValue={[scenarioData.frequencyPenalty]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('frequencyPenalty', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
+                          Presence Penalty
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText='Encourages creativity by penalizing new concepts.'
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.presencePenalty}</span>
+                    </div>
+                    <Slider.Root
+                      id='presencePenalty'
+                      defaultValue={[scenarioData.presencePenalty]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('presencePenalty', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                </div>
+              </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               <Input.Root>
                 <Input.Label htmlFor='avatars'>Avatars</Input.Label>
                 <Multiselect<Avatar>
@@ -752,6 +791,57 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   scenarioData.avatars.map((avatar) => <input key={avatar.id} type='hidden' name='avatarIds[]' value={avatar.id} />)}
                 <p className='text-xs text-gray-500'>Avatars that can use this scenario. Users will pick from these when starting a chat.</p>
               </Input.Root>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              <Input.Root>
+                <Input.Label htmlFor='nsfw'>Content Rating</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      !scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', false)}
+                  >
+                    Safe for Work
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', true)}
+                  >
+                    🔞 NSFW
+                  </button>
+                </div>
+                <input type='hidden' name='nsfw' value={scenarioData.nsfw ? 'true' : 'false'} />
+                <p className='text-xs text-gray-500'>
+                  Mark this scenario as NSFW (Not Safe For Work) if it contains adult or mature content.
+                </p>
+              </Input.Root>
+
+
+
+
+
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
@@ -791,35 +881,11 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </p>
               </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='nsfw'>Content Rating</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
-                      !scenarioData.nsfw && 'bg-white'
-                    )}
-                    onClick={() => updateScenarioData('nsfw', false)}
-                  >
-                    Safe for Work
-                  </button>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioData.nsfw && 'bg-white'
-                    )}
-                    onClick={() => updateScenarioData('nsfw', true)}
-                  >
-                    🔞 NSFW
-                  </button>
-                </div>
-                <input type='hidden' name='nsfw' value={scenarioData.nsfw ? 'true' : 'false'} />
-                <p className='text-xs text-gray-500'>
-                  Mark this scenario as NSFW (Not Safe For Work) if it contains adult or mature content.
-                </p>
-              </Input.Root>
+
+
+
+
+
             </div>
           </Modal.Body>
           <ErrorsBox errors={errors} className='mt-3' />

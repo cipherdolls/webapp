@@ -15,6 +15,7 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
         {formatModelName(data.providerModelName)}
+        {data.free && <span className='text-green-600 text-xs font-medium'>free</span>}
         {!data.error && <UncensoredBadge censored={data.censored} />}
         {data.error && (
           <Tooltip
@@ -31,9 +32,9 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
     className: 'min-w-[220px] max-w-[280px]',
   },
   {
-    id: 'aiProviderId',
-    label: 'Model Description',
-    render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
+    id: 'contextWindow',
+    label: 'Context Window',
+    render: (data) => <span className='text-body-sm text-neutral-01'>{data.contextWindow ? `${(data.contextWindow / 1000).toFixed(0)}k` : '-'}</span>,
     align: 'right',
   },
   {
@@ -92,9 +93,9 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     className: 'min-w-[220px] max-w-[280px]',
   },
   {
-    id: 'aiProviderId',
-    label: 'Model Description',
-    render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
+    id: 'contextWindow',
+    label: 'Context Window',
+    render: (data) => <span className='text-body-sm text-neutral-01'>{data.contextWindow ? `${(data.contextWindow / 1000).toFixed(0)}k` : '-'}</span>,
     align: 'right',
   },
   {
@@ -138,6 +139,7 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
         {formatModelName(data.providerModelName)}
+        {data.free && <span className='text-green-600 text-xs font-medium'>free</span>}
         {!data.error && <UncensoredBadge censored={data.censored} />}
         {data.error && (
           <Tooltip
@@ -154,9 +156,9 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
     className: 'min-w-[220px] max-w-[280px]',
   },
   {
-    id: 'aiProviderId',
-    label: 'Model Description',
-    render: (data) => <span className='text-body-sm text-neutral-01'>{data.info}</span>,
+    id: 'contextWindow',
+    label: 'Context Window',
+    render: (data) => <span className='text-body-sm text-neutral-01'>{data.contextWindow ? `${(data.contextWindow / 1000).toFixed(0)}k` : '-'}</span>,
     align: 'right',
   },
   {
