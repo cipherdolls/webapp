@@ -218,14 +218,17 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                     )}
                   </div>
 
-                  <div className='m-1 bg-white rounded-xl cursor-pointer hover:bg-white/80 hover:drop-shadow-md transition-all'>
-                    <div className='p-4 flex gap-2 items-center justify-between'>
+                  <div className='m-1 bg-white rounded-xl'>
+                    <Link
+                      to={`${ROUTES.scenarios}/${chat.scenario.id}`}
+                      className='p-4 flex gap-2 items-center justify-between hover:bg-white/80 hover:drop-shadow-md transition-all rounded-xl'
+                    >
                       <div>
                         <h4 className='text-body-md font-semibold text-base-black'>{chat.scenario.name}</h4>
                         <p className='text-body-sm text-neutral-01'>Current scenario</p>
                       </div>
                       <div className='text-xs text-neutral-01 bg-neutral-05 px-3 py-1 rounded-full'>Active</div>
-                    </div>
+                    </Link>
 
                     <div className='w-full  border border-neutral-04' />
 
