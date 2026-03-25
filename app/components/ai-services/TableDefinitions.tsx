@@ -6,6 +6,7 @@ import { ViewButton } from '~/components/preferencesViewButton';
 import { UncensoredBadge } from '~/components/ui/UncensoredBadge';
 import { Icons } from '~/components/ui/icons';
 import Tooltip from '~/components/ui/tooltip';
+import { RecommendedBadge } from '~/components/ui/RecommendedBadge';
 import { ROUTES } from '~/constants';
 
 export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
@@ -17,6 +18,7 @@ export const chatModelColumns: Array<TTableColumn<ChatModel>> = [
         {formatModelName(data.providerModelName)}
         {data.free && <span className='text-green-600 text-xs font-medium'>free</span>}
         {!data.error && <UncensoredBadge censored={data.censored} />}
+        <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         {data.error && (
           <Tooltip
             side='top'
@@ -78,6 +80,7 @@ export const embeddingModelColumns: Array<TTableColumn<EmbeddingModel>> = [
     render: (data) => (
       <span className='font-semibold text-body-md flex items-center gap-2'>
         {formatModelName(data.providerModelName)}
+        <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         {data.error && (
           <Tooltip
             side='top'
@@ -141,6 +144,7 @@ export const reasoningModelColumns: Array<TTableColumn<ChatModel>> = [
         {formatModelName(data.providerModelName)}
         {data.free && <span className='text-green-600 text-xs font-medium'>free</span>}
         {!data.error && <UncensoredBadge censored={data.censored} />}
+        <RecommendedBadge recommended={data.recommended} tooltipText='Recommended' />
         {data.error && (
           <Tooltip
             side='top'
