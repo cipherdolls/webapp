@@ -11,7 +11,8 @@ import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
 import type { Avatar, Gender, Scenario, TtsLanguage, TtsVoice } from '~/types';
-import { useTtsVoices } from '~/hooks/queries/ttsQueries';
+import { useInfiniteTtsVoices } from '~/hooks/queries/ttsQueries';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { useScenarios } from '~/hooks/queries/scenarioQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 import { useFillerWords } from '~/hooks/queries/fillerWordQueries';
@@ -32,13 +33,10 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   const { data: me } = useUser();
 
   const { data: scenariosPaginated, isLoading: scenariosLoading } = useScenarios({ mine: 'true', published: 'true', limit: '100' });
-  const { data: ttsVoices, isLoading: ttsVoicesLoading } = useTtsVoices();
-
   const scenarios = scenariosPaginated?.data || [];
-  const voices = ttsVoices || [];
 
   const [avatarData, setAvatarData] = useState({
-    ttsVoice: avatar?.ttsVoice || (voices && voices.length > 0 ? voices[0] : null),
+    ttsVoice: avatar?.ttsVoice || null,
     picture: avatar?.picture ?? null,
     scenarios: Array.isArray(avatar?.scenarios) ? avatar.scenarios : [],
     published: avatar?.published || false,
@@ -52,6 +50,30 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<'All' | Gender>('All');
   const [voiceLanguageFilter, setVoiceLanguageFilter] = useState<'All' | TtsLanguage>('All');
   const isNew = !avatar;
+
+  const voiceQueryParams = {
+    ...(voiceGenderFilter !== 'All' && { gender: voiceGenderFilter }),
+    ...(voiceLanguageFilter !== 'All' && { language: voiceLanguageFilter }),
+  };
+
+  const {
+    data: ttsVoicesData,
+    isLoading: ttsVoicesLoading,
+    isFetching: isFetchingVoices,
+    fetchNextPage: fetchNextVoices,
+    hasNextPage: hasNextVoicesPage,
+    isFetchingNextPage: isFetchingNextVoices,
+    isError: isVoicesError,
+  } = useInfiniteTtsVoices(voiceQueryParams);
+
+  const voices = useMemo(() => ttsVoicesData?.pages.flatMap((page) => page.data) || [], [ttsVoicesData]);
+
+  const [voiceInfiniteRef] = useInfiniteScroll({
+    loading: isFetchingVoices || isFetchingNextVoices,
+    hasNextPage: !!hasNextVoicesPage,
+    onLoadMore: fetchNextVoices,
+    disabled: !!isVoicesError,
+  });
 
   // Set default voice when voices are loaded
   useEffect(() => {
@@ -68,18 +90,20 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
     updateAvatarData('ttsVoice', voice);
   };
 
-  const availableLanguages = useMemo(() => {
-    const langs = new Set(voices.map((v) => v.language).filter(Boolean));
-    return Array.from(langs) as TtsLanguage[];
-  }, [voices]);
-
-  const filteredVoices = useMemo(() => {
-    return voices.filter((voice) => {
-      if (voiceGenderFilter !== 'All' && voice.gender !== voiceGenderFilter) return false;
-      if (voiceLanguageFilter !== 'All' && voice.language !== voiceLanguageFilter) return false;
-      return true;
-    });
-  }, [voices, voiceGenderFilter, voiceLanguageFilter]);
+  const languageFlags: Record<string, string> = {
+    en: '🇬🇧',
+    de: '🇩🇪',
+    fr: '🇫🇷',
+    es: '🇪🇸',
+    it: '🇮🇹',
+    pt: '🇵🇹',
+    ru: '🇷🇺',
+    ja: '🇯🇵',
+    zh: '🇨🇳',
+    ko: '🇰🇷',
+    multilingual: '🌐',
+  };
+  const availableLanguages = Object.keys(languageFlags) as TtsLanguage[];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -347,7 +371,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                       </motion.button>
                     ) : (
                       <motion.div
-                        key='gender-filter'
+                        key='voice-filter'
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -384,24 +408,20 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                         >
                           🧔🏻‍♂️
                         </button>
-                        {availableLanguages.length > 1 && (
-                          <>
-                            <div className='w-px h-4 bg-neutral-03' />
-                            {availableLanguages.map((lang) => (
-                              <button
-                                key={lang}
-                                type='button'
-                                className={cn(
-                                  'px-2 py-1.5 text-xs font-semibold rounded-md transition-colors',
-                                  voiceLanguageFilter === lang ? 'bg-white text-base-black' : 'text-neutral-01'
-                                )}
-                                onClick={() => setVoiceLanguageFilter(voiceLanguageFilter === lang ? 'All' : lang)}
-                              >
-                                {lang === 'multilingual' ? 'Multi' : lang.toUpperCase()}
-                              </button>
-                            ))}
-                          </>
-                        )}
+                        <div className='w-px h-4 bg-neutral-03' />
+                        {availableLanguages.map((lang) => (
+                          <button
+                            key={lang}
+                            type='button'
+                            className={cn(
+                              'px-2 py-1.5 text-xs font-semibold rounded-md transition-colors',
+                              voiceLanguageFilter === lang ? 'bg-white text-base-black' : 'text-neutral-01'
+                            )}
+                            onClick={() => setVoiceLanguageFilter(voiceLanguageFilter === lang ? 'All' : lang)}
+                          >
+                            {languageFlags[lang] ?? lang.toUpperCase()}
+                          </button>
+                        ))}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -416,8 +436,22 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                     />
                     <div className='flex flex-col gap-1 flex-1 min-w-0'>
                       <p className='text-body-lg font-semibold text-base-black truncate'>{avatarData.ttsVoice.name}</p>
-                      <span className='text-body-md text-neutral-01 truncate'>
+                      <span className='text-body-md text-neutral-01 truncate flex items-center gap-1.5'>
+                        {avatarData.ttsVoice.ttsProvider?.picture && (
+                          <img
+                            src={getPicture(avatarData.ttsVoice.ttsProvider, 'tts-providers', false)}
+                            srcSet={getPicture(avatarData.ttsVoice.ttsProvider, 'tts-providers', true)}
+                            alt={avatarData.ttsVoice.ttsProvider?.name}
+                            className='size-4 object-cover rounded'
+                          />
+                        )}
                         {avatarData.ttsVoice.ttsProvider?.name || 'Voice Provider'}
+                        {avatarData.ttsVoice.ttsProvider?.dollarPerCharacter != null && (
+                          <>
+                            <span className='text-neutral-02'>·</span>
+                            <span className='text-neutral-02'>${avatarData.ttsVoice.ttsProvider.dollarPerCharacter}/char</span>
+                          </>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -442,54 +476,72 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                     >
                       <div className='space-y-2'>
                         <div className='max-h-[280px] overflow-y-auto scrollbar-medium space-y-2'>
-                          {filteredVoices.length === 0 ? (
+                          {voices.length === 0 && !ttsVoicesLoading ? (
                             <div className='py-8 text-center'>
-                              <p className='text-body-md text-neutral-01'>No voices found for {voiceGenderFilter} gender</p>
+                              <p className='text-body-md text-neutral-01'>No voices found</p>
                             </div>
                           ) : (
-                            filteredVoices.map((voice, index) => {
-                              const isSelected = avatarData.ttsVoice?.id === voice.id;
-                              return (
-                                <motion.button
-                                  key={voice.id}
-                                  initial={{ opacity: 0, y: -10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ duration: 0.15, delay: index * 0.02 }}
-                                  type='button'
-                                  className={cn(
-                                    'w-full py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular transition-all',
-                                    isSelected
-                                      ? voice.gender === 'Male'
-                                        ? 'male-gradient'
-                                        : voice.gender === 'Female'
-                                          ? 'female-gradient'
-                                          : 'voice-gradient'
-                                      : 'bg-neutral-05 hover:bg-neutral-04'
-                                  )}
-                                  onClick={() => handleVoiceChange(voice)}
-                                >
-                                  <PlayerButton
-                                    variant='white'
-                                    className='shrink-0 shadow-bottom-level-1'
-                                    audioSrc={PATHS.ttsVoice(voice.id)}
-                                  />
-                                  <div className='flex flex-col gap-1 flex-1 text-left min-w-0'>
-                                    <p className='text-body-lg font-semibold text-base-black line-clamp-1'>{voice.name}</p>
-                                    <span className='text-body-md text-neutral-01 capitalize'>{voice.ttsProvider.name}</span>
-                                  </div>
-                                  {isSelected && (
-                                    <motion.div
-                                      initial={{ scale: 0 }}
-                                      animate={{ scale: 1 }}
-                                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                                      className='shrink-0'
-                                    >
-                                      <Icons.check className='text-base-black' />
-                                    </motion.div>
-                                  )}
-                                </motion.button>
-                              );
-                            })
+                            <>
+                              {voices.map((voice, index) => {
+                                const isSelected = avatarData.ttsVoice?.id === voice.id;
+                                return (
+                                  <motion.button
+                                    key={voice.id}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.15, delay: Math.min(index, 10) * 0.02 }}
+                                    type='button'
+                                    className={cn(
+                                      'w-full py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular transition-all',
+                                      isSelected
+                                        ? voice.gender === 'Male'
+                                          ? 'male-gradient'
+                                          : voice.gender === 'Female'
+                                            ? 'female-gradient'
+                                            : 'voice-gradient'
+                                        : 'bg-neutral-05 hover:bg-neutral-04'
+                                    )}
+                                    onClick={() => handleVoiceChange(voice)}
+                                  >
+                                    <PlayerButton
+                                      variant='white'
+                                      className='shrink-0 shadow-bottom-level-1'
+                                      audioSrc={PATHS.ttsVoice(voice.id)}
+                                    />
+                                    <div className='flex flex-col gap-1 flex-1 text-left min-w-0'>
+                                      <p className='text-body-lg font-semibold text-base-black line-clamp-1'>{voice.name}</p>
+                                      <span className='text-body-md text-neutral-01 capitalize flex items-center gap-1.5'>
+                                        <img
+                                          src={getPicture(voice.ttsProvider, 'tts-providers', false)}
+                                          srcSet={getPicture(voice.ttsProvider, 'tts-providers', true)}
+                                          alt={voice.ttsProvider.name}
+                                          className='size-4 object-cover rounded'
+                                        />
+                                        {voice.ttsProvider.name}
+                                        <span className='text-neutral-02'>·</span>
+                                        <span className='text-neutral-02'>${voice.ttsProvider.dollarPerCharacter}/char</span>
+                                      </span>
+                                    </div>
+                                    {isSelected && (
+                                      <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                        className='shrink-0'
+                                      >
+                                        <Icons.check className='text-base-black' />
+                                      </motion.div>
+                                    )}
+                                  </motion.button>
+                                );
+                              })}
+                              {isFetchingNextVoices && (
+                                <div className='text-center py-2'>
+                                  <Icons.loading className='size-4 animate-spin inline-block' />
+                                </div>
+                              )}
+                              {hasNextVoicesPage && !isFetchingNextVoices && <div ref={voiceInfiniteRef} className='h-4' />}
+                            </>
                           )}
                         </div>
 
