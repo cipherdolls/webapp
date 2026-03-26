@@ -87,6 +87,7 @@ export default function SttProvidersIndex() {
             />
           </div>
           <span className='font-semibold text-body-md'>{data.name}</span>
+          {data.free && <span className='text-green-600 text-xs font-medium'>free</span>}
           {data.recommended && <RecommendedBadge recommended={data.recommended} />}
         </div>
       ),
@@ -156,6 +157,8 @@ export default function SttProvidersIndex() {
                         </div>
 
                         {sttProvider.name}
+
+                        {sttProvider.free && <span className='text-green-600 text-xs font-medium'>free</span>}
 
                         {sttProvider.recommended && (
                           <>

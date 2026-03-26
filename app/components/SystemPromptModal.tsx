@@ -3,6 +3,7 @@ import * as Modal from '~/components/ui/new-modal';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { cn } from '~/utils/cn';
+import { motion } from 'framer-motion';
 
 interface SystemPromptModalProps {
   isOpen: boolean;
@@ -12,6 +13,8 @@ interface SystemPromptModalProps {
   trigger?: React.ReactNode;
   isLoadingSystemPrompt?: boolean;
   isSystemPromptAvailable?: boolean;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
@@ -22,6 +25,8 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
   trigger,
   isLoadingSystemPrompt = false,
   isSystemPromptAvailable = false,
+  onRefresh,
+  isRefreshing = false,
 }) => {
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -42,14 +47,29 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
         <div className='flex items-center justify-between'>
           <Modal.Title>System Prompt</Modal.Title>
 
-          <button
-            type='button'
-            onClick={() => setIsExpanded(!isExpanded)}
-            className='p-2 hover:bg-gray-100 rounded-lg transition-colors hidden md:block'
-            title={isExpanded ? 'Collapse modal' : 'Expand modal'}
-          >
-            <Icons.expand />
-          </button>
+          <div className='flex items-center gap-1'>
+            {onRefresh && (
+              <motion.button
+                type='button'
+                transition={{ duration: 1 }}
+                animate={isRefreshing ? { transform: 'rotate(-360deg)' } : undefined}
+                onClick={onRefresh}
+                disabled={isRefreshing}
+                className='p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50'
+                title='Refresh system prompt'
+              >
+                <Icons.refresh className='w-5 h-5' />
+              </motion.button>
+            )}
+            <button
+              type='button'
+              onClick={() => setIsExpanded(!isExpanded)}
+              className='p-2 hover:bg-gray-100 rounded-lg transition-colors hidden md:block'
+              title={isExpanded ? 'Collapse modal' : 'Expand modal'}
+            >
+              <Icons.expand />
+            </button>
+          </div>
         </div>
 
         <Modal.Description className='mt-2 text-body-md text-neutral-01'>

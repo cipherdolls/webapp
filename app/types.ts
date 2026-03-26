@@ -138,6 +138,7 @@ export interface SttProvider {
   id: string;
   name: string;
   dollarPerSecond: number;
+  free: boolean;
   recommended: boolean;
   picture?: string;
   createdAt: Date;
@@ -225,6 +226,7 @@ export interface Chat {
     chatCompletionJobs: number;
   };
   tts: boolean;
+  action: string;
   sttProvider?: SttProvider;
   sttProviderId: string;
   avatar: Avatar;

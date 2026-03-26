@@ -1,25 +1,18 @@
-import { Link, useNavigate, useRouteLoaderData } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import type { Route } from './+types/_main.chats.$chatId.edit';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
-import { useAlert } from '~/providers/AlertDialogProvider';
 import { Card } from '~/components/card';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
-import type { SttProvider, User } from '~/types';
+import type { SttProvider } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
-import * as Accordion from '@radix-ui/react-accordion';
-import DetailRow from '~/components/ui/detail/detail-row';
-import { scientificNumConvert } from '~/utils/scientificNumConvert';
-import Tooltip from '~/components/ui/tooltip';
-import EditScenarioModal from '~/components/editScenarioModal';
 import { useDeleteChat } from '~/hooks/queries/chatMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import { useChat } from '~/hooks/queries/chatQueries';
 import { useUpdateChat } from '~/hooks/queries/chatMutations';
 import { useSttProviders } from '~/hooks/queries/sttQueries';
-import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 import { useDolls } from '~/hooks/queries/dollQueries';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import * as Select from '~/components/ui/input/select';
@@ -32,19 +25,15 @@ export function meta({}: Route.MetaArgs) {
 
   
 export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
-  const { data: aiProviders } = useAiProviders();
-  const { data: sttProviders, isLoading } = useSttProviders();
+  const { data: sttProviders } = useSttProviders();
   const { data: chatData, refetch } = useChat(params.chatId);
   const { data: dolls } = useDolls();
   const chat = chatData;
 
-  const me = useRouteLoaderData('routes/_main') as User;
-
-  const { mutate: updateChat, isPending: isUpdatingChat, error: errorUpdateChat } = useUpdateChat();
-  const { mutate: deleteChat, isPending: isDeletingChat, error: errorDeleteChat } = useDeleteChat();
+  const { mutate: updateChat, isPending: isUpdatingChat } = useUpdateChat();
+  const { mutate: deleteChat, isPending: isDeletingChat } = useDeleteChat();
 
   const navigate = useNavigate();
-  const alert = useAlert();
   const confirm = useConfirm();
 
   const { silentMode, toggleSilentMode } = useChatStore(
@@ -95,6 +84,25 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
     } catch (error) {
       console.error('Failed to update doll:', error);
     }
+  };
+
+  const handleResetChat = async () => {
+    const confirmResult = await confirm({
+      icon: '🔄',
+      title: 'Reset this Chat?',
+      body: 'All messages will be deleted and the chat will be re-initialized',
+      actionButton: 'Yes, Reset',
+    });
+    if (!confirmResult) return;
+
+    updateChat({
+      chatId: chat.id,
+      data: {
+        action: 'Init',
+        avatarId: chat.avatar.id,
+        scenarioId: chat.scenario.id,
+      },
+    });
   };
 
   const handleDeleteChat = async () => {
@@ -167,182 +175,27 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                 </p>
               </Link>
 
-              {/* scenario toggle  */}
-              <Card.Root className='sm:h-auto'>
-                <div className='flex items-center justify-between'>
-                  <Card.Label className='sm:text-heading-h4'>Scenarios</Card.Label>
-                  <div className='flex gap-2'>
-                    {me.id === chat.scenario.userId && aiProviders && <EditScenarioModal scenario={chat.scenario} aiProviders={aiProviders.data} refetch={refetch} />}
-
-                    <button
-                      onClick={() => {
-                        alert({
-                          icon: '🎭',
-                          title: 'Scenarios',
-                          actionButton: '',
-                          body: (
-                            <>
-                              💅🏻 Easy Talk - focused on casual topics with cheerful, warm, and concise responses.
-                              <br />
-                              <br />
-                              🧐 Deep Talk - focused on meaningful topics, fostering connection through introspection and insightful
-                              exchanges.
-                              <br />
-                              <br />
-                              🔥 Sexy Talk - focused on building rapport with compliments, innuendos and flirting.
-                            </>
-                          ),
-                        });
-                      }}
-                    >
-                      <Icons.information className='text-pink-01' />
-                    </button>
-                  </div>
+              {/* Scenario link */}
+              <Link
+                to={`${ROUTES.scenarios}/${chat.scenario.id}`}
+                className='flex-shrink-0 flex flex-col backdrop-blur-48 bg-gradient-1 rounded-xl overflow-hidden'
+              >
+                <div className='w-full h-[263px] flex items-center justify-center rounded-xl bg-neutral-04'>
+                  {chat.scenario.picture ? (
+                    <img
+                      src={getPicture(chat.scenario, 'scenarios', false)}
+                      srcSet={getPicture(chat.scenario, 'scenarios', true)}
+                      alt={chat.scenario.name}
+                      className='size-full object-cover rounded-lg'
+                    />
+                  ) : (
+                    <Icons.fileUploadIcon />
+                  )}
                 </div>
-
-                <Card.Main>
-                  <div className='m-1 mb-0.5 block h-[200px] sm:h-[152px] rounded-xl relative'>
-                    {chat.scenario.picture ? (
-                      <div className='size-full'>
-                        <img
-                          src={getPicture(chat.scenario, 'scenarios', false)}
-                          srcSet={getPicture(chat.scenario, 'scenarios', true)}
-                          alt={chat.scenario.name}
-                          className='size-full object-cover rounded-xl'
-                        />
-                      </div>
-                    ) : (
-                      <div className='flex items-center justify-center size-full'>
-                        <Icons.fileUploadIcon />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className='m-1 bg-white rounded-xl'>
-                    <Link
-                      to={`${ROUTES.scenarios}/${chat.scenario.id}`}
-                      className='p-4 flex gap-2 items-center justify-between hover:bg-white/80 hover:drop-shadow-md transition-all rounded-xl'
-                    >
-                      <div>
-                        <h4 className='text-body-md font-semibold text-base-black'>{chat.scenario.name}</h4>
-                        <p className='text-body-sm text-neutral-01'>Current scenario</p>
-                      </div>
-                      <div className='text-xs text-neutral-01 bg-neutral-05 px-3 py-1 rounded-full'>Active</div>
-                    </Link>
-
-                    <div className='w-full  border border-neutral-04' />
-
-                    <Accordion.Root type='single' collapsible className='w-full p-3'>
-                      <Accordion.Item value='details'>
-                        <Accordion.Trigger className='flex py-3 -my-3 items-center justify-center w-full  text-sm font-medium text-neutral-01 hover:text-base-black transition-colors group'>
-                          <span className='group-data-[state=closed]:block group-data-[state=open]:hidden'>Show Details</span>
-                          <span className='group-data-[state=closed]:hidden group-data-[state=open]:block'>Hide Details</span>
-                          <Icons.chevronDown className='ml-2 h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-                        </Accordion.Trigger>
-
-                        <Accordion.Content className='overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'>
-                          <div className='flex flex-col gap-4 pt-[18px]'>
-                            {/*Chat model*/}
-                            <DetailRow title='Chat Model' value={chat.scenario.chatModel.providerModelName} />
-                            <DetailRow
-                              title='Input Token Cost'
-                              value={`${scientificNumConvert(chat.scenario.chatModel.dollarPerInputToken * 1000000)} $`}
-                            />
-                            <DetailRow
-                              title='Output Token Cost'
-                              value={`${scientificNumConvert(chat.scenario.chatModel.dollarPerOutputToken * 1000000)} $`}
-                            />
-
-                            <DetailRow title='Temperature' value={chat.scenario.temperature} />
-                            <DetailRow title='TopP' value={chat.scenario.topP} />
-                            <DetailRow title='Frequency Penalty' value={chat.scenario.frequencyPenalty} />
-                            <DetailRow title='Presence Penalty' value={chat.scenario.presencePenalty} />
-
-                            {chat.scenario.chatModel.error && (
-                              <div className='flex gap-1'>
-                                <DetailRow title='Chat Model Error' value='' />
-
-                                <Tooltip
-                                  side='left'
-                                  variant='error'
-                                  trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                  content={chat.scenario.chatModel.error}
-                                  popoverClassName='max-w-[320px]'
-                                  className='max-w-[350px]'
-                                />
-                              </div>
-                            )}
-
-                            {/*Embedding*/}
-                            {chat.scenario.embeddingModel && (
-                              <>
-                                <div className='w-full  border border-neutral-04' />
-
-                                <DetailRow title='Embedding Model' value={chat.scenario.embeddingModel.providerModelName} />
-                                <DetailRow
-                                  title='Input Token Cost'
-                                  value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerInputToken * 1000000)} $`}
-                                />
-                                <DetailRow
-                                  title='Output Token Cost'
-                                  value={`${scientificNumConvert(chat.scenario.embeddingModel.dollarPerOutputToken * 1000000)} $`}
-                                />
-
-                                {chat.scenario.embeddingModel.error && (
-                                  <div className='flex justify-between gap-1'>
-                                    <DetailRow title='Embedding Error' value='' />
-
-                                    <Tooltip
-                                      side='left'
-                                      variant='error'
-                                      trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                      content={chat.scenario.embeddingModel.error}
-                                      popoverClassName='max-w-[320px]'
-                                      className='max-w-[350px]'
-                                    />
-                                  </div>
-                                )}
-                              </>
-                            )}
-
-                            {/*Reasoning*/}
-                            {chat.scenario.reasoningModel && (
-                              <>
-                                <div className='w-full  border border-neutral-04' />
-
-                                <DetailRow title='Reasoning Model' value={chat.scenario.reasoningModel.providerModelName} />
-                                <DetailRow
-                                  title='Input Token Cost'
-                                  value={`${scientificNumConvert(chat.scenario.reasoningModel.dollarPerInputToken * 1000000)} $`}
-                                />
-                                <DetailRow
-                                  title='Output Token Cost'
-                                  value={`${scientificNumConvert(chat.scenario.reasoningModel.dollarPerOutputToken * 1000000)} $`}
-                                />
-
-                                {chat.scenario.reasoningModel.error && (
-                                  <div className='flex gap-1'>
-                                    <DetailRow title='Reasoning Error' value='' />
-
-                                    <Tooltip
-                                      side='left'
-                                      variant='error'
-                                      trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                      content={chat.scenario.reasoningModel.error}
-                                      popoverClassName='max-w-[320px]'
-                                      className='max-w-[350px]'
-                                    />
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </Accordion.Content>
-                      </Accordion.Item>
-                    </Accordion.Root>
-                  </div>
-                </Card.Main>
-              </Card.Root>
+                <p className='w-full flex justify-center items-center gap-2 text-body-sm text-base-black font-semibold py-4'>
+                  Go to Scenario Page <Icons.chevronRight />
+                </p>
+              </Link>
 
             {/* STT Provider */}
             <Card.Root className='sm:h-auto'>
@@ -362,7 +215,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                     <Select.Content className='max-h-[250px] overflow-y-auto'>
                       {sttProviders?.map((sttProvider) => (
                         <Select.Item key={sttProvider.id} value={sttProvider.id}>
-                          {sttProvider.name}
+                          {sttProvider.name} {sttProvider.dollarPerSecond === 0 && <span className='text-green-600 text-xs font-medium'>free</span>}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -472,9 +325,12 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
               </Card.Main>
             </Card.Root>
 
-              <div className='pt-10 mt-auto'>
-                <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='w-full px-10' onClick={handleDeleteChat}>
-                  {isDeletingChat ? <Icons.loading className='size-4' /> : 'Delete Chat'}
+              <div className='pt-10 mt-auto flex gap-2'>
+                <Button.Root type='button' disabled={isUpdatingChat} className='flex-1' onClick={handleResetChat}>
+                  {isUpdatingChat ? <Icons.loading className='size-4' /> : 'Reset'}
+                </Button.Root>
+                <Button.Root type='button' variant='danger' disabled={isDeletingChat} className='flex-1' onClick={handleDeleteChat}>
+                  {isDeletingChat ? <Icons.loading className='size-4' /> : 'Delete'}
                 </Button.Root>
               </div>
             </div>

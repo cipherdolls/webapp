@@ -4,7 +4,7 @@ import type { Chat } from '~/types';
 import { Icons } from '../ui/icons';
 import AvatarPicture from '../AvatarPicture';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import ChatEventsPanel from './ChatEventsPanel';
 import SystemPromptModal from '../SystemPromptModal';
 import { useState } from 'react';
@@ -48,6 +48,22 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
           </h3>
           <p className='text-body-sm text-neutral-01'>{chat.scenario.name}</p>
         </div>
+      </div>
+      <div className='overflow-hidden'>
+        <AnimatePresence>
+          {chat.action && chat.action !== 'Nothing' && (
+            <motion.span
+              key={chat.action}
+              initial={{ y: -30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -30, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className='block text-xs text-neutral-01 font-medium bg-neutral-05 rounded-full px-3 py-1'
+            >
+              {{ Init: 'Initialising', RefreshSystemPrompt: 'Refreshing Prompt', Summarize: 'Summarising' }[chat.action] ?? chat.action}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
       {chat.doll && (
         <div className='flex items-center gap-2'>
@@ -116,6 +132,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
         scenarioName={scenarioName}
         isLoadingSystemPrompt={isLoadingSystemPrompt}
         isSystemPromptAvailable={isSystemPromptAvailable}
+        onRefresh={() => updateChat({ chatId: chat.id, data: { action: 'RefreshSystemPrompt', avatarId: chat.avatar.id, scenarioId: chat.scenario.id } })}
       />
     </div>
   );
