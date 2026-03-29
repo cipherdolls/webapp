@@ -1,9 +1,14 @@
-import { type ReactNode, useState, useRef, useEffect } from 'react';
+import { motion } from 'motion/react';
+import React, { type ReactNode, useState, useRef, useEffect } from 'react';
 import { cn } from '~/utils/cn';
+import { ANIMATE_DURATION } from '~/constants';
+import * as Button from '~/components/ui/button/button';
+import { AnimatePresence } from 'framer-motion';
 
 const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
   const [showFull, setShowFull] = useState(false);
-  const [isContentTooSmall, setIsContentTooSmall] = useState(false);
+  const [isShouldShowButton, setIsShouldShowButton] = useState(false);
+  const [isContentTooSmall, setIsContentTooSmall] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,21 +27,25 @@ const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
 
   return (
     <div className='relative'>
-      <div
+      <motion.div
+        onHoverStart={!isContentTooSmall ? () => setIsShouldShowButton(true) : undefined}
+        onHoverEnd={!isContentTooSmall ? () => setIsShouldShowButton(false) : undefined}
+        initial={true}
+        animate={!isContentTooSmall ? { height: contentRef.current && !showFull ? 415 : 'auto', minHeight: 415 } : { height: 'auto' }}
+        transition={{ duration: showFull ? 0.5 : 0 }}
         ref={contentRef}
+        onClick={handleClick}
         className={cn(
-          'bg-gradient-1 select-none p-5 flex flex-col gap-5 flex-1 text-body-md text-base-black rounded-xl overflow-hidden backdrop-blur-48',
-          showFull ? 'h-auto' : 'max-h-[415px]',
+          'bg-gradient-1 break-all group select-none p-5 flex flex-col gap-5 flex-1 text-body-md text-base-black rounded-xl overflow-hidden backdrop-blur-48',
           !isContentTooSmall && 'cursor-pointer'
         )}
-        onClick={handleClick}
       >
-        <div
-          className={cn(
-            'absolute inset-0 top-5 z-20 bg-linear-to-t from-[rgba(254,253,248,0.9)] to-[rgba(255,255,255,0)]',
-            (showFull || isContentTooSmall) && 'hidden'
-          )}
-        ></div>
+        <motion.div
+          initial={false}
+          animate={{ opacity: !showFull ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          className='absolute inset-0 top-5 z-20 bg-linear-to-t from-[rgba(254,253,248,0.9)] to-[rgba(255,255,255,0)]'
+        />
         {/*<div className='flex items-center justify-between'>*/}
         {/*  <h3 className='text-heading-h4 sm:text-heading-h3 text-base-black'>Characteristic</h3>*/}
         {/*  <div className='flex items-center gap-2'>*/}
@@ -48,7 +57,18 @@ const AvatarCharacterPreview = ({ message }: { message: ReactNode }) => {
         {/*</div>*/}
 
         {message}
-      </div>
+
+        <motion.div
+          initial={false}
+          animate={{ transform: !showFull && isShouldShowButton ? 'translateY(0%)' : 'translateY(120%)' }}
+          transition={ANIMATE_DURATION}
+          className={cn('absolute bottom-2 left-1/2 -translate-x-1/2 z-50 h-10', showFull && 'hidden')}
+        >
+          <Button.Root size={'sm'} className='w-[110px]'>
+            Show full
+          </Button.Root>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

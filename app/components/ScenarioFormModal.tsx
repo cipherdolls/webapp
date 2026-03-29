@@ -1,6 +1,6 @@
 import { useRouteLoaderData } from 'react-router';
 import { getPicture } from '~/utils/getPicture';
-import type { Avatar, Gender, Scenario, User } from '~/types';
+import type { Avatar, Gender, Scenario, ScenarioType, User } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
@@ -29,6 +29,7 @@ interface Option {
   label: string;
   value: string;
   recommended: boolean;
+  free?: boolean;
 }
 
 interface OptionGroup {
@@ -59,10 +60,34 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const getRecommendedModelId = (modelType: 'chatModel' | 'embeddingModel' | 'reasoningModel'): string => {
+    if (!aiProviders || aiProviders.length === 0) return '';
+
+    for (const provider of aiProviders) {
+      const modelsArr =
+        (modelType === 'chatModel' && provider.chatModels) ||
+        (modelType === 'embeddingModel' && provider.embeddingModels) ||
+        (modelType === 'reasoningModel' && provider.reasoningModels);
+
+      if (modelsArr && modelsArr.length > 0) {
+        const recommendedModel = modelsArr.find((model) => model.recommended);
+        if (recommendedModel) {
+          return recommendedModel.id;
+        }
+      }
+    }
+    return '';
+  };
+
+  const defaultChatModelId = useMemo(() => scenario?.chatModel?.id ?? getRecommendedModelId('chatModel'), [scenario, aiProviders]);
+  const defaultEmbeddingModelId = useMemo(() => scenario?.embeddingModel?.id ?? 'none', [scenario, aiProviders]);
+  const defaultReasoningModelId = useMemo(() => scenario?.reasoningModel?.id ?? 'none', [scenario, aiProviders]);
+
   const [scenarioData, setScenarioData] = useState({
     picture: scenario?.picture ?? null,
     published: scenario?.published ?? false,
     nsfw: scenario?.nsfw ?? false,
+    type: scenario?.type ?? ('NORMAL' as ScenarioType),
     userGender: scenario?.userGender ?? defaultScenarioData.userGender,
     avatarGender: scenario?.avatarGender ?? defaultScenarioData.avatarGender,
     temperature: scenario?.temperature ?? defaultScenarioData.temperature,
@@ -71,9 +96,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
     presencePenalty: scenario?.presencePenalty ?? defaultScenarioData.presencePenalty,
     name: scenario?.name ?? '',
     systemMessage: scenario?.systemMessage ?? '',
-    chatModelId: scenario?.chatModel?.id ?? '',
-    embeddingModelId: scenario?.embeddingModel?.id ?? '',
-    reasoningModelId: scenario?.reasoningModel?.id ?? '',
     refreshIntroduction: false,
     avatars: scenario?.avatars
       ? (scenario.avatars.map((scenarioAvatar) => avatars.find((avatar) => avatar.id === scenarioAvatar.id)).filter(Boolean) as Avatar[])
@@ -137,6 +159,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
           label: formatModelName(model.providerModelName),
           value: model.id,
           recommended: model.recommended,
+          free: 'free' in model ? model.free : undefined,
         });
       });
 
@@ -148,6 +171,8 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (formData.get('embeddingModelId') === 'none') formData.delete('embeddingModelId');
+    if (formData.get('reasoningModelId') === 'none') formData.delete('reasoningModelId');
     onSubmit(formData);
   };
 
@@ -220,10 +245,13 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     placeholder='System Message'
                     defaultValue={scenario?.systemMessage}
                   />
-                  <p className='text-xs text-gray-500'>Provide a system message for this scenario.</p>
+                  <p className='text-xs text-gray-500'>Hidden instructions that define the avatar's personality, behavior, and conversation rules. Not visible to the user.</p>
                 </Input.Root>
               </div>
             )}
+
+
+
 
             <div
               className={cn(
@@ -231,11 +259,47 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 isExpanded ? 'flex-1 pb-5 h-full -mx-4 px-4 overflow-auto scrollbar-medium' : 'w-full'
               )}
             >
-              <div className={cn('flex gap-4 items-center', !isExpanded && 'justify-center')}>
-                <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-6' : 'mb-10')}>
+
+
+
+              <Input.Root>
+                <Input.Label htmlFor='type'>Scenario Type</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      scenarioData.type === 'NORMAL' && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('type', 'NORMAL')}
+                  >
+                    Normal
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioData.type === 'ROLEPLAY' && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('type', 'ROLEPLAY')}
+                  >
+                    Roleplay
+                  </button>
+                </div>
+                <input type='hidden' name='type' value={scenarioData.type} />
+                <p className='text-xs text-gray-500'>
+                  Normal mode uses full context (IoT devices, exchange rates) with RAG. Roleplay mode uses a simplified prompt for lightweight conversations.
+                </p>
+              </Input.Root>
+
+
+
+
+              <div className='flex gap-4 items-start'>
+                <div className='shrink-0'>
                   <div className='relative'>
                     <label
-                      className='size-40 bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative'
+                      className='size-[82px] bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden'
                       onClick={handleLabelClick}
                     >
                       <input
@@ -247,161 +311,55 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                         onChange={handleImageChange}
                       />
                       {selectedImage !== null ? (
-                        <div className='size-full'>
-                          <img
-                            src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(scenario, 'scenarios', false)}
-                            srcSet={!selectedImage.startsWith('blob:') ? getPicture(scenario, 'scenarios', true) : undefined}
-                            alt={scenario?.name ? scenarioData.name : 'Scenario image'}
-                            className='size-full object-cover rounded-lg'
-                          />
-                        </div>
+                        <img
+                          src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(scenario, 'scenarios', false)}
+                          srcSet={!selectedImage.startsWith('blob:') ? getPicture(scenario, 'scenarios', true) : undefined}
+                          alt={scenario?.name ? scenarioData.name : 'Scenario image'}
+                          className='size-full object-cover'
+                        />
                       ) : (
-                        <div className='flex items-center justify-center size-full'>
-                          <Icons.fileUploadIcon />
-                        </div>
+                        <Icons.fileUploadIcon className='size-5' />
                       )}
                     </label>
-                    <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
-                      <div className='flex items-center justify-between w-full'>
-                        <div className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'>
-                          {selectedImage !== null && (
-                            <button
-                              type='button'
-                              className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
-                              onClick={handleTrashClick}
-                            >
-                              <Icons.trash className='text-black' />
-                            </button>
-                          )}
-                          {(selectedImage || scenario?.picture) && <div className='h-6 w-px bg-neutral-04' />}
-                          <button
-                            type='button'
-                            className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            <Icons.fileUpload />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
-
-                <div className={cn('grid gap-x-5 gap-y-3 w-full', isExpanded ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 hidden')}>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
-                          Temperature
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText="Controls randomness in the model's output."
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.temperature}</span>
-                    </div>
-                    <Slider.Root
-                      id='temperature'
-                      defaultValue={[scenarioData.temperature]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('temperature', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
-                          TopP
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText='Controls content diversity by selecting from the top probability mass.'
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.topP}</span>
-                    </div>
-                    <Slider.Root
-                      id='topP'
-                      defaultValue={[scenarioData.topP]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('topP', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
-                          Frequency Penalty
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText='Reduces repetition by penalizing similar phrases.'
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.frequencyPenalty}</span>
-                    </div>
-                    <Slider.Root
-                      id='frequencyPenalty'
-                      defaultValue={[scenarioData.frequencyPenalty]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('frequencyPenalty', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                  <Input.Root>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-1'>
-                        <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
-                          Presence Penalty
-                        </Input.Label>
-                        <InformationBadge
-                          className='!text-neutral-01 size-4'
-                          tooltipText='Encourages creativity by penalizing new concepts.'
-                          side={'top'}
-                        />
-                      </div>
-                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.presencePenalty}</span>
-                    </div>
-                    <Slider.Root
-                      id='presencePenalty'
-                      defaultValue={[scenarioData.presencePenalty]}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={(value) => updateScenarioData('presencePenalty', value[0])}
-                    >
-                      <Slider.Thumb />
-                    </Slider.Root>
-                  </Input.Root>
-                </div>
+                <Input.Root className='flex-1'>
+                  <Input.Label htmlFor='name'>Name</Input.Label>
+                  <Input.Input
+                    className='text-base-black border border-neutral-04 py-3.5 px-3'
+                    id='name'
+                    name='name'
+                    type='text'
+                    defaultValue={scenario?.name}
+                    placeholder='Movie Night'
+                  />
+                  <p className='text-xs text-gray-500'>A short, memorable name visible to users who browse scenarios.</p>
+                </Input.Root>
               </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
               <Input.Root>
-                <Input.Label htmlFor='name'>Name</Input.Label>
-                <Input.Input
-                  className='text-base-black border border-neutral-04 py-3.5 px-3'
-                  id='name'
-                  name='name'
-                  type='text'
-                  defaultValue={scenario?.name}
-                  placeholder='Movie Night'
+                <Input.Label htmlFor='greeting'>Greeting</Input.Label>
+                <Textarea.Textarea
+                  id='greeting'
+                  name='greeting'
+                  className='w-full border border-neutral-04 py-3.5 px-3 text-base-black'
+                  placeholder='Enter a greeting message to start the chat'
+                  defaultValue={scenario?.greeting}
+                  rows={3}
                 />
-                <p className='text-xs text-gray-500'>Enter the name for this scenario.</p>
+                <p className='text-xs text-gray-500'>The first message the avatar sends when a user starts a new chat. Use {'{user}'} to insert the user's name.</p>
               </Input.Root>
 
               {!isExpanded && (
@@ -431,7 +389,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                     defaultValue={scenario?.systemMessage}
                     rows={5}
                   />
-                  <p className='text-xs text-gray-500'>Provide a system message for this scenario.</p>
+                  <p className='text-xs text-gray-500'>Hidden instructions that define the avatar's personality, behavior, and conversation rules. Not visible to the user.</p>
                 </Input.Root>
               )}
 
@@ -439,7 +397,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 <Input.Root>
                   <Input.Label htmlFor='userGender'>User Gender</Input.Label>
                   <Select.Root
-                    name='userGender'
                     defaultValue={scenarioData.userGender}
                     onValueChange={(value) => updateScenarioData('userGender', value as Gender)}
                   >
@@ -455,13 +412,13 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                       <Select.Item value='Other'>Other</Select.Item>
                     </Select.Content>
                   </Select.Root>
-                  <p className='text-xs text-gray-500'>Select the user gender for this scenario.</p>
+                  <input type='hidden' name='userGender' value={scenarioData.userGender} />
+                  <p className='text-xs text-gray-500'>The gender of the user interacting with this scenario. Helps tailor the conversation.</p>
                 </Input.Root>
 
                 <Input.Root>
                   <Input.Label htmlFor='avatarGender'>Avatar Gender</Input.Label>
                   <Select.Root
-                    name='avatarGender'
                     defaultValue={scenarioData.avatarGender}
                     onValueChange={(value) => updateScenarioData('avatarGender', value as Gender)}
                   >
@@ -477,68 +434,30 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                       <Select.Item value='Other'>Other</Select.Item>
                     </Select.Content>
                   </Select.Root>
-                  <p className='text-xs text-gray-500'>Select the avatar gender for this scenario.</p>
+                  <input type='hidden' name='avatarGender' value={scenarioData.avatarGender} />
+                  <p className='text-xs text-gray-500'>The gender of the avatar character in this scenario.</p>
                 </Input.Root>
               </div>
 
-              {/* <Input.Root>
-                <Input.Label htmlFor='scenarioType'>Scenario Type</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioType === 'Long' ? 'bg-white' : 'bg-transparent'
-                    )}
-                    onClick={() => setScenarioType('Long')}
-                  >
-                    Long
-                  </button>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioType === 'Short' ? 'bg-white' : 'bg-transparent'
-                    )}
-                    onClick={() => setScenarioType('Short')}
-                  >
-                    Short
-                  </button>
-                </div>
-                <input type='hidden' name='scenarioType' value={scenarioType} />
-                <p className='text-xs text-gray-500'>Select type for new scenario.</p>
-              </Input.Root> */}
 
-              <Input.Root>
-                <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
-                <Select.Root name='chatModelId' defaultValue={scenario?.chatModel.id}>
-                  <Select.Trigger
-                    id='chatModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select a chat model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto '>
-                    {getOptions('chatModel').map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item className='' key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Select the AI chat model for this scenario.</p>
-              </Input.Root>
 
-              {/* {scenarioType === 'Long' && (
+
+
+
+
+
+
+
+              {scenarioData.type === 'ROLEPLAY' ? (
+                <>
+                  <input type='hidden' name='embeddingModelId' value='none' />
+                  <input type='hidden' name='reasoningModelId' value='none' />
+                </>
+              ) : (
                 <>
                   <Input.Root>
                     <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-                    <Select.Root name='embeddingModelId' defaultValue={scenario.embeddingModel.id}>
+                    <Select.Root name='embeddingModelId' key={defaultEmbeddingModelId} defaultValue={defaultEmbeddingModelId}>
                       <Select.Trigger
                         id='embeddingModelId'
                         className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
@@ -546,24 +465,26 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                         <Select.Value placeholder='Select an embedding model' />
                       </Select.Trigger>
                       <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        <Select.Item value='none'>None</Select.Item>
                         {getOptions('embeddingModel').map((group) => (
                           <Fragment key={group.groupName}>
                             <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                             {group.options.map((option: any) => (
                               <Select.Item key={option.value} value={option.value}>
                                 {option.label}
+                                {option.free && <span className='text-green-600 ml-1'>free</span>}
                               </Select.Item>
                             ))}
                           </Fragment>
                         ))}
                       </Select.Content>
                     </Select.Root>
-                    <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
+                    <p className='text-xs text-gray-500'>Converts messages into vectors for semantic search (RAG). Set to None to disable embeddings and reduce cost.</p>
                   </Input.Root>
 
                   <Input.Root>
                     <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-                    <Select.Root name='reasoningModelId' defaultValue={scenario.reasoningModel?.id}>
+                    <Select.Root name='reasoningModelId' key={defaultReasoningModelId} defaultValue={defaultReasoningModelId}>
                       <Select.Trigger
                         id='reasoningModelId'
                         className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
@@ -571,72 +492,24 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                         <Select.Value placeholder='Select a reasoning model' />
                       </Select.Trigger>
                       <Select.Content className='max-h-[250px] overflow-y-auto'>
+                        <Select.Item value='none'>None</Select.Item>
                         {getOptions('reasoningModel').map((group) => (
                           <Fragment key={group.groupName}>
                             <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
                             {group.options.map((option: any) => (
                               <Select.Item key={option.value} value={option.value}>
                                 {option.label}
+                                {option.free && <span className='text-green-600 ml-1'>free</span>}
                               </Select.Item>
                             ))}
                           </Fragment>
                         ))}
                       </Select.Content>
                     </Select.Root>
-                    <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
+                    <p className='text-xs text-gray-500'>Used to generate the scenario introduction. Set to None if you don't need auto-generated introductions.</p>
                   </Input.Root>
                 </>
-              )} */}
-
-              <Input.Root>
-                <Input.Label htmlFor='embeddingModelId'>Embedding Model</Input.Label>
-                <Select.Root name='embeddingModelId' defaultValue={scenario?.embeddingModel.id}>
-                  <Select.Trigger
-                    id='embeddingModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select an embedding model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto'>
-                    {getOptions('embeddingModel').map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Select the embedding model for similarity search.</p>
-              </Input.Root>
-
-              <Input.Root>
-                <Input.Label htmlFor='reasoningModelId'>Reasoning Model</Input.Label>
-                <Select.Root name='reasoningModelId' defaultValue={scenario?.reasoningModel?.id}>
-                  <Select.Trigger
-                    id='reasoningModelId'
-                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
-                  >
-                    <Select.Value placeholder='Select a reasoning model' />
-                  </Select.Trigger>
-                  <Select.Content className='max-h-[250px] overflow-y-auto'>
-                    {getOptions('reasoningModel').map((group) => (
-                      <Fragment key={group.groupName}>
-                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
-                        {group.options.map((option: any) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <p className='text-xs text-gray-500'>Select the reasoning model for this scenario.</p>
-              </Input.Root>
+              )}
 
               <div className={cn('grid gap-x-5 gap-y-6 w-full', 'grid-cols-1 sm:grid-cols-2', isExpanded && 'hidden')}>
                 <Input.Root>
@@ -741,6 +614,167 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </Input.Root>
               </div>
 
+
+
+
+              <Input.Root>
+                <Input.Label htmlFor='chatModelId'>Chat Model</Input.Label>
+                <Select.Root name='chatModelId' key={defaultChatModelId} defaultValue={defaultChatModelId}>
+                  <Select.Trigger
+                    id='chatModelId'
+                    className='bg-neutral-05 data-[state=open]:bg-gradient-1 data-[state=open]:!outline data-[state=open]:!outline-neutral-04 transition-colors'
+                  >
+                    <Select.Value placeholder='Select a chat model' />
+                  </Select.Trigger>
+                  <Select.Content className='max-h-[250px] overflow-y-auto '>
+                    {getOptions('chatModel').map((group) => (
+                      <Fragment key={group.groupName}>
+                        <div className='px-2 py-1.5 text-sm font-semibold text-neutral-01'>{group.groupName}</div>
+                        {group.options.map((option: any) => (
+                          <Select.Item className='' key={option.value} value={option.value}>
+                            {option.label}
+                            {option.free && <span className='text-green-600 ml-1'>free</span>}
+                          </Select.Item>
+                        ))}
+                      </Fragment>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                <p className='text-xs text-gray-500'>The LLM used to generate conversation responses. Affects quality, speed, and cost per message.</p>
+              </Input.Root>
+
+
+
+
+
+
+
+              <div className={cn('flex gap-4 items-center', !isExpanded && 'hidden')}>
+                <div className={cn('grid gap-x-5 gap-y-3 w-full', isExpanded ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 hidden')}>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='temperature' className='text-neutral-01 text-body-sm'>
+                          Temperature
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText="Controls randomness in the model's output."
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.temperature}</span>
+                    </div>
+                    <Slider.Root
+                      id='temperature'
+                      defaultValue={[scenarioData.temperature]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('temperature', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='topP' className='text-neutral-01 text-body-sm'>
+                          TopP
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText='Controls content diversity by selecting from the top probability mass.'
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.topP}</span>
+                    </div>
+                    <Slider.Root
+                      id='topP'
+                      defaultValue={[scenarioData.topP]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('topP', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='frequencyPenalty' className='text-neutral-01 text-body-sm'>
+                          Frequency Penalty
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText='Reduces repetition by penalizing similar phrases.'
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.frequencyPenalty}</span>
+                    </div>
+                    <Slider.Root
+                      id='frequencyPenalty'
+                      defaultValue={[scenarioData.frequencyPenalty]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('frequencyPenalty', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                  <Input.Root>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-1'>
+                        <Input.Label htmlFor='presencePenalty' className='text-neutral-01 text-body-sm'>
+                          Presence Penalty
+                        </Input.Label>
+                        <InformationBadge
+                          className='!text-neutral-01 size-4'
+                          tooltipText='Encourages creativity by penalizing new concepts.'
+                          side={'top'}
+                        />
+                      </div>
+                      <span className='text-base-black text-body-sm font-semibold'>{scenarioData.presencePenalty}</span>
+                    </div>
+                    <Slider.Root
+                      id='presencePenalty'
+                      defaultValue={[scenarioData.presencePenalty]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={(value) => updateScenarioData('presencePenalty', value[0])}
+                    >
+                      <Slider.Thumb />
+                    </Slider.Root>
+                  </Input.Root>
+                </div>
+              </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               <Input.Root>
                 <Input.Label htmlFor='avatars'>Avatars</Input.Label>
                 <Multiselect<Avatar>
@@ -749,13 +783,65 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                   selectedOptions={scenarioData.avatars}
                   onChange={(value) => updateScenarioData('avatars', value)}
                   placeholder='Select avatars for this scenario'
+                  forType='avatars'
                   defaultValue={Array.isArray(scenario?.avatars) ? scenario?.avatars.map((avatar) => avatar.id) : []}
                 />
                 {Array.isArray(scenarioData.avatars) &&
                   scenarioData.avatars.length > 0 &&
                   scenarioData.avatars.map((avatar) => <input key={avatar.id} type='hidden' name='avatarIds[]' value={avatar.id} />)}
-                <p className='text-xs text-gray-500'>Select avatars this scenario can be used with.</p>
+                <p className='text-xs text-gray-500'>Avatars that can use this scenario. Users will pick from these when starting a chat.</p>
               </Input.Root>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              <Input.Root>
+                <Input.Label htmlFor='nsfw'>Content Rating</Input.Label>
+                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
+                      !scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', false)}
+                  >
+                    Safe for Work
+                  </button>
+                  <button
+                    type='button'
+                    className={cn(
+                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
+                      scenarioData.nsfw && 'bg-white'
+                    )}
+                    onClick={() => updateScenarioData('nsfw', true)}
+                  >
+                    🔞 NSFW
+                  </button>
+                </div>
+                <input type='hidden' name='nsfw' value={scenarioData.nsfw ? 'true' : 'false'} />
+                <p className='text-xs text-gray-500'>
+                  Mark this scenario as NSFW (Not Safe For Work) if it contains adult or mature content.
+                </p>
+              </Input.Root>
+
+
+
+
+
 
               <Input.Root>
                 <Input.Label htmlFor='published'>Availability</Input.Label>
@@ -795,35 +881,11 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
                 </p>
               </Input.Root>
 
-              <Input.Root>
-                <Input.Label htmlFor='nsfw'>Content Rating</Input.Label>
-                <div className='p-1 bg-neutral-05 grid grid-cols-2 rounded-xl'>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors bg-transparent',
-                      !scenarioData.nsfw && 'bg-white'
-                    )}
-                    onClick={() => updateScenarioData('nsfw', false)}
-                  >
-                    Safe for Work
-                  </button>
-                  <button
-                    type='button'
-                    className={cn(
-                      'flex items-center justify-center py-3 text-body-sm font-semibold rounded-xl transition-colors',
-                      scenarioData.nsfw && 'bg-white'
-                    )}
-                    onClick={() => updateScenarioData('nsfw', true)}
-                  >
-                    🔞 NSFW
-                  </button>
-                </div>
-                <input type='hidden' name='nsfw' value={scenarioData.nsfw ? 'true' : 'false'} />
-                <p className='text-xs text-gray-500'>
-                  Mark this scenario as NSFW (Not Safe For Work) if it contains adult or mature content.
-                </p>
-              </Input.Root>
+
+
+
+
+
             </div>
           </Modal.Body>
           <ErrorsBox errors={errors} className='mt-3' />

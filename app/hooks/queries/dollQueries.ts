@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
-import type { Doll, DollBody } from '~/types';
+import type { Doll, DollBody, Paginated } from '~/types';
 
 // Generic fetch function
 async function fetchResource<T>(endpoint: string): Promise<T> {
@@ -15,7 +15,7 @@ async function fetchResource<T>(endpoint: string): Promise<T> {
 export function useDoll(dollId: string) {
   return useQuery({
     queryKey: ['doll', dollId],
-    queryFn: () => fetchResource<Doll>(`dolls/${dollId}`),
+    queryFn: () => fetchResource<Doll>(`dolls/${dollId}?include=dollBody,chat`),
     enabled: !!dollId,
   });
 }
@@ -23,7 +23,10 @@ export function useDoll(dollId: string) {
 export function useDolls() {
   return useQuery({
     queryKey: ['dolls'],
-    queryFn: () => fetchResource<Doll[]>('dolls'),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<Doll>>('dolls');
+      return response.data;
+    },
   });
 }
 
@@ -39,6 +42,9 @@ export function useDollBody(dollBodyId: string) {
 export function useDollBodies(page = 1, limit = 20) {
   return useQuery({
     queryKey: ['dollBodies', page, limit],
-    queryFn: () => fetchResource<DollBody[]>(`doll-bodies?page=${page}&limit=${limit}`),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<DollBody>>(`doll-bodies?page=${page}&limit=${limit}`);
+      return response.data;
+    },
   });
 }

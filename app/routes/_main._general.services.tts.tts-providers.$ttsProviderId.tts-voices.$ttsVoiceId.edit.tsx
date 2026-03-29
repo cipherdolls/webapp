@@ -6,7 +6,7 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Input from '~/components/ui/input/input';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as Select from '~/components/ui/input/select';
 import { useTtsProvider, useTtsVoice } from '~/hooks/queries/ttsQueries';
 import { useUpdateTtsVoice } from '~/hooks/queries/ttsMutations';
@@ -16,19 +16,23 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'New TTS Voice' }];
 }
 
-const genreOptions = [
-  {
-    value: 'All',
-    label: 'All',
-  },
-  {
-    value: 'Male',
-    label: 'Male',
-  },
-  {
-    value: 'Female',
-    label: 'Female',
-  },
+const genderOptions = [
+  { value: 'Male', label: 'Male' },
+  { value: 'Female', label: 'Female' },
+];
+
+const languageOptions = [
+  { value: 'en', label: '🇬🇧 English' },
+  { value: 'de', label: '🇩🇪 German' },
+  { value: 'fr', label: '🇫🇷 French' },
+  { value: 'es', label: '🇪🇸 Spanish' },
+  { value: 'it', label: '🇮🇹 Italian' },
+  { value: 'pt', label: '🇵🇹 Portuguese' },
+  { value: 'ru', label: '🇷🇺 Russian' },
+  { value: 'ja', label: '🇯🇵 Japanese' },
+  { value: 'zh', label: '🇨🇳 Chinese' },
+  { value: 'ko', label: '🇰🇷 Korean' },
+  { value: 'multilingual', label: '🌐 Multilingual' },
 ];
 
 export default function TTSVoiceEdit({ params }: Route.ComponentProps) {
@@ -40,7 +44,8 @@ export default function TTSVoiceEdit({ params }: Route.ComponentProps) {
   const providerName = ttsProvider?.name || 'provider';
 
   const navigate = useNavigate();
-  const [gender, setGender] = useState<string>(ttsVoice?.gender ?? 'All');
+  const [gender, setGender] = useState<string | undefined>();
+  const [language, setLanguage] = useState<string | undefined>();
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/tts`);
@@ -127,13 +132,32 @@ export default function TTSVoiceEdit({ params }: Route.ComponentProps) {
                     <Select.Value placeholder='Gender' />
                   </Select.Trigger>
                   <Select.Content className='z-[1000001]'>
-                    {genreOptions.map((item) => (
+                    {genderOptions.map((item) => (
                       <Select.Item key={item.value} value={item.value}>
                         {item.label}
                       </Select.Item>
                     ))}
                   </Select.Content>
-                  <input type='hidden' name='gender' value={gender} />
+                  <input type='hidden' name='gender' value={gender ?? ttsVoice.gender ?? 'Male'} />
+                </Select.Root>
+                <Select.Root
+                  onValueChange={(value) => {
+                    setLanguage(value);
+                  }}
+                  defaultValue={ttsVoice.language ?? 'multilingual'}
+                >
+                  <Select.Label>Language</Select.Label>
+                  <Select.Trigger className='border-neutral-04 outline-neutral-04 outline py-3.5 -mt-2'>
+                    <Select.Value placeholder='Language' />
+                  </Select.Trigger>
+                  <Select.Content className='z-[1000001]'>
+                    {languageOptions.map((item) => (
+                      <Select.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                  <input type='hidden' name='language' value={language ?? ttsVoice.language ?? 'multilingual'} />
                 </Select.Root>
 
                 <div className='flex items-center gap-2'>

@@ -13,6 +13,9 @@ import { useDeleteMessage } from '~/hooks/queries/messageMutations';
 import { useMessage } from '~/hooks/queries/messageQueries';
 import { ANIMATE_MODAL_SHOW_RIGHT, ROUTES } from '~/constants';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+import { formatDate } from '~/utils/date.utils';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Chat Message' }];
@@ -44,15 +47,26 @@ function ChatMessageSkeleton() {
 }
 
 export default function ChatMessage({ params }: Route.ComponentProps) {
+  const [isCopied, setIsCopied] = useState(false);
+
   const { messageId, chatId } = params;
+
   const { data: message, isLoading: isMessageLoading } = useMessage(messageId);
   const navigate = useNavigate();
   const confirm = useConfirm();
   const { mutate: deleteMessage } = useDeleteMessage(chatId);
+  const { copyToClipboard } = useCopyToClipboard();
 
   const handleMessageClose = () => {
     navigate(`${ROUTES.chats}/${chatId}`);
   };
+
+  const handleCopy = async (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, text: string) => {
+    e.preventDefault();
+    await copyToClipboard(text);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 1000);
+  }
 
   const handleMessageDelete = async () => {
     const confirmResult = await confirm({
@@ -102,9 +116,19 @@ export default function ChatMessage({ params }: Route.ComponentProps) {
                 <h3 className='text-heading-h3 text-base-black'>
                   {message.role === 'SYSTEM' ? 'System' : message.role === 'USER' ? 'Your' : 'Avatar’s'} Message
                 </h3>
+
+                <button
+                  onClick={(e) => handleCopy(e, message.content)}
+                >
+                  {isCopied ? <Icons.copied className='w-6 h-6'/> : <Icons.copy className='w-6 h-6'/>}
+                </button>
               </div>
               {/* page modal body */}
               <div className='-mx-3 px-3 pb-5 flex-1 flex flex-col gap-8 overflow-auto scrollbar-medium '>
+                {/* datetime */}
+                <div className='text-sm text-neutral-01'>
+                  {formatDate(message.createdAt)}
+                </div>
                 {/* chat bubble */}
                 <ChatMessagePreview message={message} />
                 {/* TTS Job */}

@@ -1,37 +1,38 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
 import { ChatState } from '~/components/chat/types/chatState';
 import AnimationRecording from '~/components/ui/AnimationRecording';
+import RecordingIndicator from '~/components/chat/RecordingIndicator';
 import { cn } from '~/utils/cn';
-import type { Chat } from '~/types';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
 import { useAudioPlayerContext } from 'react-use-audio-player';
+import type { UseStreamRecorderReturn } from '~/hooks/useStreamRecorder';
 
 interface MessageRecordingButtonProps {
-  chat: Chat;
-  onSubmit: (formData: FormData) => void;
+  disabled?: boolean;
+  streamRecorder: UseStreamRecorderReturn;
 }
 
+const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ disabled = false, streamRecorder }) => {
+  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(
+    useShallow((state) => ({
+      currentChatState: state.currentChatState,
+      setCurrentChatState: state.setCurrentChatState,
+      hasMicAccess: state.hasMicAccess,
+      requestMicAccess: state.requestMicAccess,
+    }))
+  );
 
-const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
-  chat,
-  onSubmit
-}) => {
-  const { currentChatState, setCurrentChatState, hasMicAccess, requestMicAccess } = useChatStore(useShallow(state => ({
-    currentChatState: state.currentChatState,
-    setCurrentChatState: state.setCurrentChatState,
-    hasMicAccess: state.hasMicAccess,
-    requestMicAccess: state.requestMicAccess,
-  })));
-  
-  const recorder = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null); 
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const { stop } = useAudioPlayerContext();
   const alert = useAlert();
 
+  const isRecording = currentChatState === ChatState.userSpeaking;
 
   useEffect(() => {
     requestMicAccess();
@@ -41,68 +42,78 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({
     return () => cleanUp();
   }, []);
 
-
   const startRecording = async () => {
     try {
-      // unlockAudio();
       if (!hasMicAccess) {
         requestMicAccess();
         alert({
-          icon: "🎤 ❌",
+          icon: '🎤 ❌',
           title: 'Microphone access required',
           body: 'Please allow access to your microphone in your browser settings for voice messages',
           actionButton: undefined,
         });
-        return
-      };  
+        return;
+      }
 
       setCurrentChatState(ChatState.userSpeaking);
       stop();
 
-      streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-      recorder.current = new MediaRecorder(streamRef.current);
-      recorder.current.addEventListener('dataavailable', handleData);
-      recorder.current.start();
+      streamRecorder.startRecording();
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = mediaStream;
+      setStream(mediaStream);
+
+      const mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder.addEventListener('dataavailable', handleData);
+      mediaRecorder.start(250);
+      recorderRef.current = mediaRecorder;
     } catch (err) {
-      console.error(err);
+      console.error('[MessageRecordingButton] Error starting recording', err);
+      streamRecorder.endRecording();
     }
   };
 
   const stopRecording = () => {
-    if (!recorder.current) return;
+    if (!recorderRef.current) return;
     setCurrentChatState(ChatState.Idle);
 
-    recorder.current.addEventListener('stop', cleanUp); 
-    recorder.current.stop();
+    recorderRef.current.addEventListener('stop', () => {
+      streamRecorder.endRecording();
+      cleanUp();
+    });
+    recorderRef.current.stop();
   };
 
-  const handleData = ({ data }: { data: Blob }) => {
-    const file = new File([data], 'audio.webm', { type: 'audio/webm' });
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('chatId', chat.id);
-    onSubmit(formData);
+  const handleData = async ({ data }: { data: Blob }) => {
+    if (data.size > 0) {
+      const buffer = await data.arrayBuffer();
+      streamRecorder.sendRecordingChunk(buffer);
+    }
   };
 
   const cleanUp = () => {
-    recorder.current?.removeEventListener('dataavailable', handleData);
-    streamRef.current?.getTracks().forEach(t => t.stop());  
-    recorder.current = null;
+    recorderRef.current?.removeEventListener('dataavailable', handleData);
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    recorderRef.current = null;
     streamRef.current = null;
+    setStream(null);
   };
 
-  return currentChatState === ChatState.userSpeaking ? (
-    <Button.Root size="icon" onClick={stopRecording} className={cn('relative z-[1]')} type="button">
-      <Button.Icon as={Icons.stopSound} />
-      <AnimationRecording className="absolute top-1/2 left-1/2 -translate-1/2 -z-10" />
-    </Button.Root>
-  ) : (
-    <Button.Root
-      size="icon"
-      onClick={startRecording}
-      disabled={currentChatState === ChatState.error}
-      type="button"
-    >
+  if (isRecording) {
+    return (
+      <div className='flex items-center gap-3'>
+        <RecordingIndicator stream={stream} />
+        <Button.Root size='icon' onClick={stopRecording} className={cn('relative z-[1]')} type='button' disabled={disabled}>
+          <Button.Icon as={Icons.stopSound} />
+          <AnimationRecording className='absolute top-1/2 left-1/2 -translate-1/2 -z-10' />
+        </Button.Root>
+      </div>
+    );
+  }
+
+  return (
+    <Button.Root size='icon' onClick={startRecording} disabled={disabled || currentChatState === ChatState.error} type='button'>
       <Button.Icon as={Icons.microphone} />
     </Button.Root>
   );

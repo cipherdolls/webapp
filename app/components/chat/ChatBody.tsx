@@ -1,22 +1,20 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import type { Message } from '~/types';
 import { ChatBubble } from '~/components/chat/ui/ChatBubble';
 import { isNewDay } from '~/utils/date.utils';
 import ChatDateDivider from './ui/ChatDateDivider';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Icons } from '../ui/icons';
 import { cn } from '~/utils/cn';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useMediaQuery } from 'usehooks-ts';
-import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
+import { useChatStore } from '~/store/useChatStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface ChatBodyProps {
   messages: Message[];
   loadMoreMessages: () => void;
   isLoading: boolean;
   isLoadingMessages: boolean;
-  isShouldShowChatBubble: boolean
   hasMore: boolean;
 }
 
@@ -28,11 +26,30 @@ function MessagesLoader() {
   );
 }
 
-const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isShouldShowChatBubble, isLoading, hasMore }) => {
+const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMoreMessages, isLoading, hasMore }) => {
   const scrollableRootRef = useRef<React.ComponentRef<'div'> | null>(null);
   const lastScrollDistanceToBottomRef = useRef<number>(0);
-  const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<string | null>(null);
+  const knownMessageIdsRef = useRef<Set<string>>(new Set());
+
+  const { processingMessageId, showTypingIndicator } = useChatStore(
+    useShallow((state) => ({
+      processingMessageId: state.processingMessageId,
+      showTypingIndicator: state.showTypingIndicator,
+    }))
+  );
+
+  // Show AI typing indicator only after user message is confirmed
+  const isAiTyping = showTypingIndicator;
+
+  // Track which messages are new (for animation)
+  const newMessageIds = new Set<string>();
+  messages.forEach((msg) => {
+    if (!knownMessageIdsRef.current.has(msg.id)) {
+      newMessageIds.add(msg.id);
+      knownMessageIdsRef.current.add(msg.id);
+    }
+  });
 
   const [infiniteRef, { rootRef }] = useInfiniteScroll({
     loading: isLoading,
@@ -46,6 +63,12 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
     const scrollableRoot = scrollableRootRef.current;
     if (!scrollableRoot) return;
 
+    // Scroll to bottom when AI starts typing
+    if (isAiTyping) {
+      scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
+      return;
+    }
+
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.id !== lastMessageIdRef.current) {
       lastMessageIdRef.current = lastMessage?.id || null;
@@ -54,8 +77,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
       const lastScrollDistanceToBottom = lastScrollDistanceToBottomRef.current;
       scrollableRoot.scrollTop = scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
     }
-    prevMessagesLengthRef.current = messages.length;
-  }, [messages, rootRef]);
+  }, [messages, isAiTyping]);
 
   const rootRefSetter = useCallback(
     (node: HTMLDivElement) => {
@@ -91,15 +113,30 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
           </div>
         )}
 
-        {isLoadingMessages ? <MessagesLoader /> : messages.map((message, index) => {
-          const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
-          return <ChatBubbleComponent key={message.id} message={message} isNextDay={isNextDay} />;
-        })}
+        {isLoadingMessages ? (
+          <MessagesLoader />
+        ) : (
+          <>
+            {messages.map((message, index) => {
+              const isNextDay = isNewDay(messages[index - 1]?.createdAt, message.createdAt);
+              return (
+                <ChatBubbleComponent
+                  key={message.id}
+                  message={message}
+                  isNextDay={isNextDay}
+                  isProcessing={message.id === processingMessageId}
+                  isNew={newMessageIds.has(message.id)}
+                />
+              );
+            })}
 
-        {isShouldShowChatBubble && (
-          <ChatBubble.Root>
-            <ChatBubble.Message isLoading />
-          </ChatBubble.Root>
+            {/* AI Typing Indicator */}
+            {isAiTyping && (
+              <ChatBubble.Root variant='received'>
+                <ChatBubble.Message isLoading />
+              </ChatBubble.Root>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -108,105 +145,29 @@ const ChatBody: React.FC<ChatBodyProps> = ({ messages, isLoadingMessages, loadMo
 
 export default ChatBody;
 
-const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean }>(({ message, isNextDay }) => {
-  const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
-  const isSystemMessage = message.role === 'SYSTEM';
-  const isAssistantMessage = message.role === 'ASSISTANT';
+const ChatBubbleComponent = React.memo<{ message: Message; isNextDay: boolean; isProcessing?: boolean; isNew?: boolean }>(
+  ({ message, isNextDay, isProcessing = false, isNew = false }) => {
+    const bubbleVariant = message.role === 'SYSTEM' ? 'system' : message.role === 'USER' ? 'sent' : 'received';
 
-  const timeoutRef = useRef<NodeJS.Timeout | number>(0);
+    if (!message.content) return null;
 
-  const [isShouldShowCopyButton, setIsShouldShowCopyButton] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-
-  const navigate = useNavigate()
-  const { copyToClipboard } = useCopyToClipboard();
-  // Check if this is a recent assistant message (created within last 30 seconds)
-  const isRecentAssistantMessage = isAssistantMessage && 
-    message.createdAt && 
-    (new Date().getTime() - new Date(message.createdAt).getTime()) < 30000;
-
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      setIsShouldShowCopyButton(true);
-    }, 350)
+    return (
+      <>
+        {/* divider between days */}
+        {isNextDay && <ChatDateDivider date={message.createdAt} />}
+        {/* chat bubble */}
+        <ChatBubble.Root variant={bubbleVariant} className={isNew && bubbleVariant === 'received' ? 'animate-fade-in' : ''}>
+          <ChatBubble.Message asChild isProcessing={isProcessing && bubbleVariant === 'sent'}>
+            <div>
+              <Link to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
+                <ChatBubble.Text>{message.content}</ChatBubble.Text>
+              </Link>
+            </div>
+          </ChatBubble.Message>
+        </ChatBubble.Root>
+      </>
+    );
   }
-
-  const handleMouseLeave = () => {
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      setIsShouldShowCopyButton(false);
-    }, 200)
-  }
-
-  const handleCopy = async (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, text: string) => {
-    e.preventDefault();
-    await copyToClipboard(text);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 1000);
-  }
-
-  const handlePlaySound = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-    e.preventDefault()
-    navigate(`messages/${message.id}?playSound=true`)
-  }
-
-  if (!message.content) return null;
-
-  return (
-    <>
-      {/* divider between days */}
-      {isNextDay && <ChatDateDivider date={message.createdAt} />}
-      {/* chat bubble */}
-      <ChatBubble.Root variant={bubbleVariant}>
-        <ChatBubble.Message asChild>
-          <motion.div
-            initial={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-10%' : '10%' }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            <Link onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} to={`messages/${message.id}`} className='block -mx-4 -my-3 px-4 py-3'>
-              <ChatBubble.Text animate={isRecentAssistantMessage}>
-                {message.content}
-              </ChatBubble.Text>
-              {!isSystemMessage && <ChatBubble.Timestamp time={message.createdAt} />}
-
-              <AnimatePresence initial={false}>
-                {isShouldShowCopyButton && (
-                  <motion.div
-                    initial={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-10%' : '10%', transform: 'scale(0.9)' }}
-                    animate={{ opacity: 1, x: 0, transform: 'scale(1)'}}
-                    exit={{ opacity: 0, x: message.role === 'ASSISTANT' ? '-20%' : '20%', transform: 'scale(0.9)' }}
-                    transition={{ duration: 0.18 }}
-                    className={cn('pl-5  absolute top-1/2 -translate-y-1/2', message.role === 'ASSISTANT' ? '-right-12' : '-left-[68px]')}
-                  >
-                    <div
-                      className='flex flex-col gap-1.5 justify-center items-center rounded-full px-1 py-2 border border-neutral-04 bg-white'
-                    >
-                      <span
-                        onClick={(e) => handleCopy(e, message.content)}
-                        className='opacity-70 transition-opacity hover:opacity-100'
-                      >
-                        {isCopied ? <Icons.copied className='w-7 h-7'/> : <Icons.copy className='w-7 h-7'/>}
-                      </span>
-                      <div className='w-11/12 h-px bg-neutral-03'/>
-
-                      <span
-                        onClick={(e) => handlePlaySound(e)}
-                        className='opacity-60 transition-opacity hover:opacity-100'
-                      >
-                         <Icons.sound className='w-7 h-7'/>
-                      </span>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Link>
-          </motion.div>
-        </ChatBubble.Message>
-      </ChatBubble.Root>
-    </>
-  );
-});
+);
 
 ChatBubbleComponent.displayName = 'ChatBubbleComponent';

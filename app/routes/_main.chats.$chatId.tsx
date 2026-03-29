@@ -9,6 +9,7 @@ import ChatJobErrors from '~/components/chat/ChatJobErrors';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { ChatJob, type ChatJobType } from '~/components/chat/types/chatState';
 import { useChat } from '~/hooks/queries/chatQueries';
+import { useQueryClient } from '@tanstack/react-query';
 import { ROUTES } from '~/constants';
 
 export function meta({ data }: Route.MetaArgs) {
@@ -19,13 +20,13 @@ export function meta({ data }: Route.MetaArgs) {
     { title: `Chat with ${avatarName} - CipherDolls` },
     {
       name: 'description',
-      content: `Anonymous private conversation with ${avatarName}. Pay per message with LOV tokens. Voice chat and text messaging available.`,
+      content: `Anonymous private conversation with ${avatarName}. Pay per message with USDC. Voice chat and text messaging available.`,
     },
     { property: 'og:type', content: 'website' },
     { property: 'og:title', content: `Chat with ${avatarName} - CipherDolls` },
     {
       property: 'og:description',
-      content: `Have an anonymous conversation with ${avatarName}. Complete privacy guaranteed. Pay per message with LOV tokens.`,
+      content: `Have an anonymous conversation with ${avatarName}. Complete privacy guaranteed. Pay per message with USDC.`,
     },
     { name: 'robots', content: 'noindex, nofollow' },
   ];
@@ -33,6 +34,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function ChatShow({ params }: Route.ComponentProps) {
   const { data: chatData, isLoading: isLoadingChat, error } = useChat(params.chatId);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const chat = chatData;
@@ -54,6 +56,11 @@ export default function ChatShow({ params }: Route.ComponentProps) {
       const isValidJob = (state: string): state is ChatJobType => state in ChatJob;
       if (isValidJob(event.resourceName)) {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
+      }
+      if (event.resourceAttributes?.action !== undefined) {
+        queryClient.setQueryData(['chat', params.chatId], (old: any) =>
+          old ? { ...old, action: event.resourceAttributes.action } : old
+        );
       }
     },
     enabled: !!chatData?.id,

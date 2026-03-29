@@ -19,7 +19,7 @@ const Footer = () => {
             </div>
             <p className="text-gray-600 leading-relaxed max-w-md text-sm">
               Anonymous avatar chat platform with complete privacy. No personal data collection, 
-              pay-per-message model using LOV tokens with spending limits.
+              pay-per-message model using USDC with spending limits.
             </p>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Shield className="w-4 h-4 text-green-600" />
@@ -46,7 +46,7 @@ const Footer = () => {
             <div className="flex items-center space-x-6 text-sm text-gray-500">
               <span className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Powered by LOV tokens</span>
+                <span>Powered by USDC</span>
               </span>
             </div>
           </div>

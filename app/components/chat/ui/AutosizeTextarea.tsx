@@ -1,5 +1,6 @@
 import { type RefObject, useEffect, useRef } from 'react';
 import { cn } from '~/utils/cn';
+import { useMediaQuery } from 'usehooks-ts';
 
 interface AutosizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   textAreaRef: RefObject<HTMLTextAreaElement | null>;
@@ -7,6 +8,7 @@ interface AutosizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAre
 }
 
 const AutosizeTextarea: React.FC<AutosizeTextareaProps> = ({ textAreaRef, value,  className, ...rest }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -17,7 +19,8 @@ const AutosizeTextarea: React.FC<AutosizeTextareaProps> = ({ textAreaRef, value,
 
   useEffect(() => {
     if (textAreaRef.current) {
-      textAreaRef.current.focus()
+      if (!isMobile) textAreaRef.current.focus()
+
       textAreaRef.current.style.height = '0px';
       textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
     }

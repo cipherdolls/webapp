@@ -1,48 +1,48 @@
 import { Wallet, User, Zap, MessageSquare, Link } from 'lucide-react';
 
 const content = {
-  title: 'Your Journey to',
-  subtitle: 'Anonymous AI Chat',
-  description: 'Follow these simple steps to start your completely private conversations with avatars',
+  title: 'How It Works',
+  subtitle: '4 Simple Steps',
+  description: 'Sign in, start chatting for free, and unlock premium content with USDC',
 };
 
 const steps = [
   {
     icon: Link,
-    title: 'Connect Wallet',
-    description: 'Connect your crypto wallet (MetaMask, WalletConnect, etc.) to access the platform securely.',
+    title: 'Sign In',
+    description: 'Connect with your wallet — no email, no passwords, no personal info required.',
     color: 'from-indigo-500 to-blue-500',
     bgColor: 'bg-gradient-to-br from-indigo-50/80 to-blue-50/60',
     iconBg: 'bg-gradient-to-br from-indigo-100 to-blue-100',
   },
   {
-    icon: Wallet,
-    title: 'Get LOV Tokens',
-    description: 'Start with free LOV tokens to begin chatting. Set your spending limits to control usage.',
+    icon: MessageSquare,
+    title: 'Start Chatting for Free',
+    description: 'Explore free avatars and scenarios — no payment needed to get started.',
     color: 'from-blue-500 to-cyan-500',
     bgColor: 'bg-gradient-to-br from-blue-50/80 to-cyan-50/60',
     iconBg: 'bg-gradient-to-br from-blue-100 to-cyan-100',
   },
   {
-    icon: User,
-    title: 'Choose Avatar',
-    description: 'Select from various avatar personalities and choose your conversation scenario.',
+    icon: Wallet,
+    title: 'Buy USDC & Set Allowance',
+    description: 'Get some USDC on Base and set a spending limit — you stay in full control.',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'bg-gradient-to-br from-purple-50/80 to-pink-50/60',
     iconBg: 'bg-gradient-to-br from-purple-100 to-pink-100',
   },
   {
     icon: Zap,
-    title: 'Pay with LOV',
-    description: 'Pay only for messages you send using LOV tokens with customizable spending limits.',
+    title: 'Unlock Premium Content',
+    description: 'Access premium avatars and scenarios — only pay for what you use, no subscriptions.',
     color: 'from-green-500 to-emerald-500',
     bgColor: 'bg-gradient-to-br from-green-50/80 to-emerald-50/60',
     iconBg: 'bg-gradient-to-br from-green-100 to-emerald-100',
   },
   {
     icon: MessageSquare,
-    title: 'Chat Privately',
-    description: 'Enjoy completely private conversations with AI characters.',
+    title: 'Start Chatting',
+    description: 'Dive into private, immersive conversations that feel real.',
     color: 'from-orange-500 to-red-500',
     bgColor: 'bg-gradient-to-br from-orange-50/80 to-red-50/60',
     iconBg: 'bg-gradient-to-br from-orange-100 to-red-100',
@@ -151,7 +151,7 @@ const Steps = () => {
         <div className='text-center mt-16'>
           <div className='inline-flex items-center space-x-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-full px-8 py-4 shadow-lg'>
             <div className='w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse'></div>
-            <p className='text-xl font-light text-gray-900'>Ready when you are ready!</p>
+            <p className='text-xl font-light text-gray-900'>That's it — you're ready to go!</p>
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 import { Link, NavLink } from 'react-router';
 import { useMemo, useCallback } from 'react';
+import { BookOpenText } from 'lucide-react';
 import { Icons, type IconProps } from './ui/icons';
 import { cn } from '~/utils/cn';
-import SignOutModal from './signOutModal';
 import { ViewMore } from '~/view-more';
 import { ROUTES } from '~/constants';
 import { useAuthStore } from '~/store/useAuthStore';
@@ -27,15 +27,15 @@ const SidebarItems = [
   {
     name: 'Services',
     href: ROUTES.ai,
-    icon: Icons.services,
+    icon: ({ className }: { className?: string }) => <BookOpenText className={cn('text-[#350D2A]/40', className)} size={20} />,
     hideOnMobile: true,
   },
-  // {
-  //   name: 'Hardware',
-  //   href: ROUTES.hardware,
-  //   icon: Icons.gear,
-  //   hideOnMobile: true,
-  // },
+  {
+    name: 'Doll Bodies',
+    href: ROUTES.dollBodies,
+    icon: Icons.chip,
+    hideOnMobile: true,
+  },
   {
     name: 'Menu',
     href: null, // This will be handled as button, not link
@@ -53,12 +53,6 @@ const Sidebar = ({ className }: { className?: string }) => {
     () => [
       { type: 'link' as const, text: 'Account', href: ROUTES.account, icon: Icons.account },
       { type: 'link' as const, text: 'Services', href: ROUTES.services, icon: Icons.services },
-      // {
-      //   type: 'onClick' as const,
-      //   text: 'Sign Out',
-      //   onClick: logout,
-      //   icon: Icons.logout,
-      // },
     ],
     [logout]
   );
@@ -113,8 +107,12 @@ const Sidebar = ({ className }: { className?: string }) => {
             if (item.href) {
               return (
                 <NavLink to={item.href} key={index} className={getNavLinkClassName(item)}>
-                  {<NavIcon />}
-                  <span className='text-label font-semibold'>{item.name}</span>
+                  {({ isActive }) => (
+                    <>
+                      <NavIcon className={isActive ? 'text-black opacity-100' : undefined} />
+                      <span className='text-label font-semibold'>{item.name}</span>
+                    </>
+                  )}
                 </NavLink>
               );
             }
@@ -128,20 +126,13 @@ const Sidebar = ({ className }: { className?: string }) => {
             );
           })}
         </div>
-        <NavLink to={ROUTES.account} className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account, hideOnMobile: true })}>
+        <NavLink
+          to={ROUTES.account}
+          className={getNavLinkClassName({ name: 'Account', href: ROUTES.account, icon: Icons.account, hideOnMobile: true })}
+        >
           {<Icons.account />}
           <span className='text-label font-semibold'>Account</span>
         </NavLink>
-        {/* <div className='sm:block hidden w-full'>
-          <SignOutModal>
-            <button className='py-3 transition-colors text-label font-semibold text-pink-01 flex items-center justify-center gap-2 flex-col rounded-xl w-full bg-transparent hover:bg-neutral-05'>
-              <Icons.signOut className='fill-[#350D2A]/40' />
-              Sign Out
-            </button>
-          </SignOutModal>
-        </div> */}
-        {/* Optional for now */}
-        {/* <div className="h-[34px] w-full sm:hidden" /> */}
       </div>
     </aside>
   );

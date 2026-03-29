@@ -2,7 +2,7 @@ import { DataCard } from '~/components/DataCard';
 import type { Message } from '~/types';
 import { useTransactions } from '~/hooks/queries/transactionQueries';
 
-import { formatEther } from 'ethers';
+import { formatUnits } from 'ethers';
 import { Icons } from '~/components/ui/icons';
 import * as Accordion from '@radix-ui/react-accordion';
 
@@ -39,7 +39,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
       <DataCard.Wrapper>
         <Accordion.Root type='single' collapsible className='w-full'>
           {transactions.map((transaction, index) => (
-            <Accordion.Item key={index} value={transaction.txHash}>
+            <Accordion.Item key={index} value={transaction.id}>
               {index > 0 && <DataCard.Divider />}
 
               <Accordion.Trigger
@@ -59,13 +59,13 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                     data={[
                       {
                         label: 'Amount',
-                        value: `${formatEther(transaction.amountWei)} LOV`,
+                        value: `${formatUnits(transaction.amountWei, 6)} USDC`,
                       },
                       {
                         label: 'From Address',
                         value: transaction.fromAddress ? (
                           <a
-                            href={`https://optimistic.etherscan.io/address/${transaction.fromAddress}`}
+                            href={`https://basescan.org/address/${transaction.fromAddress}`}
                             className='underline'
                             target='_blank'
                             rel='noreferrer noopener'
@@ -78,7 +78,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         label: 'To Address',
                         value: transaction.toAddress ? (
                           <a
-                            href={`https://optimistic.etherscan.io/address/${transaction.toAddress}`}
+                            href={`https://basescan.org/address/${transaction.toAddress}`}
                             className='underline'
                             target='_blank'
                             rel='noreferrer noopener'
@@ -99,7 +99,7 @@ const ChatTransactionJobCard = ({ message }: { message: Message }) => {
                         label: 'Transaction Hash',
                         value: transaction.txHash ? (
                           <a
-                            href={`https://optimistic.etherscan.io/tx/${transaction.txHash}`}
+                            href={`https://basescan.org/tx/${transaction.txHash}`}
                             className='underline'
                             target='_blank'
                             rel='noreferrer noopener'

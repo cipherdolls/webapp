@@ -1,16 +1,15 @@
 import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import React, { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { getPicture } from '~/utils/getPicture';
-import { PATHS, ROUTES } from '~/constants';
+import { PATHS, ROUTES, TOKEN_BALANCE } from '~/constants';
 import * as Button from '~/components/ui/button/button';
 import PlayerButton from '~/components/PlayerButton';
 import ReactMarkdown from 'react-markdown';
-import DeleteAvatarModal from '~/components/deleteAvatarModal';
 import { ViewMore } from '~/view-more';
-import AvatarScenarioModal from '~/components/AvatarScenarioModal';
+import ChatSelectionWizard from '~/components/ChatSelectionWizard';
 import AvatarCharacterPreview from '~/components/AvatarCharacterPreview';
 import { useAvatar } from '~/hooks/queries/avatarQueries';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
@@ -18,6 +17,12 @@ import { formatModelName } from '~/utils/formatModelName';
 import { cn } from '~/utils/cn';
 import ErrorPage from '~/components/ErrorPage';
 import type { User } from '~/types';
+import { useTtsProvider } from '~/hooks/queries/ttsQueries';
+import { InformationBadge } from '~/components/ui/InformationBadge';
+import { useDeleteAvatar } from '~/hooks/queries/avatarMutations';
+import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -28,8 +33,15 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { data: avatar, error: avatarError, isLoading: avatarLoading } = useAvatar(params.id);
   const { mutate: createChat } = useCreateChat();
+  const { data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider(avatar?.ttsVoice.ttsProviderId || '');
+  const { mutate: deleteAvatar } = useDeleteAvatar();
+  const confirm = useConfirm();
+  const alert = useAlert();
+  const { data: currentUser } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
 
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
 
   const scenarios = avatar?.scenarios ? avatar.scenarios : [];
   const hasScenarios = scenarios.length > 0;
@@ -67,6 +79,25 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
     return <ErrorPage code={avatarError?.code} message={avatarError?.message} />;
   }
 
+  const handleDeleteAvatar = async () => {
+    const result = await confirm({
+      icon: '🗑️',
+      title: 'Delete an Avatar?',
+      body: 'By deleting an avatar a chat will be deleted as well. You will no able to restore the data',
+      actionButton: 'Yes, Delete',
+      cancelButton: 'No, Leave',
+      variant: 'danger',
+    });
+
+    if (!result) return;
+
+    deleteAvatar(avatar.id, {
+      onSuccess: () => {
+        navigate(`${ROUTES.avatars}?mine=true`);
+      },
+    });
+  };
+
   const handleCreateChat = (scenarioId: string) => {
     createChat(
       {
@@ -77,13 +108,22 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
         onSuccess: (newChat) => {
           navigate(`${ROUTES.chats}/${newChat.id}`);
         },
+        onError: (error: any) => {
+          alert({
+            icon: '💰',
+            title: 'Insufficient Tokens',
+            body:
+              error?.message ||
+              `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to start a chat. Please add more tokens to continue.`,
+          });
+        },
       }
     );
   };
 
   const getCreatorSeed = () => {
-    if (avatar.userId === user.id && user.signerAddress) {
-      return parseInt(user.signerAddress.slice(2, 10), 16);
+    if (avatar.user?.signerAddress) {
+      return parseInt(avatar.user.signerAddress.slice(2, 10), 16);
     }
 
     let hash = 0;
@@ -119,11 +159,11 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             </div>
           </Link>
           <div className='md:flex hidden items-center gap-3'>
-            <AvatarScenarioModal avatar={avatar}>
-              <Button.Root variant='primary' className='px-6'>
+            <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
+              <Button.Root variant='primary' className='px-6' disabled={!hasMinimumTokens}>
                 Start Chat
               </Button.Root>
-            </AvatarScenarioModal>
+            </ChatSelectionWizard>
 
             {/*<fetcher.Form method='POST' action='/avatars/new'>*/}
             {/*  <input hidden readOnly id='name' name='name' defaultValue={`${avatar.name} copy`} />*/}
@@ -137,14 +177,16 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
             {/*    Duplicate*/}
             {/*  </Button.Root>*/}
             {/*</fetcher.Form>*/}
-            {avatar.userId === user.id && (
+            {(avatar.userId === user.id || user.role === 'ADMIN') && (
               <>
                 <Link to={`${ROUTES.avatars}/${avatar.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
                     Edit
                   </Button.Root>
                 </Link>
-                <DeleteAvatarModal avatarId={avatar.id} />
+                <Button.Root type='button' variant={'danger'} onClick={handleDeleteAvatar}>
+                  <Icons.trash className='w-12' />
+                </Button.Root>
               </>
             )}
           </div>
@@ -156,17 +198,20 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   type: 'link',
                   text: 'Edit',
                   href: `${ROUTES.avatars}/${avatar.id}/edit`,
-                  visible: user.id === avatar.userId,
+                  visible: user.id === avatar.userId || user.role === 'ADMIN',
                 },
                 {
                   type: 'component',
                   text: 'Chat',
                   component: (
-                    <AvatarScenarioModal avatar={avatar}>
-                      <button className='w-full text-left px-3 py-2 text-body-md text-base-black hover:bg-neutral-05 rounded-lg transition-colors'>
+                    <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
+                      <button
+                        className='w-full text-left px-3 py-2 text-body-md text-base-black hover:bg-neutral-05 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                        disabled={!hasMinimumTokens}
+                      >
                         {(avatar.chats?.length || 0) > 0 ? 'Continue Chat' : 'Chat'}
                       </button>
-                    </AvatarScenarioModal>
+                    </ChatSelectionWizard>
                   ),
                 },
                 // {
@@ -186,8 +231,12 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   type: 'component',
                   text: 'Delete',
                   isDelete: true,
-                  component: <DeleteAvatarModal dropdown avatarId={avatar.id} />,
-                  visible: user.id === avatar.userId,
+                  component: (
+                    <Button.Root type='button' variant='danger' onClick={handleDeleteAvatar}>
+                      <Icons.trash className='w-12' />
+                    </Button.Root>
+                  ),
+                  visible: user.id === avatar.userId || user.role === 'ADMIN',
                 },
               ]}
             />
@@ -204,53 +253,63 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
               {hasScenarios ? (
                 <div className='flex flex-col gap-5'>
                   <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2'>
-                    {sortedScenarios.map((scenario, index) => (
-                      <div className={'transition-all duration-500 ease-out'} key={index}>
-                        <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                          <Link
-                            to={`${ROUTES.scenarios}/${scenario.id}`}
-                            className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
-                          >
-                            <img
-                              src={getPicture(scenario, 'scenarios', false)}
-                              srcSet={getPicture(scenario, 'scenarios', true)}
-                              alt={`${scenario.name} picture`}
-                              className='object-cover size-full'
-                            />
+                    {sortedScenarios.map((scenario, index) => {
+                      const isChatDisabled = !isUsingBurnerWallet && !scenario.free && !hasMinimumTokens;
 
-                            {/*{avatar.userId === user.id && (*/}
-                            {/*  <div className='absolute top-2 left-2 z-10'>*/}
-                            {/*    <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>*/}
-                            {/*      🌐*/}
-                            {/*      <span>By you</span>*/}
-                            {/*    </div>*/}
-                            {/*  </div>*/}
-                            {/*)}*/}
-                          </Link>
+                      return (
+                        <div className={'transition-all duration-500 ease-out'} key={index}>
+                          <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
+                            <Link
+                              to={`${ROUTES.scenarios}/${scenario.id}`}
+                              className='block h-[200px] sm:h-[152px] lg:h-[120px] rounded-xl bg-black relative'
+                            >
+                              <img
+                                src={getPicture(scenario, 'scenarios', false)}
+                                srcSet={getPicture(scenario, 'scenarios', true)}
+                                alt={`${scenario.name} picture`}
+                                className='object-cover size-full'
+                              />
 
-                          <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
-                            <div className='flex flex-col gap-1 min-w-0 flex-1'>
-                              <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+                              {/*{avatar.userId === user.id && (*/}
+                              {/*  <div className='absolute top-2 left-2 z-10'>*/}
+                              {/*    <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>*/}
+                              {/*      🌐*/}
+                              {/*      <span>By you</span>*/}
+                              {/*    </div>*/}
+                              {/*  </div>*/}
+                              {/*)}*/}
+                            </Link>
 
-                              <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
-                            </div>
-                            <div className='flex items-center gap-3'>
-                              {scenario.chats && scenario.chats.length > 0 ? (
-                                <Link to={`${ROUTES.chats}/${scenario.chats[0].id}`}>
-                                  <Button.Root size='sm' className='px-5'>
-                                    Continue Chat
+                            <div className='p-3 flex lg:items-center gap-5 justify-between flex-1'>
+                              <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                                <h4 className='text-body-sm font-semibold text-base-black truncate'>{scenario.name}</h4>
+
+                                <p className='truncate text-body-sm font-semibold text-neutral-01'>{scenario.systemMessage}</p>
+                              </div>
+                              <div className='flex items-center gap-3'>
+                                {scenario.chats && scenario.chats.length > 0 ? (
+                                  <Link to={`${ROUTES.chats}/${scenario.chats[0].id}`}>
+                                    <Button.Root size='sm' className='px-5'>
+                                      Continue Chat
+                                    </Button.Root>
+                                  </Link>
+                                ) : (
+                                  <Button.Root
+                                    type='button'
+                                    size='sm'
+                                    className='px-5'
+                                    onClick={() => handleCreateChat(scenario.id)}
+                                    disabled={isChatDisabled}
+                                  >
+                                    Chat
                                   </Button.Root>
-                                </Link>
-                              ) : (
-                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(scenario.id)}>
-                                  Chat
-                                </Button.Root>
-                              )}
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
@@ -294,10 +353,42 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                 )}
               </div>
             </div>
+
+            {ttsProvider && (
+              <div className='flex flex-col gap-5'>
+                <div className='flex justify-between'>
+                  <h1 className='text-base-black text-heading-h3 font-semibold'>Voice & Provider</h1>
+                  <InformationBadge className='size-6' tooltipText={`${ttsProvider.name}: Real-time AI voice synthesis`} side={'top'} />
+                </div>
+
+                <div className='flex flex-col bg-gradient-1 px-5 py-[18px] rounded-xl gap-4 shadow-regular'>
+                  <div className='flex items-center gap-4'>
+                    <div className='size-10'>
+                      <img
+                        src={getPicture(ttsProvider, 'tts-providers', false)}
+                        srcSet={getPicture(ttsProvider, 'tts-providers', true)}
+                        alt={ttsProvider.name}
+                        className='size-full object-cover rounded-lg'
+                      />
+                    </div>
+
+                    <div className='flex flex-col gap-1 flex-1 min-w-0'>
+                      <p className='text-body-lg font-semibold text-base-black truncate'>{avatar.ttsVoice.name}</p>
+
+                      <div className='flex items-center gap-2 text-body-sm'>
+                        <span className='font-semibold text-base-black'>${ttsProvider.dollarPerCharacter}</span>
+                        <span className='text-neutral-01 font-normal'>/Character</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {avatar.gender && (
               <div className='flex flex-col gap-5'>
                 <h1 className='text-base-black text-heading-h3 font-semibold'>Gender</h1>
-                <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
+                <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
                   <h2 className='text-heading-h2'>{avatar.gender === 'Female' ? '👩🏻' : avatar.gender === 'Male' ? '🧔🏻‍♂' : '-'}</h2>
                   <div className='flex flex-col gap-1'>
                     <p className='text-body-lg font-semibold text-base-black text-left line-clamp-1'>{avatar.gender}</p>
@@ -305,20 +396,23 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                 </div>
               </div>
             )}
+
             <div className='flex flex-col gap-5'>
-              <h1 className='text-base-black text-heading-h3 font-semibold'>Creator</h1>
-              <div className='p-6 bg-gradient-1 rounded-xl flex items-center gap-6'>
-                {user.signerAddress ? (
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Owner</h1>
+              <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
+                {avatar.user?.signerAddress ? (
                   <Jazzicon diameter={40} seed={creatorSeed} />
                 ) : (
                   <h2 className='text-heading-h2'>{isPublished ? '👥' : '💖'}</h2>
                 )}
                 <div className='flex flex-col gap-1 min-w-0 flex-1'>
                   <p className='text-body-lg font-semibold text-base-black text-left truncate'>
-                    {isPublished ? 'Published' : 'Your Special'}
+                    {avatar.user?.name || 'Unknown'}
                   </p>
                   <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
-                    {user.id === avatar.userId ? 'Made by you' : avatar.userId}
+                    {avatar.user?.signerAddress
+                      ? `${avatar.user.signerAddress.slice(0, 6)}...${avatar.user.signerAddress.slice(-4)}`
+                      : avatar.userId}
                   </span>
                 </div>
               </div>

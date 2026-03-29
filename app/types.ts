@@ -7,6 +7,11 @@ export interface meta {
   totalPages: number;
 }
 
+export interface Paginated<T> {
+  data: T[];
+  meta: meta;
+}
+
 export interface CursorMeta {
   nextCursor?: string;
   hasMore: boolean;
@@ -32,13 +37,22 @@ export interface User {
   freeWeiBalance: string;
   signerAddress: string;
   walletAddress: string;
-  apikey: string;
   gender: Gender | null;
+  language: string
   role: string;
   character: string;
   tokenBalance?: number;
   tokenAllowance: number;
+  tokenSpendable?: number;
   referralCount?: number;
+}
+
+export interface ApiKey {
+  id: string;
+  createdAt: string;
+  key: string;
+  name: string;
+  userId: string;
 }
 
 export interface TokenPermitsPaginated {
@@ -88,7 +102,9 @@ export interface ChatModel {
   providerModelName: string;
   recommended: boolean;
   censored: boolean;
+  free: boolean;
   aiProvider?: AiProvider;
+  scenarios?: Scenario[];
   aggregateChatCompletions: {
     avgTimeTakenMs: number;
     minTimeTakenMs: number;
@@ -122,6 +138,7 @@ export interface SttProvider {
   id: string;
   name: string;
   dollarPerSecond: number;
+  free: boolean;
   recommended: boolean;
   picture?: string;
   createdAt: Date;
@@ -136,7 +153,10 @@ export interface TtsProvider {
   ttsVoices: TtsVoice[];
   hostname?: string;
   apiKey: string;
+  censored: boolean;
 }
+
+export type TtsLanguage = 'en' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ru' | 'ja' | 'zh' | 'ko' | 'multilingual';
 
 export interface TtsVoice {
   id: string;
@@ -147,6 +167,7 @@ export interface TtsVoice {
   ttsProviderId: string;
   createdAt: Date;
   gender: Gender;
+  language?: TtsLanguage;
 }
 
 export interface ScenariosPaginated {
@@ -173,10 +194,16 @@ export interface Scenario {
   avatars?: Avatar[];
   recommended: boolean;
   introduction?: string;
-  published?: boolean;
+  greeting?: string;
+  published: boolean;
   userGender?: Gender;
   avatarGender?: Gender;
   nsfw?: boolean;
+  type?: ScenarioType;
+  free?: boolean;
+  dollarPerMessage?: number;
+  sponsorships?: Sponsorship[];
+  user?: User;
 }
 
 export interface Sponsorship {
@@ -198,6 +225,8 @@ export interface Chat {
     messages: number;
     chatCompletionJobs: number;
   };
+  tts: boolean;
+  action: string;
   sttProvider?: SttProvider;
   sttProviderId: string;
   avatar: Avatar;
@@ -231,6 +260,7 @@ export interface Firmware {
   createdAt: Date;
   updatedAt: Date;
   version: string;
+  dollBodyId: string;
   bin: string;
   checksum: string;
 }
@@ -242,7 +272,9 @@ export interface DollBody {
   name: string;
   description: string;
   picture: string;
+  productUrl: string | null;
   avatar: Avatar;
+  firmwares?: Firmware[];
 }
 
 export interface SttJob {
@@ -330,12 +362,16 @@ export interface Doll {
   createdAt: Date;
   updatedAt: Date;
   name: string;
+  online: boolean;
   rssi: number;
   deepSleepCountdown: number;
   macAddress: string;
   userId: string;
   picture: string;
   chatId: string;
+  dollBodyId: string;
+  dollBody?: DollBody;
+  chat?: Chat;
   _count: DollCount;
 }
 
@@ -351,6 +387,8 @@ export interface PaymentJob {
   weiCost: string;
   timeTakenMs: number;
 }
+
+export type ScenarioType = 'NORMAL' | 'ROLEPLAY';
 
 export type Gender = 'Female' | 'Male' | 'Other';
 
@@ -368,6 +406,7 @@ export interface Avatar {
   character: string;
   ttsVoiceId: string;
   userId: string;
+  free: boolean;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -390,9 +429,24 @@ export interface Avatar {
   language: string;
   scenarios?: Scenario[];
   gender: Gender;
+  user?: User;
 }
 export interface AvatarCount {
   chats: number;
+}
+
+export interface FillerWord {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  text: string;
+  fileName: string | null;
+  avatarId: string;
+}
+
+export interface FillerWordsPaginated {
+  data: FillerWord[];
+  meta: meta;
 }
 
 export interface GroupedChatsByAvatar {

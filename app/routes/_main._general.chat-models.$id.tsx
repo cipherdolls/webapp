@@ -14,10 +14,7 @@ import { useDeleteChatModel } from '~/hooks/queries/aiProviderMutations';
 import { ROUTES } from '~/constants';
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: 'Chat Model' },
-    { name: 'robots', content: 'noindex' },
-  ];
+  return [{ title: 'Chat Model' }, { name: 'robots', content: 'noindex' }];
 }
 
 export default function aiProviderShow({ params }: Route.ComponentProps) {
@@ -211,6 +208,39 @@ export default function aiProviderShow({ params }: Route.ComponentProps) {
               </div>
             </div>
           </div>
+
+          {chatModel.scenarios && chatModel.scenarios.length > 0 && (
+            <div className='bg-white shadow-regular rounded-xl px-5 py-[18px]'>
+              <h2 className='text-body-md font-semibold mb-4 text-gray-800'>Connected Scenarios ({chatModel.scenarios.length})</h2>
+              <div className='flex flex-col gap-3'>
+                {chatModel.scenarios.map((scenario) => (
+                  <Link
+                    key={scenario.id}
+                    to={`${ROUTES.scenarios}/${scenario.id}`}
+                    className='flex items-center justify-between p-3 rounded-lg hover:bg-neutral-06 transition-colors group'
+                  >
+                    <div className='flex items-center gap-3'>
+                      <div className='size-10 rounded-lg overflow-hidden flex-shrink-0'>
+                        <img
+                          src={getPicture(scenario, 'scenarios', false)}
+                          srcSet={getPicture(scenario, 'scenarios', true)}
+                          alt={scenario.name}
+                          className='size-full object-cover'
+                        />
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='text-body-sm font-semibold text-base-black group-hover:underline'>{scenario.name}</span>
+                        {scenario.introduction && (
+                          <span className='text-body-sm text-neutral-01 line-clamp-1'>{scenario.introduction}</span>
+                        )}
+                      </div>
+                    </div>
+                    <Icons.chevronRight className='size-4 text-neutral-01 group-hover:text-base-black transition-colors' />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Outlet />

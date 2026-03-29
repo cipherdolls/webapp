@@ -11,6 +11,7 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useEmbeddingModel } from '~/hooks/queries/aiProviderQueries';
 import { useUpdateEmbeddingModel } from '~/hooks/queries/aiProviderMutations';
 import { ROUTES } from '~/constants';
+import { useState, useEffect } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Embedding Model' }];
@@ -20,6 +21,23 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
   const { data: embeddingModel } = useEmbeddingModel(params.id);
   const { mutate: updateEmbeddingModel, isPending: isUpdatingEmbeddingModel, error: updateEmbeddingModelError } = useUpdateEmbeddingModel();
   const navigate = useNavigate();
+
+  const [inputTokenPrice, setInputTokenPrice] = useState<string>('');
+  const [outputTokenPrice, setOutputTokenPrice] = useState<string>('');
+
+  useEffect(() => {
+    if (embeddingModel) {
+      setInputTokenPrice(String(scientificNumConvert(embeddingModel.dollarPerInputToken)));
+      setOutputTokenPrice(String(scientificNumConvert(embeddingModel.dollarPerOutputToken)));
+    }
+  }, [embeddingModel]);
+
+  const calculatePerMillionPrice = (pricePerToken: string): string => {
+    const price = parseFloat(pricePerToken);
+    if (isNaN(price) || price === 0) return '0.00';
+    const millionPrice = price * 1000000;
+    return millionPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/ai`);
@@ -82,8 +100,12 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(embeddingModel.dollarPerInputToken)}
+                      value={inputTokenPrice}
+                      onChange={(e) => setInputTokenPrice(e.target.value)}
                     />
+                    <span className='text-neutral-01 text-body-sm mt-1'>
+                      ${calculatePerMillionPrice(inputTokenPrice)} per million tokens
+                    </span>
                   </Input.Root>
 
                   <Input.Root>
@@ -97,8 +119,12 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={scientificNumConvert(embeddingModel.dollarPerOutputToken)}
+                      value={outputTokenPrice}
+                      onChange={(e) => setOutputTokenPrice(e.target.value)}
                     />
+                    <span className='text-neutral-01 text-body-sm mt-1'>
+                      ${calculatePerMillionPrice(outputTokenPrice)} per million tokens
+                    </span>
                   </Input.Root>
                 </div>
 

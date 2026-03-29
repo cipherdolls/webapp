@@ -10,12 +10,12 @@ const content = {
       Endless Possibilities
       <br />
       <span className='font-medium bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent'>
-        Diverse Conversation Scenarios
+        Pick a World, Start Talking
       </span>
     </>
   ),
   description:
-    'Explore immersive conversation scenarios where each AI character adapts to complex situations. Click on any scenario below to see detailed context, relationships, and objectives that shape your interactions.',
+    'From cozy coffee-shop dates to epic sci-fi adventures — every scenario sets the stage for a completely different experience. Pick one and see where the conversation takes you.',
 };
 
 // Custom gradients for each scenario
@@ -35,6 +35,8 @@ const scenarioGradients = [
 const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
   const [activeScenario, setActiveScenario] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  if (!scenarios || scenarios.length === 0) return null;
 
   const currentScenario = scenarios[activeScenario];
   // Reset scroll position when scenario changes
@@ -59,8 +61,13 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
           <div className='grid lg:grid-cols-2 gap-12'>
             {/* Left Side - Scenario Buttons */}
             <div className='space-y-4'>
-              <h4 className='text-xl font-medium text-gray-900 mb-6 text-center lg:text-left'>Choose Your Scenario</h4>
-              <div className='flex flex-wrap justify-center gap-2 lg:flex-column lg:gap-3'>
+              <div className='flex items-center justify-center lg:justify-between gap-3 mb-6'>
+                <h4 className='text-xl font-medium text-gray-900'>Pick a Scenario</h4>
+                <span className='px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold rounded-full'>
+                  50+ Scenarios
+                </span>
+              </div>
+              <div className='grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 lg:grid-cols-1 lg:gap-3 lg:max-h-[540px] lg:overflow-y-auto lg:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent'>
                 {scenarios.map((scenario, index) => {
                   const isActive = activeScenario === index;
                   const gradientIndex = index % scenarioGradients.length;
@@ -70,19 +77,18 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                     <button
                       key={scenario.id}
                       onClick={() => setActiveScenario(index)}
-                      className={` text-left p-2  rounded-xl transition-all duration-300 group lg:w-full lg:p-4 ${
-                        isActive ? `bg-gradient-to-r ${gradient} text-white shadow-lg` : 'bg-white/60 hover:bg-white/80 text-gray-700 hover:text-gray-900'
+                      className={`text-left p-1.5 sm:p-2 rounded-xl transition-all duration-300 group lg:w-full lg:p-4 ${
+                        isActive
+                          ? `bg-gradient-to-r ${gradient} text-white shadow-lg`
+                          : 'bg-white/60 hover:bg-white/80 text-gray-700 hover:text-gray-900'
                       }`}
                     >
                       <div className='flex items-center gap-4'>
-                        <div className='relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0'>
+                        <div className='relative w-full aspect-square lg:w-16 lg:h-16 rounded-lg overflow-hidden flex-shrink-0'>
                           <img src={getPicture(scenario, 'scenarios', false)} alt={scenario.name} className='w-full h-full object-cover' />
                         </div>
                         <div className='flex-1 min-w-0 hidden lg:block'>
                           <h5 className={`font-bold text-lg ${isActive ? 'text-white' : 'text-gray-900'}`}>{scenario.name}</h5>
-                          {/* <p className={`text-xs leading-relaxed ${isActive ? 'text-gray-200' : 'text-gray-600'}`}>
-                            {scenario.introduction}
-                          </p> */}
                         </div>
                       </div>
                     </button>
@@ -98,7 +104,9 @@ const Scenarios = ({ scenarios }: { scenarios: Scenario[] }) => {
                   <IconComponent className="w-6 h-6 text-white" />
                 </div> */}
                 <div>
-                  <h4 className={`text-3xl font-bold bg-gradient-to-r ${scenarioGradients[activeScenario % scenarioGradients.length]} bg-clip-text text-transparent`}>
+                  <h4
+                    className={`text-3xl font-bold bg-gradient-to-r ${scenarioGradients[activeScenario % scenarioGradients.length]} bg-clip-text text-transparent`}
+                  >
                     {currentScenario.name}
                   </h4>
                   {/* <p className='text-gray-600'>{currentScenario.introduction}</p> */}

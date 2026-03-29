@@ -1,6 +1,5 @@
-import type { AudioEvent, Avatar, Chat } from '~/types';
+import type { Avatar, Chat } from '~/types';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { apiUrl } from '~/constants';
 import type { ChatJobType } from '~/components/chat/types/chatState';
 import { ChatJob, ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
@@ -12,7 +11,9 @@ import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
 import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
-import { useCreateMessage } from '~/hooks/queries/messageMutations';
+import { useStreamRecorder } from '~/hooks/useStreamRecorder';
+import { useStreamPlayer } from '~/hooks/useStreamPlayer';
+import { useWebSocketAudioPlayer } from '~/hooks/useWebSocketAudioPlayer';
 
 interface TalkModeProps {
   chat: Chat;
@@ -35,23 +36,39 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     }))
   );
 
-  const { mutate: createMessage, error: createMessageError } = useCreateMessage();
+  const ttsCallbacks = useWebSocketAudioPlayer({
+    onPlaybackEnd: () => {
+      setCurrentChatState(ChatState.userSpeaking);
+      setJobsDone({ stt: false, chat: false, tts: false });
+    },
+  });
+
+  const streamPlayer = useStreamPlayer(chat.id, ttsCallbacks);
+  const streamRecorder = useStreamRecorder(chat.id);
+
+  useEffect(() => {
+    streamPlayer.connect().catch((err) => console.error('[TalkMode] Stream player connect failed', err));
+    streamRecorder.connect().catch((err) => console.error('[TalkMode] Stream recorder connect failed', err));
+  }, [streamPlayer.connect, streamRecorder.connect]);
 
   const recorder = useVoiceRecorder({
     listening: currentChatState === ChatState.userSpeaking,
     onRecordingComplete: async (blob: Blob) => {
       if (blob && chat.id) {
-        const file = new File([blob], 'audio.webm', { type: 'audio/webm' });
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('chatId', chat.id);
-        createMessage({ chatId: chat.id, formData });
+        try {
+          const buffer = await blob.arrayBuffer();
+          streamRecorder.startRecording();
+          streamRecorder.sendRecordingChunk(buffer);
+          streamRecorder.endRecording();
+        } catch (err) {
+          console.error('[TalkMode] Stream recorder error', err);
+        }
       }
       setCurrentChatState(ChatState.Idle);
     },
   });
 
-  const { load, stop, isPlaying } = useAudioPlayerContext();
+  const { stop, isPlaying } = useAudioPlayerContext();
 
   useChatEvents(chat.id, {
     onProcessEvent: (event) => {
@@ -69,52 +86,22 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
         setCurrentJob(event.jobStatus === 'active' ? event.resourceName : null);
       }
     },
-    onActionEvent: (event) => {
-      if (event.type === 'audio' && event.action === 'play') {
-        handlePlayAudioMessage(event as AudioEvent);
-      }
-    },
   });
-
-  const handlePlayAudioMessage = async (event: AudioEvent) => {
-    setCurrentChatState(ChatState.avatarSpeaking);
-    const audioUrl = `${apiUrl}/messages/${event.messageId}/audio`;
-
-    try {
-      // Fetch audio as blob to bypass CORS
-      const response = await fetch(audioUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      load(blobUrl, {
-        html5: true,
-        autoplay: true,
-        format: 'mp3',
-        onend: () => {
-          URL.revokeObjectURL(blobUrl); // Clean up blob URL
-          setCurrentChatState(ChatState.userSpeaking);
-          setJobsDone({ stt: false, chat: false, tts: false });
-        },
-      });
-    } catch (error) {
-      console.error('Failed to load audio:', error);
-      setCurrentChatState(ChatState.userSpeaking);
-    }
-  };
 
   useEffect(() => {
     setCurrentChatState(ChatState.userSpeaking);
   }, []);
 
-  // cleanup
   useUnmount(() => {
     recorder.stop();
+    streamPlayer.disconnect();
+    streamRecorder.disconnect();
     stop();
     setCurrentChatState(ChatState.Idle);
   });
 
   return (
-    <div className='fixed inset-0 lg:static flex-1 flex flex-col overflow-hidden md:rounded-xl max-lg:bg-gradient-talkMode '>
+    <div className='z-30 fixed inset-0 lg:static flex-1 flex flex-col overflow-hidden md:rounded-xl max-lg:bg-gradient-talkMode'>
       <div className='flex-1 flex flex-col'>
         <div className='flex-1 flex items-center justify-center'>
           <div className='relative size-36'>

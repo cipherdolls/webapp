@@ -188,7 +188,17 @@ const AiProvidersTab = () => {
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {chatModel.providerModelName}
+                                      {chatModel.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                       <RecommendedBadge recommended={chatModel.recommended} tooltipText='Recommended' />
+                                      {chatModel.error && (
+                                        <Tooltip
+                                          side='top'
+                                          variant='error'
+                                          trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                          content={chatModel.error}
+                                          popoverClassName='max-w-[350px]'
+                                        />
+                                      )}
                                     </span>
                                   </DataCard.ItemLabel>
                                   <DataCard.ItemCollapsibleContent>
@@ -258,7 +268,17 @@ const AiProvidersTab = () => {
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {formatModelName(embeddingModel.providerModelName)}
+                                      {'free' in embeddingModel && embeddingModel.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                       <RecommendedBadge recommended={embeddingModel.recommended} tooltipText='Recommended' />
+                                      {embeddingModel.error && (
+                                        <Tooltip
+                                          side='top'
+                                          variant='error'
+                                          trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                          content={embeddingModel.error}
+                                          popoverClassName='max-w-[350px]'
+                                        />
+                                      )}
                                     </span>
                                   </DataCard.ItemLabel>
                                   <DataCard.ItemCollapsibleContent>
@@ -325,7 +345,17 @@ const AiProvidersTab = () => {
                                   <DataCard.ItemLabel>
                                     <span className='flex items-center gap-2'>
                                       {reasoningModel.providerModelName}
+                                      {'free' in reasoningModel && reasoningModel.free && <span className='text-green-600 text-xs font-medium'>free</span>}
                                       <RecommendedBadge recommended={reasoningModel.recommended} tooltipText='Recommended' />
+                                      {reasoningModel.error && (
+                                        <Tooltip
+                                          side='top'
+                                          variant='error'
+                                          trigger={<Icons.warning className='size-4 text-specials-danger' />}
+                                          content={reasoningModel.error}
+                                          popoverClassName='max-w-[350px]'
+                                        />
+                                      )}
                                     </span>
                                   </DataCard.ItemLabel>
                                   <DataCard.ItemCollapsibleContent>

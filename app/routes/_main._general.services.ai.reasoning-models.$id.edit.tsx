@@ -10,6 +10,7 @@ import ErrorsBox from '~/components/ui/input/errorsBox';
 import { useReasoningModel } from '~/hooks/queries/aiProviderQueries';
 import { useUpdateReasoningModel } from '~/hooks/queries/aiProviderMutations';
 import { ROUTES } from '~/constants';
+import { useState, useEffect } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Edit Reasoning Model' }];
@@ -20,6 +21,23 @@ export default function ReasoningModelEdit({ params }: Route.ComponentProps) {
   const { mutate: updateReasoningModel, isPending: isUpdatingReasoningModel, error: updateReasoningModelError } = useUpdateReasoningModel();
   const navigate = useNavigate();
   const errors = updateReasoningModelError;
+
+  const [inputTokenPrice, setInputTokenPrice] = useState<string>('');
+  const [outputTokenPrice, setOutputTokenPrice] = useState<string>('');
+
+  useEffect(() => {
+    if (reasoningModel) {
+      setInputTokenPrice(String(reasoningModel.dollarPerInputToken));
+      setOutputTokenPrice(String(reasoningModel.dollarPerOutputToken));
+    }
+  }, [reasoningModel]);
+
+  const calculatePerMillionPrice = (pricePerToken: string): string => {
+    const price = parseFloat(pricePerToken);
+    if (isNaN(price) || price === 0) return '0.00';
+    const millionPrice = price * 1000000;
+    return millionPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   const handleClose = () => {
     navigate(`${ROUTES.services}/ai`);
@@ -79,8 +97,12 @@ export default function ReasoningModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={reasoningModel.dollarPerInputToken}
+                      value={inputTokenPrice}
+                      onChange={(e) => setInputTokenPrice(e.target.value)}
                     />
+                    <span className='text-neutral-01 text-body-sm mt-1'>
+                      ${calculatePerMillionPrice(inputTokenPrice)} per million tokens
+                    </span>
                   </Input.Root>
 
                   <Input.Root>
@@ -94,8 +116,12 @@ export default function ReasoningModelEdit({ params }: Route.ComponentProps) {
                       type='number'
                       step='any'
                       min='0'
-                      defaultValue={reasoningModel.dollarPerOutputToken}
+                      value={outputTokenPrice}
+                      onChange={(e) => setOutputTokenPrice(e.target.value)}
                     />
+                    <span className='text-neutral-01 text-body-sm mt-1'>
+                      ${calculatePerMillionPrice(outputTokenPrice)} per million tokens
+                    </span>
                   </Input.Root>
                 </div>
 

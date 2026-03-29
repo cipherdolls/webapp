@@ -128,19 +128,7 @@ export default function TtsProviderNew() {
                 placeholder='Name'
               />
             </Input.Root>
-            <Input.Root>
-              <Input.Label id='apiKey' htmlFor='apiKey'>
-                API Key
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='apiKey'
-                name='apiKey'
-                type='text'
-                placeholder='API Key'
-              />
-            </Input.Root>
-            <Input.Root>
+<Input.Root>
               <Input.Label id='dollarPerSecond' htmlFor='dollarPerSecond'>
                 Dollar per Second
               </Input.Label>

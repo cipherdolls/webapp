@@ -4,6 +4,7 @@ import * as Modal from '~/components/ui/new-modal';
 import { Icons } from '~/components/ui/icons';
 import * as Input from '~/components/ui/input/input';
 import { useRef, useState } from 'react';
+import * as Checkbox from '@radix-ui/react-checkbox';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import type { Route } from './+types/_main._general.services.tts.tts-provider.new';
@@ -20,6 +21,7 @@ export default function TtsProviderNew() {
   const { mutate: createTtsProvider, isPending: isCreatingTtsProvider, error: errorCreateTtsProvider } = useCreateTtsProvider();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [censored, setCensored] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preventFileOpen, setPreventFileOpen] = useState(false);
 
@@ -132,18 +134,6 @@ export default function TtsProviderNew() {
               />
             </Input.Root>
             <Input.Root>
-              <Input.Label id='apiKey' htmlFor='apiKey'>
-                API Key
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='apiKey'
-                name='apiKey'
-                type='text'
-                placeholder='API Key'
-              />
-            </Input.Root>
-            <Input.Root>
               <Input.Label id='dollarPerCharacter' htmlFor='dollarPerCharacter'>
                 Dollar per character
               </Input.Label>
@@ -156,18 +146,22 @@ export default function TtsProviderNew() {
                 placeholder='0'
               />
             </Input.Root>
-            <Input.Root>
-              <Input.Label id='hostname' htmlFor='hostname'>
-                Hostname
-              </Input.Label>
-              <Input.Input
-                className='text-base-black py-3.5 px-3'
-                id='hostname'
-                name='hostname'
-                type='text'
-                placeholder='Hostname'
-              />
-            </Input.Root>
+            <div className='flex items-center gap-2'>
+              <Checkbox.Root
+                className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
+                id='censored'
+                checked={censored}
+                onCheckedChange={(checked) => setCensored(checked === true)}
+              >
+                <Checkbox.Indicator>
+                  <Icons.check className='text-white size-4.5' />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              <input type='hidden' name='censored' value={censored ? 'true' : 'false'} />
+              <label className='text-body-sm font-semibold text-neutral-01' htmlFor='censored'>
+                Censored
+              </label>
+            </div>
           </Modal.Body>
           <Modal.Footer>
             <Modal.Close asChild>

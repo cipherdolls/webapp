@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import AvatarScenarioModal from './AvatarScenarioModal';
+import ChatSelectionWizard from './ChatSelectionWizard';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
+import { useUser } from '~/hooks/queries/userQueries';
 import CardWithBadge from './DashboardCard';
-import { ANIMATE_DURATION, ROUTES } from '~/constants';
+import { ANIMATE_DURATION, ROUTES, TOKEN_BALANCE } from '~/constants';
 import { cn } from '~/utils/cn';
 import { motion } from 'motion/react';
 import { useMediaQuery } from 'usehooks-ts';
+import { useAuthStore } from '~/store/useAuthStore';
 
 function YourAvatarsSkeleton() {
   return (
@@ -28,10 +30,13 @@ function YourAvatarsSkeleton() {
 
 const YourAvatars = () => {
   const { data: myAvatars, isLoading: avatarsLoading } = useAvatars({ mine: 'true' });
+  const { data: user } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
   const isLaptop = useMediaQuery('(min-width: 640px) and (max-width: 1024px)');
   const isMobile = useMediaQuery('(max-width: 640px)');
 
   const avatars = myAvatars?.data || [];
+  const hasMinimumTokens = isUsingBurnerWallet || (user?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
 
   const [showAll, setShowAll] = useState(false);
   const hasAvatars = avatars.length > 0;
@@ -87,11 +92,11 @@ const YourAvatars = () => {
                       <p className='truncate text-body-sm font-semibold text-neutral-01'>{avatar.shortDesc}</p>
                     </div>
                     <div className='flex items-center gap-3 flex-shrink-0'>
-                      <AvatarScenarioModal avatar={avatar}>
-                        <Button.Root size='sm' className='px-5'>
+                      <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
+                        <Button.Root size='sm' className='px-5' disabled={!hasMinimumTokens}>
                           Chat
                         </Button.Root>
-                      </AvatarScenarioModal>
+                      </ChatSelectionWizard>
                     </div>
                   </CardWithBadge>
                 </div>

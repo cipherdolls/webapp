@@ -26,7 +26,6 @@ const ChatMessagePreview = ({ message }: { message: Message }) => {
         <ChatBubble.Root className='!mt-0'>
           <ChatBubble.Message className='!max-w-full w-full'>
             <ChatBubble.Text>{message.content}</ChatBubble.Text>
-            {message.role !== 'SYSTEM' && <ChatBubble.Timestamp time={message.createdAt} />}
           </ChatBubble.Message>
         </ChatBubble.Root>
       </div>

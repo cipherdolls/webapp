@@ -1,0 +1,138 @@
+import type { Route } from './+types/_website._index';
+import CompanyLogos from '~/components/website/CompanyLogos';
+import Avatars from '~/components/website/Avatars';
+import HowItWorks from '~/components/website/HowItWorks';
+import Hero from '~/components/website/Hero';
+import Steps from '~/components/website/Steps';
+import Scenarios from '~/components/website/Scenarios';
+import Features from '~/components/website/Features';
+import CTA from '~/components/website/CTA';
+import Footer from '~/components/website/Footer';
+import Header from '~/components/website/Header';
+import AIModelBanner from '~/components/website/AIModelBanner';
+import { apiUrl } from '~/constants';
+import type { Scenario } from '~/types';
+import GuestMode from '~/components/website/GuestMode';
+
+export function meta() {
+  return [
+    { charset: 'utf-8' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
+    { title: 'CipherDolls - AI Companions That Truly Get You' },
+    {
+      name: 'description',
+      content: 'Meet AI characters with real personalities, unique voices, and immersive storylines. Completely private — no email, no sign-up, no subscriptions. Try it free today.',
+    },
+    {
+      name: 'keywords',
+      content: 'AI chat, AI companions, AI characters, private AI chat, anonymous chat, AI roleplay, character AI, AI conversation, virtual companion, chat with AI, AI personality, immersive chat',
+    },
+    // Open Graph
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'CipherDolls - AI Companions That Truly Get You' },
+    {
+      property: 'og:description',
+      content: 'Chat with unique AI characters that have real personalities, voices, and stories. Completely private, no sign-up needed. Try it free.',
+    },
+    { property: 'og:image', content: 'https://cipherdolls.com/logo.svg' },
+    { property: 'og:url', content: 'https://cipherdolls.com' },
+    { property: 'og:site_name', content: 'CipherDolls' },
+    // Twitter Card
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'CipherDolls - AI Companions That Truly Get You' },
+    {
+      name: 'twitter:description',
+      content: 'Meet AI characters with real personalities and unique voices. Completely private, no sign-up needed. Try it free.',
+    },
+    { name: 'twitter:image', content: 'https://cipherdolls.com/logo.svg' },
+    // Canonical
+    { tagName: 'link', rel: 'canonical', href: 'https://cipherdolls.com' },
+    // Structured Data
+    {
+      'script:ld+json': {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'CipherDolls',
+        description: 'AI companions with real personalities, unique voices, and immersive storylines. Completely private.',
+        url: 'https://cipherdolls.com',
+        applicationCategory: 'CommunicationApplication',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+          description: 'Start chatting for free',
+        },
+        featureList: [
+          'AI characters with unique personalities and voices',
+          'Completely private — no email or personal data needed',
+          'Pay only for what you use, no subscriptions',
+          'Free tokens to get started',
+          '50+ immersive conversation scenarios',
+          'Voice chat support',
+          'Set your own spending limits',
+          'Characters that remember your conversations',
+        ],
+      },
+    },
+  ];
+}
+
+export async function loader() {
+  const [avatarsRes, scenariosRes, aiProvidersRes, ttsProvidersRes, sttProvidersRes] = await Promise.all([
+    fetch(`${apiUrl}/avatars`, { method: 'GET' }),
+    fetch(`${apiUrl}/scenarios`, { method: 'GET' }),
+    fetch(`${apiUrl}/ai-providers`, { method: 'GET' }),
+    fetch(`${apiUrl}/tts-providers`, { method: 'GET' }),
+    fetch(`${apiUrl}/stt-providers`, { method: 'GET' }),
+  ]);
+
+  const [avatars, scenarios, aiProvidersData, ttsProviders, sttProviders] = await Promise.all([
+    avatarsRes.json(),
+    scenariosRes.json(),
+    aiProvidersRes.json(),
+    ttsProvidersRes.json(),
+    sttProvidersRes.json(),
+  ]);
+
+  const avatar = avatars.data?.find((a: any) => a.recommended) || avatars.data?.[0] || null;
+
+  // Filter out scenarios with errors in their models. TODO: Change this logic on the backend
+  const scenariosWithoutErrors = {
+    ...scenarios,
+    data: scenarios.data.filter(
+      (scenario: Scenario) => !scenario.chatModel?.error && !scenario.embeddingModel?.error && !scenario.reasoningModel?.error
+    ),
+  };
+
+  return {
+    avatar,
+    avatars,
+    scenarios: scenariosWithoutErrors,
+    aiProviders: aiProvidersData.data || [],
+    ttsProviders: ttsProviders?.data || [],
+    sttProviders: sttProviders?.data || [],
+  };
+}
+
+export default function Index({ loaderData }: Route.ComponentProps) {
+  const { avatar, avatars, scenarios, aiProviders, ttsProviders, sttProviders } = loaderData;
+
+  return (
+    <>
+      <Header/>
+      <div>
+        {avatar && <Hero avatar={avatar} />}
+        <AIModelBanner aiProviders={aiProviders} ttsProviders={ttsProviders} sttProviders={sttProviders} />
+        <CompanyLogos />
+        <HowItWorks />
+        <Steps />
+        <Avatars avatars={avatars.data?.slice(0, 4) || []} />
+        <Scenarios scenarios={scenarios.data} />
+        {/*<GuestMode />*/}
+        <Features />
+        <CTA />
+      </div>
+      <Footer />
+    </>
+  );
+}

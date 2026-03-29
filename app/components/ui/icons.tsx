@@ -315,7 +315,7 @@ export const Icons = {
         fillRule='evenodd'
         clipRule='evenodd'
         d='M9.76256 3.76256C10.0908 3.43438 10.5359 3.25 11 3.25H18C18.4641 3.25 18.9092 3.43437 19.2374 3.76256C19.5656 4.09075 19.75 4.53587 19.75 5V15C19.75 15.4641 19.5656 15.9092 19.2374 16.2374C18.9092 16.5656 18.4641 16.75 18 16.75H16V15.25H18C18.0663 15.25 18.1299 15.2237 18.1768 15.1768C18.2237 15.1299 18.25 15.0663 18.25 15V5C18.25 4.93369 18.2237 4.87011 18.1768 4.82322C18.1299 4.77634 18.0663 4.75 18 4.75H11C10.9337 4.75 10.8701 4.77634 10.8232 4.82322C10.7763 4.87011 10.75 4.9337 10.75 5V6H9.25V5C9.25 4.53587 9.43437 4.09075 9.76256 3.76256ZM9.75 8.75V11C9.75 11.4641 9.56563 11.9092 9.23744 12.2374C8.90925 12.5656 8.46413 12.75 8 12.75H5.75V19C5.75 19.0663 5.77634 19.1299 5.82322 19.1768C5.87011 19.2237 5.93369 19.25 6 19.25H13C13.0663 19.25 13.1299 19.2237 13.1768 19.1768C13.2237 19.1299 13.25 19.0663 13.25 19V9C13.25 8.9337 13.2237 8.87011 13.1768 8.82322C13.1299 8.77634 13.0663 8.75 13 8.75H9.75ZM6.20209 11.25H8C8.0663 11.25 8.12989 11.2237 8.17678 11.1768C8.22366 11.1299 8.25 11.0663 8.25 11V8.86078L6.20209 11.25ZM4.25 11.87C4.24998 11.4529 4.39893 11.0495 4.67 10.7326L7.13005 7.8625C7.29426 7.67069 7.49855 7.51609 7.72791 7.41046C7.95749 7.30473 8.20725 7.24999 8.46 7.25H13C13.4641 7.25 13.9092 7.43437 14.2374 7.76256C14.5656 8.09075 14.75 8.53587 14.75 9V19C14.75 19.4641 14.5656 19.9092 14.2374 20.2374C13.9092 20.5656 13.4641 20.75 13 20.75H6C5.53587 20.75 5.09075 20.5656 4.76256 20.2374C4.43437 19.9092 4.25 19.4641 4.25 19V11.87Z'
-        fill='black'
+        fill='currentColor'
       />
     </svg>
   ),
@@ -678,6 +678,20 @@ export const Icons = {
       <path d='M16 16s-1.5-2-4-2-4 2-4 2' />
       <line x1='9' x2='9.01' y1='9' y2='9' />
       <line x1='15' x2='15.01' y1='9' y2='9' />
+    </svg>
+  ),
+  chip: (props: IconProps) => (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
+      <rect x='5' y='5' width='14' height='14' rx='2' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+      <rect x='9' y='9' width='6' height='6' rx='1' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+      <path d='M9 1V5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M15 1V5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M9 19V23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M15 19V23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M1 9H5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M1 15H5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M19 9H23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+      <path d='M19 15H23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
     </svg>
   ),
   star: (props: IconProps) => (

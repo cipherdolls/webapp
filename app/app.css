@@ -110,9 +110,6 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-accordion-down: accordion-down 0.2s ease-out;
 
-  --animate-popover-toggle: popover-toggle 0.3s ease;
-  --animate-tooltip-toggle: tooltip-toggle 0.3s ease;
-
   @keyframes eye {
     0% {
       background-position: 0% 50%;
@@ -143,29 +140,15 @@
     }
   }
 
-  @keyframes popover-toggle {
-    0% {
-      opacity: 0;
-      scale: 0.9;
-      transform: translateX(28%);
-    }
+  --animate-bubble-glow: bubble-glow 1.5s ease-in-out infinite;
 
+  @keyframes bubble-glow {
+    0%,
     100% {
-      opacity: 1;
-      scale: 1;
-      transform: translateX(0%);
+      box-shadow: 0 0 8px 2px rgba(219, 112, 147, 0.3);
     }
-  }
-
-  @keyframes tooltip-toggle {
-    0% {
-      opacity: 0;
-      scale: 0.9;
-    }
-
-    100% {
-      opacity: 1;
-      scale: 1;
+    50% {
+      box-shadow: 0 0 24px 8px rgba(219, 112, 147, 0.6);
     }
   }
 }
@@ -227,6 +210,25 @@
     radial-gradient(550px at center, rgb(248, 234, 187), transparent), linear-gradient(215deg, rgb(248, 234, 187) 15%, transparent 50%),
     linear-gradient(170deg, rgb(196, 231, 195) 15%, transparent 40%), linear-gradient(51deg, rgb(199, 227, 225) 15%, transparent 50%),
     linear-gradient(340deg, rgb(253, 207, 212) 15%, transparent 50%), #fff;
+}
+
+@utility animate-bubble-glow {
+  animation: var(--animate-bubble-glow);
+}
+
+@utility animate-fade-in {
+  animation: chat-fade-in 0.3s ease-out;
+}
+
+@keyframes chat-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @utility message-corner {
@@ -344,6 +346,61 @@ input[type='number'] {
 
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+.animate-overlay-fade {
+  animation: overlay-fade 0.3s ease-out forwards;
+  will-change: opacity, backdrop-filter;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-modal-fade {
+  animation: modal-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes bubble-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate3d(12px, -18px, 0) scale(1.05);
+  }
+
+  50% {
+    transform: translate3d(-16px, 10px, 0) scale(0.98);
+  }
+
+  75% {
+    transform: translate3d(18px, 16px, 0) scale(1.03);
+  }
+}
+
+.animate-float {
+  animation: bubble-float 18s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes custom-pulse {

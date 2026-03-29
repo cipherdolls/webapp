@@ -1,36 +1,19 @@
-import { Link, NavLink, Outlet, useRouteLoaderData, useSearchParams } from 'react-router';
-import type { User } from '~/types';
+import { NavLink, Outlet, useSearchParams } from 'react-router';
 import type { Route } from './+types/_main._general.avatars';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { getPicture } from '~/utils/getPicture';
-import PlayerButton from '~/components/PlayerButton';
-import { PATHS, ROUTES } from '~/constants';
+import { ROUTES } from '~/constants';
 import * as Popover from '~/components/ui/popover';
 import * as RadioGroup from '~/components/ui/radio-group';
-import AvatarScenarioModal from '~/components/AvatarScenarioModal';
-import RecommendedBadge from '~/components/ui/RecommendedBadge';
+import * as Switch from '~/components/ui/switch';
 import { useInfiniteAvatars } from '~/hooks/queries/avatarQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import AvatarListCard, { AvatarListCardSkeleton } from '~/components/AvatarListCard';
+import { useUser } from '~/hooks/queries/userQueries';
 
 type GenderFilter = 'All' | 'Male' | 'Female';
-
-function AvatarSkeleton({ count = 2 }: { count?: number }) {
-  return (
-    <div className='flex flex-col gap-5 pb-5 w-full'>
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className='grid gap-3.5 grid-cols-1 sm:grid-cols-2  md:gap-5 '>
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
-          <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-[344px] sm:h-[296px] md:h-[344px] lg:h-[284px]' />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -59,13 +42,16 @@ export function meta({}: Route.MetaArgs) {
 
 export default function AvatarsShow() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const me = useRouteLoaderData('routes/_main') as User;
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const { data: me } = useUser()
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const scrollContainerRef = React.useRef<HTMLElement | null>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
   // Filter out undefined values from rawParams
   const cleanRawParams = Object.fromEntries(Object.entries(rawParams).filter(([_, value]) => value !== undefined && value !== null));
+
+  const mineSetToTrue = cleanRawParams.mine === 'true';
 
   const {
     data: avatars,
@@ -76,7 +62,9 @@ export default function AvatarsShow() {
     isFetchingNextPage,
   } = useInfiniteAvatars({
     ...cleanRawParams,
-    ...(cleanRawParams.mine === 'true' ? {} : { published: 'true' }),
+    ...(mineSetToTrue
+      ? { mine: 'true' } // explicitly set mine param if it's true to fetch user's avatars
+      : { published: 'true' }),
   });
 
   const filteredAndSortedAvatars = useMemo(() => {
@@ -93,9 +81,10 @@ export default function AvatarsShow() {
   const showMyAvatars = searchParams.has('mine');
   const genderFilter = (searchParams.get('gender') as GenderFilter) || 'All';
   const searchQuery = searchParams.get('name') || '';
+  const showFreeToUse = searchParams.has('free');
 
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0 || genderFilter !== 'All';
+  const hasActiveFilters = searchQuery.length > 0 || genderFilter !== 'All' || showFreeToUse;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -121,11 +110,45 @@ export default function AvatarsShow() {
     }
 
     setSearchParams(newSearchParams);
-    setPopoverOpen(false);
+  };
+
+  const handleFreeToUseToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (showFreeToUse) {
+      newSearchParams.delete('free');
+    } else {
+      newSearchParams.set('free', 'true');
+    }
+    setSearchParams(newSearchParams);
   };
 
   const handleClearFilters = () => {
     setSearchParams({ published: 'true' });
+  };
+
+  useEffect(() => {
+    // For cases when the user to redirect here from /account
+    scrollToTop();
+
+    const scrollContainer = document.querySelector('main.overflow-y-scroll') as HTMLElement;
+    scrollContainerRef.current = scrollContainer;
+
+    const handleScroll = () => {
+      if (scrollContainer) {
+        setShowBackToTop(scrollContainer.scrollTop > 300);
+      }
+    };
+
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  const scrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -142,7 +165,7 @@ export default function AvatarsShow() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search avatars by name' />
+        <SearchInput searchParamName='name' placeholder='Search avatars by name' />
         <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
           <div className='flex flex-1 items-center gap-3'>
             <button
@@ -194,12 +217,26 @@ export default function AvatarsShow() {
                           <RadioGroup.Item value={filter} id={`gender-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`gender-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                          <label htmlFor={`gender-${filter}`} className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer'>
                             {filter === 'All' ? 'All genders' : filter}
                           </label>
                         </div>
                       ))}
                     </RadioGroup.Root>
+                  </div>
+
+                  {/* Free to Use Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Pricing</h4>
+
+                    <div className='flex items-center gap-2 bg-neutral-06 rounded-lg select-none'>
+                      <Switch.Root checked={showFreeToUse} onCheckedChange={() => handleFreeToUseToggle()}>
+                        <Switch.Thumb />
+                      </Switch.Root>
+                      <label className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer' onClick={handleFreeToUseToggle}>
+                        Show Free To Use
+                      </label>
+                    </div>
                   </div>
                 </div>
               </Popover.Content>
@@ -208,7 +245,7 @@ export default function AvatarsShow() {
         </div>
 
         {isLoading ? (
-          <AvatarSkeleton />
+          <AvatarListCardSkeleton />
         ) : (
           <>
             <div className='grid sm:grid-cols-2 grid-cols-1 gap-3.5 md:gap-5 pb-10'>
@@ -217,64 +254,16 @@ export default function AvatarsShow() {
                   {showMyAvatars ? 'No avatars found.' : 'No published avatars found.'}
                 </p>
               ) : (
-                filteredAndSortedAvatars.map((avatar) => (
-                  <div className='transition-all duration-500 ease-out' key={avatar.id}>
-                    <div className='flex flex-col bg-white shadow-bottom-level-1 rounded-xl overflow-hidden'>
-                      <Link
-                        to={`${ROUTES.avatars}/${avatar.id}`}
-                        className='block h-[200px] sm:h-[152px] md:h-[200px] rounded-xl bg-black relative'
-                      >
-                        <img
-                          src={getPicture(avatar, 'avatars', false)}
-                          srcSet={getPicture(avatar, 'avatars', true)}
-                          alt={`${avatar.name} picture`}
-                          className='object-cover size-full'
-                        />
-                        {!showMyAvatars && me.id === avatar.userId && (
-                          <div className='absolute top-2 left-2 z-10'>
-                            <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                              🌐
-                              <span>By you</span>
-                            </div>
-                          </div>
-                        )}
-                        {avatar.gender === 'Female' ? (
-                          <div className='absolute bottom-2 left-2 z-10'>
-                            <div className='flex items-center gap-1 bg-[#FF85B7] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                              👩🏻
-                              <span>Female</span>
-                            </div>
-                          </div>
-                        ) : avatar.gender === 'Male' ? (
-                          <div className='absolute bottom-2 left-2 z-10'>
-                            <div className='flex items-center gap-1 bg-[#069cf3] py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                              🧔🏻‍♂️
-                              <span>Male</span>
-                            </div>
-                          </div>
-                        ) : null}
-                      </Link>
-                      <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
-                        <div className='flex flex-col gap-1 flex-1 min-w-0 overflow-hidden'>
-                          <div className='flex items-center gap-2'>
-                            <h4 className='truncate text-heading-h4 text-base-black'>{avatar.name}</h4>
-                            <RecommendedBadge recommended={avatar.recommended} tooltipText='Recommended' className='pt-1' />
-                          </div>
-                          <p className='text-body-md text-neutral-01 truncate'>{avatar.shortDesc}</p>
-                        </div>
-                        <div className='flex items-center gap-3'>
-                          {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}
-
-                          <AvatarScenarioModal avatar={avatar}>
-                            <Button.Root size='sm' className='px-5'>
-                              Chat
-                            </Button.Root>
-                          </AvatarScenarioModal>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
+                filteredAndSortedAvatars.map((avatar) => {
+                  const isUsersAvatar = me?.id === avatar.userId ? true : false;
+                  return (
+                    <AvatarListCard
+                      key={avatar.id}
+                      avatar={avatar}
+                      isUsersAvatar={isUsersAvatar}
+                    />
+                  );
+                })
               )}
             </div>
 
@@ -299,6 +288,16 @@ export default function AvatarsShow() {
 
         <Outlet />
       </div>
+
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-6 right-6 z-50 p-3 bg-gradient-1 text-base-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${
+          showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+        aria-label='Back to top'
+      >
+        <Icons.chevronDown className='size-6 rotate-180' />
+      </button>
     </div>
   );
 }

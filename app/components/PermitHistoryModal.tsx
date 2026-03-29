@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { formatEther } from 'ethers';
+import { formatUnits } from 'ethers';
 import { formatNumberWithCommas } from '~/utils/formatNumberWithCommas';
 import { Modal } from '~/components/ui/Modal';
 import DetailRow from '~/components/ui/detail/detail-row';
@@ -20,7 +20,7 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
 
   const formatPermitAmount = (value: string): string => {
     try {
-      const ethValue = parseFloat(formatEther(value));
+      const ethValue = parseFloat(formatUnits(value, 6));
       return formatNumberWithCommas(ethValue);
     } catch {
       return '0';
@@ -63,8 +63,8 @@ const PermitHistoryModal = ({ permits, children }: PermitHistoryModalProps) => {
                     💰
                   </button>
                   <div>
-                    <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
-                    <p className='text-sm text-neutral-01'>{formatPermitAmount(permit.value)} LOV approved for spending</p>
+                    <h4 className='text-heading-h4 font-semibold text-base-black'>USDC Allowance</h4>
+                    <p className='text-sm text-neutral-01'>{formatPermitAmount(permit.value)} USDC approved for spending</p>
                   </div>
                   {isExpired(permit.deadline) && (
                     <span className='text-xs text-specials-danger font-medium px-2 py-1 bg-specials-danger/10 rounded-full'>Expired</span>

@@ -1,4 +1,4 @@
-import { formatEther } from 'ethers';
+import { formatUnits } from 'ethers';
 import { useMemo } from 'react';
 import CreateTokenAllowanceModal from '~/components/CreateTokenAllowanceModal';
 
@@ -7,7 +7,6 @@ import { InformationBadge } from './ui/InformationBadge';
 import PermitHistoryModal from './PermitHistoryModal';
 import { cn } from '~/utils/cn';
 
-import { useCreateTokenPermit } from '~/hooks/queries/tokenMutations';
 import { useTokenPermits } from '~/hooks/queries/tokenQueries';
 import { useUser } from '~/hooks/queries/userQueries';
 
@@ -30,7 +29,6 @@ function TokenPermitsListSkeleton() {
 
 const TokenPermitsList = () => {
   const { data: user, isLoading: userLoading } = useUser();
-  const createTokenPermitMutation = useCreateTokenPermit();
   const { data: tokenPermitsPaginated, isLoading: tokenPermitsLoading } = useTokenPermits();
 
   // Always run hooks - move calculations above early return
@@ -39,31 +37,9 @@ const TokenPermitsList = () => {
   const firstPermit = permits[0];
   const hasPermits = permits.length > 0;
 
-  const handlePermitSigned = async (permit: {
-    owner: string;
-    spender: string;
-    value: string;
-    nonce: string;
-    deadline: number;
-    v: number;
-    r: string;
-    s: string;
-  }) => {
-    createTokenPermitMutation.mutate({
-      owner: permit.owner,
-      spender: permit.spender,
-      value: permit.value,
-      nonce: permit.nonce,
-      deadline: permit.deadline.toString(),
-      v: permit.v.toString(),
-      r: permit.r,
-      s: permit.s,
-    });
-  };
-
   const formatPermitAmount = (value: string): string => {
     try {
-      const ethValue = parseFloat(formatEther(value));
+      const ethValue = parseFloat(formatUnits(value, 6));
       return ethValue.toString();
     } catch {
       return '0';
@@ -75,7 +51,7 @@ const TokenPermitsList = () => {
       // Direct number formatting - no string conversion needed
       if (value > 1e15) {
         // Wei threshold
-        const ethValue = parseFloat(formatEther(value.toString()));
+        const ethValue = parseFloat(formatUnits(value.toString(), 6));
         return ethValue.toFixed(2);
       }
       return value.toFixed(2);
@@ -109,7 +85,7 @@ const TokenPermitsList = () => {
         <h3 className='text-heading-h3 text-base-black'>Token Allowance</h3>
         <div className='flex items-center gap-2'>
           <InformationBadge
-            tooltipText='Token Allowance allow the CipherDolls platform to spend your LOV tokens for chat functionality.'
+            tooltipText='Token Allowance allow the CipherDolls platform to spend your USDC for chat functionality.'
             className='size-6 !max-w-[300px]'
             popoverClassName='max-w-[320px]'
             side='top'
@@ -120,11 +96,11 @@ const TokenPermitsList = () => {
       <div className='p-2 pt-0 rounded-xl flex flex-col bg-gradient-1'>
         {hasPermits && (
           <div className='flex justify-between py-4 px-4'>
-            <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
+            <CreateTokenAllowanceModal>
               <button className={cn('flex items-center justify-center gap-2 group ', permits.length === 0 && 'col-span-2')}>
                 <Icons.pen className='group-hover:text-base-black/50 transition-colors' />
                 <span className='text-body-sm font-semibold text-base-black group-hover:text-base-black/50 transition-colors'>
-                  Create Allowance
+                  Set Allowance
                 </span>
               </button>
             </CreateTokenAllowanceModal>
@@ -146,10 +122,10 @@ const TokenPermitsList = () => {
           <div className='py-6 px-6 flex flex-col items-center gap-2'>
             <h1 className='text-heading-h1'>🎁</h1>
             <div className='flex flex-col gap-1 text-center'>
-              <h4 className='text-heading-h4 text-base-black'>Free LOV Token!</h4>
-              <p className='text-body-md text-neutral-01'>Get a Free LOV token with your first Token Permit in Cipherdolls</p>
+              <h4 className='text-heading-h4 text-base-black'>Free USDC!</h4>
+              <p className='text-body-md text-neutral-01'>Get Free USDC with your first Token Permit in Cipherdolls</p>
 
-              <CreateTokenAllowanceModal tokenBalance={user?.tokenBalance} onPermitSigned={handlePermitSigned}>
+              <CreateTokenAllowanceModal>
                 <button className='underline text-neutral-01 hover:opacity-80 transition-opacity'>Create allowances.</button>
               </CreateTokenAllowanceModal>
             </div>
@@ -162,7 +138,7 @@ const TokenPermitsList = () => {
               </button>
               <div className='flex-1'>
                 <div className='flex items-center justify-between mb-2'>
-                  <h4 className='text-heading-h4 font-semibold text-base-black'>LOV Token Allowance</h4>
+                  <h4 className='text-heading-h4 font-semibold text-base-black'>USDC Allowance</h4>
                 </div>
 
                 <div className='space-y-2'>
@@ -196,10 +172,10 @@ const TokenPermitsList = () => {
         {hasPermits && (
           <div className='text-body-sm text-neutral-01 font-medium text-right mt-2 flex items-center justify-between gap-1'>
             <div>
-              Remaining: <span className='text-base-black font-semibold'>{allowance ? formattedAllowance : '0.00'} LOV</span>
+              Remaining: <span className='text-base-black font-semibold'>{allowance ? formattedAllowance : '0.00'} USDC</span>
             </div>
             <div>
-              Total: <span className='text-base-black font-semibold'>{formattedFirstPermitAmount} LOV</span>
+              Total: <span className='text-base-black font-semibold'>{formattedFirstPermitAmount} USDC</span>
             </div>
           </div>
         )}
@@ -207,7 +183,7 @@ const TokenPermitsList = () => {
 
       <a href={uniswapUrl} target={'_blank'}>
         <Button.Root variant='primary' className='w-full'>
-          Get LOV Token
+          Get USDC
         </Button.Root>
       </a>
     </div>

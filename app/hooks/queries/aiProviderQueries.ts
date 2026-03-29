@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import type { AiProvider, AiProvidersPaginated, ChatModel, ChatModelsPaginated, EmbeddingModel } from '~/types';
+import type { AiProvider, AiProvidersPaginated, ChatModel, ChatModelsPaginated, EmbeddingModel, Paginated } from '~/types';
 import { fetchResource } from './utils/fetchResource';
 
 interface AiProvidersQueryParams {
@@ -130,8 +130,8 @@ export function useEmbeddingModels(params: EmbeddingModelsQueryParams = {}) {
     queryKey: ['embeddingModels', serializeParams(params)],
     queryFn: async () => {
       const searchParams = new URLSearchParams(params as any);
-      const response = await fetchResource<EmbeddingModel[]>(`embedding-models?${searchParams}`);
-      return response;
+      const response = await fetchResource<Paginated<EmbeddingModel>>(`embedding-models?${searchParams}`);
+      return response.data;
     },
   });
 }
@@ -150,8 +150,8 @@ export function useReasoningModels(params: ReasoningModelsQueryParams = {}) {
     queryKey: ['reasoningModels', serializeParams(params)],
     queryFn: async () => {
       const searchParams = new URLSearchParams(params as any);
-      const response = await fetchResource<ChatModel[]>(`reasoning-models?${searchParams}`);
-      return response;
+      const response = await fetchResource<Paginated<ChatModel>>(`reasoning-models?${searchParams}`);
+      return response.data;
     },
   });
 }

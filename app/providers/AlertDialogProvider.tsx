@@ -22,6 +22,7 @@ export type AlertAction =
       body?: string | React.ReactNode;
       cancelButton?: string;
       actionButton?: string;
+      variant?: 'danger';
     }
   | { type: 'close' };
 
@@ -33,6 +34,7 @@ interface AlertDialogState {
   type: 'alert' | 'confirm';
   cancelButton: string;
   actionButton?: string | { label: string; action: () => void };
+  variant?: 'danger';
 }
 
 export function alertDialogReducer(state: AlertDialogState, action: AlertAction): AlertDialogState {
@@ -46,7 +48,9 @@ export function alertDialogReducer(state: AlertDialogState, action: AlertAction)
         open: true,
         ...action,
         cancelButton: action.cancelButton || (action.type === 'alert' ? 'Got it!' : 'No, Leave'),
-        actionButton: 'actionButton' in action ? action.actionButton : state.actionButton,
+        // Do not reuse previous actionButton; only use what is provided for this dialog
+        actionButton: 'actionButton' in action ? action.actionButton : undefined,
+        variant: action.type === 'confirm' && 'variant' in action ? action.variant : undefined,
       };
     default:
       return state;
@@ -162,6 +166,7 @@ export function AlertDialogProvider({ children }: { children: React.ReactNode })
                     {state.actionButton && (
                       <Button.Root
                         type='submit'
+                        variant={state.variant === 'danger' ? 'danger' : 'primary'}
                         className='w-[calc(50%-6px)]'
                         onClick={() => {
                           if (typeof state.actionButton === 'object') {

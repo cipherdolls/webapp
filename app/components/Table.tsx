@@ -58,12 +58,9 @@ const Table = <TData,>({
     }
   };
 
-  // Check if hover effect should be applied
-  const hasMultipleRows = data.length > 1;
-
   return (
     <div className={cn('px-5', wrapperClassName)}>
-      <table className={cn('w-full border-Collapse border-transparent', hasMultipleRows && 'table-hover-border', className)} {...props}>
+      <table className={cn('w-full border-Collapse border-transparent', className)} {...props}>
         {!hideHeader && (
           <thead>
             <tr className='border-b border-neutral-04'>
@@ -88,15 +85,11 @@ const Table = <TData,>({
         )}
         <tbody className='divide-y divide-neutral-04'>
           {data.map((dt, index) => {
-            // Apply hover effect only if there are multiple rows and it's not the last row
-            const showHoverEffect = hasMultipleRows && index < data.length - 1;
-
             return (
               <tr
                 key={index}
                 className={cn(
-                  (onRowClick || getRowUrl) && 'cursor-pointer relative transition-all duration-200',
-                  showHoverEffect && 'hover-effect'
+                  (onRowClick || getRowUrl) && 'cursor-pointer relative transition-colors duration-200 rounded-lg hover:bg-neutral-05'
                 )}
                 onClick={(e) => (onRowClick || getRowUrl) && handleRowClick(e, dt)}
               >

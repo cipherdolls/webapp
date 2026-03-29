@@ -10,11 +10,13 @@ import * as Switch from '~/components/ui/switch';
 import * as RadioGroup from '~/components/ui/radio-group';
 import RecommendedBadge from '~/components/ui/RecommendedBadge';
 import Tooltip from '~/components/ui/tooltip';
-import ScenarioAvatarModal from '~/components/ScenarioAvatarModal';
+import ChatSelectionWizard from '~/components/ChatSelectionWizard';
 import { useInfiniteScenarios } from '~/hooks/queries/scenarioQueries';
 import SearchInput from '~/components/ui/search-input';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { ROUTES } from '~/constants';
+import { cn } from '~/utils/cn';
+import FreeToUseBadge from '~/components/FreeToUseBadge';
 
 function ScenarioSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -60,6 +62,8 @@ export default function ScenariosIndex() {
   const [searchParams, setSearchParams] = useSearchParams();
   const me = useRouteLoaderData('routes/_main') as User;
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const scrollContainerRef = React.useRef<HTMLElement | null>(null);
 
   const rawParams = Object.fromEntries(searchParams.entries());
 
@@ -68,6 +72,7 @@ export default function ScenariosIndex() {
   const userGenderFilter = (searchParams.get('userGender') as GenderFilter) || 'All';
   const avatarGenderFilter = (searchParams.get('avatarGender') as GenderFilter) || 'All';
   const showNsfw = searchParams.has('nsfw');
+  const showFreeToUse = searchParams.has('free');
 
   const {
     data: scenarios,
@@ -94,7 +99,8 @@ export default function ScenariosIndex() {
   });
 
   // Check if there are any active filters (excluding the default published=true and mine toggle)
-  const hasActiveFilters = searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All' || showNsfw;
+  const hasActiveFilters =
+    searchQuery.length > 0 || userGenderFilter !== 'All' || avatarGenderFilter !== 'All' || showFreeToUse || showNsfw;
 
   const handleToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -136,6 +142,16 @@ export default function ScenariosIndex() {
     setPopoverOpen(false);
   };
 
+  const handleFreeToUseToggle = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (showFreeToUse) {
+      newSearchParams.delete('free');
+    } else {
+      newSearchParams.set('free', 'true');
+    }
+    setSearchParams(newSearchParams);
+  };
+
   const handleNsfwToggle = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     if (showNsfw) {
@@ -144,6 +160,31 @@ export default function ScenariosIndex() {
       newSearchParams.set('nsfw', 'true');
     }
     setSearchParams(newSearchParams);
+  };
+
+  useEffect(() => {
+    // For cases when the user to redirect here from /account
+    scrollToTop();
+
+    const scrollContainer = document.querySelector('main.overflow-y-scroll') as HTMLElement;
+    scrollContainerRef.current = scrollContainer;
+
+    const handleScroll = () => {
+      if (scrollContainer) {
+        setShowBackToTop(scrollContainer.scrollTop > 300);
+      }
+    };
+
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  const scrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -160,7 +201,7 @@ export default function ScenariosIndex() {
       </div>
 
       <div className='flex flex-col gap-5'>
-        <SearchInput key={hasActiveFilters ? 'with-filters' : 'no-filters'} searchParamName='name' placeholder='Search scenarios by name' />
+        <SearchInput searchParamName='name' placeholder='Search scenarios by name' />
         <div className='flex flex-col gap-4 md:flex-row items-center justify-between'>
           <div className='flex flex-1 items-center gap-3'>
             <button
@@ -193,7 +234,7 @@ export default function ScenariosIndex() {
               </button>
             )}
 
-            <div className='flex items-center gap-2 px-3 py-2 bg-neutral-06 rounded-lg'>
+            <div className='flex items-center gap-2 px-3 py-2 bg-neutral-06 rounded-lg select-none'>
               <Switch.Root checked={showNsfw} onCheckedChange={() => handleNsfwToggle()}>
                 <Switch.Thumb />
               </Switch.Root>
@@ -210,6 +251,7 @@ export default function ScenariosIndex() {
                   <Icons.chevronDown className='size-4' />
                 </Button.Root>
               </Popover.Trigger>
+
               <Popover.Content className='w-64 p-0'>
                 <div className='p-4 space-y-6'>
                   {/* User Gender Filter */}
@@ -221,7 +263,10 @@ export default function ScenariosIndex() {
                           <RadioGroup.Item value={filter} id={`user-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`user-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                          <label
+                            htmlFor={`user-${filter}`}
+                            className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-out hover:text-base-black'
+                          >
                             {filter}
                           </label>
                         </div>
@@ -238,12 +283,29 @@ export default function ScenariosIndex() {
                           <RadioGroup.Item value={filter} id={`avatar-${filter}`}>
                             <RadioGroup.Indicator />
                           </RadioGroup.Item>
-                          <label htmlFor={`avatar-${filter}`} className='text-sm text-neutral-01 cursor-pointer'>
+                          <label
+                            htmlFor={`avatar-${filter}`}
+                            className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer transition-colors duration-200 ease-in hover:text-base-black'
+                          >
                             {filter}
                           </label>
                         </div>
                       ))}
                     </RadioGroup.Root>
+                  </div>
+
+                  {/* Free to Use Filter */}
+                  <div className='space-y-3'>
+                    <h4 className='text-sm font-medium text-base-black'>Sponsorship</h4>
+
+                    <div className='flex items-center gap-2 bg-neutral-06 rounded-lg select-none'>
+                      <Switch.Root checked={showFreeToUse} onCheckedChange={() => handleFreeToUseToggle()}>
+                        <Switch.Thumb />
+                      </Switch.Root>
+                      <label className='-ml-2 pl-2 text-sm text-neutral-01 cursor-pointer' onClick={handleFreeToUseToggle}>
+                        Show Free To Use
+                      </label>
+                    </div>
                   </div>
                 </div>
               </Popover.Content>
@@ -274,30 +336,97 @@ export default function ScenariosIndex() {
                           alt={`${scenario.name} picture`}
                           className='object-cover size-full'
                         />
-                        {!showMyScenarios && me.id === scenario.userId && (
-                          <div className='absolute top-2 left-2 z-10'>
-                            <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
-                              🌐
-                              <span>By you</span>
-                            </div>
+                        <div className='absolute top-2 left-2 z-10'>
+                          <div className='flex items-center gap-2'>
+                            {scenario.type === 'ROLEPLAY' && (
+                              <div className='flex items-center gap-1 bg-purple-500/90 backdrop-blur-sm py-1 pl-1.5 pr-2 rounded-full text-label text-white font-semibold'>
+                                🎭
+                                <span>Roleplay</span>
+                              </div>
+                            )}
+                            {!showMyScenarios && me.id === scenario.userId && (
+                              <div className='flex items-center gap-1 bg-gradient-1 py-1 pl-1 pr-1.5 rounded-full text-label text-base-black font-semibold'>
+                                🌐
+                                <span>By you</span>
+                              </div>
+                            )}
+                            {scenario.free && <FreeToUseBadge />}
                           </div>
-                        )}
-                        {(scenario.userGender || scenario.avatarGender) && (
-                          <div className='absolute top-2 right-2 z-10'>
-                            <div className='flex items-center gap-1'>
-                              {scenario.userGender && (
-                                <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
-                                  👤 {scenario.userGender}
+                        </div>
+                        {scenario.userGender === 'Male' ||
+                        scenario.userGender === 'Female' ||
+                        scenario.avatarGender === 'Male' ||
+                        scenario.avatarGender === 'Female' ? (
+                          <div className='absolute bottom-2 left-2 z-10'>
+                            {scenario.userGender === scenario.avatarGender &&
+                            (scenario.userGender === 'Male' || scenario.userGender === 'Female') ? (
+                              <Tooltip
+                                side='top'
+                                variant='light'
+                                trigger={
+                                  <div
+                                    className={cn(
+                                      'flex py-1 px-2 gap-0.5 rounded-full text-label text-base-black font-semibold',
+                                      scenario.userGender === 'Male' && 'bg-[#069cf3]',
+                                      scenario.userGender === 'Female' && 'bg-[#FF85B7]'
+                                    )}
+                                  >
+                                    {scenario.userGender === 'Male' ? '🧔🏻‍♂️' : '👩🏻'}
+                                  </div>
+                                }
+                                content={`Both user and avatar are ${scenario.userGender?.toLowerCase()} in this scenario`}
+                                className='max-w-[350px]'
+                                popoverClassName='max-w-[320px]'
+                              />
+                            ) : (
+                              <div className='flex items-center gap-1'>
+                                <div className='flex rounded-full overflow-hidden text-label text-base-black font-semibold'>
+                                  {(scenario.userGender === 'Male' || scenario.userGender === 'Female') && (
+                                    <Tooltip
+                                      side='top'
+                                      variant='light'
+                                      trigger={
+                                        <div
+                                          className={cn(
+                                            'flex py-1 px-2 gap-0.5',
+                                            scenario.userGender === 'Male' && 'bg-[#069cf3]',
+                                            scenario.userGender === 'Female' && 'bg-[#FF85B7]'
+                                          )}
+                                        >
+                                          {scenario.userGender === 'Male' ? '🧔🏻‍♂️' : '👩🏻'}
+                                        </div>
+                                      }
+                                      content={`User is ${scenario.userGender?.toLowerCase()} in this scenario`}
+                                      className='max-w-[350px]'
+                                      popoverClassName='max-w-[320px]'
+                                    />
+                                  )}
+
+                                  {(scenario.avatarGender === 'Male' || scenario.avatarGender === 'Female') && (
+                                    <Tooltip
+                                      side='top'
+                                      variant='light'
+                                      trigger={
+                                        <div
+                                          className={cn(
+                                            'flex py-1 px-2 gap-0.5',
+                                            scenario.avatarGender === 'Male' && 'bg-[#069cf3]',
+                                            scenario.avatarGender === 'Female' && 'bg-[#FF85B7]'
+                                          )}
+                                        >
+                                          {scenario.avatarGender === 'Male' ? '🧔🏻‍♂️' : '👩🏻'}
+                                        </div>
+                                      }
+                                      content={`Avatar is ${scenario.avatarGender?.toLowerCase()} in this scenario`}
+                                      className='max-w-[350px]'
+                                      popoverClassName='max-w-[320px]'
+                                    />
+                                  )}
                                 </div>
-                              )}
-                              {scenario.avatarGender && (
-                                <div className='bg-gradient-1 py-1 px-2 rounded-full text-label text-base-black font-semibold'>
-                                  🤖 {scenario.avatarGender}
-                                </div>
-                              )}
-                            </div>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        ) : null}
                       </Link>
                       <div className='py-[18px] px-5 flex lg:items-center gap-5 justify-between flex-1 lg:flex-row flex-col'>
                         <div className='flex flex-col gap-1'>
@@ -307,7 +436,8 @@ export default function ScenariosIndex() {
 
                             {scenario.chatModel.error && (
                               <Tooltip
-                                side={'top'}
+                                side='top'
+                                variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={scenario.chatModel.error}
                                 className='max-w-[350px]'
@@ -315,20 +445,21 @@ export default function ScenariosIndex() {
                               />
                             )}
 
-                            {scenario.embeddingModel.error && (
+                            {scenario.embeddingModel?.error && (
                               <Tooltip
-                                side={'top'}
+                                side='top'
+                                variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
-                                content={scenario.embeddingModel.error}
+                                content={scenario.embeddingModel?.error}
                                 className='max-w-[350px]'
                                 popoverClassName='max-w-[320px]'
-                                variant='light'
                               />
                             )}
 
                             {scenario.reasoningModel?.error && (
                               <Tooltip
-                                side={'top'}
+                                side='top'
+                                variant='error'
                                 trigger={<Icons.warning className='size-4 text-specials-danger' />}
                                 content={scenario.reasoningModel?.error}
                                 className='max-w-[350px]'
@@ -339,11 +470,18 @@ export default function ScenariosIndex() {
                           {scenario.introduction && <p className='text-body-md text-neutral-01 line-clamp-2'>{scenario.introduction}</p>}
                         </div>
                         <div className='flex items-center gap-3'>
-                          <ScenarioAvatarModal scenario={scenario}>
-                            <Button.Root size='sm' className='px-5'>
+                          <ChatSelectionWizard mode='scenario-to-avatar' scenario={scenario}>
+                            <Button.Root
+                              size='sm'
+                              className='px-5'
+                              disabled={
+                                (!me.tokenSpendable || me.tokenSpendable === 0) &&
+                                !scenario.free
+                              }
+                            >
                               Chat
                             </Button.Root>
-                          </ScenarioAvatarModal>
+                          </ChatSelectionWizard>
                         </div>
                       </div>
                     </div>
@@ -373,6 +511,16 @@ export default function ScenariosIndex() {
 
         <Outlet />
       </div>
+
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-6 right-6 z-50 p-3 bg-gradient-1 text-base-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${
+          showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+        aria-label='Back to top'
+      >
+        <Icons.chevronDown className='size-6 rotate-180' />
+      </button>
     </div>
   );
 }

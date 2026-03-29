@@ -2,44 +2,90 @@ import React from 'react';
 import * as Input from '~/components/ui/input/input';
 import { Icons } from '~/components/ui/icons';
 import { useSearchParams } from 'react-router';
-import { useEffect, useState, useCallback } from 'react';
-import { useDebounceValue } from 'usehooks-ts';
+import { useEffect, useRef, useCallback } from 'react';
 
 const SearchInput = ({ searchParamName, placeholder }: { searchParamName: string, placeholder: string }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchValue, setSearchValue] = useState(searchParams.get(searchParamName) || '');
-  const [debouncedSearchValue] = useDebounceValue(searchValue, 300);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const searchValueRef = useRef(searchParams.get(searchParamName) || '');
+  const isUpdatingFromUrlRef = useRef(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Sync searchValueRef with URL when URL changes externally
   useEffect(() => {
-    setSearchValue(searchParams.get(searchParamName) || '');
-  }, [searchParams]);
-
-  useEffect(() => {
-    const newSearchParams = new URLSearchParams(searchParams);
+    const paramValue = searchParams.get(searchParamName) || '';
+    const currentValue = searchValueRef.current;
     
-    if (debouncedSearchValue.trim()) {
-      newSearchParams.set(searchParamName, debouncedSearchValue.trim());
-    } else {
-      newSearchParams.delete(searchParamName);
+    // Only update if URL param changed externally (not from our update)
+    if (!isUpdatingFromUrlRef.current && paramValue !== currentValue) {
+      searchValueRef.current = paramValue;
+      if (inputRef.current) {
+        inputRef.current.value = paramValue;
+      }
     }
     
-    setSearchParams(newSearchParams);
-  }, [debouncedSearchValue, searchParams, setSearchParams]);
+    // Reset the flag after processing
+    isUpdatingFromUrlRef.current = false;
+  }, [searchParams, searchParamName]);
+
+  // Debounce and update URL when input value changes
+  const updateUrl = useCallback((value: string) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      const currentParamValue = searchParams.get(searchParamName) || '';
+      const newValue = value.trim();
+
+      // Only update URL if the value differs from current URL param
+      if (newValue !== currentParamValue) {
+        isUpdatingFromUrlRef.current = true;
+
+        const newSearchParams = new URLSearchParams(searchParams);
+
+        if (newValue) {
+          newSearchParams.set(searchParamName, newValue);
+        } else {
+          newSearchParams.delete(searchParamName);
+        }
+
+        // Use replace to prevent focus loss and avoid adding to browser history
+        setSearchParams(newSearchParams, { replace: true });
+
+        // Restore focus to input after URL update
+        requestAnimationFrame(() => {
+          inputRef.current?.focus();
+        });
+      }
+    }, 300);
+  }, [searchParams, setSearchParams, searchParamName]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchValue(value);
+    searchValueRef.current = value;
+    updateUrl(value);
+  }, [updateUrl]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
   }, []);
 
   return (
     <Input.Root>
       <Input.Input
+        ref={inputRef}
         id={searchParamName}
         name={searchParamName}
         type='text'
         placeholder={placeholder}
         className='py-3.5 pl-[52px]'
-        value={searchValue}
+        defaultValue={searchParams.get(searchParamName) || ''}
         onChange={handleInputChange}
         autoComplete='off'
       />

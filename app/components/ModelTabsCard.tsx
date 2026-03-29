@@ -92,7 +92,8 @@ const ModelTabsCard: React.FC<ModelTabsCardProps> = ({
                   <div className='flex gap-1 overflow-hidden'>
                     <DetailRow title='Error' value={''} />
                     <Tooltip
-                      side={'top'}
+                      side='top'
+                      variant='error'
                       trigger={<Icons.warning className='size-4 text-specials-danger' />}
                       content={chatModel.error}
                       popoverClassName='max-w-[320px]'
@@ -140,7 +141,8 @@ const ModelTabsCard: React.FC<ModelTabsCardProps> = ({
                 <div className='flex justify-between w-full gap-1 overflow-hidden'>
                   <DetailRow title='Error' value={''} />
                   <Tooltip
-                    side={'top'}
+                    side='top'
+                    variant='error'
                     trigger={<Icons.warning className='size-4 text-specials-danger' />}
                     content={embeddingModel.error}
                     popoverClassName='max-w-[320px]'
@@ -169,7 +171,8 @@ const ModelTabsCard: React.FC<ModelTabsCardProps> = ({
                 <div className='flex gap-1 overflow-hidden'>
                   <DetailRow title='Error' value={''} />
                   <Tooltip
-                    side={'top'}
+                    side='top'
+                    variant='error'
                     trigger={<Icons.warning className='size-4 text-specials-danger' />}
                     content={reasoningModel.error}
                     popoverClassName='max-w-[320px]'

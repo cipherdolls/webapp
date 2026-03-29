@@ -17,6 +17,7 @@ interface AvatarsQueryParams {
   published?: string;
   name?: string;
   gender?: string;
+  free?: string;
   page?: string;
   limit?: string;
 }
@@ -32,7 +33,7 @@ function serializeParams(params: AvatarsQueryParams) {
   return JSON.stringify(params, Object.keys(params).sort());
 }
 
-export function useInfiniteAvatars(params: Omit<AvatarsQueryParams, 'page'>) {
+export function useInfiniteAvatars(params: Omit<AvatarsQueryParams, 'page'>, options?: { enabled?: boolean }) {
   return useInfiniteQuery({
     queryKey: ['avatars', serializeParams(params)],
     initialPageParam: 1,
@@ -60,5 +61,6 @@ export function useInfiniteAvatars(params: Omit<AvatarsQueryParams, 'page'>) {
       }
       return undefined;
     },
+    enabled: options?.enabled ?? true,
   });
 }

@@ -1,28 +1,28 @@
-import { ArrowRight, Shield, Zap, ArrowDown } from 'lucide-react';
+import { Shield, Zap, ArrowDown } from 'lucide-react';
 import * as Button from '~/components/ui/button/button';
 import type { Avatar } from '~/types';
 import ChatExample from './components/ChatExample';
-import { useWalletAuth } from '~/hooks/useWalletAuth';
+import LoginButton from './LoginButton';
 
 const content = {
-  title: 'Where Privacy Meets',
-  subtitle: 'Anonymous AI Chat',
+  title: 'Meet AI Companions',
+  subtitle: 'That Truly Get You',
   description:
-    'Chat with avatars without compromising your privacy. No email, no personal data, no subscriptions. Pay only for what you use with LOV tokens.',
+    'Have real conversations with unique AI personalities — each with their own voice, story, and style. No sign-ups, no subscriptions, just private chats whenever you want.',
   features: [
     {
       icon: <Shield className='w-4 h-4 text-green-600' />,
-      title: 'No Personal Data',
-      description: 'Completely anonymous',
+      title: '100% Private',
+      description: 'No email or sign-up needed',
     },
     {
       icon: <Zap className='w-4 h-4 text-blue-600' />,
-      title: 'Pay Per Message',
-      description: 'No subscriptions',
+      title: 'Pay As You Go',
+      description: 'Only pay for what you use',
     },
   ],
   cta: {
-    text: 'Start Chat for Free',
+    text: 'Log in',
     href: '/chat',
   },
   learnMore: {
@@ -32,8 +32,6 @@ const content = {
 };
 
 const Hero = ({ avatar }: { avatar: Avatar }) => {
-  const { signIn, isLoading } = useWalletAuth();
-
   return (
     <section className='pt-24 pb-16 min-h-screen flex items-center'>
       <div className='container'>
@@ -73,16 +71,7 @@ const Hero = ({ avatar }: { avatar: Avatar }) => {
             </div>
 
             <div className='flex flex-col sm:flex-row gap-5'>
-              <Button.Root
-                className='px-10 gradient-move font-medium'
-                variant='secondary'
-                size='lg'
-                onClick={signIn}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Loading...' : content.cta.text}
-                <ArrowRight />
-              </Button.Root>
+              <LoginButton className='min-w-[160px] md:min-w-[200px]' aria-label='Log in to start chatting' />
               <Button.Root
                 className='group px-6'
                 size='lg'

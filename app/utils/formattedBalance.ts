@@ -12,20 +12,19 @@ export const formattedTokenBalance = (validatedBalance: number | string) =>
     return roundedValue > 0
       ? numberValue.toLocaleString(undefined, {
           maximumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
-          minimumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
         })
       : '0';
   }, [validatedBalance]);
 
-export const formattedBalanceMotion = (count: MotionValue) => {
-  if (count.get() === 0) {
-    return useTransform(() => count.get().toFixed());
-  }
+export const formattedBalanceMotion = (count: MotionValue<number>) => {
+  return useTransform(count, (v) => {
+    if (v === 0) return "0";
 
-  return useTransform(() =>
-    count.get().toLocaleString(undefined, {
+    const roundedValue = Number(v.toFixed());
+
+    return roundedValue.toLocaleString(undefined, {
       maximumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
-      minimumFractionDigits: TOKEN_BALANCE.DECIMAL_PLACES,
-    })
-  );
+    }).replace(/,/g, '.');
+  });
 };
+

@@ -43,8 +43,8 @@ export function useUpdateScenario() {
       return response.json();
     },
     onSuccess: (updatedScenario) => {
-      // queryClient.setQueryData(['scenario', updatedScenario.id], updatedScenario);
-      // queryClient.invalidateQueries({ queryKey: ['scenarios'] });
+      queryClient.setQueryData(['scenario', updatedScenario.id], updatedScenario);
+      queryClient.invalidateQueries({ queryKey: ['scenarios'] });
     },
   });
 }

@@ -2,6 +2,8 @@ import * as React from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Slottable } from '@radix-ui/react-slot';
 import { cn } from '~/utils/cn';
+import { motion } from 'motion/react';
+import { ANIMATE_DURATION, ANIMATE_POPOVER_CENTER, ANIMATE_POPOVER_LEFT, ANIMATE_POPOVER_RIGHT } from '~/constants';
 
 const PopoverRoot = PopoverPrimitive.Root;
 const PopoverTrigger = PopoverPrimitive.Trigger;
@@ -45,14 +47,30 @@ const PopoverContent = React.forwardRef<
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           className
         )}
+        asChild
+        forceMount
         {...rest}
       >
-        <Slottable>{children}</Slottable>
-        {showArrow && (
-          <PopoverPrimitive.Arrow asChild>
-            <div className='size-[11px] -translate-y-[calc(50%+1px)] -rotate-45 rounded-bl-[3px] border border-stroke-soft-200 bg-bg-white-0 [clip-path:polygon(0_100%,0_0,100%_100%)]'></div>
-          </PopoverPrimitive.Arrow>
-        )}
+        <motion.div
+          initial={
+            align === 'start' && ANIMATE_POPOVER_LEFT.initial ||
+            align === 'end' && ANIMATE_POPOVER_RIGHT.initial ||
+            align === 'center' && ANIMATE_POPOVER_CENTER.initial
+          }
+          animate={
+            align === 'start' && ANIMATE_POPOVER_LEFT.animate ||
+            align === 'end' && ANIMATE_POPOVER_RIGHT.animate ||
+            align === 'center' && ANIMATE_POPOVER_CENTER.animate
+          }
+          transition={ANIMATE_DURATION}
+        >
+          <Slottable>{children}</Slottable>
+          {showArrow && (
+            <PopoverPrimitive.Arrow asChild>
+              <div className='size-[11px] -translate-y-[calc(50%+1px)] -rotate-45 rounded-bl-[3px] border border-stroke-soft-200 bg-bg-white-0 [clip-path:polygon(0_100%,0_0,100%_100%)]'></div>
+            </PopoverPrimitive.Arrow>
+          )}
+        </motion.div>
       </PopoverPrimitive.Content>
     </PopoverPrimitive.Portal>
   )

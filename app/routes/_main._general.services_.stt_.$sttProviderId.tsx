@@ -21,7 +21,6 @@ export default function SttProviderId({ params }: Route.ComponentProps) {
   const { data: sttProviderData, isLoading, error } = useSttProvider(params.sttProviderId);
   const { mutate: deleteSttProvider, isPending: isDeletingSttProvider } = useDeleteSttProvider();
 
-  
   const me = useRouteLoaderData('routes/_main') as User;
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -48,7 +47,7 @@ export default function SttProviderId({ params }: Route.ComponentProps) {
       cancelButton: 'No, Leave',
     });
 
-    if (!confirmResult) return
+    if (!confirmResult) return;
 
     deleteSttProvider(sttProvider.id, {
       onSuccess: () => {
@@ -79,11 +78,7 @@ export default function SttProviderId({ params }: Route.ComponentProps) {
               <Button.Root variant='secondary' className='w-[130px]' onClick={() => handleShowEditModal(sttProvider)}>
                 Edit
               </Button.Root>
-              <Button.Root
-                type='button'
-                variant='danger'
-                onClick={() => handleDeleteSttProvider(sttProvider)}
-              >
+              <Button.Root type='button' variant='danger' onClick={() => handleDeleteSttProvider(sttProvider)}>
                 <Icons.trash className='w-12' />
               </Button.Root>
             </div>
@@ -129,12 +124,6 @@ export default function SttProviderId({ params }: Route.ComponentProps) {
                   <div className='flex flex-col gap-2'>
                     <h4 className='hidden text-body-sm font-semibold sm:text-heading-h4 text-base-black sm:block'>{sttProvider.name}</h4>
                     <div className='flex items-center gap-1'>
-                      {sttProvider.recommended && (
-                        <div className='flex items-center gap-1'>
-                          <Icons.checkCircle className='size-4 text-base-black/[0.56]' />
-                          <span className='text-neutral-01 text-body-sm'>Current in use</span>
-                        </div>
-                      )}
                       {sttProvider.recommended && (
                         <div className='flex items-center gap-1'>
                           <Icons.thumb className='size-4' />

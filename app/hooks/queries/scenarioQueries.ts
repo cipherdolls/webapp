@@ -13,6 +13,7 @@ interface ScenariosQueryParams {
   recommended?: string;
   avatarId?: string;
   nsfw?: string;
+  free?: string;
 }
 
 // Scenario queries
@@ -42,7 +43,7 @@ function serializeParams(params: ScenariosQueryParams) {
   return JSON.stringify(params || {}, Object.keys(params || {}).sort());
 }
 
-export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>) {
+export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>, options?: { enabled?: boolean }) {
   return useInfiniteQuery({
     queryKey: ['scenarios', serializeParams(params)],
     initialPageParam: 1,
@@ -69,5 +70,6 @@ export function useInfiniteScenarios(params: Omit<ScenariosQueryParams, 'page'>)
       }
       return undefined;
     },
+    enabled: options?.enabled ?? true,
   });
 }

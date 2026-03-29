@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Sponsorship } from '~/types';
+import type { Sponsorship, Paginated } from '~/types';
 import { fetchResource } from './utils/fetchResource';
 
 interface SponsorshipsQueryParams {
@@ -12,7 +12,10 @@ export function useSponsorships(params?: SponsorshipsQueryParams) {
 
   return useQuery({
     queryKey: ['sponsorships', params],
-    queryFn: () => fetchResource<Sponsorship[]>(`sponsorships${queryParams}`),
+    queryFn: async () => {
+      const response = await fetchResource<Paginated<Sponsorship>>(`sponsorships${queryParams}`);
+      return response.data;
+    },
   });
 }
 

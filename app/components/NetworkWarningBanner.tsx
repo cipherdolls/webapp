@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
-import { switchToOptimismNetwork } from '~/utils/networkUtils';
+import { switchToBaseNetwork } from '~/utils/networkUtils';
 import { toast } from 'sonner';
 
 export const NetworkWarningBanner: FC = () => {
@@ -9,7 +9,7 @@ export const NetworkWarningBanner: FC = () => {
   const handleSwitchNetwork = async () => {
     setIsSwitchingNetwork(true);
     try {
-      const result = await switchToOptimismNetwork();
+      const result = await switchToBaseNetwork();
       if (!result.success) {
         toast.error(result.error || 'Failed to switch network');
       }
@@ -26,7 +26,7 @@ export const NetworkWarningBanner: FC = () => {
         <div className='flex-1'>
           <h4 className='text-heading-h4 font-semibold text-orange-800 mb-2'>Wrong Network Detected</h4>
           <p className='text-sm text-orange-700 mb-3'>
-            You need to be on the Optimism network to create token permits. Please switch your network to continue.
+            You need to be on the Base network to create token permits. Please switch your network to continue.
           </p>
           <button
             onClick={handleSwitchNetwork}
@@ -39,7 +39,7 @@ export const NetworkWarningBanner: FC = () => {
                 Switching...
               </>
             ) : (
-              'Switch to Optimism'
+              'Switch to Base'
             )}
           </button>
         </div>

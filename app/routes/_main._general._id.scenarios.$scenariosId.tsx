@@ -13,6 +13,7 @@ import { ViewMore } from '~/view-more';
 import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 
+import Jazzicon from 'react-jazzicon';
 import React, { useMemo, useState } from 'react';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
@@ -20,10 +21,13 @@ import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
 import { useCreateChat } from '~/hooks/queries/chatMutations';
 import { useSponsorships } from '~/hooks/queries/sponsorshipQueries';
 import ErrorPage from '~/components/ErrorPage';
-import { ROUTES } from '~/constants';
+import { useAlert } from '~/providers/AlertDialogProvider';
+import { ROUTES, TOKEN_BALANCE } from '~/constants';
 import IntroductionSkeleton from '~/components/ui/IntroductionSkeleton';
 import SponsorshipSection from '~/components/SponsorshipSection';
 import ModelTabsCard from '~/components/ModelTabsCard';
+import { useAuthStore } from '~/store/useAuthStore';
+import { useUser } from '~/hooks/queries/userQueries';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -37,11 +41,29 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const { data: sponsorshipsData } = useSponsorships({ scenarioId: params.scenariosId });
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();
+  const alert = useAlert();
+  const { data: currentUser } = useUser();
+  const { isUsingBurnerWallet } = useAuthStore();
 
   const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
   const scenario = useMemo(() => scenarioData || null, [scenarioData]);
   const sponsorships = useMemo(() => sponsorshipsData || [], [sponsorshipsData]);
   const userHasSponsored = useMemo(() => sponsorships.some((s) => s.userId === me.id), [sponsorships, me.id]);
+  const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
+  const isChatDisabled = !isUsingBurnerWallet && !scenario?.free && !hasMinimumTokens;
+
+  const ownerSeed = useMemo(() => {
+    if (scenario?.user?.signerAddress) {
+      return parseInt(scenario.user.signerAddress.slice(2, 10), 16);
+    }
+    let hash = 0;
+    const userId = scenario?.userId || '';
+    for (let i = 0; i < userId.length; i++) {
+      hash = (hash << 5) - hash + userId.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  }, [scenario]);
 
   const [showAll, setShowAll] = useState(false);
 
@@ -94,6 +116,13 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
         onSuccess: (newChat) => {
           navigate(`${ROUTES.chats}/${newChat.id}`);
         },
+        onError: (error: any) => {
+          alert({
+            icon: '💰',
+            title: 'Insufficient Tokens',
+            body: error?.message || `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to start a chat. Please add more tokens to continue.`,
+          });
+        },
       }
     );
   };
@@ -122,13 +151,13 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                 avatars={mineAvatarsList}
                 scenario={scenario}
                 triggerContent={
-                  <Button.Root variant='primary' className='px-6'>
+                  <Button.Root variant='primary' className='px-6' disabled={isChatDisabled}>
                     Add to My Avatar
                   </Button.Root>
                 }
               />
             )}
-            {me.id === scenario.userId && (
+            {(me.id === scenario.userId || me.role === 'ADMIN') && (
               <>
                 <Link to={`${ROUTES.scenarios}/${scenario.id}/edit`}>
                   <Button.Root variant='secondary' className='w-[130px]'>
@@ -151,7 +180,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                   type: 'link',
                   text: 'Edit',
                   href: `${ROUTES.scenarios}/${scenario.id}/edit`,
-                  visible: me.id === scenario.userId,
+                  visible: me.id === scenario.userId || me.role === 'ADMIN',
                 },
                 {
                   type: 'addToChat',
@@ -174,7 +203,7 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                       </Button.Root>
                     </DeleteModal>
                   ),
-                  visible: me.id === scenario.userId,
+                  visible: me.id === scenario.userId || me.role === 'ADMIN',
                 },
               ]}
             />
@@ -232,7 +261,13 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                                   <Link to={`${ROUTES.chats}/${avatar.chats[0].id}`}>Continue Chat</Link>
                                 </Button.Root>
                               ) : (
-                                <Button.Root type='button' size='sm' className='px-5' onClick={() => handleCreateChat(avatar.id)}>
+                                <Button.Root
+                                  type='button'
+                                  size='sm'
+                                  className='px-5'
+                                  onClick={() => handleCreateChat(avatar.id)}
+                                  disabled={isChatDisabled}
+                                >
                                   Chat
                                 </Button.Root>
                               )}
@@ -288,6 +323,12 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                     <Icons.fileUploadIcon />
                   </div>
                 )}
+                {scenario.type === 'ROLEPLAY' && (
+                  <div className='absolute top-2 left-2 z-10 flex items-center gap-1 bg-purple-500/90 backdrop-blur-sm py-1 pl-1.5 pr-2 rounded-full text-label text-white font-semibold'>
+                    🎭
+                    <span>Roleplay</span>
+                  </div>
+                )}
               </label>
             </div>
             <ModelTabsCard
@@ -304,7 +345,28 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
               sponsorships={sponsorships}
               currentUserId={me.id}
               userHasSponsored={userHasSponsored}
+              isPublishedScenario={scenario.published}
             />
+            <div className='flex flex-col gap-5'>
+              <h1 className='text-base-black text-heading-h3 font-semibold'>Owner</h1>
+              <div className='px-5 py-[18px] bg-gradient-1 rounded-xl flex items-center gap-6'>
+                {scenario.user?.signerAddress ? (
+                  <Jazzicon diameter={40} seed={ownerSeed} />
+                ) : (
+                  <h2 className='text-heading-h2'>{scenario.published ? '👥' : '💖'}</h2>
+                )}
+                <div className='flex flex-col gap-1 min-w-0 flex-1'>
+                  <p className='text-body-lg font-semibold text-base-black text-left truncate'>
+                    {scenario.user?.name || 'Unknown'}
+                  </p>
+                  <span className='max-w-52 text-body-md text-neutral-01 text-left truncate'>
+                    {scenario.user?.signerAddress
+                      ? `${scenario.user.signerAddress.slice(0, 6)}...${scenario.user.signerAddress.slice(-4)}`
+                      : scenario.userId}
+                  </span>
+                </div>
+              </div>
+            </div>
             <DetailCard isScenario>
               <div className='flex flex-col gap-4'>
                 <DetailRow title='Created at: ' value={createdDate} />

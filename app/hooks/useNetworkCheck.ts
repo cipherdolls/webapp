@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getCurrentChainId, isOnCorrectNetworkForTokenPermits, listenForNetworkChanges } from '~/utils/networkUtils';
+import { REQUIRED_NETWORK_FOR_TOKEN_PERMITS } from '~/constants';
 
 export interface NetworkState {
   currentChainId: string | null;
@@ -53,7 +54,7 @@ export function useNetworkCheck() {
       setNetworkState(prev => ({
         ...prev,
         currentChainId: chainId,
-        isOnCorrectNetwork: chainId === '0xa', // Optimism chain ID
+        isOnCorrectNetwork: chainId === '0x2105', // Base chain ID
       }));
     });
 
