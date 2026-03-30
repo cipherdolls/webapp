@@ -6,7 +6,7 @@ import LoginButton from './LoginButton';
 
 const content = {
   title: 'Meet AI Companions',
-  subtitle: 'That Truly Get You',
+  subtitle: 'That Truly Get You!',
   description:
     'Have real conversations with unique AI personalities — each with their own voice, story, and style. No sign-ups, no subscriptions, just private chats whenever you want.',
   features: [
