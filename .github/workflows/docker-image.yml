@@ -20,6 +20,10 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          buildkitd-config-inlined: |
+            [registry."docker.io"]
+              mirrors = ["registry-1.docker.io"]
 
       - name: Build and push
         uses: docker/build-push-action@v3
@@ -28,6 +32,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/webapp:${{ github.ref_name }},${{ secrets.DOCKER_HUB_USERNAME }}/webapp:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: docker stack deploy
         uses: appleboy/ssh-action@v1.0.3
