@@ -1,7 +1,7 @@
 const isServer = typeof document === 'undefined';
 export const apiUrl = isServer
-  ? (process.env.SERVER_API_URL || import.meta.env.VITE_API_URL || 'https://core.cipherdolls.com')
-  : (import.meta.env.VITE_API_URL || 'https://core.cipherdolls.com');
+  ? (process.env.SERVER_API_URL || import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com')
+  : (import.meta.env.VITE_API_URL || 'https://api.cipherdolls.com');
 export const wsURL = import.meta.env.VITE_WS_URL || 'wss://mqtt.cipherdolls.com';
 export const streamRecorderUrl = import.meta.env.VITE_STREAM_RECORDER_URL || 'wss://stream-recorder.cipherdolls.com';
 export const streamPlayerUrl = import.meta.env.VITE_STREAM_PLAYER_URL || 'wss://stream-player.cipherdolls.com';
