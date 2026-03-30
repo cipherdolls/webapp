@@ -13,7 +13,7 @@ const ChatEmbeddingJobCard = ({ message }: { message: Message }) => {
     return null;
   }
 
-  const formattedUsdCost = embeddingJob?.usdCost > 0 ? embeddingJob?.usdCost.toFixed(8) : 0;
+  const formattedUsdCost = Number(embeddingJob?.usdCost) > 0 ? Number(embeddingJob?.usdCost).toFixed(8) : 0;
   const formattedPaymentJob = embeddingJob?.paymentJob?.weiCost ? formatUnits(embeddingJob.paymentJob.weiCost, 6) : 0;
 
   return (

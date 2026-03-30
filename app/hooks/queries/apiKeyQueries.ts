@@ -5,6 +5,9 @@ import { fetchResource } from './utils/fetchResource';
 export function useApiKeys(): UseQueryResult<ApiKey[], Error> {
   return useQuery({
     queryKey: ['api-keys'],
-    queryFn: () => fetchResource<ApiKey[]>('api-keys'),
+    queryFn: async () => {
+      const res = await fetchResource<{ data: ApiKey[] }>('api-keys');
+      return res.data;
+    },
   });
 }

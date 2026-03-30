@@ -156,7 +156,7 @@ const AiProvidersTab = () => {
 
                 {/* CHAT MODELS WRAPPER */}
                 <div className='bg-gradient-1 rounded-xl md:bg-none'>
-                  {aiProvider.chatModels.length > 0 && (
+                  {aiProvider.chatModels?.length > 0 && (
                     <>
                       <div className='flex items-center justify-between p-3 md:hidden'>
                         <span className='text-xs text-neutral-01 font-semibold'>Chat model</span>
@@ -229,7 +229,7 @@ const AiProvidersTab = () => {
                                     ]}
                                   />
                                 </DataCard.Item>
-                                {aiProvider.chatModels.length - 1 !== index && <DataCard.Divider />}
+                                {aiProvider.chatModels?.length - 1 !== index && <DataCard.Divider />}
                               </Fragment>
                             );
                           })}
@@ -239,7 +239,7 @@ const AiProvidersTab = () => {
                   )}
 
                   {/* EMBEDDING MODELS WRAPPER */}
-                  {aiProvider.embeddingModels.length > 0 && (
+                  {aiProvider.embeddingModels?.length > 0 && (
                     <>
                       <div className='flex items-center justify-between px-3 pt-3 md:hidden'>
                         <span className='text-xs text-neutral-01 font-semibold'>Embedding model</span>
@@ -305,7 +305,7 @@ const AiProvidersTab = () => {
                                     ]}
                                   />
                                 </DataCard.Item>
-                                {aiProvider.embeddingModels.length - 1 !== index && <DataCard.Divider />}
+                                {aiProvider.embeddingModels?.length - 1 !== index && <DataCard.Divider />}
                               </Fragment>
                             );
                           })}
@@ -315,7 +315,7 @@ const AiProvidersTab = () => {
                   )}
 
                   {/* REASONING MODELS WRAPPER */}
-                  {aiProvider.reasoningModels && aiProvider.reasoningModels.length > 0 && (
+                  {aiProvider.reasoningModels && aiProvider.reasoningModels?.length > 0 && (
                     <>
                       <div className='flex items-center justify-between px-3 pt-3 md:hidden'>
                         <span className='text-xs text-neutral-01 font-semibold'>Reasoning model</span>
@@ -386,7 +386,7 @@ const AiProvidersTab = () => {
                                     ]}
                                   />
                                 </DataCard.Item>
-                                {aiProvider.reasoningModels.length - 1 !== index && <DataCard.Divider />}
+                                {aiProvider.reasoningModels?.length - 1 !== index && <DataCard.Divider />}
                               </Fragment>
                             );
                           })}
@@ -397,9 +397,9 @@ const AiProvidersTab = () => {
                 </div>
 
                 {/* Show message if no models */}
-                {aiProvider.chatModels.length === 0 &&
-                  aiProvider.embeddingModels.length === 0 &&
-                  (!aiProvider.reasoningModels || aiProvider.reasoningModels.length === 0) && (
+                {aiProvider.chatModels?.length === 0 &&
+                  aiProvider.embeddingModels?.length === 0 &&
+                  (!aiProvider.reasoningModels || aiProvider.reasoningModels?.length === 0) && (
                     <DataCard.Wrapper>
                       <DataCard.Text>No models found</DataCard.Text>
                     </DataCard.Wrapper>

@@ -2,7 +2,7 @@ import { apiUrl, PICTURE_SIZE } from '~/constants';
 
 type ObjectWithPicture<T extends object> = {
   id: string;
-  picture: string;
+  picture: string | { id: string } | null;
 } & T;
 
 const getSizes = (sizeType?: string) => {
@@ -71,14 +71,14 @@ export const getPicture = <T extends object>(
   const sizes = getSizes(sizeType);
 
   if (item && item.picture && forType) {
-    let images = `${apiUrl}/${forType}/${item.id}/picture.webp?x=${sizes.x}&y=${sizes.y}`;
+    let images = `${apiUrl}/pictures/by/${forType}/${item.id}/picture.webp?x=${sizes.x}&y=${sizes.y}`;
 
     if (forSrcSet) {
       images += `
-        ${apiUrl}/${forType}/${item.id}/picture.webp?x=${sizes.x}&y=${sizes.y} 1x, 
-        ${apiUrl}/${forType}/${item.id}/picture.webp?x=${sizes.x * 2}&y=${sizes.y * 2} 2x,
-        ${apiUrl}/${forType}/${item.id}/picture.webp?x=${sizes.x * 3}&y=${sizes.y * 3} 3x,
-        ${apiUrl}/${forType}/${item.id}/picture.webp?x=${sizes.x * 4}&y=${sizes.y * 4} 4x,
+        ${apiUrl}/pictures/by/${forType}/${item.id}/picture.webp?x=${sizes.x}&y=${sizes.y} 1x, 
+        ${apiUrl}/pictures/by/${forType}/${item.id}/picture.webp?x=${sizes.x * 2}&y=${sizes.y * 2} 2x,
+        ${apiUrl}/pictures/by/${forType}/${item.id}/picture.webp?x=${sizes.x * 3}&y=${sizes.y * 3} 3x,
+        ${apiUrl}/pictures/by/${forType}/${item.id}/picture.webp?x=${sizes.x * 4}&y=${sizes.y * 4} 4x,
       `;
     }
     return images;

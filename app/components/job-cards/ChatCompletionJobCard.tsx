@@ -19,7 +19,7 @@ const ChatCompletionJobCard = ({ message }: { message: Message }) => {
   }
 
   const { usdCost, paymentJob, chatModel, timeTakenMs, inputTokens, outputTokens, totalTokens } = chatCompletionJob;
-  const formattedUsdCost = usdCost > 0 ? usdCost.toFixed(8) : 0;
+  const formattedUsdCost = Number(usdCost) > 0 ? Number(usdCost).toFixed(8) : 0;
   const formattedPaymentJob = paymentJob?.weiCost ? formatUnits(paymentJob.weiCost, 6) : 0;
 
   return (

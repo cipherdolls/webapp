@@ -27,7 +27,7 @@ const ChatTopBar: React.FC<ChatTopBarProps> = ({ chat }) => {
   const { mutate: updateChat } = useUpdateChat();
 
 
-  const systemPrompt = systemPromptData?.systemPrompt ?? chat.scenario.systemMessage;
+  const systemPrompt = systemPromptData?.systemPrompt ?? '';
   const scenarioName = systemPromptData?.scenarioName ?? chat.scenario.name;
   const isSystemPromptAvailable = !!systemPromptData;
 
