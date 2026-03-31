@@ -42,8 +42,7 @@ jobs:
           key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            docker stack deploy -c ~/devops/hostinger/prod-stack.yaml prod --with-registry-auth --resolve-image always
-            docker stack deploy -c ~/devops/hostinger/dev-stack.yaml dev --with-registry-auth --resolve-image always
+            docker service update --image ghcr.io/${{ github.repository_owner }}/webapp:${{ github.sha }} prod_webapp --with-registry-auth
 
 
 
