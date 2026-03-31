@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useChatEvents } from '~/hooks/useChatEvents';
+import { useMqtt } from '~/providers/MqttContext';
 import type { ProcessEvent } from '~/types';
 import { cn } from '~/utils/cn';
 import { List, BarChart3, Trash2, X } from 'lucide-react';
@@ -202,6 +203,7 @@ interface MqttConsolePanelProps {
 }
 
 const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) => {
+  const { connectionState, getSubscriptions } = useMqtt();
   const [view, setView] = useState<'log' | 'timeline'>('timeline');
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [timelineEntries, setTimelineEntries] = useState<TimelineEntry[]>([]);
@@ -288,6 +290,19 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
       {/* header */}
       <div className='flex items-center justify-between px-3 py-1.5 border-b border-neutral-04 bg-neutral-05'>
         <div className='flex items-center gap-2'>
+          <span
+            className={cn(
+              'w-2.5 h-2.5 rounded-full shrink-0',
+              connectionState.isConnected ? 'bg-green-500' : connectionState.isConnecting ? 'bg-yellow-400 animate-pulse' : 'bg-red-500',
+            )}
+            title={
+              connectionState.isConnected
+                ? `Connected (${getSubscriptions().length} subs)`
+                : connectionState.isConnecting
+                  ? `Reconnecting (attempt ${connectionState.reconnectAttempts})`
+                  : connectionState.error || 'Disconnected'
+            }
+          />
           <span className='text-body-sm font-semibold text-neutral-01'>MQTT Console</span>
           <div className='flex items-center bg-white rounded border border-neutral-04 overflow-hidden'>
             <button
