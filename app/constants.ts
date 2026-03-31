@@ -5,6 +5,7 @@ export const apiUrl = isServer
 export const wsURL = import.meta.env.VITE_WS_URL || 'wss://mqtt.cipherdolls.com';
 export const streamRecorderUrl = import.meta.env.VITE_STREAM_RECORDER_URL || 'wss://stream-recorder.cipherdolls.com';
 export const streamPlayerUrl = import.meta.env.VITE_STREAM_PLAYER_URL || 'wss://stream-player.cipherdolls.com';
+export const commitSha = import.meta.env.VITE_COMMIT_SHA || 'dev';
 
 export const USDC_TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS || '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 export const USDC_TOKEN_NAME = 'USD Coin';
