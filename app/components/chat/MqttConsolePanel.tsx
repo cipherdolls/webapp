@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useChatEvents } from '~/hooks/useChatEvents';
 import { useMqtt } from '~/providers/MqttContext';
 import type { ProcessEvent } from '~/types';
@@ -16,6 +16,7 @@ interface LogEntry {
   jobId: number;
   jobStatus: string;
   durationMs: number | null;
+  resourceAttributes?: any;
 }
 
 interface TimelineEntry {
@@ -147,6 +148,13 @@ function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number 
 /* ─── Log View ──────────────────────────────────────────────────── */
 
 function LogView({ entries }: { entries: LogEntry[] }) {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const handleRowClick = (entry: LogEntry) => {
+    if (!entry.resourceAttributes || Object.keys(entry.resourceAttributes).length === 0) return;
+    setExpandedId((prev) => (prev === entry.id ? null : entry.id));
+  };
+
   return (
     <div className='flex-1 overflow-auto scrollbar-medium font-mono text-xs'>
       <table className='w-full'>
@@ -168,26 +176,49 @@ function LogView({ entries }: { entries: LogEntry[] }) {
               </td>
             </tr>
           ) : (
-            entries.map((entry) => (
-              <tr key={entry.id} className='border-b border-neutral-04/50 hover:bg-neutral-05/50'>
-                <td className='px-2 py-1 text-neutral-01 whitespace-nowrap'>{formatTime(entry.receivedAt)}</td>
-                <td className='px-2 py-1 whitespace-nowrap'>{entry.resourceName}</td>
-                <td className='px-2 py-1 whitespace-nowrap'>{entry.jobName}</td>
-                <td className='px-2 py-1 text-neutral-01 whitespace-nowrap'>{entry.jobId}</td>
-                <td className='px-2 py-1'>
-                  <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium', statusColors[entry.jobStatus] || 'bg-gray-100 text-gray-700')}>
-                    {entry.jobStatus}
-                  </span>
-                </td>
-                <td className='px-2 py-1 text-right whitespace-nowrap'>
-                  {entry.durationMs !== null ? (
-                    <span className='text-green-700 font-medium'>{formatDuration(entry.durationMs)}</span>
-                  ) : (
-                    <span className='text-neutral-01'>-</span>
+            entries.map((entry) => {
+              const hasAttributes = entry.resourceAttributes && Object.keys(entry.resourceAttributes).length > 0;
+              const isExpanded = expandedId === entry.id;
+              return (
+                <Fragment key={entry.id}>
+                  <tr
+                    className={cn(
+                      'border-b border-neutral-04/50 hover:bg-neutral-05/50',
+                      hasAttributes && 'cursor-pointer',
+                      isExpanded && 'bg-neutral-05/50',
+                    )}
+                    onClick={() => handleRowClick(entry)}
+                  >
+                    <td className='px-2 py-1 text-neutral-01 whitespace-nowrap'>{formatTime(entry.receivedAt)}</td>
+                    <td className='px-2 py-1 whitespace-nowrap'>{entry.resourceName}</td>
+                    <td className='px-2 py-1 whitespace-nowrap'>{entry.jobName}</td>
+                    <td className='px-2 py-1 text-neutral-01 whitespace-nowrap'>{entry.jobId}</td>
+                    <td className='px-2 py-1'>
+                      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium', statusColors[entry.jobStatus] || 'bg-gray-100 text-gray-700')}>
+                        {entry.jobStatus}
+                      </span>
+                    </td>
+                    <td className='px-2 py-1 text-right whitespace-nowrap'>
+                      {entry.durationMs !== null ? (
+                        <span className='text-green-700 font-medium'>{formatDuration(entry.durationMs)}</span>
+                      ) : (
+                        <span className='text-neutral-01'>-</span>
+                      )}
+                    </td>
+                  </tr>
+                  {isExpanded && hasAttributes && (
+                    <tr className='border-b border-neutral-04/50'>
+                      <td colSpan={6} className='px-3 py-2 bg-neutral-900 text-neutral-100'>
+                        <div className='text-[10px] font-semibold text-neutral-400 mb-1'>Resource Attributes</div>
+                        <pre className='whitespace-pre-wrap break-all max-h-48 overflow-auto scrollbar-medium text-[11px]'>
+                          {JSON.stringify(entry.resourceAttributes, null, 2)}
+                        </pre>
+                      </td>
+                    </tr>
                   )}
-                </td>
-              </tr>
-            ))
+                </Fragment>
+              );
+            })
           )}
         </tbody>
       </table>
@@ -247,6 +278,7 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
           jobId: event.jobId,
           jobStatus: event.jobStatus,
           durationMs,
+          resourceAttributes: event.resourceAttributes,
         },
         ...prev,
       ];
@@ -276,7 +308,7 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
     setNow(ts);
   }, []);
 
-  useChatEvents(chatId, { onProcessEvent, enabled: true });
+  const { processEventsTopic } = useChatEvents(chatId, { onProcessEvent, enabled: true });
 
   const handleClear = () => {
     setLogEntries([]);
@@ -304,6 +336,7 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
             }
           />
           <span className='text-body-sm font-semibold text-neutral-01'>MQTT Console</span>
+          <span className='text-[10px] font-mono text-neutral-01'>{processEventsTopic}</span>
           <div className='flex items-center bg-white rounded border border-neutral-04 overflow-hidden'>
             <button
               type='button'

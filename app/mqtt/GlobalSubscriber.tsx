@@ -9,7 +9,7 @@ const GlobalSubscriber = ({ userId }: { userId: string }) => {
 
   useUserEvents(userId, {
     onProcessEvent: (processEvent) => {
-      console.log('processEvent', processEvent);
+      console.log('processEvent', JSON.stringify(processEvent, null, 2));
 
       handleUserEvent(queryClient, processEvent);
       handleMessageEvent(queryClient, processEvent);
