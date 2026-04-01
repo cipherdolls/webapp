@@ -74,6 +74,13 @@ const LABEL_WIDTH = 140;
 function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number }) {
   const origin = entries.length > 0 ? entries[0].activeAt : now;
   const totalMs = Math.max(now - origin + 500, 1000); // min 1s span
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [entries]);
 
   const toPercent = (ms: number) => (ms / totalMs) * 100;
 
@@ -81,7 +88,7 @@ function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number 
   const tickCount = Math.min(Math.ceil(totalMs / 1000) + 1, 20);
 
   return (
-    <div className='flex-1 overflow-y-auto scrollbar-medium'>
+    <div ref={scrollRef} className='flex-1 overflow-y-auto scrollbar-medium'>
       {/* time axis */}
       <div className='sticky top-0 bg-neutral-05 z-10 flex'>
         <div className='shrink-0 px-2 py-1 text-[10px] font-medium text-neutral-01 border-r border-neutral-04' style={{ width: LABEL_WIDTH }}>
@@ -149,6 +156,13 @@ function TimelineView({ entries, now }: { entries: TimelineEntry[]; now: number 
 
 function LogView({ entries }: { entries: LogEntry[] }) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [entries]);
 
   const handleRowClick = (entry: LogEntry) => {
     if (!entry.resourceAttributes || Object.keys(entry.resourceAttributes).length === 0) return;
@@ -156,7 +170,7 @@ function LogView({ entries }: { entries: LogEntry[] }) {
   };
 
   return (
-    <div className='flex-1 overflow-auto scrollbar-medium font-mono text-xs'>
+    <div ref={scrollRef} className='flex-1 overflow-auto scrollbar-medium font-mono text-xs'>
       <table className='w-full'>
         <thead className='sticky top-0 bg-neutral-05'>
           <tr className='text-left text-neutral-01'>
@@ -233,6 +247,14 @@ interface MqttConsolePanelProps {
   onClose: () => void;
 }
 
+const EVENT_TYPES = ['created', 'updated', 'deleted'] as const;
+
+const eventTypeColors: Record<string, string> = {
+  created: 'bg-green-100 text-green-700',
+  updated: 'bg-blue-100 text-blue-700',
+  deleted: 'bg-red-100 text-red-700',
+};
+
 const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) => {
   const { connectionState, getSubscriptions } = useMqtt();
   const [view, setView] = useState<'log' | 'timeline'>('timeline');
@@ -241,6 +263,17 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
   const [now, setNow] = useState(Date.now());
   const activeJobsRef = useRef<Map<number, number>>(new Map());
   const idCounter = useRef(0);
+  const [hiddenJobNames, setHiddenJobNames] = useState<Set<string>>(new Set(['updated', 'deleted']));
+  const [autoClear, setAutoClear] = useState(true);
+
+  const toggleJobName = (name: string) => {
+    setHiddenJobNames((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
 
   // Tick "now" for animating active bars
   useEffect(() => {
@@ -251,7 +284,18 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
     return () => clearInterval(interval);
   }, [view, timelineEntries]);
 
+  const autoClearRef = useRef(autoClear);
+  autoClearRef.current = autoClear;
+
   const onProcessEvent = useCallback((event: ProcessEvent) => {
+    // Auto-clear on new user message
+    if (autoClearRef.current && event.resourceName === 'Message' && event.jobName === 'created' && event.jobStatus === 'active' && event.resourceAttributes?.role === 'USER') {
+      setLogEntries([]);
+      setTimelineEntries([]);
+      activeJobsRef.current.clear();
+      idCounter.current = 0;
+    }
+
     const ts = Date.now();
     const id = ++idCounter.current;
 
@@ -310,12 +354,6 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
 
   const { processEventsTopic } = useChatEvents(chatId, { onProcessEvent, enabled: true });
 
-  const handleClear = () => {
-    setLogEntries([]);
-    setTimelineEntries([]);
-    activeJobsRef.current.clear();
-    idCounter.current = 0;
-  };
 
   return (
     <div className='border-t border-neutral-04 bg-white flex flex-col h-[280px] shrink-0'>
@@ -357,8 +395,34 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
           </div>
         </div>
         <div className='flex items-center gap-2'>
-          <button type='button' onClick={handleClear} className='p-1 hover:bg-gray-200 rounded transition-colors' title='Clear'>
-            <Trash2 size={14} className='text-neutral-01' />
+          {/* Event type filters */}
+          <div className='flex items-center gap-0.5'>
+            {EVENT_TYPES.map((type) => {
+              const isVisible = !hiddenJobNames.has(type);
+              return (
+                <button
+                  key={type}
+                  type='button'
+                  onClick={() => toggleJobName(type)}
+                  className={cn(
+                    'px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors',
+                    isVisible ? eventTypeColors[type] : 'bg-neutral-04/50 text-neutral-01 line-through',
+                  )}
+                  title={`${isVisible ? 'Hide' : 'Show'} ${type} events`}
+                >
+                  {type}
+                </button>
+              );
+            })}
+          </div>
+          <div className='w-px h-4 bg-neutral-04' />
+          <button
+            type='button'
+            onClick={() => setAutoClear((prev) => !prev)}
+            className={cn('p-1 rounded transition-colors', autoClear ? 'bg-red-100 text-red-700' : 'hover:bg-gray-200 text-neutral-01')}
+            title={autoClear ? 'Auto-clear on new message (on)' : 'Auto-clear on new message (off)'}
+          >
+            <Trash2 size={14} />
           </button>
           <button type='button' onClick={onClose} className='p-1 hover:bg-gray-200 rounded transition-colors' title='Close'>
             <X size={14} className='text-neutral-01' />
@@ -367,7 +431,11 @@ const MqttConsolePanel: React.FC<MqttConsolePanelProps> = ({ chatId, onClose }) 
       </div>
 
       {/* body */}
-      {view === 'log' ? <LogView entries={logEntries} /> : <TimelineView entries={timelineEntries} now={now} />}
+      {view === 'log' ? (
+        <LogView entries={logEntries.filter((e) => !hiddenJobNames.has(e.jobName))} />
+      ) : (
+        <TimelineView entries={timelineEntries.filter((e) => !hiddenJobNames.has(e.jobName))} now={now} />
+      )}
     </div>
   );
 };

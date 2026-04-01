@@ -77,8 +77,6 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
       'unauthorized',
       'authentication error',
       'mqtt authentication failed',
-      'websocket connection failed',
-      'connection refused',
       'invalid credentials',
       'access denied',
     ];
@@ -138,6 +136,16 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
         updateConnectionState({ isConnected: false, isConnecting: false });
       });
 
+      client.on('close', () => {
+        if (!client.connected) {
+          setConnectionState((prev) => prev.isConnected ? { ...prev, isConnected: false, isConnecting: true } : prev);
+        }
+      });
+
+      client.on('offline', () => {
+        setConnectionState((prev) => ({ ...prev, isConnected: false, isConnecting: true }));
+      });
+
       client.on('reconnect', () => {
         // console.log('MQTT reconnecting...');
         setConnectionState((prev) => ({
@@ -163,7 +171,6 @@ export const MqttProvider: React.FC<MqttProviderProps> = ({ children, config }) 
 
         updateConnectionState({
           isConnected: false,
-          isConnecting: false,
           error: error.message,
         });
       });

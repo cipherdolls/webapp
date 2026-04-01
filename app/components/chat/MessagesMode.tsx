@@ -4,7 +4,7 @@ import ChatBottomBar from '~/components/chat/ChatBottomBar';
 import ChatBody from '~/components/chat/ChatBody';
 import MqttConsolePanel from '~/components/chat/MqttConsolePanel';
 import { useChatEvents } from '~/hooks/useChatEvents';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -59,8 +59,8 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
     stop();
   });
 
-  useChatEvents(chat.id, {
-    onProcessEvent: (event) => {
+  const onProcessEvent = useCallback(
+    (event: { resourceName: string; resourceId: string; jobName: string; jobStatus: string; resourceAttributes?: any }) => {
       if (event.resourceName === 'Message') {
         switch (event.jobName) {
           case 'created':
@@ -88,7 +88,10 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
         }
       }
     },
-  });
+    [chat.id, queryClient, setProcessingMessageId, setShowTypingIndicator]
+  );
+
+  useChatEvents(chat.id, { onProcessEvent });
 
   useEffect(() => {
     if (silentMode && currentChatState === ChatState.avatarSpeaking) {
