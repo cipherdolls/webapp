@@ -26,9 +26,7 @@ const ChatJobErrors = ({ chat }: { chat: Chat }) => {
     onProcessEvent: async (event) => {
       
       if (event.jobStatus === 'failed') {
-        console.log('event', event);
         if (shouldAlert(event)) {
-          console.log('shouldAlert', event);
           void handleJobError(event);
         }
       }

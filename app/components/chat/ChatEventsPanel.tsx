@@ -50,7 +50,6 @@ const ChatEventsPanel: React.FC<ChatEventsPanelProps> = ({ chatId }) => {
 
   useChatEvents(chatId, {
     onProcessEvent: (event) => {
-      console.log('ChatEventsPanel received:', event);
       addEvent(event);
     },
     enabled: !!chatId,

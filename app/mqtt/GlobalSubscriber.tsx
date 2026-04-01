@@ -9,16 +9,12 @@ const GlobalSubscriber = ({ userId }: { userId: string }) => {
 
   useUserEvents(userId, {
     onProcessEvent: (processEvent) => {
-      console.log('processEvent', JSON.stringify(processEvent, null, 2));
-
       handleUserEvent(queryClient, processEvent);
       handleMessageEvent(queryClient, processEvent);
       handleChatEvent(queryClient, processEvent);
       handleAvatarEvent(queryClient, processEvent);
     },
-    onActionEvent: (actionEvent) => {
-      console.log('actionEvent', actionEvent);
-    },
+    onActionEvent: (_actionEvent) => {},
   });
 
   return null;
