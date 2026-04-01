@@ -88,7 +88,7 @@ const MainLayout = ({ loaderData }: Route.ComponentProps) => {
   }, [provider, queryClient, clearAuth, navigate]);
 
   return (
-    <MainLayoutProviders userId={me.id}>
+    <MainLayoutProviders>
       <div className='flex flex-col size-full h-screen'>
         <GuestModeBanner />
         <div className='flex sm:flex-row flex-col-reverse flex-1 overflow-hidden'>
@@ -105,10 +105,10 @@ export default MainLayout;
 
 // PROVIDERS WRAPPER
 
-export const MainLayoutProviders = ({ children, userId }: { children: React.ReactNode; userId: string }) => {
+export const MainLayoutProviders = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token);
   const mqttConfig = useMemo(() => {
-    const clientId = `user_${userId}`;
+    const clientId = `frontend_${Math.random().toString(16).slice(3)}`;
 
     return {
       brokerUrl: wsURL,
@@ -134,7 +134,7 @@ export const MainLayoutProviders = ({ children, userId }: { children: React.Reac
         },
       },
     };
-  }, [token, userId]);
+  }, [token]);
 
   return (
     <MqttProvider config={mqttConfig}>
