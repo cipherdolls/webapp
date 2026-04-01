@@ -41,6 +41,7 @@ jobs:
           host: ${{ secrets.SSH_KNOWN_HOSTS }}
           key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker service update --image ghcr.io/cipherdolls/webapp:main --force prod_webapp
 
 
