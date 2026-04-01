@@ -8,7 +8,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatState } from '~/components/chat/types/chatState';
 import { useChatStore } from '~/store/useChatStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import { useInfiniteMessages } from '~/hooks/queries/messageQueries';
 import { useQueryClient } from '@tanstack/react-query';
@@ -22,16 +21,16 @@ interface MessagesModeProps {
 }
 
 const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
-  const { stop } = useAudioPlayerContext();
   const queryClient = useQueryClient();
   const userMessageIdRef = useRef<string | null>(null);
-  const { silentMode, currentChatState, setCurrentChatState, setProcessingMessageId, setShowTypingIndicator } = useChatStore(
+  const { silentMode, currentChatState, setCurrentChatState, setProcessingMessageId, setShowTypingIndicator, stopTts } = useChatStore(
     useShallow((state) => ({
       silentMode: state.silentMode,
       currentChatState: state.currentChatState,
       setCurrentChatState: state.setCurrentChatState,
       setProcessingMessageId: state.setProcessingMessageId,
       setShowTypingIndicator: state.setShowTypingIndicator,
+      stopTts: state.stopTts,
     }))
   );
 
@@ -41,7 +40,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   const messages = data?.pages.flatMap((page) => page.data).reverse() ?? [];
 
-  const ttsCallbacks = useWebSocketAudioPlayer({
+  const { ttsCallbacks } = useWebSocketAudioPlayer({
     onPlaybackEnd: () => setCurrentChatState(ChatState.Idle),
   });
 
@@ -56,7 +55,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
   useUnmount(() => {
     streamPlayer.disconnect();
     streamRecorder.disconnect();
-    stop();
+    stopTts();
   });
 
   const onProcessEvent = useCallback(
@@ -95,7 +94,7 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   useEffect(() => {
     if (silentMode && currentChatState === ChatState.avatarSpeaking) {
-      stop();
+      stopTts();
       setCurrentChatState(ChatState.Idle);
     }
   }, [silentMode]);

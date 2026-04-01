@@ -23,6 +23,9 @@ interface ChatStore {
   setMicAccess: (hasAccess: boolean) => void;
   setTalkMode: (talkMode: boolean) => void;
 
+  stopTts: () => void;
+  setStopTts: (fn: () => void) => void;
+
   initChatStore: () => void;
   resetChatStore: () => void;
 }
@@ -48,6 +51,9 @@ export const useChatStore = create<ChatStore>()(
         }),
 
       setTalkMode: (talkMode) => set({ talkMode }),
+
+      stopTts: () => {},
+      setStopTts: (fn) => set({ stopTts: fn }),
 
       requestMicAccess: async () => {
         try {

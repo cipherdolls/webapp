@@ -9,7 +9,6 @@ import { useState, useEffect } from 'react';
 import AvatarVoiceVisualizer from '~/components/chat/AvatarVoiceVisualizer';
 import * as Button from '~/components/ui/button/button';
 import useVoiceRecorder from '~/hooks/useVoiceRecorder';
-import { useAudioPlayerContext } from 'react-use-audio-player';
 import { useUnmount } from 'usehooks-ts';
 import { useStreamRecorder } from '~/hooks/useStreamRecorder';
 import { useStreamPlayer } from '~/hooks/useStreamPlayer';
@@ -36,7 +35,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     }))
   );
 
-  const ttsCallbacks = useWebSocketAudioPlayer({
+  const { ttsCallbacks, stopTts } = useWebSocketAudioPlayer({
     onPlaybackEnd: () => {
       setCurrentChatState(ChatState.userSpeaking);
       setJobsDone({ stt: false, chat: false, tts: false });
@@ -68,7 +67,6 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     },
   });
 
-  const { stop, isPlaying } = useAudioPlayerContext();
 
   useChatEvents(chat.id, {
     onProcessEvent: (event) => {
@@ -96,7 +94,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
     recorder.stop();
     streamPlayer.disconnect();
     streamRecorder.disconnect();
-    stop();
+    stopTts();
     setCurrentChatState(ChatState.Idle);
   });
 
@@ -118,7 +116,7 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
                 isProcessing={currentChatState !== ChatState.userSpeaking}
               />
             </div>
-            <AvatarVoiceVisualizer avatar={avatar} isPlaying={isPlaying} className='relative shrink-0 z-10' />
+            <AvatarVoiceVisualizer avatar={avatar} isPlaying={currentChatState === ChatState.avatarSpeaking} className='relative shrink-0 z-10' />
           </div>
         </div>
         <div className='p-5 flex items-center justify-center gap-5'>

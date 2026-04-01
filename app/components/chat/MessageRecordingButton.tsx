@@ -8,7 +8,6 @@ import { cn } from '~/utils/cn';
 import { useChatStore } from '~/store/useChatStore';
 import { useAlert } from '~/providers/AlertDialogProvider';
 import { useShallow } from 'zustand/react/shallow';
-import { useAudioPlayerContext } from 'react-use-audio-player';
 import type { UseStreamRecorderReturn } from '~/hooks/useStreamRecorder';
 
 interface MessageRecordingButtonProps {
@@ -29,7 +28,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ disable
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const { stop } = useAudioPlayerContext();
+  const stopTts = useChatStore((state) => state.stopTts);
   const alert = useAlert();
 
   const isRecording = currentChatState === ChatState.userSpeaking;
@@ -56,7 +55,7 @@ const MessageRecordingButton: React.FC<MessageRecordingButtonProps> = ({ disable
       }
 
       setCurrentChatState(ChatState.userSpeaking);
-      stop();
+      stopTts();
 
       streamRecorder.startRecording();
 
