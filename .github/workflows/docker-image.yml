@@ -34,7 +34,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: docker service update
+      - name: docker stack deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           username: root
@@ -42,7 +42,6 @@ jobs:
           key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker service update --image ghcr.io/cipherdolls/webapp:main --force prod_webapp
-
-
+            docker stack deploy -c ~/devops/hostinger/prod-stack.yaml prod --with-registry-auth --resolve-image always
+            docker image prune -f --filter "until=24h"
 
