@@ -178,6 +178,7 @@ export interface TtsVoice {
   gender: Gender;
   language?: TtsLanguage;
   audio?: Audio;
+  _count?: { avatars: number };
 }
 
 export interface ScenariosPaginated {

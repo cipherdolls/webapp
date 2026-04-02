@@ -224,6 +224,11 @@ export default function TtsProvidersIndex() {
                                     {languageFlags[voice.language] ?? voice.language}
                                   </div>
                                 )}
+                                {voice._count && voice._count.avatars > 0 && (
+                                  <div className='flex items-center gap-1 bg-neutral-05 py-1 px-1.5 rounded-full text-label font-semibold flex-shrink-0'>
+                                    used by {voice._count.avatars} {voice._count.avatars === 1 ? 'Avatar' : 'Avatars'}
+                                  </div>
+                                )}
                                 <RecommendedBadge recommended={voice.recommended} tooltipText='Recommended' />
                               </span>
                             </div>
