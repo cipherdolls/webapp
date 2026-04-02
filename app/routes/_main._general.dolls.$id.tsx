@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate } from 'react-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ProcessEvent } from '~/types';
 import type { Route } from './+types/_main._general.dolls.$id';
@@ -17,6 +17,7 @@ import { ROUTES } from '~/constants';
 import ErrorPage from '~/components/ErrorPage';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 import { cn } from '~/utils/cn';
+import { useUploadPicture, useDeletePicture } from '~/hooks/queries/pictureMutations';
 
 interface DollMetrics {
   recording: number;
@@ -41,8 +42,13 @@ export default function DollShow({ params }: Route.ComponentProps) {
   const confirm = useConfirm();
   const alert = useAlert();
   const queryClient = useQueryClient();
+  const { mutate: uploadPicture, isPending: isUploading } = useUploadPicture();
+  const { mutate: deletePicture, isPending: isDeleting } = useDeletePicture();
   const isOwner = user?.id === doll?.userId;
   const [metrics, setMetrics] = useState<DollMetrics | null>(null);
+  const pictureInputRef = useRef<HTMLInputElement | null>(null);
+  const [picturePreview, setPicturePreview] = useState<string | null>(null);
+  const [selectedPictureFile, setSelectedPictureFile] = useState<File | null>(null);
 
   useDollEvents(params.id, {
     onProcessEvent: useCallback(
@@ -219,22 +225,104 @@ export default function DollShow({ params }: Route.ComponentProps) {
           </div>
 
           <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px] w-full'>
-            <label className='sm:h-60 h-[263px] w-full bg-neutral-04 sm:bg-gradient-1 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
-              {doll.picture ? (
-                <div className='size-full'>
-                  <img
-                    src={getPicture(doll, 'dolls', false)}
-                    srcSet={getPicture(doll, 'dolls', true)}
-                    alt={doll.name || 'Doll'}
-                    className='size-full object-cover rounded-lg'
-                  />
-                </div>
-              ) : (
-                <div className='flex items-center justify-center size-full'>
-                  <Icons.fileUploadIcon />
-                </div>
-              )}
-            </label>
+            <div className='relative'>
+              <input
+                ref={pictureInputRef}
+                type='file'
+                accept='image/*'
+                className='hidden'
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setSelectedPictureFile(file);
+                    setPicturePreview(URL.createObjectURL(file));
+                  }
+                }}
+              />
+              <div className='sm:h-60 h-[263px] w-full bg-neutral-04 sm:bg-gradient-1 flex flex-col justify-end items-center gap-3.5 rounded-xl relative overflow-hidden'>
+                {picturePreview ? (
+                  <div className='size-full'>
+                    <img
+                      src={picturePreview}
+                      alt='Preview'
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
+                ) : doll.picture ? (
+                  <div className='size-full'>
+                    <img
+                      src={getPicture(doll, 'dolls', false)}
+                      srcSet={getPicture(doll, 'dolls', true)}
+                      alt={doll.name || 'Doll'}
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className='flex items-center justify-center size-full cursor-pointer hover:opacity-80 transition-opacity'
+                    onClick={() => pictureInputRef.current?.click()}
+                  >
+                    <Icons.fileUploadIcon />
+                  </div>
+                )}
+
+                {doll.picture && !picturePreview && isOwner && (
+                  <div className='absolute top-2 right-2 flex gap-2'>
+                    <button
+                      type='button'
+                      className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors'
+                      onClick={() => pictureInputRef.current?.click()}
+                    >
+                      <Icons.pen className='size-4' />
+                    </button>
+                    <button
+                      type='button'
+                      className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-specials-danger text-white transition-colors'
+                      disabled={isDeleting}
+                      onClick={() => {
+                        if (doll.picture && typeof doll.picture === 'object') {
+                          deletePicture(doll.picture.id);
+                        }
+                      }}
+                    >
+                      <Icons.trash className='size-4' />
+                    </button>
+                  </div>
+                )}
+
+                {picturePreview && (
+                  <div className='absolute bottom-2 left-2 right-2 flex gap-2'>
+                    <Button.Root
+                      variant='secondary'
+                      size='sm'
+                      className='flex-1 bg-white/90 backdrop-blur-sm'
+                      onClick={() => { setPicturePreview(null); setSelectedPictureFile(null); }}
+                    >
+                      Cancel
+                    </Button.Root>
+                    <Button.Root
+                      size='sm'
+                      className='flex-1'
+                      disabled={isUploading}
+                      onClick={() => {
+                        if (!selectedPictureFile) return;
+                        const formData = new FormData();
+                        formData.append('file', selectedPictureFile);
+                        formData.append('dollId', doll.id);
+                        uploadPicture(formData, {
+                          onSuccess: () => {
+                            setPicturePreview(null);
+                            setSelectedPictureFile(null);
+                          },
+                        });
+                      }}
+                    >
+                      {isUploading ? 'Uploading...' : 'Upload'}
+                    </Button.Root>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

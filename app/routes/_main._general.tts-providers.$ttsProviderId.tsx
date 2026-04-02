@@ -47,7 +47,7 @@ const ttsVoiceColumns: Array<TTableColumn<TtsVoice>> = [
       const params = useParams();
       return (
         <div className='flex items-center gap-4'>
-          <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(data.id)} />
+          {data.audio && <PlayerButton variant='secondary' audioSrc={PATHS.audio(data.audio.id)} />}
           <Link to={`/tts-providers/${params.ttsProviderId}/ttsVoice/${data.id}/edit`} className='hover:opacity-50 transition-colors'>
             <Icons.pen />
           </Link>

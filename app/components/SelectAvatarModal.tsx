@@ -26,22 +26,15 @@ const SelectAvatarModal = ({ avatars, scenario, triggerContent }: SelectAvatarMo
     const existingScenarioIds = Array.isArray(avatar.scenarios) ? avatar.scenarios.map((s) => s.id) : [];
     const scenarioIds = [...existingScenarioIds, scenario.id];
 
-    const formData = new FormData();
-    
-    // Add all the basic fields
-    formData.append('name', avatar.name);
-    formData.append('shortDesc', avatar.shortDesc);
-    formData.append('character', avatar.character);
-    formData.append('ttsVoiceId', avatar.ttsVoiceId);
-    formData.append('gender', avatar.gender || '');
-    formData.append('published', String(avatar.published));
-    
-    // Add each scenario ID as a separate field to create an array
-    scenarioIds.forEach((scenarioId) => {
-      formData.append('scenarioIds', scenarioId);
-    });
-
-    updateAvatar({ avatarId: avatar.id, formData });
+    updateAvatar({ avatarId: avatar.id, data: {
+      name: avatar.name,
+      shortDesc: avatar.shortDesc,
+      character: avatar.character,
+      ttsVoiceId: avatar.ttsVoiceId,
+      gender: avatar.gender || '',
+      published: avatar.published,
+      scenarioIds,
+    } });
   };
 
   return (

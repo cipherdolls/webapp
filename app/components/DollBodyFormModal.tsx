@@ -3,9 +3,8 @@ import * as Button from '~/components/ui/button/button';
 import * as Input from '~/components/ui/input/input';
 import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '~/utils/cn';
-import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import * as Modal from '~/components/ui/new-modal';
 import type { DollBody } from '~/types';
@@ -23,38 +22,10 @@ const DollBodyFormModal = ({ dollBody, onSubmit, isPending, onClose, errors }: D
   const { data: avatarsPaginated, isLoading: avatarsLoading } = useAvatars({ published: 'true', limit: '100' });
   const avatars = avatarsPaginated?.data || [];
 
-  const [picture, setPicture] = useState<string | null>(dollBody?.picture ?? null);
   const defaultAvatarId = dollBody?.avatar?.id || '';
-  const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const isNew = !dollBody;
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setPicture(imageUrl);
-    }
-  };
-
-  const handleLabelClick = (e: React.MouseEvent) => {
-    if (preventFileOpen) {
-      e.preventDefault();
-      setPreventFileOpen(false);
-    }
-  };
-
-  const handleTrashClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setPicture(null);
-    setPreventFileOpen(true);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   const handleClose = () => {
     onClose && onClose();
@@ -122,46 +93,6 @@ const DollBodyFormModal = ({ dollBody, onSubmit, isPending, onClose, errors }: D
                 isExpanded ? 'flex-1 pb-5 h-full -mx-4 px-4 overflow-auto scrollbar-medium' : 'w-full'
               )}
             >
-            <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-5' : 'mb-10')}>
-              <div className='relative'>
-                <label
-                  className='bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative size-40'
-                  onClick={handleLabelClick}
-                >
-                  <input ref={fileInputRef} className='hidden' type='file' name='picture' accept='image/*' onChange={handleImageChange} />
-                  {picture !== null ? (
-                    <div className='size-full'>
-                      <img
-                        src={picture.startsWith('blob:') ? picture : dollBody ? getPicture(dollBody, 'doll-bodies', false) : '/default-avatar.png'}
-                        srcSet={!picture.startsWith('blob:') && dollBody ? getPicture(dollBody, 'doll-bodies', true) : undefined}
-                        alt={dollBody?.name || 'Doll Body'}
-                        className='size-full object-cover rounded-lg'
-                      />
-                    </div>
-                  ) : (
-                    <div className='flex items-center justify-center size-full'>
-                      <Icons.fileUploadIcon />
-                    </div>
-                  )}
-                </label>
-                <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
-                  <div className='flex items-center justify-between w-full'>
-                    <div className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'>
-                      {picture !== null && (
-                        <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={handleTrashClick}>
-                          <Icons.trash className='text-black' />
-                        </button>
-                      )}
-                      {(picture || dollBody?.picture) && <div className='h-6 w-px bg-neutral-04' />}
-                      <button type='button' className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60' onClick={() => fileInputRef.current?.click()}>
-                        <Icons.fileUpload />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className='grid grid-cols-1 gap-4'>
               <Input.Root>
                 <Input.Label htmlFor='name'>Name</Input.Label>

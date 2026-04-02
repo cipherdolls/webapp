@@ -126,7 +126,8 @@ const Avatars = ({ avatars }: { avatars: any }) => {
   };
 
   const handlePlayVoice = async (avatar: Avatar) => {
-    load(PATHS.avatarAudio(avatar.id), {
+    if (!avatar.audio) return;
+    load(PATHS.audio(avatar.audio.id), {
       autoplay: true,
       initialVolume: 1,
       format: 'mp3',

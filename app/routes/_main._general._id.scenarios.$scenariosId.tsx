@@ -14,7 +14,7 @@ import { formatDate } from '~/utils/date.utils';
 import SelectAvatarModal from '~/components/SelectAvatarModal';
 
 import Jazzicon from 'react-jazzicon';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useAvatars } from '~/hooks/queries/avatarQueries';
 import { useScenario } from '~/hooks/queries/scenarioQueries';
 import { useDeleteScenario } from '~/hooks/queries/scenarioMutations';
@@ -28,6 +28,7 @@ import SponsorshipSection from '~/components/SponsorshipSection';
 import ModelTabsCard from '~/components/ModelTabsCard';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useUploadPicture, useDeletePicture } from '~/hooks/queries/pictureMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Scenario Details' }];
@@ -41,9 +42,15 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
   const { data: sponsorshipsData } = useSponsorships({ scenarioId: params.scenariosId });
   const { mutate: deleteScenario } = useDeleteScenario();
   const { mutate: createChat } = useCreateChat();
+  const { mutate: uploadPicture, isPending: isUploading } = useUploadPicture();
+  const { mutate: deletePicture, isPending: isDeleting } = useDeletePicture();
   const alert = useAlert();
   const { data: currentUser } = useUser();
   const { isUsingBurnerWallet } = useAuthStore();
+
+  const pictureInputRef = useRef<HTMLInputElement | null>(null);
+  const [picturePreview, setPicturePreview] = useState<string | null>(null);
+  const [selectedPictureFile, setSelectedPictureFile] = useState<File | null>(null);
 
   const mineAvatars = useMemo(() => mineAvatarsData?.data || [], [mineAvatarsData]);
   const scenario = useMemo(() => scenarioData || null, [scenarioData]);
@@ -308,8 +315,29 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
 
           <div className='flex size-full flex-col gap-5 md:pl-4 md:max-w-[360px]'>
             <div className='relative'>
-              <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
-                {scenario.picture ? (
+              <input
+                ref={pictureInputRef}
+                type='file'
+                accept='image/*'
+                className='hidden'
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setSelectedPictureFile(file);
+                    setPicturePreview(URL.createObjectURL(file));
+                  }
+                }}
+              />
+              <div className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative overflow-hidden'>
+                {picturePreview ? (
+                  <div className='size-full'>
+                    <img
+                      src={picturePreview}
+                      alt='Preview'
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
+                ) : scenario.picture ? (
                   <div className='size-full'>
                     <img
                       src={getPicture(scenario, 'scenarios', false)}
@@ -319,17 +347,77 @@ export default function ScenariosId({ params }: Route.ComponentProps) {
                     />
                   </div>
                 ) : (
-                  <div className='flex items-center justify-center size-full'>
+                  <div
+                    className='flex items-center justify-center size-full cursor-pointer hover:opacity-80 transition-opacity'
+                    onClick={() => pictureInputRef.current?.click()}
+                  >
                     <Icons.fileUploadIcon />
                   </div>
                 )}
+
                 {scenario.type === 'ROLEPLAY' && (
                   <div className='absolute top-2 left-2 z-10 flex items-center gap-1 bg-purple-500/90 backdrop-blur-sm py-1 pl-1.5 pr-2 rounded-full text-label text-white font-semibold'>
                     🎭
                     <span>Roleplay</span>
                   </div>
                 )}
-              </label>
+
+                {scenario.picture && !picturePreview && (me.id === scenario.userId || me.role === 'ADMIN') && (
+                  <div className='absolute top-2 right-2 flex gap-2'>
+                    <button
+                      type='button'
+                      className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors'
+                      onClick={() => pictureInputRef.current?.click()}
+                    >
+                      <Icons.pen className='size-4' />
+                    </button>
+                    <button
+                      type='button'
+                      className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-specials-danger text-white transition-colors'
+                      disabled={isDeleting}
+                      onClick={() => {
+                        if (scenario.picture && typeof scenario.picture === 'object') {
+                          deletePicture(scenario.picture.id);
+                        }
+                      }}
+                    >
+                      <Icons.trash className='size-4' />
+                    </button>
+                  </div>
+                )}
+
+                {picturePreview && (
+                  <div className='absolute bottom-2 left-2 right-2 flex gap-2'>
+                    <Button.Root
+                      variant='secondary'
+                      size='sm'
+                      className='flex-1 bg-white/90 backdrop-blur-sm'
+                      onClick={() => { setPicturePreview(null); setSelectedPictureFile(null); }}
+                    >
+                      Cancel
+                    </Button.Root>
+                    <Button.Root
+                      size='sm'
+                      className='flex-1'
+                      disabled={isUploading}
+                      onClick={() => {
+                        if (!selectedPictureFile) return;
+                        const formData = new FormData();
+                        formData.append('file', selectedPictureFile);
+                        formData.append('scenarioId', scenario.id);
+                        uploadPicture(formData, {
+                          onSuccess: () => {
+                            setPicturePreview(null);
+                            setSelectedPictureFile(null);
+                          },
+                        });
+                      }}
+                    >
+                      {isUploading ? 'Uploading...' : 'Upload'}
+                    </Button.Root>
+                  </div>
+                )}
+              </div>
             </div>
             <ModelTabsCard
               chatModel={scenario.chatModel}

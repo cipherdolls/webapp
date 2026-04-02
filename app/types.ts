@@ -158,6 +158,14 @@ export interface TtsProvider {
 
 export type TtsLanguage = 'en' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ru' | 'ja' | 'zh' | 'ko' | 'multilingual';
 
+export interface Audio {
+  id: string;
+}
+
+export interface Picture {
+  id: string;
+}
+
 export interface TtsVoice {
   id: string;
   name: string;
@@ -168,6 +176,7 @@ export interface TtsVoice {
   createdAt: Date;
   gender: Gender;
   language?: TtsLanguage;
+  audio?: Audio;
 }
 
 export interface ScenariosPaginated {
@@ -180,7 +189,7 @@ export interface Scenario {
   createdAt: Date;
   updatedAt: Date;
   systemMessage: string;
-  picture: string;
+  picture?: Picture | null;
   name: string;
   temperature: number;
   topP: number;
@@ -402,8 +411,9 @@ export interface Avatar {
   id: string;
   name: string;
   shortDesc: string;
-  picture: string;
+  picture?: Picture | null;
   character: string;
+  introduction?: string;
   ttsVoiceId: string;
   userId: string;
   free: boolean;
@@ -415,7 +425,7 @@ export interface Avatar {
   role: string;
   _count: AvatarCount;
   ttsVoice: TtsVoice;
-  introductionAudio: string;
+  audio?: Audio | null;
   chats?: [
     {
       id: string;
@@ -442,6 +452,7 @@ export interface FillerWord {
   text: string;
   fileName: string | null;
   avatarId: string;
+  audio?: Audio;
 }
 
 export interface FillerWordsPaginated {

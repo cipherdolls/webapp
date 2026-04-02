@@ -5,7 +5,7 @@ import * as Textarea from '~/components/ui/input/textarea';
 import Multiselect from '~/components/ui/input/multiselect';
 import PlayerButton from '~/components/PlayerButton';
 import { PATHS } from '~/constants';
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { cn } from '~/utils/cn';
 import { getPicture } from '~/utils/getPicture';
 import ErrorsBox from '~/components/ui/input/errorsBox';
@@ -23,7 +23,7 @@ import { AnimatePresence, motion } from 'motion/react';
 
 interface AvatarEditModalProps {
   avatar?: Avatar;
-  onSubmit: (formData: FormData) => void;
+  onSubmit: (data: Record<string, any>) => void;
   isPending: boolean;
   onClose: () => void;
   errors?: Error | null;
@@ -37,14 +37,11 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
 
   const [avatarData, setAvatarData] = useState({
     ttsVoice: avatar?.ttsVoice || null,
-    picture: avatar?.picture ?? null,
     scenarios: Array.isArray(avatar?.scenarios) ? avatar.scenarios : [],
     published: avatar?.published || false,
     gender: avatar?.gender || ('' as Gender | ''),
   });
 
-  const [preventFileOpen, setPreventFileOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVoiceListExpanded, setIsVoiceListExpanded] = useState(false);
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<'All' | Gender>('All');
@@ -105,33 +102,6 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   };
   const availableLanguages = Object.keys(languageFlags) as TtsLanguage[];
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      updateAvatarData('picture', imageUrl);
-    }
-  };
-
-  const handleLabelClick = (e: React.MouseEvent) => {
-    if (preventFileOpen) {
-      e.preventDefault();
-      setPreventFileOpen(false);
-      return;
-    }
-  };
-
-  const handleTrashClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    updateAvatarData('picture', null);
-
-    setPreventFileOpen(true);
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   const handlePublishConfirm = () => {
     updateAvatarData('published', true);
@@ -144,7 +114,21 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    onSubmit(formData);
+    // Collect scenarioIds from the array field
+    const scenarioIds = formData.getAll('scenarioIds[]').map(String);
+    // Build plain object from scalar fields
+    const data: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key === 'scenarioIds[]' || key === 'avatarId' || key === 'picture') return;
+      data[key] = value;
+    });
+    if (scenarioIds.length > 0) data.scenarioIds = scenarioIds;
+    // Convert boolean strings
+    if (data.published === 'true') data.published = true;
+    if (data.published === 'false') data.published = false;
+    if (data.recommended === 'true') data.recommended = true;
+    if (data.recommended === 'false') data.recommended = false;
+    onSubmit(data);
   }
 
   return (
@@ -172,7 +156,7 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
           </button>
         </div>
         <Modal.Description className='sr-only'>{avatar ? 'Edit avatar' : 'Create new avatar'}</Modal.Description>
-        <form onSubmit={handleSubmit} encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
+        <form onSubmit={handleSubmit} className='flex flex-col flex-1 overflow-hidden -mx-8 px-8'>
           <Modal.Body
             className={cn(
               'flex gap-4 md:gap-6 flex-1 overflow-auto scrollbar-medium -mx-8 px-8 [scrollbar-gutter:stable]',
@@ -205,80 +189,6 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                 isExpanded ? 'flex-1 pb-5 h-full -mx-4 px-4 overflow-auto scrollbar-medium' : 'w-full'
               )}
             >
-              <div className={cn('flex flex-col items-center justify-center', isExpanded ? 'mb-5' : 'mb-10')}>
-                <div className='relative'>
-                  <label
-                    className={cn(
-                      'bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl cursor-pointer relative',
-                      isExpanded ? 'size-32' : 'size-40'
-                    )}
-                    onClick={handleLabelClick}
-                  >
-                    <input ref={fileInputRef} className='hidden' type='file' name='picture' accept='image/*' onChange={handleImageChange} />
-                    {avatarData.picture !== null ? (
-                      <div className='size-full'>
-                        <img
-                          src={
-                            avatarData.picture.startsWith('blob:')
-                              ? avatarData.picture
-                              : avatar
-                                ? getPicture(avatar, 'avatars', false)
-                                : '/default-avatar.png'
-                          }
-                          srcSet={!avatarData.picture.startsWith('blob:') && avatar ? getPicture(avatar, 'avatars', true) : undefined}
-                          alt={avatar?.name || 'Avatar'}
-                          className='size-full object-cover rounded-lg'
-                        />
-                      </div>
-                    ) : (
-                      <div className='flex items-center justify-center size-full'>
-                        <Icons.fileUploadIcon />
-                      </div>
-                    )}
-                  </label>
-                  <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
-                    <div className='flex items-center justify-between w-full'>
-                      <div
-                        className={cn(
-                          'py-2 px-5 flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full',
-                          (avatarData.picture || avatar?.picture) && 'divide-x divide-neutral-04 gap-4'
-                        )}
-                      >
-                        {avatarData.picture !== null && (
-                          <button type='button' className='pr-4 relative z-10' onClick={handleTrashClick}>
-                            <Icons.trash className='text-black' />
-                          </button>
-                        )}
-                        <Icons.fileUpload className='cursor-pointer' onClick={() => fileInputRef.current?.click()} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='absolute z-10 bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2'>
-                    <div className='flex items-center justify-between w-full'>
-                      <div className='flex items-center justify-center bg-base-white shadow-bottom-level-2 rounded-full overflow-hidden'>
-                        {avatarData.picture !== null && (
-                          <button
-                            type='button'
-                            className=' py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
-                            onClick={handleTrashClick}
-                          >
-                            <Icons.trash className='text-black' />
-                          </button>
-                        )}
-                        {(avatarData.picture || avatar?.picture) && <div className='h-6 w-px bg-neutral-04' />}
-                        <button
-                          type='button'
-                          className='py-2 px-5 relative z-10 duration-300 transition-opacity hover:opacity-60'
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Icons.fileUpload />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div className='grid grid-cols-1 gap-4'>
                 <Input.Root>
                   <Input.Label htmlFor='name'>Name</Input.Label>
@@ -303,6 +213,20 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                   />
                 </Input.Root>
               </div>
+
+              <Textarea.Root>
+                <Textarea.Label htmlFor='introduction'>Introduction</Textarea.Label>
+                <Textarea.Wrapper>
+                  <Textarea.Textarea
+                    className='w-full border border-neutral-04 py-3.5 px-3 text-base-black scrollbar-medium'
+                    id='introduction'
+                    name='introduction'
+                    placeholder='A short introduction line for audio generation'
+                    defaultValue={avatar?.introduction ?? ''}
+                    rows={3}
+                  />
+                </Textarea.Wrapper>
+              </Textarea.Root>
 
               {!isExpanded && (
                 <Textarea.Root>
@@ -429,11 +353,11 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
 
                 {!isVoiceListExpanded && avatarData.ttsVoice && (
                   <div className='voice-gradient py-3 px-4 rounded-xl flex items-center gap-4 shadow-regular'>
-                    <PlayerButton
+                    {avatarData.ttsVoice.audio && <PlayerButton
                       variant='white'
                       className='shrink-0 shadow-bottom-level-1'
-                      audioSrc={PATHS.ttsVoice(avatarData.ttsVoice.id)}
-                    />
+                      audioSrc={PATHS.audio(avatarData.ttsVoice.audio.id)}
+                    />}
                     <div className='flex flex-col gap-1 flex-1 min-w-0'>
                       <p className='text-body-lg font-semibold text-base-black truncate'>{avatarData.ttsVoice.name}</p>
                       <span className='text-body-md text-neutral-01 truncate flex items-center gap-1.5'>
@@ -503,11 +427,11 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                                     )}
                                     onClick={() => handleVoiceChange(voice)}
                                   >
-                                    <PlayerButton
+                                    {voice.audio && <PlayerButton
                                       variant='white'
                                       className='shrink-0 shadow-bottom-level-1'
-                                      audioSrc={PATHS.ttsVoice(voice.id)}
-                                    />
+                                      audioSrc={PATHS.audio(voice.audio.id)}
+                                    />}
                                     <div className='flex flex-col gap-1 flex-1 text-left min-w-0'>
                                       <p className='text-body-lg font-semibold text-base-black line-clamp-1'>{voice.name}</p>
                                       <span className='text-body-md text-neutral-01 capitalize flex items-center gap-1.5'>
@@ -677,11 +601,11 @@ function FillerWordsSection({ avatarId }: { avatarId: string }) {
               key={fw.id}
               className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-05 rounded-lg text-body-sm font-medium'
             >
-              {fw.fileName && (
+              {fw.audio && (
                 <PlayerButton
                   variant='white'
                   className='size-6 shadow-none'
-                  audioSrc={PATHS.fillerWordAudio(fw.id)}
+                  audioSrc={PATHS.audio(fw.audio.id)}
                 />
               )}
               {fw.text}

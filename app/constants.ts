@@ -34,9 +34,8 @@ export const API_ENDPOINTS = {
 };
 
 export const PATHS = {
-  ttsVoice: (id: string) => `${apiUrl}/tts-voices/${id}/audio`,
-  avatarAudio: (id: string) => `${apiUrl}/avatars/${id}/audio`,
-  fillerWordAudio: (id: string) => `${apiUrl}/filler-words/${id}/audio`,
+  audio: (id: string) => `${apiUrl}/audios/${id}/audio.mp3`,
+  audioByEntity: (entityType: string, entityId: string) => `${apiUrl}/audios/by/${entityType}/${entityId}/audio.mp3`,
 };
 
 export const ROUTES = {

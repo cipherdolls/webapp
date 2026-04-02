@@ -13,7 +13,7 @@ import Table from '~/components/Table';
 import { useInfiniteAiProviders } from '~/hooks/queries/aiProviderQueries';
 import SearchAiProviders from '~/components/ui/search-ai-providers';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useDeleteAiProvider } from '~/hooks/queries/aiProviderMutations';
 import { useConfirm } from '~/providers/AlertDialogProvider';
 import type { AiProvider } from '~/types';
@@ -134,24 +134,26 @@ const AiProvidersTab = () => {
                     />
                   }
                 >
-                  <div className='size-6'>
-                    <img
-                      src={getPicture(aiProvider, 'ai-providers', false)}
-                      srcSet={getPicture(aiProvider, 'ai-providers', true)}
-                      alt={aiProvider.name}
-                      className='size-full object-cover rounded-lg'
-                    />
-                  </div>
-                  <div className='flex items-center gap-1'>
-                    {aiProvider.name}
-                    <InformationBadge
-                      tooltipText='High-speed AI for real-time apps and chatbots'
-                      side={{
-                        default: 'top',
-                        lg: 'right',
-                      }}
-                    />
-                  </div>
+                  <Link to={`/ai-providers/${aiProvider.id}`} className='flex items-center gap-2 hover:opacity-80 transition-opacity'>
+                    <div className='size-6'>
+                      <img
+                        src={getPicture(aiProvider, 'ai-providers', false)}
+                        srcSet={getPicture(aiProvider, 'ai-providers', true)}
+                        alt={aiProvider.name}
+                        className='size-full object-cover rounded-lg'
+                      />
+                    </div>
+                    <div className='flex items-center gap-1'>
+                      {aiProvider.name}
+                    </div>
+                  </Link>
+                  <InformationBadge
+                    tooltipText='High-speed AI for real-time apps and chatbots'
+                    side={{
+                      default: 'top',
+                      lg: 'right',
+                    }}
+                  />
                 </DataCard.Label>
 
                 {/* CHAT MODELS WRAPPER */}

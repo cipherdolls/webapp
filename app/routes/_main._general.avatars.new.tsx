@@ -20,8 +20,8 @@ export default function AvatarNew() {
     error: createAvatarError,
   } = useCreateAvatar();
 
-  const handleSubmit = (formData: FormData) => {
-    createAvatar(formData, {
+  const handleSubmit = (data: Record<string, any>) => {
+    createAvatar(data, {
       onSuccess: (newAvatarData) => {
         navigate(`${ROUTES.avatars}/${newAvatarData.id}`);
       },

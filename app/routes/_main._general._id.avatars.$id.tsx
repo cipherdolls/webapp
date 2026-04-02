@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate, useRouteLoaderData } from 'react-router';
 import type { Route } from './+types/_main._general._id.avatars.$id';
 import { Icons } from '~/components/ui/icons';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { getPicture } from '~/utils/getPicture';
 import { PATHS, ROUTES, TOKEN_BALANCE } from '~/constants';
@@ -23,6 +23,7 @@ import { useDeleteAvatar } from '~/hooks/queries/avatarMutations';
 import { useConfirm, useAlert } from '~/providers/AlertDialogProvider';
 import { useAuthStore } from '~/store/useAuthStore';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useUploadPicture, useDeletePicture } from '~/hooks/queries/pictureMutations';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Avatars' }];
@@ -35,11 +36,16 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
   const { mutate: createChat } = useCreateChat();
   const { data: ttsProvider, isLoading: isTtsProviderLoading } = useTtsProvider(avatar?.ttsVoice.ttsProviderId || '');
   const { mutate: deleteAvatar } = useDeleteAvatar();
+  const { mutate: uploadPicture, isPending: isUploading } = useUploadPicture();
+  const { mutate: deletePicture, isPending: isDeleting } = useDeletePicture();
   const confirm = useConfirm();
   const alert = useAlert();
   const { data: currentUser } = useUser();
   const { isUsingBurnerWallet } = useAuthStore();
 
+  const pictureInputRef = useRef<HTMLInputElement | null>(null);
+  const [picturePreview, setPicturePreview] = useState<string | null>(null);
+  const [selectedPictureFile, setSelectedPictureFile] = useState<File | null>(null);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasMinimumTokens = isUsingBurnerWallet || (currentUser?.tokenSpendable || 0) >= TOKEN_BALANCE.MINIMUM_SPENDABLE;
 
@@ -331,8 +337,29 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
 
           <div className='flex flex-col gap-10 md:pl-4 md:max-w-[310px] w-full'>
             <div className='relative'>
-              <label className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative'>
-                {avatar.picture ? (
+              <input
+                ref={pictureInputRef}
+                type='file'
+                accept='image/*'
+                className='hidden'
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setSelectedPictureFile(file);
+                    setPicturePreview(URL.createObjectURL(file));
+                  }
+                }}
+              />
+              <div className='sm:h-60 h-[263px] w-full bg-none sm:bg-transparent bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex flex-col justify-end items-center gap-3.5 rounded-xl relative overflow-hidden'>
+                {picturePreview ? (
+                  <div className='size-full'>
+                    <img
+                      src={picturePreview}
+                      alt='Preview'
+                      className='size-full object-cover rounded-lg'
+                    />
+                  </div>
+                ) : avatar.picture ? (
                   <div className='size-full'>
                     <img
                       src={getPicture(avatar, 'avatars', false)}
@@ -342,14 +369,73 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                     />
                   </div>
                 ) : (
-                  <div className='flex items-center justify-center size-full min-w-[294px]'>
+                  <div
+                    className='flex items-center justify-center size-full min-w-[294px] cursor-pointer hover:opacity-80 transition-opacity'
+                    onClick={() => pictureInputRef.current?.click()}
+                  >
                     <Icons.fileUploadIcon />
                   </div>
                 )}
-              </label>
-              <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
-                {avatar.introductionAudio && (
-                  <PlayerButton variant='white' className='shadow-bottom-level-1' audioSrc={PATHS.avatarAudio(avatar.id)} />
+
+                {avatar.picture && !picturePreview && (avatar.userId === user.id || user.role === 'ADMIN') && (
+                  <div className='absolute top-2 right-2 flex gap-2'>
+                    <button
+                      type='button'
+                      className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors'
+                      onClick={() => pictureInputRef.current?.click()}
+                    >
+                      <Icons.pen className='size-4' />
+                    </button>
+                    <button
+                      type='button'
+                      className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-specials-danger text-white transition-colors'
+                      disabled={isDeleting}
+                      onClick={() => {
+                        if (avatar.picture && typeof avatar.picture === 'object') {
+                          deletePicture(avatar.picture.id);
+                        }
+                      }}
+                    >
+                      <Icons.trash className='size-4' />
+                    </button>
+                  </div>
+                )}
+
+                {picturePreview && (
+                  <div className='absolute bottom-2 left-2 right-2 flex gap-2'>
+                    <Button.Root
+                      variant='secondary'
+                      size='sm'
+                      className='flex-1 bg-white/90 backdrop-blur-sm'
+                      onClick={() => { setPicturePreview(null); setSelectedPictureFile(null); }}
+                    >
+                      Cancel
+                    </Button.Root>
+                    <Button.Root
+                      size='sm'
+                      className='flex-1'
+                      disabled={isUploading}
+                      onClick={() => {
+                        if (!selectedPictureFile) return;
+                        const formData = new FormData();
+                        formData.append('file', selectedPictureFile);
+                        formData.append('avatarId', avatar.id);
+                        uploadPicture(formData, {
+                          onSuccess: () => {
+                            setPicturePreview(null);
+                            setSelectedPictureFile(null);
+                          },
+                        });
+                      }}
+                    >
+                      {isUploading ? 'Uploading...' : 'Upload'}
+                    </Button.Root>
+                  </div>
+                )}
+                {avatar.audio && !picturePreview && (
+                  <div className='absolute bottom-3 left-1/2 -translate-x-1/2 z-10'>
+                    <PlayerButton className='bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm' audioSrc={PATHS.audio(avatar.audio.id)} />
+                  </div>
                 )}
               </div>
             </div>

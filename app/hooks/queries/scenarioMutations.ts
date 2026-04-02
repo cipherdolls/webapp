@@ -7,10 +7,11 @@ export function useCreateScenario() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async (data: Record<string, any>) => {
       const response = await fetchWithAuth('scenarios', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -30,10 +31,11 @@ export function useUpdateScenario() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ scenarioId, formData }: { scenarioId: string; formData: FormData }) => {
+    mutationFn: async ({ scenarioId, data }: { scenarioId: string; data: Record<string, any> }) => {
       const response = await fetchWithAuth(`scenarios/${scenarioId}`, {
         method: 'PATCH',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {

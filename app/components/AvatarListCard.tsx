@@ -60,7 +60,7 @@ const AvatarListCard = ({ avatar, isUsersAvatar }: AvatarListCardProps) => {
             <p className='text-body-md text-neutral-01 truncate'>{avatar.shortDesc}</p>
           </div>
           <div className='flex items-center gap-3'>
-            {avatar.introductionAudio && <PlayerButton variant='secondary' audioSrc={PATHS.avatarAudio(avatar.id)} />}
+            {avatar.audio && <PlayerButton variant='secondary' audioSrc={PATHS.audio(avatar.audio.id)} />}
 
             <ChatSelectionWizard mode='avatar-to-scenario' avatar={avatar}>
               <Button.Root size='sm' className='px-5'>

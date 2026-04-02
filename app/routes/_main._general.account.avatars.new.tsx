@@ -16,8 +16,8 @@ export default function AccountAvatarNew() {
   };
   const { mutate: createAvatar, isPending: createAvatarIsPending, error: createAvatarError } = useCreateAvatar();
 
-  const handleSubmit = (formData: FormData) => {
-    createAvatar(formData, {
+  const handleSubmit = (data: Record<string, any>) => {
+    createAvatar(data, {
       onSuccess: (newAvatarData) => {
         navigate(`${ROUTES.avatars}/${newAvatarData.id}`);
       },

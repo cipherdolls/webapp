@@ -25,9 +25,9 @@ export default function ScenarioEdit({ params }: Route.ComponentProps) {
     navigate(`${ROUTES.scenarios}/${scenario.id}`);
   };
 
-  const handleSubmit = (formData: FormData) => {
+  const handleSubmit = (data: Record<string, any>) => {
     updateScenario(
-      { scenarioId: scenario.id, formData },
+      { scenarioId: scenario.id, data },
       {
         onSuccess: () => {
           navigate(`${ROUTES.scenarios}/${scenario.id}`);

@@ -207,7 +207,7 @@ export default function TtsProvidersIndex() {
                         <div key={voice.id}>
                           <div className='group flex items-center justify-between gap-3 p-3 transition-colors duration-300 cursor-pointer rounded-lg hover:bg-neutral-05'>
                             <div className='flex items-center gap-3 flex-1 min-w-0'>
-                              <PlayerButton variant='secondary' audioSrc={PATHS.ttsVoice(voice.id)} />
+                              {voice.audio && <PlayerButton variant='secondary' audioSrc={PATHS.audio(voice.audio.id)} />}
                               <span className='font-semibold text-body-md flex items-center gap-2 truncate'>
                                 <span className='truncate'>{voice.name}</span>
                                 {voice.gender === 'Female' ? (

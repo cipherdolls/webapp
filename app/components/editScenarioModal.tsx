@@ -76,8 +76,9 @@ const EditScenarioModal = ({ scenario, aiProviders, refetch }: EditScenarioModal
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
+    const data: Record<string, any> = Object.fromEntries(formData.entries());
     setIsOpen(false)
-    updateScenario({ scenarioId: scenario.id, formData },
+    updateScenario({ scenarioId: scenario.id, data },
       {
         onSuccess: () => {
           refetch()
@@ -113,7 +114,7 @@ const EditScenarioModal = ({ scenario, aiProviders, refetch }: EditScenarioModal
         </div>
 
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
-        <form encType='multipart/form-data' className='w-full flex flex-col mt-[18px] h-full' onSubmit={handleSubmit}>
+        <form className='w-full flex flex-col mt-[18px] h-full' onSubmit={handleSubmit}>
           <input type='hidden' name='name' value={scenario.name} />
           {scenario.embeddingModel && <input type='hidden' name='embeddingModelId' value={scenario.embeddingModel.id} />}
           {scenario.reasoningModel && <input type='hidden' name='reasoningModelId' value={scenario.reasoningModel.id} />}

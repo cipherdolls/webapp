@@ -1,6 +1,6 @@
 import { useUserEvents } from '~/hooks/useUserEvents';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import type { Avatar, Chat, Message, ProcessEvent, User } from '~/types';
+import type { Avatar, Chat, Message, Picture, ProcessEvent, User } from '~/types';
 import { showToast } from '~/components/ui/toast';
 import { Icons } from '~/components/ui/icons';
 
@@ -13,6 +13,7 @@ const GlobalSubscriber = ({ userId }: { userId: string }) => {
       handleMessageEvent(queryClient, processEvent);
       handleChatEvent(queryClient, processEvent);
       handleAvatarEvent(queryClient, processEvent);
+      handlePictureEvent(queryClient, processEvent);
     },
     onActionEvent: (_actionEvent) => {},
   });
@@ -171,4 +172,40 @@ const handleAvatarEvent = (qc: QueryClient, e: ProcessEvent) => {
 
     return old;
   });
+};
+
+const handlePictureEvent = (qc: QueryClient, e: ProcessEvent) => {
+  if (e.resourceName !== 'Picture' || !e.resourceAttributes) return;
+
+  const attrs = e.resourceAttributes as Partial<Picture>;
+
+  // Invalidate parent entity queries so they refetch with the updated picture
+  if (attrs.avatarId) {
+    qc.invalidateQueries({ queryKey: ['avatar', attrs.avatarId] });
+    qc.invalidateQueries({ queryKey: ['avatars'] });
+  }
+  if (attrs.dollId) {
+    qc.invalidateQueries({ queryKey: ['doll', attrs.dollId] });
+    qc.invalidateQueries({ queryKey: ['dolls'] });
+  }
+  if (attrs.scenarioId) {
+    qc.invalidateQueries({ queryKey: ['scenario', attrs.scenarioId] });
+    qc.invalidateQueries({ queryKey: ['scenarios'] });
+  }
+  if (attrs.aiProviderId) {
+    qc.invalidateQueries({ queryKey: ['aiProvider', attrs.aiProviderId] });
+    qc.invalidateQueries({ queryKey: ['aiProviders'] });
+  }
+  if (attrs.sttProviderId) {
+    qc.invalidateQueries({ queryKey: ['sttProvider', attrs.sttProviderId] });
+    qc.invalidateQueries({ queryKey: ['sttProviders'] });
+  }
+  if (attrs.ttsProviderId) {
+    qc.invalidateQueries({ queryKey: ['ttsProvider', attrs.ttsProviderId] });
+    qc.invalidateQueries({ queryKey: ['ttsProviders'] });
+  }
+  if (attrs.dollBodyId) {
+    qc.invalidateQueries({ queryKey: ['dollBody', attrs.dollBodyId] });
+    qc.invalidateQueries({ queryKey: ['dollBodies'] });
+  }
 };

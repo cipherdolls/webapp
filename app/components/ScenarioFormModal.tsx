@@ -1,5 +1,4 @@
 import { useRouteLoaderData } from 'react-router';
-import { getPicture } from '~/utils/getPicture';
 import type { Avatar, Gender, Scenario, ScenarioType, User } from '~/types';
 import * as Button from '~/components/ui/button/button';
 import { Icons } from '~/components/ui/icons';
@@ -8,7 +7,7 @@ import * as Textarea from '~/components/ui/input/textarea';
 import * as Select from '~/components/ui/input/select';
 import * as Slider from '~/components/ui/slider';
 import Multiselect from '~/components/ui/input/multiselect';
-import { Fragment, useMemo, useRef, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { cn } from '~/utils/cn';
 import ErrorsBox from '~/components/ui/input/errorsBox';
 import { formatModelName } from '~/utils/formatModelName';
@@ -20,7 +19,7 @@ import { useAiProviders } from '~/hooks/queries/aiProviderQueries';
 interface ScenarioFormModalProps {
   scenario?: Scenario;
   onClose: () => void;
-  onSubmit: (formData: FormData) => void;
+  onSubmit: (data: Record<string, any>) => void;
   isLoading?: boolean;
   errors?: Error | null;
 }
@@ -55,9 +54,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const aiProviders = useMemo(() => aiProvidersData?.data || [], [aiProvidersData]);
 
   const me = useRouteLoaderData('routes/_main') as User;
-  const [selectedImage, setSelectedImage] = useState<string | null>(scenario?.picture ?? null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [preventFileOpen, setPreventFileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getRecommendedModelId = (modelType: 'chatModel' | 'embeddingModel' | 'reasoningModel'): string => {
@@ -84,7 +80,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const defaultReasoningModelId = useMemo(() => scenario?.reasoningModel?.id ?? 'none', [scenario, aiProviders]);
 
   const [scenarioData, setScenarioData] = useState({
-    picture: scenario?.picture ?? null,
     published: scenario?.published ?? false,
     nsfw: scenario?.nsfw ?? false,
     type: scenario?.type ?? ('NORMAL' as ScenarioType),
@@ -105,34 +100,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
   const updateScenarioData = (field: keyof typeof scenarioData, value: any) => {
     setScenarioData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-    }
-  };
-
-  const handleLabelClick = (e: React.MouseEvent) => {
-    if (preventFileOpen) {
-      e.preventDefault();
-      setPreventFileOpen(false);
-      return;
-    }
-  };
-
-  const handleTrashClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setSelectedImage(null);
-
-    setPreventFileOpen(true);
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   const handleClose = () => {
@@ -171,9 +138,27 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    if (formData.get('embeddingModelId') === 'none') formData.delete('embeddingModelId');
-    if (formData.get('reasoningModelId') === 'none') formData.delete('reasoningModelId');
-    onSubmit(formData);
+    // Build plain object, skipping non-body fields
+    const data: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key === 'avatarIds[]' || key === 'scenarioId' || key === 'picture' || key === 'action') return;
+      data[key] = value;
+    });
+    if (data.embeddingModelId === 'none') delete data.embeddingModelId;
+    if (data.reasoningModelId === 'none') delete data.reasoningModelId;
+    // Convert numeric strings
+    if (data.temperature) data.temperature = Number(data.temperature);
+    if (data.topP) data.topP = Number(data.topP);
+    if (data.frequencyPenalty) data.frequencyPenalty = Number(data.frequencyPenalty);
+    if (data.presencePenalty) data.presencePenalty = Number(data.presencePenalty);
+    // Convert boolean strings
+    if (data.published === 'true') data.published = true;
+    if (data.published === 'false') data.published = false;
+    if (data.nsfw === 'true') data.nsfw = true;
+    if (data.nsfw === 'false') data.nsfw = false;
+    if (data.free === 'true') data.free = true;
+    if (data.free === 'false') data.free = false;
+    onSubmit(data);
   };
 
   return (
@@ -201,7 +186,7 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
           </button>
         </div>
         <Modal.Description className='sr-only'>Edit scenario</Modal.Description>
-        <form encType='multipart/form-data' className='flex flex-col flex-1 overflow-hidden -mx-8 px-8' onSubmit={handleSubmit}>
+        <form className='flex flex-col flex-1 overflow-hidden -mx-8 px-8' onSubmit={handleSubmit}>
           <input type='hidden' name='temperature' value={scenarioData.temperature} />
           <input type='hidden' name='topP' value={scenarioData.topP} />
           <input type='hidden' name='frequencyPenalty' value={scenarioData.frequencyPenalty} />
@@ -296,33 +281,6 @@ const ScenarioFormModal = ({ scenario, onClose, onSubmit, errors, isLoading }: S
 
 
               <div className='flex gap-4 items-start'>
-                <div className='shrink-0'>
-                  <div className='relative'>
-                    <label
-                      className='size-[82px] bg-neutral-04 sm:bg-gradient-1 sm:backdrop-blur-48 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden'
-                      onClick={handleLabelClick}
-                    >
-                      <input
-                        ref={fileInputRef}
-                        className='hidden'
-                        type='file'
-                        name='picture'
-                        accept='image/*'
-                        onChange={handleImageChange}
-                      />
-                      {selectedImage !== null ? (
-                        <img
-                          src={selectedImage.startsWith('blob:') ? selectedImage : getPicture(scenario, 'scenarios', false)}
-                          srcSet={!selectedImage.startsWith('blob:') ? getPicture(scenario, 'scenarios', true) : undefined}
-                          alt={scenario?.name ? scenarioData.name : 'Scenario image'}
-                          className='size-full object-cover'
-                        />
-                      ) : (
-                        <Icons.fileUploadIcon className='size-5' />
-                      )}
-                    </label>
-                  </div>
-                </div>
                 <Input.Root className='flex-1'>
                   <Input.Label htmlFor='name'>Name</Input.Label>
                   <Input.Input

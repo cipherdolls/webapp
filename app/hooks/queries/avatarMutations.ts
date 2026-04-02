@@ -7,10 +7,11 @@ export function useCreateAvatar() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async (data: Record<string, any>) => {
       const response = await fetchWithAuth('avatars', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -30,10 +31,11 @@ export function useUpdateAvatar() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({avatarId, formData}: {avatarId: string, formData: FormData}) => {
+    mutationFn: async ({avatarId, data}: {avatarId: string, data: Record<string, any>}) => {
       const response = await fetchWithAuth(`avatars/${avatarId}`, {
         method: 'PATCH',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {

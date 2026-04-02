@@ -16,8 +16,8 @@ export default function AccountScenarioNew() {
     navigate(ROUTES.account);
   };
 
-  const handleSubmit = (formData: FormData) => {
-    createScenario(formData, {
+  const handleSubmit = (data: Record<string, any>) => {
+    createScenario(data, {
       onSuccess: (newScenarioData) => {
         navigate(`${ROUTES.scenarios}/${newScenarioData.id}`);
       },

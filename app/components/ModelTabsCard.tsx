@@ -31,9 +31,7 @@ const ModelTabsCard: React.FC<ModelTabsCardProps> = ({
   frequencyPenalty,
   presencePenalty,
 }) => {
-  const [activeTab, setActiveTab] = useState<TabValue>('chat');
-
-  const tabs: Array<{ value: TabValue; label: string; model: ChatModel | EmbeddingModel | null | undefined; hasError: boolean }> = [
+  const allTabs: Array<{ value: TabValue; label: string; model: ChatModel | EmbeddingModel | null | undefined; hasError: boolean }> = [
     {
       value: 'chat',
       label: 'Chat',
@@ -54,6 +52,11 @@ const ModelTabsCard: React.FC<ModelTabsCardProps> = ({
     },
   ];
 
+  const tabs = allTabs.filter((tab) => !!tab.model);
+  const [activeTab, setActiveTab] = useState<TabValue>(tabs[0]?.value ?? 'chat');
+
+  if (tabs.length === 0) return null;
+
   return (
     <DetailCard isScenario title='AI Models'>
       <Tabs.Root value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)}>
@@ -62,16 +65,13 @@ const ModelTabsCard: React.FC<ModelTabsCardProps> = ({
             <Tabs.Trigger
               key={tab.value}
               value={tab.value}
-              disabled={!tab.model}
               className='relative flex-1 py-2 text-body-sm font-medium transition-all duration-200
                 data-[state=active]:text-base-black data-[state=inactive]:text-neutral-01
                 border-b-2 data-[state=active]:border-base-black data-[state=inactive]:border-transparent
                 data-[state=inactive]:hover:text-neutral-02
-                disabled:opacity-40 disabled:cursor-not-allowed
                 flex items-center justify-center gap-1.5'
             >
               {tab.label}
-              {!tab.model && <span className='text-xs text-neutral-02'>(N/A)</span>}
               {tab.hasError && <Icons.warning className='size-3.5 text-specials-danger' />}
             </Tabs.Trigger>
           ))}

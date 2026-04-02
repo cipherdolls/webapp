@@ -167,16 +167,13 @@ const ChatsSidebar = ({ chats, avatars, isChatsLoading }: ChatsSidebarProps) => 
                               )
                             )}
                           >
-                            {chat.scenario.picture ? (
-                              <img
-                                src={getPicture(chat.scenario, 'scenarios', false)}
-                                srcSet={getPicture(chat.scenario, 'scenarios', true)}
-                                alt={chat.scenario.name}
-                                className='size-10 object-cover rounded-full'
-                              />
-                            ) : (
-                              <Icons.fileUploadIcon className='size-10 rounded-full border p-0.5 border-neutral-04 ' />
-                            )}
+                            <img
+                              src={getPicture(chat.scenario, 'scenarios', false)}
+                              srcSet={getPicture(chat.scenario, 'scenarios', true)}
+                              alt={chat.scenario.name}
+                              className='size-10 object-cover rounded-full'
+                            />
+
 
                             <div className='flex flex-col'>
                               <div className='flex items-center gap-3'>
