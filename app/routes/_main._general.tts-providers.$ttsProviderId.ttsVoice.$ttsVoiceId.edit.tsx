@@ -27,7 +27,12 @@ export default function TtsVoiceEdit({ params }: Route.ComponentProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const jsonData = Object.fromEntries(formData.entries());
+    const jsonData: Record<string, any> = {};
+    for (const [key, value] of formData.entries()) {
+      if (key === 'ttsVoiceId') continue;
+      jsonData[key] = value;
+    }
+    jsonData.recommended = formData.has('recommended');
     updateTtsVoice({ ttsVoiceId, jsonData }, {
       onSuccess: handleClose,
     });

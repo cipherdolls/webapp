@@ -46,7 +46,12 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    const jsonData = Object.fromEntries(formData);
+    const jsonData: Record<string, any> = {};
+    for (const [key, value] of formData.entries()) {
+      if (key === 'embeddingModelId') continue;
+      jsonData[key] = value;
+    }
+    jsonData.recommended = formData.has('recommended');
     updateEmbeddingModel(
       { embeddingModelId: params.id, jsonData },
       {
@@ -69,7 +74,7 @@ export default function EmbeddingModelEdit({ params }: Route.ComponentProps) {
             <Modal.Description className='sr-only'>
               Edit Embedding Model for {formatModelName(embeddingModel.providerModelName)}
             </Modal.Description>
-            <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+            <form onSubmit={handleSubmit} className='w-full flex flex-col mt-[18px]'>
               <Modal.Body className='flex flex-col gap-5'>
                 <ErrorsBox errors={updateEmbeddingModelError} />
                 <input type='hidden' name='embeddingModelId' value={embeddingModel.id} />

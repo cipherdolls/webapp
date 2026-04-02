@@ -42,6 +42,7 @@ export default function NewEmbeddingModel() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const jsonData: Record<string, any> = Object.fromEntries(formData);
+    jsonData.recommended = formData.has('recommended');
     createEmbeddingModel(jsonData, {
       onSuccess: () => handleClose(),
     });
@@ -57,7 +58,7 @@ export default function NewEmbeddingModel() {
       <Modal.Content>
         <Modal.Title>Add Embedding Model for {name}</Modal.Title>
         <Modal.Description className='sr-only'>Add Embedding Model for {name}</Modal.Description>
-        <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+        <form onSubmit={handleSubmit} className='w-full flex flex-col mt-[18px]'>
           <Modal.Body className='flex flex-col gap-5'>
             <ErrorsBox errors={errors} />
             <input type='hidden' name='aiProviderId' value={aiProviderId} />

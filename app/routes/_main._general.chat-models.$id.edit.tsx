@@ -47,7 +47,13 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    const jsonData: Record<string, any> = Object.fromEntries(formData);
+    const jsonData: Record<string, any> = {};
+    for (const [key, value] of formData.entries()) {
+      if (key === 'chatModelId') continue;
+      jsonData[key] = value;
+    }
+    jsonData.recommended = jsonData.recommended === 'true';
+    jsonData.censored = jsonData.censored === 'true';
     updateChatModel(
       { chatModelId: params.id, jsonData },
       {
@@ -68,7 +74,7 @@ export default function ChatModelEdit({ params }: Route.ComponentProps) {
           <>
             <Modal.Title>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Title>
             <Modal.Description className='sr-only'>Edit Chat Model for {formatModelName(chatModel.providerModelName)}</Modal.Description>
-            <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+            <form onSubmit={handleSubmit} className='w-full flex flex-col mt-[18px]'>
               <Modal.Body className='flex flex-col gap-5'>
                 <ErrorsBox errors={updateChatModelError} />
                 <input type='hidden' name='chatModelId' value={chatModel.id} />

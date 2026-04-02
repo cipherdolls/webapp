@@ -6,10 +6,11 @@ export function useCreateTtsProvider() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async (jsonData: Record<string, any>) => {
       const res = await fetchWithAuth('tts-providers', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData),
       });
       if (!res.ok) {
         await handleApiError(res);
@@ -26,10 +27,11 @@ export function useUpdateTtsProvider() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ ttsProviderId, formatData }: { ttsProviderId: string; formatData: FormData }) => {
+    mutationFn: async ({ ttsProviderId, jsonData }: { ttsProviderId: string; jsonData: Record<string, any> }) => {
       const res = await fetchWithAuth(`tts-providers/${ttsProviderId}`, {
         method: 'PATCH',
-        body: formatData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData),
       });
       if (!res.ok) {
         await handleApiError(res);

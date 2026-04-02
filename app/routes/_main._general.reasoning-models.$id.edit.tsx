@@ -28,7 +28,8 @@ export default function ReasoningModelEdit({ params }: Route.ComponentProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    const jsonData = Object.fromEntries(formData);
+    const jsonData: Record<string, any> = Object.fromEntries(formData);
+    jsonData.recommended = formData.has('recommended');
     updateReasoningModel(
       { reasoningModelId: params.id, jsonData },
       {
@@ -51,7 +52,7 @@ export default function ReasoningModelEdit({ params }: Route.ComponentProps) {
             <Modal.Description className='sr-only'>
               Edit Reasoning Model for {formatModelName(reasoningModel?.providerModelName)}
             </Modal.Description>
-            <form onSubmit={handleSubmit} encType='multipart/form-data' className='w-full flex flex-col mt-[18px]'>
+            <form onSubmit={handleSubmit} className='w-full flex flex-col mt-[18px]'>
               <Modal.Body className='flex flex-col gap-5'>
                 <ErrorsBox errors={errors} />
                 <input type='hidden' name='reasoningModelId' value={reasoningModel.id} />

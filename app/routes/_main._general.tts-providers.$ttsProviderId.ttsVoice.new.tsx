@@ -26,7 +26,8 @@ export default function TtsVoiceNew({ params }: Route.ComponentProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const jsonData = Object.fromEntries(formData.entries());
+    const jsonData: Record<string, any> = Object.fromEntries(formData.entries());
+    jsonData.recommended = formData.has('recommended');
     createTtsVoice(jsonData, {
       onSuccess: () => {
         navigate(`/tts-providers/${ttsProviderId}`);
