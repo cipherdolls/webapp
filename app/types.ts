@@ -149,6 +149,7 @@ export interface TtsProvider {
   id: string;
   name: string;
   dollarPerCharacter: number;
+  exampleVoiceText: string;
   picture?: string;
   ttsVoices: TtsVoice[];
   hostname?: string;

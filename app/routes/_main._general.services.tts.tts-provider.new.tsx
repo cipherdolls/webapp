@@ -146,6 +146,18 @@ export default function TtsProviderNew() {
                 placeholder='0'
               />
             </Input.Root>
+            <Input.Root>
+              <Input.Label id='exampleVoiceText' htmlFor='exampleVoiceText'>
+                Example voice text
+              </Input.Label>
+              <Input.Input
+                className='text-base-black py-3.5 px-3'
+                id='exampleVoiceText'
+                name='exampleVoiceText'
+                type='text'
+                placeholder='Hello, this is a test.'
+              />
+            </Input.Root>
             <div className='flex items-center gap-2'>
               <Checkbox.Root
                 className='flex size-4.5 appearance-none items-center justify-center rounded-full border border-neutral-03 data-[state=checked]:bg-base-black bg-transparent outline-none focus:shadow-neutral-02'
