@@ -3,7 +3,7 @@ import { useChatStore } from '~/store/useChatStore';
 import { ChatState } from '~/components/chat/types/chatState';
 import type { UseStreamPlayerOptions } from './useStreamPlayer';
 
-const PCM_SAMPLE_RATE = 16000;
+const PCM_SAMPLE_RATE = 24000;
 const BYTES_PER_SAMPLE = 2; // 16-bit PCM
 
 export interface UseWebSocketAudioPlayerOptions {
