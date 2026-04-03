@@ -24,6 +24,8 @@ export function useWebSocketAudioPlayer(options: UseWebSocketAudioPlayerOptions 
   const streamEndedRef = useRef(false);
   const activeSourcesRef = useRef(0);
   const leftoverRef = useRef<Uint8Array | null>(null);
+  const chunkCountRef = useRef(0);
+  const ttsStartTimeRef = useRef(0);
 
   const cleanup = useCallback(() => {
     if (audioContextRef.current) {
@@ -84,6 +86,9 @@ export function useWebSocketAudioPlayer(options: UseWebSocketAudioPlayerOptions 
       streamEndedRef.current = false;
       activeSourcesRef.current = 0;
       leftoverRef.current = null;
+      chunkCountRef.current = 0;
+      ttsStartTimeRef.current = performance.now();
+      console.log(`[TTS] Stream started`);
     },
     [cleanup]
   );
@@ -111,6 +116,10 @@ export function useWebSocketAudioPlayer(options: UseWebSocketAudioPlayerOptions 
       }
 
       if (data.byteLength >= BYTES_PER_SAMPLE) {
+        chunkCountRef.current++;
+        if (chunkCountRef.current === 1) {
+          console.log(`[TTS] First audio chunk received: ${Math.round(performance.now() - ttsStartTimeRef.current)}ms after tts_start, size=${data.byteLength} bytes`);
+        }
         const aligned = new ArrayBuffer(data.byteLength);
         new Uint8Array(aligned).set(data);
         scheduleChunk(aligned);
@@ -120,6 +129,7 @@ export function useWebSocketAudioPlayer(options: UseWebSocketAudioPlayerOptions 
   );
 
   const onTtsEnd = useCallback((_messageId: string) => {
+    console.log(`[TTS] Stream ended: ${chunkCountRef.current} chunks, total ${Math.round(performance.now() - ttsStartTimeRef.current)}ms`);
     streamEndedRef.current = true;
     leftoverRef.current = null;
     if (activeSourcesRef.current === 0) {
