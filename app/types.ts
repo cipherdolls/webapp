@@ -237,6 +237,7 @@ export interface Chat {
     chatCompletionJobs: number;
   };
   tts: boolean;
+  active: boolean;
   action: string;
   sttProvider?: SttProvider;
   sttProviderId: string;

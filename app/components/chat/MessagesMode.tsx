@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useStreamRecorder } from '~/hooks/useStreamRecorder';
 import { useStreamPlayer } from '~/hooks/useStreamPlayer';
 import { useWebSocketAudioPlayer } from '~/hooks/useWebSocketAudioPlayer';
+import { useActivateChat } from '~/hooks/useActivateChat';
 
 interface MessagesModeProps {
   chat: Chat;
@@ -46,6 +47,8 @@ const MessagesMode = ({ chat, avatar }: MessagesModeProps) => {
 
   const streamPlayer = useStreamPlayer(chat.id, ttsCallbacks);
   const streamRecorder = useStreamRecorder(chat.id);
+
+  useActivateChat(chat, streamPlayer.isConnected);
 
   useEffect(() => {
     streamPlayer.connect().catch((err) => console.error('[MessagesMode] Stream player connect failed', err));

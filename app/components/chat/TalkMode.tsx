@@ -13,6 +13,7 @@ import { useUnmount } from 'usehooks-ts';
 import { useStreamRecorder } from '~/hooks/useStreamRecorder';
 import { useStreamPlayer } from '~/hooks/useStreamPlayer';
 import { useWebSocketAudioPlayer } from '~/hooks/useWebSocketAudioPlayer';
+import { useActivateChat } from '~/hooks/useActivateChat';
 
 interface TalkModeProps {
   chat: Chat;
@@ -44,6 +45,8 @@ const TalkMode = ({ chat, avatar }: TalkModeProps) => {
 
   const streamPlayer = useStreamPlayer(chat.id, ttsCallbacks);
   const streamRecorder = useStreamRecorder(chat.id);
+
+  useActivateChat(chat, streamPlayer.isConnected);
 
   useEffect(() => {
     streamPlayer.connect().catch((err) => console.error('[TalkMode] Stream player connect failed', err));
