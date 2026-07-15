@@ -15,6 +15,12 @@ const SidebarItems = [
     icon: Icons.chats,
   },
   {
+    name: 'Groups',
+    href: ROUTES.groups,
+    icon: ({ className }: { className?: string }) => <Layers className={cn('text-[#350D2A]/40', className)} size={20} />,
+    hideOnMobile: true,
+  },
+  {
     name: 'Avatars',
     href: ROUTES.avatars,
     icon: Icons.users,
@@ -34,12 +40,6 @@ const SidebarItems = [
     name: 'Doll Bodies',
     href: ROUTES.dollBodies,
     icon: Icons.chip,
-    hideOnMobile: true,
-  },
-  {
-    name: 'Groups',
-    href: ROUTES.groups,
-    icon: ({ className }: { className?: string }) => <Layers className={cn('text-[#350D2A]/40', className)} size={20} />,
     hideOnMobile: true,
   },
   {
