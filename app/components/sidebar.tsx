@@ -18,7 +18,6 @@ const SidebarItems = [
     name: 'Groups',
     href: ROUTES.groups,
     icon: ({ className }: { className?: string }) => <Layers className={cn('text-[#350D2A]/40', className)} size={20} />,
-    hideOnMobile: true,
   },
   {
     name: 'Avatars',
