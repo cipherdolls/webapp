@@ -226,6 +226,25 @@ export interface Sponsorship {
   user?: User;
 }
 
+export interface Group {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  slug: string;
+  title?: string | null;
+  description?: string | null;
+  picture: { id: string } | null;
+  published: boolean;
+  userId: string;
+  avatars?: Avatar[];
+  scenarios?: Scenario[];
+  _count?: {
+    avatars: number;
+    scenarios: number;
+  };
+}
+
 export interface Chat {
   id: string;
   userId: string;

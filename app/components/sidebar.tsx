@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router';
 import { useMemo, useCallback } from 'react';
-import { BookOpenText } from 'lucide-react';
+import { BookOpenText, Layers } from 'lucide-react';
 import { Icons, type IconProps } from './ui/icons';
 import { cn } from '~/utils/cn';
 import { ViewMore } from '~/view-more';
@@ -34,6 +34,12 @@ const SidebarItems = [
     name: 'Doll Bodies',
     href: ROUTES.dollBodies,
     icon: Icons.chip,
+    hideOnMobile: true,
+  },
+  {
+    name: 'Groups',
+    href: ROUTES.groups,
+    icon: ({ className }: { className?: string }) => <Layers className={cn('text-[#350D2A]/40', className)} size={20} />,
     hideOnMobile: true,
   },
   {

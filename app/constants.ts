@@ -48,6 +48,8 @@ export const ROUTES = {
   dolls: '/dolls',
   dollBodies: '/doll-bodies',
   dollBodiesNew: '/doll-bodies/new',
+  groups: '/groups',
+  groupsNew: '/groups/new',
   account: '/account',
   accountAvatarsNew: '/account/avatars/new',
   accountScenariosNew: '/account/scenarios/new',
