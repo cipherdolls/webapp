@@ -123,6 +123,9 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
       data[key] = value;
     });
     if (scenarioIds.length > 0) data.scenarioIds = scenarioIds;
+    // Don't send an empty appearance on create (no picture to generate);
+    // on edit an empty value clears the field.
+    if (isNew && typeof data.appearance === 'string' && data.appearance.trim() === '') delete data.appearance;
     // Convert boolean strings
     if (data.published === 'true') data.published = true;
     if (data.published === 'false') data.published = false;
@@ -213,6 +216,23 @@ const AvatarEditModal = ({ avatar, onSubmit, isPending, onClose, errors }: Avata
                   />
                 </Input.Root>
               </div>
+
+              <Textarea.Root>
+                <Textarea.Label htmlFor='appearance'>Appearance</Textarea.Label>
+                <Textarea.Wrapper>
+                  <Textarea.Textarea
+                    className='w-full border border-neutral-04 py-3.5 px-3 text-base-black scrollbar-medium'
+                    id='appearance'
+                    name='appearance'
+                    placeholder='e.g. young woman with long copper-red hair, green eyes, light freckles, casual denim jacket'
+                    defaultValue={avatar?.appearance ?? ''}
+                    rows={3}
+                  />
+                </Textarea.Wrapper>
+                <p className='text-xs text-gray-500'>
+                  Visual description (hair, eyes, skin, clothing). The avatar picture is AI-generated from this — changing it creates a new picture.
+                </p>
+              </Textarea.Root>
 
               <Textarea.Root>
                 <Textarea.Label htmlFor='introduction'>Introduction</Textarea.Label>
