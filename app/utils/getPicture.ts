@@ -70,7 +70,10 @@ export const getPicture = <T extends object>(
 ) => {
   const sizes = getSizes(sizeType);
 
-  if (item && item.picture && forType) {
+  // Doll bodies carry a picture gallery (`pictures`); other entities a single `picture`.
+  const hasPicture = item && (item.picture || item.pictures?.length);
+
+  if (item && hasPicture && forType) {
     let images = `${apiUrl}/pictures/by/${forType}/${item.id}/picture.webp?x=${sizes.x}&y=${sizes.y}`;
 
     if (forSrcSet) {
@@ -83,7 +86,7 @@ export const getPicture = <T extends object>(
     }
     return images;
   }
-  if (!item || !item.picture) {
+  if (!item || !hasPicture) {
     let images = `https://placehold.co/${sizes.x}x${sizes.y}?text=No+Picture`;
 
     if (forSrcSet) {
