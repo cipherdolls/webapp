@@ -301,13 +301,10 @@ export interface DollBody {
   createdAt: Date;
   updatedAt: Date;
   name: string;
+  // Hardware information only — the character's look lives on the avatar.
   description: string;
-  // Visual description used for image generation (virtual bodies carry the look).
-  appearance: string | null;
-  virtual: boolean;
-  ttiStyleId: string | null;
   userId: string;
-  // Gallery — newest first; the first picture is the cover.
+  // Real photos of the physical body (gallery, newest first).
   pictures?: { id: string; createdAt: Date }[];
   productUrl: string | null;
   avatar: Avatar;
@@ -439,8 +436,13 @@ export interface Avatar {
   id: string;
   name: string;
   shortDesc: string;
+  // AI-generated pictures (gallery, newest first = the avatar's face).
+  pictures?: { id: string; createdAt?: Date }[];
   picture?: Picture | null;
   character: string;
+  // Visual description used for image generation; changing it regenerates the picture.
+  appearance?: string | null;
+  ttiStyleId?: string | null;
   introduction?: string;
   ttsVoiceId: string;
   userId: string;

@@ -159,7 +159,7 @@ export default function ChatEdit({ loaderData, params }: Route.ComponentProps) {
                 className='flex-shrink-0 flex flex-col backdrop-blur-48 bg-gradient-1 rounded-xl overflow-hidden'
               >
                 <div className='w-full h-[263px] flex items-center justify-center rounded-xl bg-neutral-04'>
-                  {chat.avatar.picture ? (
+                  {(chat.avatar.picture || chat.avatar.pictures?.length) ? (
                     <img
                       src={getPicture(chat.avatar, 'avatars', false)}
                       srcSet={getPicture(chat.avatar, 'avatars', true)}

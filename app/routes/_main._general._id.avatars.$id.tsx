@@ -359,7 +359,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                       className='size-full object-cover rounded-lg'
                     />
                   </div>
-                ) : avatar.picture ? (
+                ) : avatar.pictures?.[0] ? (
                   <div className='size-full'>
                     <img
                       src={getPicture(avatar, 'avatars', false)}
@@ -377,7 +377,7 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                   </div>
                 )}
 
-                {avatar.picture && !picturePreview && (avatar.userId === user.id || user.role === 'ADMIN') && (
+                {avatar.pictures?.[0] && !picturePreview && (avatar.userId === user.id || user.role === 'ADMIN') && (
                   <div className='absolute top-2 right-2 flex gap-2'>
                     <button
                       type='button'
@@ -391,8 +391,8 @@ export default function AvatarShow({ params }: Route.ComponentProps) {
                       className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-specials-danger text-white transition-colors'
                       disabled={isDeleting}
                       onClick={() => {
-                        if (avatar.picture && typeof avatar.picture === 'object') {
-                          deletePicture(avatar.picture.id);
+                        if (avatar.pictures?.[0]) {
+                          deletePicture(avatar.pictures[0].id);
                         }
                       }}
                     >

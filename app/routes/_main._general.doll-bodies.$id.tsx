@@ -32,8 +32,8 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
   const { mutate: uploadPicture, isPending: isUploading } = useUploadPicture();
   const { mutate: deletePicture, isPending: isDeleting } = useDeletePicture();
   const isAdmin = user?.role === 'ADMIN';
-  // Owners manage their virtual bodies; physical product bodies stay admin-only.
-  const canManage = isAdmin || (!!dollBody?.virtual && user?.id === dollBody?.userId);
+  // Physical hardware products are admin-managed.
+  const canManage = isAdmin;
   const [activeTab, setActiveTab] = useState<'firmware' | 'configure'>('firmware');
   const pictureInputRef = useRef<HTMLInputElement | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
@@ -147,13 +147,6 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
               <div className='bg-gradient-1 rounded-xl p-5'>
                 <h4 className='text-heading-h4 text-base-black mb-3'>Description</h4>
                 <p className='text-body-md text-neutral-01 whitespace-pre-wrap'>{dollBody.description}</p>
-              </div>
-            )}
-
-            {dollBody.appearance && (
-              <div className='bg-gradient-1 rounded-xl p-5'>
-                <h4 className='text-heading-h4 text-base-black mb-3'>Appearance</h4>
-                <p className='text-body-md text-neutral-01 whitespace-pre-wrap'>{dollBody.appearance}</p>
               </div>
             )}
 
