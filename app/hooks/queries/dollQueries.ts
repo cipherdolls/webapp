@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { fetchWithAuth } from '~/utils/fetchWithAuth';
 import type { Doll, DollBody, Paginated } from '~/types';
 
@@ -45,6 +45,22 @@ export function useDollBodies(page = 1, limit = 20) {
     queryFn: async () => {
       const response = await fetchResource<Paginated<DollBody>>(`doll-bodies?page=${page}&limit=${limit}`);
       return response.data;
+    },
+  });
+}
+
+export function useInfiniteDollBodies(limit = 20) {
+  return useInfiniteQuery({
+    queryKey: ['dollBodies', 'infinite', limit],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam = 1 }) => {
+      return fetchResource<Paginated<DollBody>>(`doll-bodies?page=${pageParam}&limit=${limit}`);
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage?.meta?.page && lastPage?.meta?.totalPages && lastPage.meta.page < lastPage.meta.totalPages) {
+        return lastPage.meta.page + 1;
+      }
+      return undefined;
     },
   });
 }
