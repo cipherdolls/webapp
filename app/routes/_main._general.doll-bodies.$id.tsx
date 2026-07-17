@@ -4,10 +4,13 @@ import type { Route } from './+types/_main._general.doll-bodies.$id';
 import { useDollBody } from '~/hooks/queries/dollQueries';
 import { useDeleteDollBody } from '~/hooks/queries/dollBodyMutations';
 import { useUser } from '~/hooks/queries/userQueries';
+import { useAvatar } from '~/hooks/queries/avatarQueries';
+import { useCreateChat } from '~/hooks/queries/chatMutations';
 import { getPicture } from '~/utils/getPicture';
 import { Icons } from '~/components/ui/icons';
 import * as Button from '~/components/ui/button/button';
-import { ROUTES, apiUrl } from '~/constants';
+import * as Modal from '~/components/ui/new-modal';
+import { ROUTES, apiUrl, TOKEN_BALANCE } from '~/constants';
 import ErrorPage from '~/components/ErrorPage';
 import { useAlert, useConfirm } from '~/providers/AlertDialogProvider';
 import { InstallButton } from '~/components/buttons/InstallButton';
@@ -29,6 +32,8 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
   const { mutate: uploadPicture, isPending: isUploading } = useUploadPicture();
   const { mutate: deletePicture, isPending: isDeleting } = useDeletePicture();
   const isAdmin = user?.role === 'ADMIN';
+  // Owners manage their virtual bodies; physical product bodies stay admin-only.
+  const canManage = isAdmin || (!!dollBody?.virtual && user?.id === dollBody?.userId);
   const [activeTab, setActiveTab] = useState<'firmware' | 'configure'>('firmware');
   const pictureInputRef = useRef<HTMLInputElement | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
@@ -36,6 +41,34 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
   const { data: apiKeys } = useApiKeys();
   const hasFirmwares = dollBody?.firmwares && dollBody.firmwares.length > 0;
   const hasApiKey = apiKeys && apiKeys.length > 0;
+  const coverPicture = dollBody?.pictures?.[0];
+
+  // Chat: the body's avatar is the mind; the user picks one of its scenarios.
+  const { data: fullAvatar } = useAvatar(dollBody?.avatar?.id ?? '');
+  const { mutate: createChat, isPending: isCreatingChat } = useCreateChat();
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+
+  const handleStartChat = (scenarioId: string) => {
+    if (!dollBody?.avatar) return;
+    createChat(
+      { avatarId: dollBody.avatar.id, scenarioId },
+      {
+        onSuccess: (newChat) => {
+          setChatModalOpen(false);
+          navigate(`${ROUTES.chats}/${newChat.id}`);
+        },
+        onError: (error: any) => {
+          alert({
+            icon: '💰',
+            title: 'Insufficient Tokens',
+            body:
+              error?.message ||
+              `You need at least ${TOKEN_BALANCE.MINIMUM_SPENDABLE} USDC to start a chat. Please add more tokens to continue.`,
+          });
+        },
+      }
+    );
+  };
 
   const handleDelete = async () => {
     const result = await confirm({
@@ -87,18 +120,25 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
               {dollBody.name}
             </h3>
           </Link>
-          {isAdmin && (
-            <div className='flex items-center gap-3'>
-              <Link to={`${ROUTES.dollBodies}/${dollBody.id}/edit`}>
-                <Button.Root variant='secondary' className='w-[130px]'>
-                  Edit
-                </Button.Root>
-              </Link>
-              <Button.Root type='button' variant='danger' onClick={handleDelete}>
-                <Icons.trash className='w-12' />
+          <div className='flex items-center gap-3'>
+            {dollBody.avatar && (
+              <Button.Root type='button' className='px-5' onClick={() => setChatModalOpen(true)}>
+                Chat
               </Button.Root>
-            </div>
-          )}
+            )}
+            {canManage && (
+              <>
+                <Link to={`${ROUTES.dollBodies}/${dollBody.id}/edit`}>
+                  <Button.Root variant='secondary' className='w-[130px]'>
+                    Edit
+                  </Button.Root>
+                </Link>
+                <Button.Root type='button' variant='danger' onClick={handleDelete}>
+                  <Icons.trash className='w-12' />
+                </Button.Root>
+              </>
+            )}
+          </div>
         </div>
 
         <div className='flex md:flex-row flex-col-reverse gap-5 rounded-xl pb-2.5 md:gap-0 md:divide-x divide-neutral-04'>
@@ -107,6 +147,13 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
               <div className='bg-gradient-1 rounded-xl p-5'>
                 <h4 className='text-heading-h4 text-base-black mb-3'>Description</h4>
                 <p className='text-body-md text-neutral-01 whitespace-pre-wrap'>{dollBody.description}</p>
+              </div>
+            )}
+
+            {dollBody.appearance && (
+              <div className='bg-gradient-1 rounded-xl p-5'>
+                <h4 className='text-heading-h4 text-base-black mb-3'>Appearance</h4>
+                <p className='text-body-md text-neutral-01 whitespace-pre-wrap'>{dollBody.appearance}</p>
               </div>
             )}
 
@@ -235,7 +282,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                       className='size-full object-cover rounded-lg'
                     />
                   </div>
-                ) : dollBody.picture ? (
+                ) : coverPicture ? (
                   <div className='size-full'>
                     <img
                       src={getPicture(dollBody, 'doll-bodies', false)}
@@ -253,7 +300,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                   </div>
                 )}
 
-                {dollBody.picture && !picturePreview && isAdmin && (
+                {coverPicture && !picturePreview && canManage && (
                   <div className='absolute top-2 right-2 flex gap-2'>
                     <button
                       type='button'
@@ -266,11 +313,7 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
                       type='button'
                       className='size-8 flex items-center justify-center rounded-full bg-black/50 hover:bg-specials-danger text-white transition-colors'
                       disabled={isDeleting}
-                      onClick={() => {
-                        if (dollBody.picture && typeof dollBody.picture === 'object') {
-                          deletePicture(dollBody.picture.id);
-                        }
-                      }}
+                      onClick={() => deletePicture(coverPicture.id)}
                     >
                       <Icons.trash className='size-4' />
                     </button>
@@ -318,6 +361,49 @@ export default function DollBodyShow({ params }: Route.ComponentProps) {
           </div>
         </div>
       </div>
+
+      {/* Scenario picker — the body's avatar is the mind; pick the experience. */}
+      <Modal.Root open={chatModalOpen} onOpenChange={setChatModalOpen}>
+        <Modal.Content className='overflow-x-hidden max-sm:p-6' title={`Chat with ${dollBody.avatar?.name ?? dollBody.name}`}>
+          <div className='flex flex-col gap-3 mt-4'>
+            {!fullAvatar ? (
+              <div className='rounded-xl bg-neutral-04 w-full animate-pulse h-16' />
+            ) : (fullAvatar.scenarios?.length ?? 0) === 0 ? (
+              <p className='text-body-md text-neutral-01 text-center py-4'>This avatar has no scenarios yet.</p>
+            ) : (
+              fullAvatar.scenarios!.map((scenario) => {
+                const existingChat = scenario.chats?.[0];
+                return (
+                  <div key={scenario.id} className='flex items-center justify-between gap-4 bg-gradient-1 rounded-xl p-4'>
+                    <div className='flex flex-col min-w-0'>
+                      <span className='text-body-lg font-semibold text-base-black truncate'>{scenario.name}</span>
+                      {scenario.greeting && <span className='text-body-sm text-neutral-01 line-clamp-2'>{scenario.greeting}</span>}
+                    </div>
+                    {existingChat ? (
+                      <Link to={`${ROUTES.chats}/${existingChat.id}`}>
+                        <Button.Root size='sm' className='px-5 whitespace-nowrap'>
+                          Continue Chat
+                        </Button.Root>
+                      </Link>
+                    ) : (
+                      <Button.Root
+                        type='button'
+                        size='sm'
+                        className='px-5 whitespace-nowrap'
+                        disabled={isCreatingChat}
+                        onClick={() => handleStartChat(scenario.id)}
+                      >
+                        Chat
+                      </Button.Root>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </Modal.Content>
+      </Modal.Root>
+
       <Outlet />
     </>
   );

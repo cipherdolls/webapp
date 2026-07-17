@@ -302,7 +302,13 @@ export interface DollBody {
   updatedAt: Date;
   name: string;
   description: string;
-  picture: string;
+  // Visual description used for image generation (virtual bodies carry the look).
+  appearance: string | null;
+  virtual: boolean;
+  ttiStyleId: string | null;
+  userId: string;
+  // Gallery — newest first; the first picture is the cover.
+  pictures?: { id: string; createdAt: Date }[];
   productUrl: string | null;
   avatar: Avatar;
   firmwares?: Firmware[];
